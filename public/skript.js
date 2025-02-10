@@ -21,7 +21,7 @@ function handleSubmit(event) {
 }
 
 function showAdminLogin() {
-    var password = prompt("管理者パスワードを入力してください:");
+    var password = prompt("⚠️管理者パスワードを入力してください:");
     if (password) {
         fetch(`/admin-login?password=${encodeURIComponent(password)}`)
             .then(response => response.json())
@@ -29,7 +29,7 @@ function showAdminLogin() {
                 if (data.success) {
                     window.location.href = "/admin";
                 } else {
-                    alert("パスワードが間違っています。");
+                    alert("⚠️パスワードが間違っています。");
                 }
             });
     }
