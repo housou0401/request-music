@@ -67,9 +67,9 @@
     <div class="container">
         <h1>♬曲をリクエストする</h1>
         <form action="/submit" method="post" onsubmit="handleSubmit(event)">
-            <input type="text" name="response" placeholder="ここにリクエストを入力" required>
+            <input type="text" name="response" placeholder="曲名を入力" required>
             <br>
-            <textarea name="remark" placeholder="備考（任意）" rows="3" style="resize: none;"></textarea>
+            <input type="text" name="artist" placeholder="アーティスト名を入力" required>
             <br>
             <button type="submit">送信</button>
         </form>
