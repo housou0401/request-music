@@ -6,14 +6,14 @@ function handleSubmit(event) {
     var submitButton = document.querySelector('button[type="submit"]');
 
     if (!responseInput.value.trim()) {
-        messageBox.innerText = "入力欄が空です。";
+        messageBox.innerText = "⚠️入力欄が空です。";
         messageBox.style.color = "red";
         return;
     }
 
     submitButton.disabled = true;
     setTimeout(() => { submitButton.disabled = false; }, 10000);
-    messageBox.innerText = "送信が完了しました！";
+    messageBox.innerText = "✅送信が完了しました！";
     messageBox.style.color = "green";
     event.target.submit();
     responseInput.value = "";
