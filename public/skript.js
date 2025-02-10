@@ -13,11 +13,25 @@ function handleSubmit(event) {
 
     submitButton.disabled = true;
     setTimeout(() => { submitButton.disabled = false; }, 10000);
-
-    messageBox.innerHTML = "✅送信が完了しました！<br>リクエストありがとうございました！";
+    messageBox.innerHTML = "✅送信が完了しました！<br>🎵リクエストありがとうございました🎵";
     messageBox.style.color = "green";
-
     event.target.submit();
     responseInput.value = "";
     remarkInput.value = "";
+}
+
+function showAdminLogin() {
+    var password = prompt("⚠️管理者パスワードを入力してください:");
+    if (password !== null) {
+        fetch(`/admin-login?password=${encodeURIComponent(password)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "/admin";
+                } else {
+                    alert("⚠️パスワードが間違っています。");
+                }
+            })
+            .catch(error => console.error("エラー:", error));
+    }
 }
