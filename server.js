@@ -13,12 +13,8 @@ const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
 db.data = db.data || { responses: [], lastSubmissions: {}, songCounts: {} };
-if (!db.data.lastSubmissions) {
-    db.data.lastSubmissions = {};
-}
-if (!db.data.songCounts) {
-    db.data.songCounts = {};
-}
+if (!db.data.lastSubmissions) db.data.lastSubmissions = {};
+if (!db.data.songCounts) db.data.songCounts = {};
 
 // 管理者パスワード
 const ADMIN_PASSWORD = "housou0401";
@@ -32,31 +28,22 @@ const getClientIP = (req) => {
     return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
 };
 
-// フロントページ
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// **iTunes Search API で曲の URL を取得**
-const fetchAppleMusicLink = async (songTitle, artistName) => {
+// **iTunes Search API で正式な曲名 & アーティスト名を取得**
+const fetchAppleMusicInfo = async (songTitle, artistName) => {
     try {
         let query = encodeURIComponent(`${songTitle} ${artistName}`.trim());
-        let url = `https://itunes.apple.com/search?term=${query}&country=JP&media=music&limit=10&lang=ja_jp`;
+        let url = `https://itunes.apple.com/search?term=${query}&country=JP&media=music&limit=1&lang=ja_jp`;
         let response = await fetch(url);
         let data = await response.json();
 
-        // **曲名 & アーティスト名の完全一致を優先**
-        let exactMatch = data.results.find(track => 
-            track.trackName === songTitle && track.artistName === artistName
-        );
-        if (exactMatch) return exactMatch.trackViewUrl;
-
-        // **アーティスト不明なら、曲名が一致する最も人気なものを検索**
-        if (!artistName) {
-            let popularMatch = data.results[0]; // 最も人気の曲を取得
-            return popularMatch ? popularMatch.trackViewUrl : null;
+        if (data.results.length > 0) {
+            const track = data.results[0];
+            return {
+                trackName: track.trackName, // Apple Music の正式な曲名
+                artistName: track.artistName, // Apple Music の正式なアーティスト名
+                trackViewUrl: track.trackViewUrl // Apple Music のリンク
+            };
         }
-
         return null;
     } catch (error) {
         console.error("❌ Apple Music 検索エラー:", error);
@@ -65,9 +52,9 @@ const fetchAppleMusicLink = async (songTitle, artistName) => {
 };
 
 // **リクエスト送信処理**
-app.post("/submit", (req, res) => {
+app.post("/submit", async (req, res) => {
     const responseText = req.body.response?.trim();
-    const artistText = req.body.artist?.trim() || "";  // アーティスト名が未入力でも対応
+    const artistText = req.body.artist?.trim() || "";
     const clientIP = getClientIP(req);
     const currentTime = Date.now();
 
@@ -81,13 +68,31 @@ app.post("/submit", (req, res) => {
         return res.status(429).send("<script>alert('⚠️短時間で同じリクエストを送信できません'); window.location='/';</script>");
     }
 
-    // **曲のリクエスト回数を記録**
-    db.data.songCounts[responseText] = (db.data.songCounts[responseText] || 0) + 1;
+    // **Apple Music で正式な表記を取得**
+    let appleMusicData = await fetchAppleMusicInfo(responseText, artistText);
+    const finalSongTitle = appleMusicData ? appleMusicData.trackName : responseText;
+    const finalArtistName = appleMusicData ? appleMusicData.artistName : artistText;
 
-    // **データ保存**
-    const newEntry = { id: nanoid(), text: responseText, artist: artistText, appleMusicUrl: null };
-    db.data.responses.push(newEntry);
-    db.data.lastSubmissions[clientIP] = { text: responseText, artist: artistText, time: currentTime };
+    // **曲のリクエスト回数を記録**
+    const key = `${finalSongTitle.toLowerCase()}|${finalArtistName.toLowerCase()}`;
+    db.data.songCounts[key] = (db.data.songCounts[key] || 0) + 1;
+
+    // **データ保存（重複リクエストはまとめる）**
+    const existingEntry = db.data.responses.find(entry => entry.text.toLowerCase() === finalSongTitle.toLowerCase() && entry.artist.toLowerCase() === finalArtistName.toLowerCase());
+
+    if (existingEntry) {
+        existingEntry.count = db.data.songCounts[key]; // リクエスト回数更新
+    } else {
+        db.data.responses.push({
+            id: nanoid(),
+            text: finalSongTitle,
+            artist: finalArtistName,
+            appleMusicUrl: appleMusicData ? appleMusicData.trackViewUrl : "🔍検索不可",
+            count: db.data.songCounts[key]
+        });
+    }
+
+    db.data.lastSubmissions[clientIP] = { text: finalSongTitle, artist: finalArtistName, time: currentTime };
     db.write();
 
     res.send("<script>alert('✅送信が完了しました！'); window.location='/';</script>");
@@ -99,34 +104,14 @@ app.get("/admin-login", (req, res) => {
     res.json({ success: password === ADMIN_PASSWORD });
 });
 
-// **管理者ページ (Apple Music のリンク追加)**
+// **管理者ページ (リクエスト一覧を統合 & Apple Music のリンク追加)**
 app.get("/admin", async (req, res) => {
-    let responseList = "<h1>✉アンケート回答一覧</h1><ul>";
+    let responseList = `<h1 style="font-size: 1.5em;">✉アンケート回答一覧</h1><ul style="font-size: 1.2em;">`;
 
     for (let entry of db.data.responses) {
-        let appleMusicUrl = entry.appleMusicUrl;
-
-        // **Apple Music URL が未取得なら検索**
-        if (!appleMusicUrl) {
-            appleMusicUrl = await fetchAppleMusicLink(entry.text, entry.artist);
-
-            // **アーティスト不明の場合、最もリクエストされた曲名を使用**
-            if (!entry.artist) {
-                const mostRequestedSong = Object.entries(db.data.songCounts)
-                    .sort((a, b) => b[1] - a[1])[0]?.[0]; // 最も多い曲を取得
-
-                if (mostRequestedSong) {
-                    appleMusicUrl = await fetchAppleMusicLink(mostRequestedSong, "");
-                }
-            }
-
-            entry.appleMusicUrl = appleMusicUrl || "🔍検索不可";
-            db.write();
-        }
-
         responseList += `<li>
-            ${entry.text} - ${entry.artist || "🎤アーティスト不明"}  
-            ${appleMusicUrl !== "🔍検索不可" ? `<a href="${appleMusicUrl}" target="_blank" style="color:blue;">[🎵 Apple Music]</a>` : "🔍検索不可"}
+            【${entry.count}件】 ${entry.text} - ${entry.artist || "🎤アーティスト不明"}  
+            ${entry.appleMusicUrl !== "🔍検索不可" ? `<a href="${entry.appleMusicUrl}" target="_blank" style="color:blue;">[🎵 Apple Music]</a>` : "🔍検索不可"}
             <a href="/delete/${entry.id}" style="color:red;">[削除]</a>
         </li>`;
     }
