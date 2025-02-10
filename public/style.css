@@ -1,80 +1,25 @@
 body {
+    text-align: center;
     font-family: Arial, sans-serif;
-    background-color: #ffffff;
     margin: 0;
     padding: 0;
 }
-
 .container {
-    width: 90%;
-    max-width: 400px;
+    max-width: 500px;
     margin: 20px auto;
     padding: 20px;
-    border-radius: 10px;
-    background: #f9f9f9;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
 }
-
-h1 {
-    margin-bottom: 15px;
-}
-
-input[type="text"], textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-}
-
 button {
-    padding: 10px;
-    width: 100%;
-    background-color: #007bff;
+    background-color: blue;
     color: white;
+    padding: 10px 20px;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
 }
-
-    button:hover {
-        background-color: #0056b3;
-    }
-
 .admin-button {
     position: absolute;
     top: 10px;
     right: 10px;
-    font-size: 12px;
-    padding: 5px 10px;
-    background-color: #333;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-    .admin-button:hover {
-        background-color: #555;
-    }
-
-#message {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-@media (max-width: 600px) {
-    .container {
-        width: 95%;
-        margin: 10px auto;
-        padding: 15px;
-    }
-
-    button {
-        font-size: 18px;
-        padding: 12px;
-    }
 }
