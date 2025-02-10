@@ -1,9 +1,9 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const { LowSync, JSONFileSync } = require("lowdb");
-const { nanoid } = require("nanoid");
-const path = require("path");
-const fetch = require("node-fetch"); // APIリクエスト用
+import express from "express";
+import bodyParser from "body-parser";
+import { LowSync, JSONFileSync } from "lowdb";
+import { nanoid } from "nanoid";
+import path from "path";
+import fetch from "node-fetch";
 
 const app = express();
 const PORT = 3000;
@@ -34,16 +34,20 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// iTunes Search API で曲の URL を取得する関数
-const fetchAppleMusicLink = async (songTitle) => {
+// iTunes Search API で曲の URL を取得する関数（日本語対応 & 完全一致）
+const fetchAppleMusicLink = async (songTitle, artistName) => {
     try {
-        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(songTitle)}&media=music&limit=1`;
+        const query = encodeURIComponent(`${songTitle} ${artistName}`);
+        const url = `https://itunes.apple.com/search?term=${query}&country=JP&media=music&limit=10&lang=ja_jp`;
         const response = await fetch(url);
         const data = await response.json();
-        if (data.results.length > 0) {
-            return data.results[0].trackViewUrl; // Apple Music の曲リンク
-        }
-        return null;
+
+        // 曲名とアーティスト名が完全一致するものを探す
+        const exactMatch = data.results.find(track => 
+            track.trackName === songTitle && track.artistName === artistName
+        );
+
+        return exactMatch ? exactMatch.trackViewUrl : null;
     } catch (error) {
         console.error("❌ Apple Music 検索エラー:", error);
         return null;
@@ -53,24 +57,24 @@ const fetchAppleMusicLink = async (songTitle) => {
 // リクエスト送信処理
 app.post("/submit", (req, res) => {
     const responseText = req.body.response?.trim();
-    const remarkText = req.body.remark ? req.body.remark.trim() : "";
+    const artistText = req.body.artist?.trim();  // アーティスト名として受け取る
     const clientIP = getClientIP(req);
     const currentTime = Date.now();
 
-    if (!responseText) {
-        return res.status(400).send("⚠️空のリクエストは送信できません。");
+    if (!responseText || !artistText) {
+        return res.status(400).send("⚠️曲名とアーティスト名を入力してください。");
     }
 
     // スパム対策
     const lastSubmission = db.data.lastSubmissions[clientIP];
-    if (lastSubmission && lastSubmission.text === responseText && currentTime - lastSubmission.time < 10000) {
+    if (lastSubmission && lastSubmission.text === responseText && lastSubmission.artist === artistText && currentTime - lastSubmission.time < 10000) {
         return res.status(429).send("<script>alert('⚠️短時間で同じリクエストを送信できません'); window.location='/';</script>");
     }
 
     // データ保存
-    const newEntry = { id: nanoid(), text: responseText, remark: remarkText, appleMusicUrl: null };
+    const newEntry = { id: nanoid(), text: responseText, artist: artistText, appleMusicUrl: null };
     db.data.responses.push(newEntry);
-    db.data.lastSubmissions[clientIP] = { text: responseText, time: currentTime };
+    db.data.lastSubmissions[clientIP] = { text: responseText, artist: artistText, time: currentTime };
     db.write();
 
     res.send("<script>alert('✅送信が完了しました！'); window.location='/';</script>");
@@ -91,22 +95,16 @@ app.get("/admin", async (req, res) => {
 
         // Apple Music URL が未取得なら取得
         if (!appleMusicUrl) {
-            appleMusicUrl = await fetchAppleMusicLink(entry.text);
+            appleMusicUrl = await fetchAppleMusicLink(entry.text, entry.artist);
             entry.appleMusicUrl = appleMusicUrl || "🔍検索不可";
             db.write();
         }
 
         responseList += `<li>
-            ${entry.text} 
+            ${entry.text} - ${entry.artist}  
             ${appleMusicUrl !== "🔍検索不可" ? `<a href="${appleMusicUrl}" target="_blank" style="color:blue;">[🎵 Apple Music]</a>` : "🔍検索不可"}
             <a href="/delete/${entry.id}" style="color:red;">[削除]</a>
-        `;
-
-        if (entry.remark) {
-            responseList += `<br><span style="font-size: 0.8em; margin-left: 1em;">${entry.remark}</span>`;
-        }
-
-        responseList += "</li>";
+        </li>`;
     }
 
     responseList += "</ul><a href='/'>↵戻る</a>";
