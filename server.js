@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const { LowSync, JSONFileSync } = require("lowdb");
 const { nanoid } = require("nanoid");
 const path = require("path");
+const fetch = require("node-fetch"); // APIリクエスト用
 
 const app = express();
 const PORT = 3000;
@@ -33,6 +34,22 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// iTunes Search API で曲の URL を取得する関数
+const fetchAppleMusicLink = async (songTitle) => {
+    try {
+        const url = `https://itunes.apple.com/search?term=${encodeURIComponent(songTitle)}&media=music&limit=1`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.results.length > 0) {
+            return data.results[0].trackViewUrl; // Apple Music の曲リンク
+        }
+        return null;
+    } catch (error) {
+        console.error("❌ Apple Music 検索エラー:", error);
+        return null;
+    }
+};
+
 // リクエスト送信処理
 app.post("/submit", (req, res) => {
     const responseText = req.body.response?.trim();
@@ -51,7 +68,7 @@ app.post("/submit", (req, res) => {
     }
 
     // データ保存
-    const newEntry = { id: nanoid(), text: responseText, remark: remarkText };
+    const newEntry = { id: nanoid(), text: responseText, remark: remarkText, appleMusicUrl: null };
     db.data.responses.push(newEntry);
     db.data.lastSubmissions[clientIP] = { text: responseText, time: currentTime };
     db.write();
@@ -65,16 +82,33 @@ app.get("/admin-login", (req, res) => {
     res.json({ success: password === ADMIN_PASSWORD });
 });
 
-// 管理者ページ
-app.get("/admin", (req, res) => {
+// 管理者ページ (Apple Music のリンク追加)
+app.get("/admin", async (req, res) => {
     let responseList = "<h1>✉アンケート回答一覧</h1><ul>";
-    db.data.responses.forEach(entry => {
-        responseList += `<li>${entry.text} <a href="/delete/${entry.id}" style="color:red;">[削除]</a>`;
+
+    for (let entry of db.data.responses) {
+        let appleMusicUrl = entry.appleMusicUrl;
+
+        // Apple Music URL が未取得なら取得
+        if (!appleMusicUrl) {
+            appleMusicUrl = await fetchAppleMusicLink(entry.text);
+            entry.appleMusicUrl = appleMusicUrl || "🔍検索不可";
+            db.write();
+        }
+
+        responseList += `<li>
+            ${entry.text} 
+            ${appleMusicUrl !== "🔍検索不可" ? `<a href="${appleMusicUrl}" target="_blank" style="color:blue;">[🎵 Apple Music]</a>` : "🔍検索不可"}
+            <a href="/delete/${entry.id}" style="color:red;">[削除]</a>
+        `;
+
         if (entry.remark) {
             responseList += `<br><span style="font-size: 0.8em; margin-left: 1em;">${entry.remark}</span>`;
         }
+
         responseList += "</li>";
-    });
+    }
+
     responseList += "</ul><a href='/'>↵戻る</a>";
     res.send(responseList);
 });
