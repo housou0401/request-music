@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>リクエスト曲</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <script src="skript.js" defer></script>
 </head>
 <body>
     <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
+    
     <div class="container">
         <h1>リクエスト曲</h1>
         <form action="/submit" method="post" onsubmit="handleSubmit(event)">
             <input type="text" name="response" placeholder="ここにリクエストを入力" required>
             <br>
-            <textarea name="remark" placeholder="備考（任意）" rows="3"></textarea>
+            <textarea name="remark" placeholder="備考（任意）" rows="3" style="resize: none;"></textarea>
             <br>
             <button type="submit">送信</button>
         </form>
@@ -22,3 +23,4 @@
     </div>
 </body>
 </html>
+
