@@ -3,16 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>リクエスト曲</title>
+    <title>♬曲をリクエストする</title>
     <link rel="stylesheet" href="style.css">
     <script src="skript.js" defer></script>
     <style>
-        .admin-button {
-            font-size: 10px;
-            padding: 5px;
-            border-radius: 12px;
-        }
-        button[type="submit"] {
+        .admin-button, button[type="submit"] {
             background-color: #cce5ff;
             color: #333;
             border-radius: 20px;
@@ -20,7 +15,7 @@
             border: none;
             cursor: pointer;
         }
-        button[type="submit"]:hover {
+        .admin-button:hover, button[type="submit"]:hover {
             background-color: #b3d7ff;
         }
         .privacy-note {
@@ -47,6 +42,6 @@
         <p id="message"></p>
     </div>
     
-    <p class="privacy-note">※個人情報は収集されません。</p>
+    <p class="privacy-note">個人情報は収集されません。</p>
 </body>
 </html>
