@@ -5,54 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>リクエスト曲</title>
     <link rel="stylesheet" href="style.css">
-    <script>
-        function handleSubmit(event) {
-            event.preventDefault();
-            var responseInput = document.querySelector('input[name="response"]');
-            var remarkInput = document.querySelector('textarea[name="remark"]');
-            var messageBox = document.getElementById("message");
-            var submitButton = document.querySelector('button[type="submit"]');
-
-            console.log("入力値:", responseInput.value); // デバッグ用
-
-            if (!responseInput.value.trim()) {
-                messageBox.innerText = "入力欄が空です。";
-                messageBox.style.color = "red";
-                return;
-            }
-
-            submitButton.disabled = true;
-            setTimeout(function () {
-                submitButton.disabled = false;
-            }, 10000);
-
-            messageBox.innerText = "送信が完了しました！";
-            messageBox.style.color = "green";
-
-            event.target.submit();
-            responseInput.value = "";
-            remarkInput.value = "";
-        }
-
-        function showAdminLogin() {
-            var password = prompt("管理者パスワードを入力してください:");
-            if (password) {
-                fetch(`/admin-login?password=${encodeURIComponent(password)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = "/admin";
-                        } else {
-                            alert("パスワードが間違っています。");
-                        }
-                    });
-            }
-        }
-    </script>
+    <script src="script.js" defer></script>
 </head>
 <body>
     <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
-
     <div class="container">
         <h1>リクエスト曲</h1>
         <form action="/submit" method="post" onsubmit="handleSubmit(event)">
