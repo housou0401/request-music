@@ -6,12 +6,25 @@
     <title>リクエスト曲</title>
     <link rel="stylesheet" href="style.css">
     <script src="skript.js" defer></script>
+    <style>
+        .admin-button {
+            font-size: 10px;
+            padding: 5px;
+        }
+        button[type="submit"] {
+            background-color: #cce5ff;
+            color: #333;
+        }
+        button[type="submit"]:hover {
+            background-color: #b3d7ff;
+        }
+    </style>
 </head>
 <body>
     <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
     
     <div class="container">
-        <h1>リクエスト曲</h1>
+        <h1>♬曲をリクエストする</h1>
         <form action="/submit" method="post" onsubmit="handleSubmit(event)">
             <input type="text" name="response" placeholder="ここにリクエストを入力" required>
             <br>
