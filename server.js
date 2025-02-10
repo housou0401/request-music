@@ -54,7 +54,7 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
 // **リクエスト送信処理**
 app.post("/submit", async (req, res) => {
     const responseText = req.body.response?.trim();
-    const artistText = req.body.artist?.trim() || "";
+    let artistText = req.body.artist?.trim() || "アーティスト不明"; // 未入力なら「アーティスト不明」
     const clientIP = getClientIP(req);
     const currentTime = Date.now();
 
@@ -62,14 +62,8 @@ app.post("/submit", async (req, res) => {
         return res.status(400).send("⚠️曲名を入力してください。");
     }
 
-    // **スパム対策**
-    const lastSubmission = db.data.lastSubmissions[clientIP];
-    if (lastSubmission && lastSubmission.text === responseText && lastSubmission.artist === artistText && currentTime - lastSubmission.time < 10000) {
-        return res.status(429).send("<script>alert('⚠️短時間で同じリクエストを送信できません'); window.location='/';</script>");
-    }
-
     // **Apple Music で正式な表記を取得**
-    let appleMusicData = await fetchAppleMusicInfo(responseText, artistText);
+    let appleMusicData = await fetchAppleMusicInfo(responseText, artistText === "アーティスト不明" ? "" : artistText);
     const finalSongTitle = appleMusicData ? appleMusicData.trackName : responseText;
     const finalArtistName = appleMusicData ? appleMusicData.artistName : artistText;
 
