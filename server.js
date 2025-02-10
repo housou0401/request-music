@@ -41,13 +41,13 @@ app.post("/submit", (req, res) => {
     const currentTime = Date.now();
 
     if (!responseText) {
-        return res.status(400).send("空のリクエストは送信できません。");
+        return res.status(400).send("⚠️空のリクエストは送信できません。");
     }
 
     // スパム対策
     const lastSubmission = db.data.lastSubmissions[clientIP];
     if (lastSubmission && lastSubmission.text === responseText && currentTime - lastSubmission.time < 10000) {
-        return res.status(429).send("<script>alert('短時間で同じリクエストを送信できません'); window.location='/';</script>");
+        return res.status(429).send("<script>alert('⚠️短時間で同じリクエストを送信できません'); window.location='/';</script>");
     }
 
     // データ保存
@@ -56,7 +56,7 @@ app.post("/submit", (req, res) => {
     db.data.lastSubmissions[clientIP] = { text: responseText, time: currentTime };
     db.write();
 
-    res.send("<script>alert('送信が完了しました！'); window.location='/';</script>");
+    res.send("<script>alert('✅送信が完了しました！'); window.location='/';</script>");
 });
 
 // 管理者ログイン
@@ -67,7 +67,7 @@ app.get("/admin-login", (req, res) => {
 
 // 管理者ページ
 app.get("/admin", (req, res) => {
-    let responseList = "<h1>アンケート回答一覧</h1><ul>";
+    let responseList = "<h1>✉アンケート回答一覧</h1><ul>";
     db.data.responses.forEach(entry => {
         responseList += `<li>${entry.text} <a href="/delete/${entry.id}" style="color:red;">[削除]</a>`;
         if (entry.remark) {
@@ -75,7 +75,7 @@ app.get("/admin", (req, res) => {
         }
         responseList += "</li>";
     });
-    responseList += "</ul><a href='/'>戻る</a>";
+    responseList += "</ul><a href='/'>↵戻る</a>";
     res.send(responseList);
 });
 
@@ -89,5 +89,5 @@ app.get("/delete/:id", (req, res) => {
 
 // サーバー起動
 app.listen(PORT, () => {
-    console.log(`サーバーが http://localhost:${PORT} で起動しました`);
+    console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
 });
