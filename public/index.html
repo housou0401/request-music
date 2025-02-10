@@ -14,7 +14,6 @@
             padding: 10px 20px;
             border: none;
             cursor: pointer;
-            display: inline-block;
         }
         .admin-button:hover, button[type="submit"]:hover {
             background-color: #b3d7ff;
@@ -26,20 +25,15 @@
             font-size: 12px;
             color: #aaa;
         }
-        input[name="response"], textarea[name="remark"] {
+        input[type="text"], textarea {
             margin-bottom: 15px;
-            display: block;
-            width: 100%;
-        }
-        h1 {
-            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
     
-    <div>
+    <div class="container">
         <h1>♬曲をリクエストする</h1>
         <form action="/submit" method="post" onsubmit="handleSubmit(event)">
             <input type="text" name="response" placeholder="ここにリクエストを入力" required>
