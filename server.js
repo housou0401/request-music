@@ -12,9 +12,13 @@ const PORT = 3000;
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
-db.data = db.data || { responses: [], lastSubmissions: {}, songCounts: {} };
+db.data = db.data || { responses: [], lastSubmissions: {}, songCounts: {}, settings: {} };
 if (!db.data.lastSubmissions) db.data.lastSubmissions = {};
 if (!db.data.songCounts) db.data.songCounts = {};
+if (!db.data.settings) {
+    db.data.settings = { recruiting: true, reason: "" };
+    db.write();
+}
 
 // 管理者パスワード
 const ADMIN_PASSWORD = "housou0401";
@@ -28,68 +32,148 @@ const getClientIP = (req) => {
     return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
 };
 
-// **iTunes Search API で正式な曲名 & アーティスト名を取得**
+// **Apple Music 検索（精度向上版）**
+// ① 完全一致検索 → ② 曲名のみ検索 → ③ 人気順検索 の順に試行
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
     try {
-        let query = encodeURIComponent(`${songTitle} ${artistName}`.trim());
-        let url = `https://itunes.apple.com/search?term=${query}&country=JP&media=music&limit=1&lang=ja_jp`;
-        let response = await fetch(url);
-        let data = await response.json();
-
-        if (data.results.length > 0) {
-            const track = data.results[0];
-            return {
-                trackName: track.trackName, // Apple Music の正式な曲名
-                artistName: track.artistName, // Apple Music の正式なアーティスト名
-                trackViewUrl: track.trackViewUrl // Apple Music のリンク
-            };
+        let queries = [
+            `${songTitle} ${artistName}`, // 完全一致検索
+            `${songTitle}`,               // 曲名のみ検索
+            `${songTitle}&sort=popularity` // 人気順検索
+        ];
+        for (let query of queries) {
+            let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=10&explicit=no&lang=ja_jp`;
+            let response = await fetch(url);
+            let data = await response.json();
+            if (data.results.length > 0) {
+                // 最大10件の候補を返す
+                return data.results.map(track => ({
+                    trackName: track.trackName,
+                    artistName: track.artistName,
+                    trackViewUrl: track.trackViewUrl,
+                    artworkUrl: track.artworkUrl100
+                }));
+            }
         }
-        return null;
+        return [];
     } catch (error) {
         console.error("❌ Apple Music 検索エラー:", error);
-        return null;
+        return [];
     }
 };
 
+// **/search エンドポイント**
+// 曲名入力に基づいて、近似の曲候補を返す（最大10件）
+app.get("/search", async (req, res) => {
+    const query = req.query.query;
+    if (!query || query.trim().length === 0) {
+        return res.json([]);
+    }
+    const suggestions = await fetchAppleMusicInfo(query.trim(), "");
+    res.json(suggestions);
+});
+
 // **リクエスト送信処理**
+// フロントエンドから送信された曲名およびアーティスト名でリクエストを登録する
 app.post("/submit", async (req, res) => {
-    const responseText = req.body.response?.trim();
-    let artistText = req.body.artist?.trim() || "アーティスト不明"; // 未入力なら「アーティスト不明」
+    // ここでは、ユーザーページ側で選択された曲情報が各入力欄にセットされる前提
+    const responseText = req.body.response?.trim(); // ※必要に応じて送信前に自動設定される処理を追加できますが、ここでは入力内容を利用
+    const artistText = req.body.artist?.trim() || "アーティスト不明";
     const clientIP = getClientIP(req);
     const currentTime = Date.now();
 
     if (!responseText) {
-        return res.status(400).send("⚠️曲名を入力してください。");
+        res.set("Content-Type", "text/html");
+        return res.send(`<!DOCTYPE html>
+<html lang='ja'><head><meta charset='UTF-8'></head>
+<body><script>
+alert('⚠️入力欄が空です。');
+window.location.href='/';
+</script></body></html>`);
     }
 
-    // **Apple Music で正式な表記を取得**
-    let appleMusicData = await fetchAppleMusicInfo(responseText, artistText === "アーティスト不明" ? "" : artistText);
-    const finalSongTitle = appleMusicData ? appleMusicData.trackName : responseText;
-    const finalArtistName = appleMusicData ? appleMusicData.artistName : artistText;
-
-    // **曲のリクエスト回数を記録**
+    const finalSongTitle = responseText;
+    const finalArtistName = artistText;
     const key = `${finalSongTitle.toLowerCase()}|${finalArtistName.toLowerCase()}`;
-    db.data.songCounts[key] = (db.data.songCounts[key] || 0) + 1;
+    if (!db.data.songCounts[key]) {
+        db.data.songCounts[key] = 1;
+    } else {
+        db.data.songCounts[key] += 1;
+    }
 
-    // **データ保存（重複リクエストはまとめる）**
-    const existingEntry = db.data.responses.find(entry => entry.text.toLowerCase() === finalSongTitle.toLowerCase() && entry.artist.toLowerCase() === finalArtistName.toLowerCase());
+    const existingEntry = db.data.responses.find(entry =>
+        entry.text.toLowerCase() === finalSongTitle.toLowerCase() &&
+        entry.artist.toLowerCase() === finalArtistName.toLowerCase()
+    );
 
     if (existingEntry) {
-        existingEntry.count = db.data.songCounts[key]; // リクエスト回数更新
+        existingEntry.count = db.data.songCounts[key];
     } else {
         db.data.responses.push({
             id: nanoid(),
             text: finalSongTitle,
             artist: finalArtistName,
-            appleMusicUrl: appleMusicData ? appleMusicData.trackViewUrl : "🔍検索不可",
-            count: db.data.songCounts[key]
+            appleMusicUrl: "", // ここはフロントエンドで選択された場合にセットするか、または改めてAPI検索してもよい\n      count: 1
         });
     }
 
-    db.data.lastSubmissions[clientIP] = { text: finalSongTitle, artist: finalArtistName, time: currentTime };
     db.write();
+    res.set("Content-Type", "text/html");
+    res.send(`<!DOCTYPE html>
+<html lang='ja'><head><meta charset='UTF-8'></head>
+<body><script>
+alert('✅送信が完了しました！\\nリクエストありがとうございました！');
+window.location.href='/';
+</script></body></html>`);
+});
 
-    res.send("<script>alert('✅送信が完了しました！'); window.location='/';</script>");
+// **管理者ページ（リクエスト一覧＆設定フォーム追加）**
+app.get("/admin", (req, res) => {
+    let responseList = `<!DOCTYPE html>
+<html lang='ja'>
+<head>
+  <meta charset='UTF-8'>
+  <title>管理者ページ</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 10px; }
+    a { text-decoration: none; }
+    a.delete { color: red; margin-left: 10px; }
+    a.apple { color: blue; margin-left: 10px; }
+    h1 { font-size: 1.5em; }
+    form { margin: 20px 0; text-align: left; }\n    textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }\n  </style>\n</head>\n<body>\n`;
+    responseList += `<h1>✉アンケート回答一覧</h1><ul>`;
+    for (let entry of db.data.responses) {
+        responseList += `<li>
+      [${entry.count}件] ${entry.text} - ${entry.artist || "🎤アーティスト不明"}
+      ${entry.appleMusicUrl !== "" ? `<a href="${entry.appleMusicUrl}" target="_blank" class="apple">[🎵 Apple Music]</a>` : "🔍検索不可"}
+      <a href="/delete/${entry.id}" class="delete">[削除]</a>
+    </li>`;
+    }
+    responseList += `</ul>`;
+    // 設定フォーム（募集状態・理由）の追加
+    responseList += `<form action="/update-settings" method="post">
+  <label style="display: block; margin-bottom: 10px;">\n    <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">\n    募集を終了する\n  </label>\n  <label style="display: block; margin-bottom: 10px;">理由:</label>\n  <textarea name="reason" placeholder="理由（任意）" style="width:300px; height:80px; font-size:0.9em; color:black;">${db.data.settings.reason || ""}</textarea>\n  <br>\n  <button type="submit">設定を更新</button>\n</form>`;
+    responseList += `<a href='/'>↵戻る</a>
+</body>
+</html>`;
+    res.set("Content-Type", "text/html");
+    res.send(responseList);
+});
+
+// **リクエスト削除機能**
+app.get("/delete/:id", (req, res) => {
+    const id = req.params.id;
+    db.data.responses = db.data.responses.filter(entry => entry.id !== id);
+    db.write();
+    res.set("Content-Type", "text/html");
+    res.send(`<!DOCTYPE html>
+<html lang='ja'><head><meta charset='UTF-8'></head>
+<body><script>
+alert('🗑️削除しました！');
+window.location.href='/admin';
+</script></body></html>`);
 });
 
 // **管理者ログイン**
@@ -98,28 +182,18 @@ app.get("/admin-login", (req, res) => {
     res.json({ success: password === ADMIN_PASSWORD });
 });
 
-// **管理者ページ (リクエスト一覧を統合 & Apple Music のリンク追加)**
-app.get("/admin", async (req, res) => {
-    let responseList = `<h1 style="font-size: 1.5em;">✉アンケート回答一覧</h1><ul style="font-size: 1.2em;">`;
-
-    for (let entry of db.data.responses) {
-        responseList += `<li>
-            【${entry.count}件】 ${entry.text} - ${entry.artist || "🎤アーティスト不明"}  
-            ${entry.appleMusicUrl !== "🔍検索不可" ? `<a href="${entry.appleMusicUrl}" target="_blank" style="color:blue;">[🎵 Apple Music]</a>` : "🔍検索不可"}
-            <a href="/delete/${entry.id}" style="color:red;">[削除]</a>
-        </li>`;
-    }
-
-    responseList += "</ul><a href='/'>↵戻る</a>";
-    res.send(responseList);
-});
-
-// **回答削除**
-app.get("/delete/:id", (req, res) => {
-    const id = req.params.id;
-    db.data.responses = db.data.responses.filter(entry => entry.id !== id);
+// **設定更新機能**
+app.post("/update-settings", (req, res) => {
+    // チェックボックスが送信されれば募集終了（recruiting を false）、送信されなければ募集中（true）
+    db.data.settings.recruiting = req.body.recruiting ? false : true;
+    db.data.settings.reason = req.body.reason || "";
     db.write();
     res.redirect("/admin");
+});
+
+// **設定取得機能（ユーザーページで利用）**
+app.get("/settings", (req, res) => {
+    res.json(db.data.settings);
 });
 
 // **サーバー起動**

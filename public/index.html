@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>放送委員会</title>
+    <title>♬曲をリクエストする</title>
     <link rel="stylesheet" href="style.css">
     <script src="skript.js" defer></script>
     <style>
+        /* 既存デザインの維持 */
         body {
             display: flex;
             flex-direction: column;
@@ -16,6 +17,7 @@
             margin: 0;
             font-family: Arial, sans-serif;
         }
+
         .admin-button, button[type="submit"] {
             background-color: #cce5ff;
             color: #333;
@@ -24,22 +26,26 @@
             border: none;
             cursor: pointer;
         }
+
         .admin-button {
             background-color: #d3d3d3;
             margin-bottom: 10px;
         }
-        .admin-button:hover, button[type="submit"]:hover {
-            background-color: #b3d7ff;
-        }
+
+            .admin-button:hover, button[type="submit"]:hover {
+                background-color: #b3d7ff;
+            }
+
         .container {
             background: #f9f9f9;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             text-align: center;
             width: 90%;
             max-width: 400px;
         }
+
         .privacy-note {
             position: fixed;
             bottom: 10px;
@@ -47,6 +53,7 @@
             font-size: 12px;
             color: #aaa;
         }
+
         input[type="text"] {
             width: calc(100% - 20px);
             margin-bottom: 15px;
@@ -55,6 +62,46 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
+
+        input[name="artist"]::placeholder {
+            font-size: 12px;
+            color: #aaa;
+        }
+        /* 検索候補リストのスタイル */
+        #suggestions {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+            .suggestion-item:hover {
+                background: rgba(0,0,0,0.05);
+            }
+
+            .suggestion-item img {
+                width: 50px;
+                height: 50px;
+                border-radius: 5px;
+                margin-right: 10px;
+            }
+        /* 選択された曲の表示エリア */
+        #selectedSong {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+
         @media (max-width: 600px) {
             .admin-button {
                 margin-bottom: 5px;
@@ -62,21 +109,39 @@
         }
     </style>
 </head>
-<body>
+<body onload="checkRecruitingStatus()">
     <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
-    
-    <div class="container">
+
+    <div class="container" id="mainContainer">
         <h1>♬曲をリクエストする</h1>
-        <form action="/submit" method="post" onsubmit="handleSubmit(event)">
-            <input type="text" name="response" placeholder="曲名を入力" required>
-            <br>
-            <input type="text" name="artist" placeholder="アーティスト名を入力" required>
-            <br>
+        <!-- 曲名入力欄 -->
+        <input type="text" id="songName" placeholder="曲名を入力してください" oninput="searchSongs()">
+        <!-- アーティスト名入力欄（復元） -->
+        <input type="text" id="artistName" placeholder="アーティスト名を入力してください">
+        <!-- 検索候補表示エリア（アーティスト名入力欄と送信ボタンの間） -->
+        <div id="suggestions"></div>
+        <!-- 選択された曲の表示エリア（視覚的にわかりやすく） -->
+        <div id="selectedSong"></div>
+        <!-- 送信フォーム（hidden フィールドに選択された曲情報を格納） -->
+        <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
+            <!-- ここでは、ユーザーが候補を選択すると、songName と artistName の内容が更新されるので送信時はそのまま利用 -->
             <button type="submit">送信</button>
         </form>
-        <p id="message"></p>
     </div>
-    
+
     <p class="privacy-note">個人情報は収集されません。</p>
-</body>
-</html>
+
+    <script>
+        // 募集状態チェック（募集終了の場合は入力フォームを非表示にし、メッセージと理由を表示）
+        function checkRecruitingStatus() {
+            fetch("/settings")
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.recruiting) {
+                        const container = document.getElementById("mainContainer");
+                        container.innerHTML = "";
+                        const message = document.createElement("div");
+                        message.style.textAlign = "center";
+                        message.style.color = "red";
+                        message.style.fontSize = "1.5em";
+                        message.style.margin
