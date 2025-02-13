@@ -214,17 +214,37 @@ async function syncRequestsToGitHub() {
 }
 
 // 【/sync-requests エンドポイント】
-app.get("/sync-requests", async (req, res) => {
-    try {
-        await syncRequestsToGitHub();
-        // 再読み込みして db.data.responses を更新
-        const fileData = fs.readFileSync("requests.json", "utf8");
-        db.data.responses = JSON.parse(fileData);
-        db.write();
-        res.send("✅ Sync 完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
-    } catch (e) {
-        res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
-    }
+import axios from "axios"; // 既に axios を使用するのでインポートしてください
+
+// /fetch-requests エンドポイント：GitHub 上の requests.json を取得して db.json に上書き保存する
+app.get("/fetch-requests", async (req, res) => {
+  try {
+    // GitHub API で requests.json を取得
+    const getResponse = await axios.get(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
+      {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    );
+    // 取得した Base64 エンコードされたコンテンツをデコード
+    const contentBase64 = getResponse.data.content;
+    const content = Buffer.from(contentBase64, "base64").toString("utf8");
+    const responses = JSON.parse(content);
+
+    // db.json の responses を更新し、保存する
+    db.data.responses = responses;
+    db.write();
+    // また、ローカルの requests.json も更新
+    fs.writeFileSync("requests.json", JSON.stringify(responses, null, 2));
+
+    res.send("✅ Fetch 完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
+  } catch (error) {
+    console.error("❌ Fetch エラー:", error.response ? error.response.data : error.message);
+    res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
+  }
 });
 
 // 【自動更新ジョブ】
@@ -241,7 +261,7 @@ cron.schedule("*/20 * * * *", async () => {
 
 // 【管理者ページ】
 app.get("/admin", (req, res) => {
-    let responseList = `<!DOCTYPE html>
+  let responseList = `<!DOCTYPE html>
 <html lang='ja'>
 <head>
   <meta charset='UTF-8'>
@@ -286,27 +306,42 @@ app.get("/admin", (req, res) => {
       display: block;
       margin-bottom: 10px;
     }
-    /* 管理者用のSyncボタン */
-    .sync-btn {
-      margin-top: 10px;
+    /* 管理者用のボタン */
+    .sync-btn, .fetch-btn {
       padding: 8px 16px;
-      background-color: #28a745;
-      color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 14px;
     }
+    .sync-btn {
+      background-color: #28a745;
+      color: white;
+    }
     .sync-btn:hover {
       background-color: #218838;
+    }
+    .fetch-btn {
+      background-color: #17a2b8;
+      color: white;
+      margin-left: 10px;
+    }
+    .fetch-btn:hover {
+      background-color: #138496;
+    }
+    /* ボタンコンテナ */
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
 <h1>✉アンケート回答一覧</h1>
 <ul>`;
-    for (let entry of db.data.responses) {
-        responseList += `<li>
+  for (let entry of db.data.responses) {
+    responseList += `<li>
       <div class="entry-container">
         <a href="${(entry.appleMusicUrl && entry.appleMusicUrl !== "") ? entry.appleMusicUrl : "#"}" target="_blank" class="entry">
           <div class="count-badge">${entry.count}</div>
@@ -319,9 +354,9 @@ app.get("/admin", (req, res) => {
         <a href="/delete/${entry.id}" class="delete">🗑️</a>
       </div>
     </li>`;
-    }
-    responseList += `</ul>`;
-    responseList += `<form action="/update-settings" method="post">
+  }
+  responseList += `</ul>`;
+  responseList += `<form action="/update-settings" method="post">
   <label style="display: block; margin-bottom: 10px;">
     <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
     募集を終了する
@@ -331,12 +366,16 @@ app.get("/admin", (req, res) => {
   <br>
   <button type="submit">設定を更新</button>
 </form>`;
-    // Syncボタンとその下の戻るリンクを配置
-    responseList += `<button class="sync-btn" onclick="location.href='/sync-requests'">Sync to GitHub</button>`;
-    responseList += `<br><a href='/'>↵戻る</a>`;
-    responseList += `</body></html>`;
-    res.set("Content-Type", "text/html");
-    res.send(responseList);
+  // ボタンコンテナに Sync と Fetch ボタンを横並びに配置
+  responseList += `<div class="button-container">
+    <button class="sync-btn" onclick="location.href='/sync-requests'">Sync to GitHub</button>
+    <button class="fetch-btn" onclick="location.href='/fetch-requests'">Fetch from GitHub</button>
+  </div>`;
+  // その下に戻るリンク
+  responseList += `<br><a href='/'>↵戻る</a>`;
+  responseList += `</body></html>`;
+  res.set("Content-Type", "text/html");
+  res.send(responseList);
 });
 
 // 【リクエスト削除機能】
