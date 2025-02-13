@@ -2,11 +2,29 @@ import express from "express";
 import bodyParser from "body-parser";
 import { LowSync, JSONFileSync } from "lowdb";
 import { nanoid } from "nanoid";
-import path from "path";
 import fetch from "node-fetch";
+import cron from "node-cron";
+import fs from "fs";
+import axios from "axios";
+import dotenv from "dotenv";
+
+// .env ファイルから環境変数をロード
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
+
+// GitHub API 用設定（.env から取得）
+const GITHUB_OWNER = process.env.GITHUB_OWNER; // 例: housou0401
+const REPO_NAME = process.env.REPO_NAME;       // 例: request-musicE
+const FILE_PATH = "requests.json";
+const BRANCH = process.env.GITHUB_BRANCH || "main";
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;  // Personal Access Token
+
+if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
+    console.error("環境変数が正しく設定されていません。");
+    process.exit(1);
+}
 
 // データベース設定
 const adapter = new JSONFileSync("db.json");
@@ -32,27 +50,54 @@ const getClientIP = (req) => {
     return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
 };
 
-// **Apple Music 検索（精度向上版）**
-// ① 完全一致検索 → ② 曲名のみ検索 → ③ 人気順検索 の順に試行
+// 【Apple Music 検索（精度向上版）】
+// 検索方法：① 完全一致検索（引用符付き）、② 曲名とアーティスト名による検索、③ 「official」キーワード付与、④ 部分一致検索
+// 言語判定：韓国語→ko_kr、日本語→ja_jp、英語→en_us
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
     try {
-        let queries = [
-            `${songTitle} ${artistName}`, // 完全一致検索
-            `${songTitle}`,               // 曲名のみ検索
-            `${songTitle}&sort=popularity` // 人気順検索
-        ];
+        const hasKorean = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
+        const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
+        const hasEnglish = /[A-Za-z]/.test(songTitle);
+        let lang = "en_us";
+        if (hasKorean) {
+            lang = "ko_kr";
+        } else if (hasJapanese) {
+            lang = "ja_jp";
+        } else if (hasEnglish) {
+            lang = "en_us";
+        }
+
+        let queries = [];
+        if (artistName && artistName.trim().length > 0) {
+            queries.push(`"${songTitle}" ${artistName}`);
+            queries.push(`${songTitle} ${artistName}`);
+            queries.push(`${songTitle} official ${artistName}`);
+        } else {
+            queries.push(`"${songTitle}"`);
+            queries.push(`${songTitle} official`);
+        }
+        queries.push(songTitle);
+
         for (let query of queries) {
-            let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=10&explicit=no&lang=ja_jp`;
+            let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
             let response = await fetch(url);
             let data = await response.json();
-            if (data.results.length > 0) {
-                // 最大10件の候補を返す
-                return data.results.map(track => ({
-                    trackName: track.trackName,
-                    artistName: track.artistName,
-                    trackViewUrl: track.trackViewUrl,
-                    artworkUrl: track.artworkUrl100
-                }));
+            if (data.results && data.results.length > 0) {
+                const uniqueResults = [];
+                const seen = new Set();
+                for (let track of data.results) {
+                    const key = (track.trackName + "|" + track.artistName).toLowerCase();
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniqueResults.push({
+                            trackName: track.trackName,
+                            artistName: track.artistName,
+                            trackViewUrl: track.trackViewUrl,
+                            artworkUrl: track.artworkUrl100
+                        });
+                    }
+                }
+                if (uniqueResults.length > 0) return uniqueResults;
             }
         }
         return [];
@@ -62,8 +107,7 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     }
 };
 
-// **/search エンドポイント**
-// 曲名入力に基づいて、近似の曲候補を返す（最大10件）
+// 【/search エンドポイント】
 app.get("/search", async (req, res) => {
     const query = req.query.query;
     if (!query || query.trim().length === 0) {
@@ -73,14 +117,10 @@ app.get("/search", async (req, res) => {
     res.json(suggestions);
 });
 
-// **リクエスト送信処理**
-// フロントエンドから送信された曲名およびアーティスト名でリクエストを登録する
+// 【リクエスト送信処理】
 app.post("/submit", async (req, res) => {
-    // ここでは、ユーザーページ側で選択された曲情報が各入力欄にセットされる前提
-    const responseText = req.body.response?.trim(); // ※必要に応じて送信前に自動設定される処理を追加できますが、ここでは入力内容を利用
+    const responseText = req.body.response?.trim();
     const artistText = req.body.artist?.trim() || "アーティスト不明";
-    const clientIP = getClientIP(req);
-    const currentTime = Date.now();
 
     if (!responseText) {
         res.set("Content-Type", "text/html");
@@ -100,12 +140,10 @@ window.location.href='/';
     } else {
         db.data.songCounts[key] += 1;
     }
-
     const existingEntry = db.data.responses.find(entry =>
         entry.text.toLowerCase() === finalSongTitle.toLowerCase() &&
         entry.artist.toLowerCase() === finalArtistName.toLowerCase()
     );
-
     if (existingEntry) {
         existingEntry.count = db.data.songCounts[key];
     } else {
@@ -113,11 +151,16 @@ window.location.href='/';
             id: nanoid(),
             text: finalSongTitle,
             artist: finalArtistName,
-            appleMusicUrl: "", // ここはフロントエンドで選択された場合にセットするか、または改めてAPI検索してもよい\n      count: 1
+            appleMusicUrl: req.body.appleMusicUrl || "",
+            artworkUrl: req.body.artworkUrl || "",
+            count: 1
         });
     }
-
     db.write();
+
+    // db.json の responses を requests.json に保存
+    fs.writeFileSync("requests.json", JSON.stringify(db.data.responses, null, 2));
+
     res.set("Content-Type", "text/html");
     res.send(`<!DOCTYPE html>
 <html lang='ja'><head><meta charset='UTF-8'></head>
@@ -127,7 +170,76 @@ window.location.href='/';
 </script></body></html>`);
 });
 
-// **管理者ページ（リクエスト一覧＆設定フォーム追加）**
+// 【GitHub API を利用した同期関数】
+async function syncRequestsToGitHub() {
+    try {
+        const localContent = JSON.stringify(db.data.responses, null, 2);
+        fs.writeFileSync("requests.json", localContent);
+
+        // GitHub 上の requests.json の情報を取得
+        const getResponse = await axios.get(
+            `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
+            {
+                headers: {
+                    Authorization: `token ${GITHUB_TOKEN}`,
+                    Accept: "application/vnd.github.v3+json"
+                }
+            }
+        );
+        const sha = getResponse.data.sha;
+        const contentEncoded = Buffer.from(localContent).toString("base64");
+
+        // GitHub にアップロード（更新）
+        const putResponse = await axios.put(
+            `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
+            {
+                message: "Sync requests.json",
+                content: contentEncoded,
+                branch: BRANCH,
+                sha: sha
+            },
+            {
+                headers: {
+                    Authorization: `token ${GITHUB_TOKEN}`,
+                    Accept: "application/vnd.github.v3+json"
+                }
+            }
+        );
+        console.log("✅ Sync 完了:", putResponse.data);
+        return putResponse.data;
+    } catch (error) {
+        console.error("❌ Sync エラー:", error.response ? error.response.data : error.message);
+        throw error;
+    }
+}
+
+// 【/sync-requests エンドポイント】
+app.get("/sync-requests", async (req, res) => {
+    try {
+        await syncRequestsToGitHub();
+        // 再読み込みして db.data.responses を更新
+        const fileData = fs.readFileSync("requests.json", "utf8");
+        db.data.responses = JSON.parse(fileData);
+        db.write();
+        res.send("✅ Sync 完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
+    } catch (e) {
+        res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
+    }
+});
+
+// 【自動更新ジョブ】
+// 20分ごとに同期を実行
+cron.schedule("*/20 * * * *", async () => {
+    console.log("自動更新ジョブ開始: db.json の内容を requests.json に保存して GitHub にアップロードします。");
+    try {
+        await syncRequestsToGitHub();
+        console.log("自動更新完了");
+    } catch (e) {
+        console.error("自動更新エラー:", e);
+    }
+});
+
+// 【管理者ページ】
 app.get("/admin", (req, res) => {
     let responseList = `<!DOCTYPE html>
 <html lang='ja'>
@@ -135,38 +247,104 @@ app.get("/admin", (req, res) => {
   <meta charset='UTF-8'>
   <title>管理者ページ</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    ul { list-style: none; padding: 0; }
     li { margin-bottom: 10px; }
-    a { text-decoration: none; }
-    a.delete { color: red; margin-left: 10px; }
-    a.apple { color: blue; margin-left: 10px; }
-    h1 { font-size: 1.5em; }
-    form { margin: 20px 0; text-align: left; }\n    textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }\n  </style>\n</head>\n<body>\n`;
-    responseList += `<h1>✉アンケート回答一覧</h1><ul>`;
+    .entry-container { position: relative; display: inline-block; }
+    .entry {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.1);
+      padding: 10px;
+      border-radius: 10px;
+      width: fit-content;
+    }
+    .entry:hover { background-color: rgba(0,0,0,0.05); }
+    .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
+    .delete {
+      position: absolute;
+      left: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      color: red;
+      text-decoration: none;
+    }
+    .count-badge {
+      background-color: #ff6b6b;
+      color: white;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    h1 { font-size: 1.5em; margin-bottom: 20px; }
+    form { margin: 20px 0; text-align: left; }
+    textarea {
+      width: 300px;
+      height: 80px;
+      font-size: 0.9em;
+      color: black;
+      display: block;
+      margin-bottom: 10px;
+    }
+    /* 管理者用のSyncボタン */
+    .sync-btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .sync-btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+<h1>✉アンケート回答一覧</h1>
+<ul>`;
     for (let entry of db.data.responses) {
         responseList += `<li>
-      [${entry.count}件] ${entry.text} - ${entry.artist || "🎤アーティスト不明"}
-      ${entry.appleMusicUrl !== "" ? `<a href="${entry.appleMusicUrl}" target="_blank" class="apple">[🎵 Apple Music]</a>` : "🔍検索不可"}
-      <a href="/delete/${entry.id}" class="delete">[削除]</a>
+      <div class="entry-container">
+        <a href="${(entry.appleMusicUrl && entry.appleMusicUrl !== "") ? entry.appleMusicUrl : "#"}" target="_blank" class="entry">
+          <div class="count-badge">${entry.count}</div>
+          <img src="${entry.artworkUrl}" alt="Cover">
+          <div>
+            <strong>${entry.text}</strong><br>
+            <small>${entry.artist || "🎤アーティスト不明"}</small>
+          </div>
+        </a>
+        <a href="/delete/${entry.id}" class="delete">🗑️</a>
+      </div>
     </li>`;
     }
     responseList += `</ul>`;
-    // 設定フォーム（募集状態・理由）の追加
     responseList += `<form action="/update-settings" method="post">
-  <label style="display: block; margin-bottom: 10px;">\n    <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">\n    募集を終了する\n  </label>\n  <label style="display: block; margin-bottom: 10px;">理由:</label>\n  <textarea name="reason" placeholder="理由（任意）" style="width:300px; height:80px; font-size:0.9em; color:black;">${db.data.settings.reason || ""}</textarea>\n  <br>\n  <button type="submit">設定を更新</button>\n</form>`;
-    responseList += `<a href='/'>↵戻る</a>
-</body>
-</html>`;
+  <label style="display: block; margin-bottom: 10px;">
+    <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+    募集を終了する
+  </label>
+  <label style="display: block; margin-bottom: 10px;">理由:</label>
+  <textarea name="reason" placeholder="理由（任意）" style="width:300px; height:80px; font-size:0.9em; color:black;">${db.data.settings.reason || ""}</textarea>
+  <br>
+  <button type="submit">設定を更新</button>
+</form>`;
+    // Syncボタンとその下の戻るリンクを配置
+    responseList += `<button class="sync-btn" onclick="location.href='/sync-requests'">Sync to GitHub</button>`;
+    responseList += `<br><a href='/'>↵戻る</a>`;
+    responseList += `</body></html>`;
     res.set("Content-Type", "text/html");
     res.send(responseList);
 });
 
-// **リクエスト削除機能**
+// 【リクエスト削除機能】
 app.get("/delete/:id", (req, res) => {
     const id = req.params.id;
     db.data.responses = db.data.responses.filter(entry => entry.id !== id);
     db.write();
+    fs.writeFileSync("requests.json", JSON.stringify(db.data.responses, null, 2));
     res.set("Content-Type", "text/html");
     res.send(`<!DOCTYPE html>
 <html lang='ja'><head><meta charset='UTF-8'></head>
@@ -176,27 +354,38 @@ window.location.href='/admin';
 </script></body></html>`);
 });
 
-// **管理者ログイン**
+// 【管理者ログイン】
 app.get("/admin-login", (req, res) => {
     const { password } = req.query;
     res.json({ success: password === ADMIN_PASSWORD });
 });
 
-// **設定更新機能**
+// 【設定更新機能】
 app.post("/update-settings", (req, res) => {
-    // チェックボックスが送信されれば募集終了（recruiting を false）、送信されなければ募集中（true）
     db.data.settings.recruiting = req.body.recruiting ? false : true;
     db.data.settings.reason = req.body.reason || "";
     db.write();
     res.redirect("/admin");
 });
 
-// **設定取得機能（ユーザーページで利用）**
+// 【設定取得機能（ユーザーページで利用）】
 app.get("/settings", (req, res) => {
     res.json(db.data.settings);
 });
 
-// **サーバー起動**
+// ---------- 自動更新ジョブ ----------
+// 20分ごとに db.json の responses を requests.json に保存して GitHub にアップロードする（GitHub API を使用）
+cron.schedule("*/20 * * * *", async () => {
+    console.log("自動更新ジョブ開始: db.json の内容を requests.json に保存して GitHub にアップロードします。");
+    try {
+        await syncRequestsToGitHub();
+        console.log("自動更新完了");
+    } catch (e) {
+        console.error("自動更新エラー:", e);
+    }
+});
+
+// ---------- サーバー起動 ----------
 app.listen(PORT, () => {
     console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
 });
