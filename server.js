@@ -63,21 +63,19 @@ const getClientIP = (req) => {
 // 【Apple Music 検索】
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
-    // 入力された曲名に応じた言語コード（iTunes API では大文字小文字が重要）
-    let lang = "en_US";
+    // 言語判定（※今回の検索URLには使用しません）
+    let lang = "en_us";
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
     if (hasKorean) {
-      lang = "ko_KR";
+      lang = "ko_kr";
     } else if (hasJapanese) {
-      lang = "ja_JP";
-    } else {
-      lang = "en_US";
+      lang = "ja_jp";
     }
     
-    // 検索候補のクエリ。まずシンプルな曲名で検索し、続いて他の形式も試す
+    // 検索候補のクエリを組み立てる
     let queries = [];
-    queries.push(songTitle); // プレーンな曲名を最初に試す
+    queries.push(songTitle); // シンプルな曲名で検索
     if (artistName && artistName.trim().length > 0) {
       queries.push(`${songTitle} ${artistName}`);
       queries.push(`"${songTitle}" ${artistName}`);
@@ -87,38 +85,48 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
       queries.push(`"${songTitle}"`);
     }
     
+    // ※lang パラメータは削除しています
     for (let query of queries) {
-      let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
-      // デバッグ用：console.log("Fetching URL:", url);
-      let response = await fetch(url);
-      
-      // レスポンスのテキストを取得し、空でなければJSONにパース
+      let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no`;
+      console.log("Fetching URL:", url);
+      let response = await fetch(url, {
+        headers: {
+          // 一部のAPIではUser-Agentが必要な場合があります
+          'User-Agent': 'Mozilla/5.0'
+        }
+      });
+      if (!response.ok) {
+         console.error("Response not OK:", response.status, response.statusText);
+         continue;
+      }
       const text = await response.text();
-      if (!text) continue;
+      if (!text) {
+         console.error("Empty response for URL:", url);
+         continue;
+      }
       let data;
       try {
-        data = JSON.parse(text);
+         data = JSON.parse(text);
       } catch (error) {
-        console.error("JSON parse error in fetchAppleMusicInfo:", error);
-        continue;
+         console.error("JSON parse error in fetchAppleMusicInfo:", error);
+         continue;
       }
-      
       if (data.results && data.results.length > 0) {
-        const uniqueResults = [];
-        const seen = new Set();
-        for (let track of data.results) {
-          const key = (track.trackName + "|" + track.artistName).toLowerCase();
-          if (!seen.has(key)) {
-            seen.add(key);
-            uniqueResults.push({
-              trackName: track.trackName,
-              artistName: track.artistName,
-              trackViewUrl: track.trackViewUrl,
-              artworkUrl: track.artworkUrl100
-            });
-          }
-        }
-        if (uniqueResults.length > 0) return uniqueResults;
+         const uniqueResults = [];
+         const seen = new Set();
+         for (let track of data.results) {
+           const key = (track.trackName + "|" + track.artistName).toLowerCase();
+           if (!seen.has(key)) {
+             seen.add(key);
+             uniqueResults.push({
+               trackName: track.trackName,
+               artistName: track.artistName,
+               trackViewUrl: track.trackViewUrl,
+               artworkUrl: track.artworkUrl100
+             });
+           }
+         }
+         if (uniqueResults.length > 0) return uniqueResults;
       }
     }
     return [];
