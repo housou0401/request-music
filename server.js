@@ -17,7 +17,7 @@ const PORT = 3000;
 // Render の Environment Variables を利用
 const GITHUB_OWNER = process.env.GITHUB_OWNER; // 例: "housou0401"
 const REPO_NAME = process.env.REPO_NAME;         // 例: "request-musicE"
-const FILE_PATH = "db.json"; // リモート保存先ファイル
+const FILE_PATH = "db.json"; // リモート保存先ファイル（db.json全体を同期）
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;  // Personal Access Token
 
@@ -30,8 +30,8 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
+// 初期化：存在しない場合はデフォルト構造をセット
 db.data = db.data || { responses: [], lastSubmissions: {}, songCounts: {}, settings: {} };
-// 初期化：settings に frontendTitle と adminPassword がない場合は追加
 if (!db.data.lastSubmissions) db.data.lastSubmissions = {};
 if (!db.data.songCounts) db.data.songCounts = {};
 if (!db.data.settings) {
@@ -47,14 +47,14 @@ if (!db.data.settings) {
   db.write();
 }
 
-// 管理者パスワード（今後は db.data.settings.adminPassword を使用）
+// 管理者パスワードは db.data.settings.adminPassword を利用
 const ADMIN_PASSWORD = db.data.settings.adminPassword;
 
 // ミドルウェア
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// クライアントのIP取得（必要に応じて）
+// クライアントのIP取得（必要なら）
 const getClientIP = (req) => {
   return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
 };
@@ -165,8 +165,8 @@ window.location.href='/';
   }
   db.write();
 
-  // 保存時は responses 部分のみ { "responses": [...] } の形式で保存
-  const localContent = JSON.stringify({ responses: db.data.responses }, null, 2);
+  // 保存時は db.data 全体を JSON 形式で保存
+  const localContent = JSON.stringify(db.data, null, 2);
   fs.writeFileSync("db.json", localContent);
 
   res.set("Content-Type", "text/html");
@@ -179,10 +179,10 @@ window.location.href='/';
 });
 
 // 【GitHub API を利用した同期関数】
-// リモートの db.json を { "responses": [...] } の形式でアップロードする
+// リモートの db.json をそのままアップロードする（形式は db.data の全体）
 async function syncRequestsToGitHub() {
   try {
-    const localContent = JSON.stringify({ responses: db.data.responses }, null, 2);
+    const localContent = JSON.stringify(db.data, null, 2);
     let sha;
     try {
       const getResponse = await axios.get(
@@ -243,7 +243,7 @@ app.get("/sync-requests", async (req, res) => {
 });
 
 // 【/fetch-requests エンドポイント】
-// GitHub 上の db.json を取得し、responses 部分をローカルの db.json に上書き保存する
+// GitHub 上の db.json を取得し、ローカルの db.json（db.data）に上書き保存する
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
@@ -258,9 +258,9 @@ app.get("/fetch-requests", async (req, res) => {
     const contentBase64 = getResponse.data.content;
     const content = Buffer.from(contentBase64, "base64").toString("utf8");
     const fetchedData = JSON.parse(content);
-    db.data.responses = fetchedData.responses || [];
+    db.data = fetchedData; // db全体を上書き
     db.write();
-    fs.writeFileSync("db.json", JSON.stringify({ responses: db.data.responses }, null, 2));
+    fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
     res.send("✅ Fetch 完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
   } catch (error) {
     console.error("❌ Fetch エラー:", error.response ? error.response.data : error.message);
@@ -402,7 +402,7 @@ app.get("/admin", (req, res) => {
   </div>
   <div class="setting-field">
     <label>管理者パスワード:</label><br>
-    <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding: 10px; font-size:0.9em;">
+    <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px; font-size:0.9em;">
   </div>
   <br>
   <button type="submit">設定を更新</button>
@@ -471,7 +471,7 @@ app.get("/delete/:id", (req, res) => {
   const id = req.params.id;
   db.data.responses = db.data.responses.filter(entry => entry.id !== id);
   db.write();
-  fs.writeFileSync("db.json", JSON.stringify({ responses: db.data.responses }, null, 2));
+  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
   res.set("Content-Type", "text/html");
   res.send(`<!DOCTYPE html>
 <html lang='ja'><head><meta charset='UTF-8'></head>
@@ -493,12 +493,12 @@ app.post("/update-settings", (req, res) => {
   db.data.settings.recruiting = req.body.recruiting ? false : true;
   db.data.settings.reason = req.body.reason || "";
   db.data.settings.frontendTitle = req.body.frontendTitle || "♬曲をリクエストする";
-  // 更新された管理者パスワードが入力されていれば更新
   if (req.body.adminPassword && req.body.adminPassword.trim().length > 0) {
     db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
   db.write();
-  res.redirect("/admin");
+  // 更新完了後、設定完了のメッセージを表示
+  res.send("設定を完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
 });
 
 // 【設定取得機能（ユーザーフォーム用）】
@@ -507,9 +507,9 @@ app.get("/settings", (req, res) => {
 });
 
 // ---------- 自動更新ジョブ ----------
-// 20分ごとに db.json の responses を GitHub にアップロードする
+// 20分ごとに db.json 全体を GitHub にアップロードする
 cron.schedule("*/20 * * * *", async () => {
-  console.log("自動更新ジョブ開始: db.json の responses を GitHub にアップロードします。");
+  console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
     await syncRequestsToGitHub();
     console.log("自動更新完了");
