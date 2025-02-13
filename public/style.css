@@ -1,4 +1,4 @@
-/* Šù‘¶‚ÌƒfƒUƒCƒ“‚ğˆÛ */
+/* æ—¢å­˜ã®ãƒ‡ã‚¶ã‚¤ãƒ³ã‚’ç¶­æŒ */
 body {
     font-family: Arial, sans-serif;
     background-color: #ffffff;
@@ -41,9 +41,9 @@ button {
     font-size: 16px;
 }
 
-    button:hover {
-        background-color: #0056b3;
-    }
+button:hover {
+    background-color: #0056b3;
+}
 
 .admin-button {
     background-color: #d3d3d3;
@@ -58,16 +58,16 @@ button {
     font-size: 14px;
 }
 
-    .admin-button:hover {
-        background-color: #555;
-    }
+.admin-button:hover {
+    background-color: #555;
+}
 
 .privacy-note {
     margin-top: 10px;
     font-weight: bold;
 }
 
-/* ‹ß—‹ÈŒó•âƒŠƒXƒg‚ÌƒXƒ^ƒCƒ‹ */
+/* è¿‘ä¼¼æ›²å€™è£œãƒªã‚¹ãƒˆã®ã‚¹ã‚¿ã‚¤ãƒ« */
 #suggestions {
     margin-top: 10px;
     max-height: 200px;
@@ -85,25 +85,25 @@ button {
     transition: background 0.3s;
 }
 
-    .suggestion-item:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-    }
+.suggestion-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
 
-    .suggestion-item img {
-        width: 50px;
-        height: 50px;
-        border-radius: 5px;
-        margin-right: 10px;
-    }
+.suggestion-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
 
-/* ‘I‘ğ‚³‚ê‚½‹È‚Ì•\¦ */
+/* é¸æŠã•ã‚ŒãŸæ›²ã®è¡¨ç¤º */
 .selected-item {
-    margin-bottom: 10px; /* ‘—Mƒ{ƒ^ƒ“‚Æ‚ÌŠÔŠu‚ğŠm•Û */
+    margin-bottom: 10px; /* é€ä¿¡ãƒœã‚¿ãƒ³ã¨ã®é–“éš”ã‚’ç¢ºä¿ */
     font-weight: bold;
     text-align: center;
 }
 
-/* ‘I‘ğ‰ğœƒ{ƒ^ƒ“i~j */
+/* é¸æŠè§£é™¤ãƒœã‚¿ãƒ³ï¼ˆÃ—ï¼‰ */
 .clear-btn {
     width: 24px;
     height: 24px;
@@ -120,11 +120,11 @@ button {
     transition: background-color 0.2s ease;
 }
 
-    .clear-btn:hover {
-        background-color: lightgray;
-    }
+.clear-btn:hover {
+    background-color: lightgray;
+}
 
-/* ŠÇ—Òƒy[ƒW—pFƒJƒEƒ“ƒgƒoƒbƒW */
+/* ç®¡ç†è€…ãƒšãƒ¼ã‚¸ç”¨ï¼šã‚«ã‚¦ãƒ³ãƒˆãƒãƒƒã‚¸ */
 .count-badge {
     background-color: #ff6b6b;
     color: white;
@@ -140,7 +140,6 @@ button {
         margin: 10px auto;
         padding: 15px;
     }
-
     button {
         font-size: 18px;
         padding: 12px;
