@@ -17,7 +17,7 @@ const PORT = 3000;
 // Render の Environment Variables を利用
 const GITHUB_OWNER = process.env.GITHUB_OWNER; // 例: "housou0401"
 const REPO_NAME = process.env.REPO_NAME;         // 例: "request-musicE"
-const FILE_PATH = "db.json"; // リモート保存先ファイル
+const FILE_PATH = "db.json"; // リモート保存先ファイル（db.json 全体）
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;  // Personal Access Token
 
@@ -26,7 +26,7 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// データベース設定（lowdb用の db.json は responses などを含む）
+// データベース設定（lowdb用の db.json は responses 等を含む）
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -55,12 +55,12 @@ if (!db.data.settings) {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// クライアントのIP取得（必要なら）
+// クライアントのIP取得（必要に応じて）
 const getClientIP = (req) => {
   return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
 };
 
-// 【Apple Music 検索（精度向上版）】
+// 【Apple Music 検索】
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
@@ -87,7 +87,7 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     queries.push(songTitle);
     
     for (let query of queries) {
-      let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
+      let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no`;
       let response = await fetch(url);
       let data = await response.json();
       if (data.results && data.results.length > 0) {
@@ -118,9 +118,7 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
 // 【/search エンドポイント】
 app.get("/search", async (req, res) => {
   const query = req.query.query;
-  if (!query || query.trim().length === 0) {
-    return res.json([]);
-  }
+  if (!query || query.trim().length === 0) return res.json([]);
   const suggestions = await fetchAppleMusicInfo(query.trim(), "");
   res.json(suggestions);
 });
@@ -129,17 +127,15 @@ app.get("/search", async (req, res) => {
 app.post("/submit", async (req, res) => {
   const responseText = req.body.response?.trim();
   const artistText = req.body.artist?.trim() || "アーティスト不明";
-
   if (!responseText) {
     res.set("Content-Type", "text/html");
     return res.send(`<!DOCTYPE html>
-<html lang='ja'><head><meta charset='UTF-8'></head>
+<html lang="ja"><head><meta charset="UTF-8"></head>
 <body><script>
-alert('⚠️入力欄が空です。');
-window.location.href='/';
+alert("⚠️入力欄が空です。");
+window.location.href="/";
 </script></body></html>`);
   }
-
   const finalSongTitle = responseText;
   const finalArtistName = artistText;
   const key = `${finalSongTitle.toLowerCase()}|${finalArtistName.toLowerCase()}`;
@@ -165,22 +161,20 @@ window.location.href='/';
     });
   }
   db.write();
-
-  // db.json 全体を JSON 形式で保存
+  // 保存時は db.data 全体を JSON 形式で保存
   const localContent = JSON.stringify(db.data, null, 2);
   fs.writeFileSync("db.json", localContent);
-
   res.set("Content-Type", "text/html");
   res.send(`<!DOCTYPE html>
-<html lang='ja'><head><meta charset='UTF-8'></head>
+<html lang="ja"><head><meta charset="UTF-8"></head>
 <body><script>
-alert('✅送信が完了しました！\\nリクエストありがとうございました！');
-window.location.href='/';
+alert("✅送信が完了しました！\\nリクエストありがとうございました！");
+window.location.href="/";
 </script></body></html>`);
 });
 
 // 【GitHub API を利用した同期関数】
-// リモートの db.json をそのままアップロードする（形式は db.data 全体）
+// db.json 全体をそのままアップロードする
 async function syncRequestsToGitHub() {
   try {
     const localContent = JSON.stringify(db.data, null, 2);
@@ -204,7 +198,6 @@ async function syncRequestsToGitHub() {
         throw err;
       }
     }
-    
     const contentEncoded = Buffer.from(localContent).toString("base64");
     const putData = {
       message: "Sync db.json",
@@ -233,18 +226,22 @@ async function syncRequestsToGitHub() {
 }
 
 // 【/sync-requests エンドポイント】
-// 管理者画面の「GitHubに同期」ボタンから呼び出し、同期完了後に管理者画面へリダイレクト
+// 管理者画面の「GitHubに同期」ボタン押下時、同期完了後に管理者画面へ自動リダイレクト
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
-    res.redirect("/admin");
+    res.send(`<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
+<body>
+<p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p>
+</body></html>`);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
   }
 });
 
 // 【/fetch-requests エンドポイント】
-// GitHub 上の db.json を取得し、ローカルの db.json（db.data）に上書き保存、完了後に管理者画面へリダイレクト
+// GitHub 上の db.json を取得し、ローカルに上書き保存後、管理者画面へ自動リダイレクト
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
@@ -258,11 +255,14 @@ app.get("/fetch-requests", async (req, res) => {
     );
     const contentBase64 = getResponse.data.content;
     const content = Buffer.from(contentBase64, "base64").toString("utf8");
-    const fetchedData = JSON.parse(content);
-    db.data = fetchedData;
+    db.data = JSON.parse(content);
     db.write();
     fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
-    res.redirect("/admin");
+    res.send(`<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
+<body>
+<p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p>
+</body></html>`);
   } catch (error) {
     console.error("❌ Fetch エラー:", error.response ? error.response.data : error.message);
     res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
@@ -272,9 +272,9 @@ app.get("/fetch-requests", async (req, res) => {
 // 【管理者ページ】
 app.get("/admin", (req, res) => {
   let responseList = `<!DOCTYPE html>
-<html lang='ja'>
+<html lang="ja">
 <head>
-  <meta charset='UTF-8'>
+  <meta charset="UTF-8">
   <title>管理者ページ</title>
   <style>
     li { margin-bottom: 10px; }
@@ -322,11 +322,11 @@ app.get("/admin", (req, res) => {
     }
     /* 管理者用のボタン */
     .sync-btn, .fetch-btn {
-      padding: 8px 16px;
+      padding: 12px 20px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 16px;
     }
     .sync-btn {
       background-color: #28a745;
@@ -363,6 +363,31 @@ app.get("/admin", (req, res) => {
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+    /* 選択中ラベル */
+    .selected-label {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 5px;
+      text-align: left;
+    }
+    /* スマートフォン・PC対応 */
+    @media (max-width: 600px) {
+      .container, form, textarea, input[type="text"] {
+        width: 95%;
+      }
+      .sync-btn, .fetch-btn {
+        font-size: 14px;
+        padding: 10px 16px;
+      }
+    }
+    /* テキストボックスの自動拡大を抑制 */
+    input, textarea {
+      -webkit-text-size-adjust: 100%;
+    }
+    /* 過剰スクロール防止 */
+    html, body {
+      overscroll-behavior: contain;
     }
   </style>
 </head>
@@ -406,7 +431,7 @@ app.get("/admin", (req, res) => {
     <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px; font-size:0.9em;">
   </div>
   <br>
-  <button type="submit">設定を更新</button>
+  <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
 </form>`;
   // ボタンコンテナ：Sync と Fetch ボタン、左寄せ＋ローディングスピナー
   responseList += `<div class="button-container">
@@ -414,6 +439,8 @@ app.get("/admin", (req, res) => {
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>`;
+  // 選択中ラベル（例：選択中の楽曲表示の上に小さく表示）
+  responseList += `<div style="text-align:left; width:300px; font-size:12px; color:#555;">選択中</div>`;
   // 戻るリンクはボタンコンテナの下
   responseList += `<br><a href='/'>↵戻る</a>`;
   responseList += `
@@ -427,7 +454,8 @@ app.get("/admin", (req, res) => {
       fetch("/sync-requests")
         .then(response => response.text())
         .then(data => {
-          window.location.href = "/admin";
+          // ページ更新時に分かりやすくメッセージ表示（自動リダイレクト）
+          document.body.innerHTML = data;
         })
         .catch(err => {
           alert("エラー: " + err);
@@ -445,7 +473,7 @@ app.get("/admin", (req, res) => {
       fetch("/fetch-requests")
         .then(response => response.text())
         .then(data => {
-          window.location.href = "/admin";
+          document.body.innerHTML = data;
         })
         .catch(err => {
           alert("エラー: " + err);
@@ -469,10 +497,10 @@ app.get("/delete/:id", (req, res) => {
   fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
   res.set("Content-Type", "text/html");
   res.send(`<!DOCTYPE html>
-<html lang='ja'><head><meta charset='UTF-8'></head>
+<html lang="ja"><head><meta charset="UTF-8"></head>
 <body><script>
-alert('🗑️削除しました！');
-window.location.href='/admin';
+alert("🗑️削除しました！");
+window.location.href="/admin";
 </script></body></html>`);
 });
 
@@ -491,8 +519,12 @@ app.post("/update-settings", (req, res) => {
     db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
   db.write();
-  // 更新完了後、設定完了のメッセージを表示して管理者画面へリダイレクト
-  res.send("設定を完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
+  // 更新完了後、設定完了のメッセージを表示して管理者画面へ自動リダイレクト（3秒後）
+  res.send(`<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
+<body>
+<p style="font-size:18px; color:green;">設定を完了しました。</p>
+</body></html>`);
 });
 
 // 【設定取得機能（ユーザーフォーム用）】
