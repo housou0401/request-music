@@ -214,9 +214,6 @@ async function syncRequestsToGitHub() {
 }
 
 // 【/sync-requests エンドポイント】
-import axios from "axios"; // 既に axios を使用するのでインポートしてください
-
-// /fetch-requests エンドポイント：GitHub 上の requests.json を取得して db.json に上書き保存する
 app.get("/fetch-requests", async (req, res) => {
   try {
     // GitHub API で requests.json を取得
