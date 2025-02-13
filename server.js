@@ -17,7 +17,7 @@ const PORT = 3000;
 // GitHub API 用設定（環境変数で設定してください）
 const GITHUB_OWNER = process.env.GITHUB_OWNER; // 例: "your-github-username"
 const REPO_NAME = process.env.REPO_NAME;         // 例: "your-repository-name"
-const FILE_PATH = "requests.json";
+const FILE_PATH = "db.json";
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;    // Personal Access Token
 
@@ -172,7 +172,7 @@ async function syncRequestsToGitHub() {
   try {
     // ローカルの requests.json の内容を取得
     const localContent = JSON.stringify(db.data.responses, null, 2);
-    fs.writeFileSync("requests.json", localContent);
+    fs.writeFileSync("db.json", localContent);
 
     // GitHub 上の requests.json の情報を取得
     const getResponse = await axios.get(
@@ -193,7 +193,7 @@ async function syncRequestsToGitHub() {
     const putResponse = await axios.put(
       `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
       {
-        message: "Sync requests.json",
+        message: "Sync db.json",
         content: contentEncoded,
         branch: BRANCH,
         sha: sha
@@ -376,7 +376,7 @@ app.get("/settings", (req, res) => {
 
 // ---------- 自動更新ジョブ ----------
 // 20分ごとに db.json の responses を requests.json に保存して GitHub にアップロードする（GitHub API を使用）
-cron.schedule("*/20 * * * *", async () => {
+cron.schedule("*/10 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json の内容を requests.json に保存して GitHub にアップロードします。");
   try {
     await syncRequestsToGitHub();
