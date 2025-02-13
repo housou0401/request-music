@@ -160,7 +160,7 @@ window.location.href='/';
   }
   db.write();
 
-  // db.json の responses 部分のみを { responses: [...] } 形式で保存
+  // 保存時は responses 部分のみ { "responses": [...] } の形式で保存
   const localContent = JSON.stringify({ responses: db.data.responses }, null, 2);
   fs.writeFileSync("db.json", localContent);
 
@@ -178,7 +178,6 @@ window.location.href='/';
 async function syncRequestsToGitHub() {
   try {
     const localContent = JSON.stringify({ responses: db.data.responses }, null, 2);
-    // GitHub 上の db.json を取得（存在しない場合は新規作成）
     let sha;
     try {
       const getResponse = await axios.get(
@@ -228,7 +227,7 @@ async function syncRequestsToGitHub() {
 }
 
 // 【/sync-requests エンドポイント】
-// 管理者画面の「GitHubに同期」ボタンから呼び出し、リモートの db.json を更新する
+// 管理者画面の「GitHubに同期」ボタンから呼び出し
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
@@ -344,6 +343,21 @@ app.get("/admin", (req, res) => {
       justify-content: flex-start;
       margin-bottom: 10px;
     }
+    /* ローディングスピナー */
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin-left: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -365,7 +379,7 @@ app.get("/admin", (req, res) => {
     </li>`;
   }
   responseList += `</ul>`;
-  // 設定フォーム：募集状態、理由、さらにフロントエンドタイトルを更新
+  // 設定フォーム：募集状態、理由、フロントエンドタイトル
   responseList += `<form action="/update-settings" method="post">
   <div class="setting-field">
     <label>
@@ -384,13 +398,60 @@ app.get("/admin", (req, res) => {
   <br>
   <button type="submit">設定を更新</button>
 </form>`;
-  // ボタンコンテナに Sync と Fetch ボタンを横並びに配置（左寄せ）
+  // ボタンコンテナ：Sync と Fetch ボタン、横並び（左寄せ）＋ローディングスピナー
   responseList += `<div class="button-container">
-    <button class="sync-btn" onclick="location.href='/sync-requests'">GitHubに同期</button>
-    <button class="fetch-btn" onclick="location.href='/fetch-requests'">GitHubから取得</button>
+    <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
+    <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
+    <div class="spinner" id="loadingSpinner"></div>
   </div>`;
-  // その下に戻るリンク
+  // 戻るリンクはボタンコンテナの下
   responseList += `<br><a href='/'>↵戻る</a>`;
+  responseList += `
+  <script>
+    function syncToGitHub() {
+      const syncBtn = document.getElementById("syncBtn");
+      const fetchBtn = document.getElementById("fetchBtn");
+      syncBtn.disabled = true;
+      fetchBtn.disabled = true;
+      document.getElementById("loadingSpinner").style.display = "block";
+      fetch("/sync-requests")
+        .then(response => response.text())
+        .then(data => {
+          alert(data);
+          document.getElementById("loadingSpinner").style.display = "none";
+          syncBtn.disabled = false;
+          fetchBtn.disabled = false;
+        })
+        .catch(err => {
+          alert("エラー: " + err);
+          document.getElementById("loadingSpinner").style.display = "none";
+          syncBtn.disabled = false;
+          fetchBtn.disabled = false;
+        });
+    }
+    function fetchFromGitHub() {
+      const syncBtn = document.getElementById("syncBtn");
+      const fetchBtn = document.getElementById("fetchBtn");
+      syncBtn.disabled = true;
+      fetchBtn.disabled = true;
+      document.getElementById("loadingSpinner").style.display = "block";
+      fetch("/fetch-requests")
+        .then(response => response.text())
+        .then(data => {
+          alert(data);
+          document.getElementById("loadingSpinner").style.display = "none";
+          syncBtn.disabled = false;
+          fetchBtn.disabled = false;
+        })
+        .catch(err => {
+          alert("エラー: " + err);
+          document.getElementById("loadingSpinner").style.display = "none";
+          syncBtn.disabled = false;
+          fetchBtn.disabled = false;
+        });
+    }
+  </script>
+  `;
   responseList += `</body></html>`;
   res.set("Content-Type", "text/html");
   res.send(responseList);
