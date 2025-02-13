@@ -170,33 +170,50 @@ window.location.href='/';
 // 【GitHub API を利用した同期関数】
 async function syncRequestsToGitHub() {
   try {
-    // ローカルの requests.json の内容を取得
+    // db.json のデータを取得し、responses がない場合は空配列を設定
+    if (!db.data.responses) {
+      db.data.responses = [];
+    }
+
     const localContent = JSON.stringify(db.data.responses, null, 2);
-    fs.writeFileSync("db.json", localContent);
+    fs.writeFileSync(FILE_PATH, localContent);
+    console.log(`✅ ${FILE_PATH} にローカルデータを保存しました`);
 
-    // GitHub 上の requests.json の情報を取得
-    const getResponse = await axios.get(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
-      {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3+json"
+    let sha = null;
+
+    // GitHub 上の db.json の SHA を取得
+    try {
+      const getResponse = await axios.get(
+        `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
+        {
+          headers: {
+            Authorization: `token ${GITHUB_TOKEN}`,
+            Accept: "application/vnd.github.v3+json"
+          }
         }
+      );
+      sha = getResponse.data.sha;
+      console.log("✅ 既存の SHA を取得:", sha);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        console.log("⚠️ GitHub にファイルが存在しません。新規作成します。");
+      } else {
+        console.error("❌ SHA 取得エラー:", error.response ? error.response.data : error.message);
+        throw error;
       }
-    );
-    const sha = getResponse.data.sha;
+    }
 
-    // Base64 エンコードしたコンテンツを用意
+    // Base64 エンコード
     const contentEncoded = Buffer.from(localContent).toString("base64");
 
-    // ファイルを GitHub にアップロード（更新）
+    // GitHub にアップロード（更新または作成）
     const putResponse = await axios.put(
       `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
       {
         message: "Sync db.json",
         content: contentEncoded,
         branch: BRANCH,
-        sha: sha
+        ...(sha ? { sha } : {}) // sha がある場合のみ追加（新規作成時は不要）
       },
       {
         headers: {
@@ -205,7 +222,8 @@ async function syncRequestsToGitHub() {
         }
       }
     );
-    console.log("✅ Sync 完了:", putResponse.data);
+
+    console.log("✅ GitHub への同期完了:", putResponse.data);
     return putResponse.data;
   } catch (error) {
     console.error("❌ Sync エラー:", error.response ? error.response.data : error.message);
@@ -230,7 +248,7 @@ app.get("/sync-requests", async (req, res) => {
 
 // 【自動更新ジョブ】
 // 20分ごとに同期を実行
-cron.schedule("*/20 * * * *", async () => {
+cron.schedule("*/10 * * *", async () => {
   console.log("自動更新ジョブ開始: db.json の内容を requests.json に保存して GitHub にアップロードします。");
   try {
     await syncRequestsToGitHub();
