@@ -376,7 +376,7 @@ app.get("/settings", (req, res) => {
 
 // ---------- 自動更新ジョブ ----------
 // 20分ごとに db.json の responses を requests.json に保存して GitHub にアップロードする（GitHub API を使用）
-cron.schedule("*/20 * * * *", async () => {
+cron.schedule("*/30 * * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json の内容をGitHub上の db.json にアップロードします。");
   try {
     await syncRequestsToGitHub();
