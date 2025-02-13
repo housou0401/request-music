@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="skript.js" defer></script>
   <style>
-    /* 以下はページ独自のスタイル */
+    /* ページ独自のスタイル */
     body {
       display: flex;
       flex-direction: column;
@@ -19,7 +19,7 @@
       position: relative;
     }
     .admin-button {
-      position: absolute; /* 右上に固定 */
+      position: absolute;
       top: 10px;
       right: 10px;
       background-color: #d3d3d3;
@@ -57,17 +57,13 @@
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
 
   <div class="container" id="mainContainer">
-    <!-- フロントエンドタイトルは /settings から取得して更新 -->
+    <!-- フロントエンドタイトルは /settings から取得 -->
     <h1 id="frontendTitle">♬曲をリクエストする</h1>
     <!-- 送信フォーム -->
     <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
-      <!-- 曲名入力欄 -->
       <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
-      <!-- 近似曲候補リスト -->
       <div id="suggestions"></div>
-      <!-- 選択された曲の表示 -->
       <div id="selectedSong"></div>
-      <!-- 隠しフィールド（Apple Music から取得したデータ） -->
       <input type="hidden" id="artistHidden" name="artist">
       <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
       <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
