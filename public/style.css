@@ -1,3 +1,4 @@
+/* 既存のデザインを維持 */
 html, body {
   overscroll-behavior: contain;
   -webkit-text-size-adjust: 100%;
@@ -102,10 +103,10 @@ button:hover {
 
 /* 選択された曲の表示 */
 .selected-item {
-  margin-bottom: 10px;
+  margin-bottom: 10px; /* 送信ボタンとの間隔 */
   font-weight: bold;
   text-align: center;
-  background: #f0f0f0;
+  background: #f0f0f0; /* 控えめな背景 */
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 10px;
