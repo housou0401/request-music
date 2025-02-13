@@ -55,6 +55,7 @@
 </head>
 <body onload="checkRecruitingStatus(); updateFrontendTitle();">
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
+
   <div class="container" id="mainContainer">
     <!-- フロントエンドタイトルは /settings から取得 -->
     <h1 id="frontendTitle">♬曲をリクエストする</h1>
@@ -69,7 +70,9 @@
       <button type="submit">送信</button>
     </form>
   </div>
+
   <p class="privacy-note">個人情報は収集されません。</p>
+
   <script>
     // 募集状態チェック
     function checkRecruitingStatus() {
@@ -79,32 +82,20 @@
           if (!data.recruiting) {
             const container = document.getElementById("mainContainer");
             container.innerHTML = "";
-            // メンテナンスモードの場合、理由の代わりに表示内容を切替え
-            let msg = "現在は曲を募集していません";
-            if (data.maintenance) {
-              msg = "🔧メンテナンス中";
-            }
             const message = document.createElement("div");
             message.style.textAlign = "center";
             message.style.color = "red";
             message.style.fontSize = "1.5em";
             message.style.margin = "20px 0";
-            message.innerText = msg;
+            message.innerText = "現在は曲を募集していません";
             container.appendChild(message);
             if (data.reason && data.reason.trim() !== "") {
-              let extra = data.reason;
-              // 日付モードの場合、表示形式を変更
-              if (data.startDate && data.endDate && data.instagram === false) {
-                extra = `${data.startDate}～${data.endDate}`;
-              } else if (data.instagram) {
-                extra = "復旧したらInstagramにて告知します！";
-              }
               const reason = document.createElement("div");
               reason.style.textAlign = "center";
               reason.style.color = "black";
               reason.style.fontSize = "1.2em";
               reason.style.margin = "10px 0";
-              reason.innerText = extra;
+              reason.innerText = data.reason;
               container.appendChild(reason);
             }
           }
