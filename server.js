@@ -440,7 +440,7 @@ app.get("/admin", (req, res) => {
     <div class="spinner" id="loadingSpinner"></div>
   </div>`;
   // 選択中ラベル（例：選択中の楽曲表示の上に小さく表示）
-  responseList += `<div style="text-align:left; width:300px; font-size:12px; color:#555;">選択中</div>`;
+  responseList += `<div style="text-align:left; width:300px; font-size:12px; color:#555;"></div>`;
   // 戻るリンクはボタンコンテナの下
   responseList += `<br><a href='/'>↵戻る</a>`;
   responseList += `
