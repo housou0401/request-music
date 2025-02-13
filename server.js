@@ -31,25 +31,30 @@ const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
 db.data = db.data || { responses: [], lastSubmissions: {}, songCounts: {}, settings: {} };
-// 初期化：settings に frontendTitle がない場合は追加
+// 初期化：settings に frontendTitle と adminPassword がない場合は追加
 if (!db.data.lastSubmissions) db.data.lastSubmissions = {};
 if (!db.data.songCounts) db.data.songCounts = {};
 if (!db.data.settings) {
-  db.data.settings = { recruiting: true, reason: "", frontendTitle: "♬曲をリクエストする" };
+  db.data.settings = { recruiting: true, reason: "", frontendTitle: "♬曲をリクエストする", adminPassword: "housou0401" };
   db.write();
-} else if (db.data.settings.frontendTitle === undefined) {
-  db.data.settings.frontendTitle = "♬曲をリクエストする";
+} else {
+  if (db.data.settings.frontendTitle === undefined) {
+    db.data.settings.frontendTitle = "♬曲をリクエストする";
+  }
+  if (db.data.settings.adminPassword === undefined) {
+    db.data.settings.adminPassword = "housou0401";
+  }
   db.write();
 }
 
-// 管理者パスワード
-const ADMIN_PASSWORD = "housou0401";
+// 管理者パスワード（今後は db.data.settings.adminPassword を使用）
+const ADMIN_PASSWORD = db.data.settings.adminPassword;
 
 // ミドルウェア
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// クライアントのIP取得（必要なら）
+// クライアントのIP取得（必要に応じて）
 const getClientIP = (req) => {
   return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
 };
@@ -379,7 +384,7 @@ app.get("/admin", (req, res) => {
     </li>`;
   }
   responseList += `</ul>`;
-  // 設定フォーム：募集状態、理由、フロントエンドタイトル
+  // 設定フォーム：募集状態、理由、フロントエンドタイトル、管理者パスワード変更
   responseList += `<form action="/update-settings" method="post">
   <div class="setting-field">
     <label>
@@ -395,10 +400,14 @@ app.get("/admin", (req, res) => {
     <label>フロントエンドタイトル:</label><br>
     <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル" style="width:300px; height:60px; font-size:0.9em; color:black;">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
   </div>
+  <div class="setting-field">
+    <label>管理者パスワード:</label><br>
+    <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding: 10px; font-size:0.9em;">
+  </div>
   <br>
   <button type="submit">設定を更新</button>
 </form>`;
-  // ボタンコンテナ：Sync と Fetch ボタン、横並び（左寄せ）＋ローディングスピナー
+  // ボタンコンテナ：Sync と Fetch ボタン、左寄せ＋ローディングスピナー
   responseList += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
@@ -475,7 +484,8 @@ window.location.href='/admin';
 // 【管理者ログイン】
 app.get("/admin-login", (req, res) => {
   const { password } = req.query;
-  res.json({ success: password === ADMIN_PASSWORD });
+  // 管理者パスワードは db.data.settings.adminPassword を使用
+  res.json({ success: password === db.data.settings.adminPassword });
 });
 
 // 【設定更新機能】
@@ -483,11 +493,15 @@ app.post("/update-settings", (req, res) => {
   db.data.settings.recruiting = req.body.recruiting ? false : true;
   db.data.settings.reason = req.body.reason || "";
   db.data.settings.frontendTitle = req.body.frontendTitle || "♬曲をリクエストする";
+  // 更新された管理者パスワードが入力されていれば更新
+  if (req.body.adminPassword && req.body.adminPassword.trim().length > 0) {
+    db.data.settings.adminPassword = req.body.adminPassword.trim();
+  }
   db.write();
   res.redirect("/admin");
 });
 
-// 【設定取得機能（ユーザーページで利用）】
+// 【設定取得機能（ユーザーフォーム用）】
 app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
