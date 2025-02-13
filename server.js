@@ -14,10 +14,10 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Render 環境などで設定した環境変数を使用
+// Render の Environment Variables を利用
 const GITHUB_OWNER = process.env.GITHUB_OWNER; // 例: "housou0401"
 const REPO_NAME = process.env.REPO_NAME;         // 例: "request-musicE"
-const FILE_PATH = "db.json"; // リモート保存先ファイル（responses 部分のみ保存）
+const FILE_PATH = "db.json"; // リモート保存先ファイル
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;  // Personal Access Token
 
@@ -26,16 +26,19 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// データベース設定（ローカル用 db.json は lowdb 用の完全なデータを保持）
+// データベース設定（lowdb用の db.json は responses などを含む）
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
-// 既存の db.json が空の場合、初期構造を設定
 db.data = db.data || { responses: [], lastSubmissions: {}, songCounts: {}, settings: {} };
+// 初期化：settings に frontendTitle がない場合は追加
 if (!db.data.lastSubmissions) db.data.lastSubmissions = {};
 if (!db.data.songCounts) db.data.songCounts = {};
 if (!db.data.settings) {
-  db.data.settings = { recruiting: true, reason: "" };
+  db.data.settings = { recruiting: true, reason: "", frontendTitle: "♬曲をリクエストする" };
+  db.write();
+} else if (db.data.settings.frontendTitle === undefined) {
+  db.data.settings.frontendTitle = "♬曲をリクエストする";
   db.write();
 }
 
@@ -46,20 +49,18 @@ const ADMIN_PASSWORD = "housou0401";
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// クライアントのIP取得（未使用の場合もあります）
+// クライアントのIP取得（必要なら）
 const getClientIP = (req) => {
   return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
 };
 
 // 【Apple Music 検索（精度向上版）】
-// 検索方法：① 完全一致検索（引用符付き）、② 曲名とアーティスト名による検索、③ 「official」キーワード付与、④ 部分一致検索
-// 言語判定：韓国語→ ko_kr, 日本語→ ja_jp, 英語→ en_us
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
     const hasEnglish  = /[A-Za-z]/.test(songTitle);
-    let lang = "en_us";
+    let lang = "en_us"; // デフォルトはアメリカ英語
     if (hasKorean) {
       lang = "ko_kr";
     } else if (hasJapanese) {
@@ -159,7 +160,7 @@ window.location.href='/';
   }
   db.write();
 
-  // db.json の responses 部分を更新するため、リモートに保存する内容は { responses: [...] } となる
+  // db.json の responses 部分のみを { responses: [...] } 形式で保存
   const localContent = JSON.stringify({ responses: db.data.responses }, null, 2);
   fs.writeFileSync("db.json", localContent);
 
@@ -177,8 +178,7 @@ window.location.href='/';
 async function syncRequestsToGitHub() {
   try {
     const localContent = JSON.stringify({ responses: db.data.responses }, null, 2);
-    // ローカルの db.json（低速DB用）はすでに更新済み（上記 submit で書き出している）
-    // GitHub 上の db.json の情報を取得
+    // GitHub 上の db.json を取得（存在しない場合は新規作成）
     let sha;
     try {
       const getResponse = await axios.get(
@@ -228,11 +228,10 @@ async function syncRequestsToGitHub() {
 }
 
 // 【/sync-requests エンドポイント】
-// 管理者画面の「Sync to GitHub」ボタンから呼び出し、リモートの db.json を更新する
+// 管理者画面の「GitHubに同期」ボタンから呼び出し、リモートの db.json を更新する
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
-    // （必要に応じて）リモートから取得して responses を再設定
     res.send("✅ Sync 完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
@@ -255,10 +254,8 @@ app.get("/fetch-requests", async (req, res) => {
     const contentBase64 = getResponse.data.content;
     const content = Buffer.from(contentBase64, "base64").toString("utf8");
     const fetchedData = JSON.parse(content);
-    // fetchedData は { responses: [...] } の形式
     db.data.responses = fetchedData.responses || [];
     db.write();
-    // また、ローカルの db.json も更新
     fs.writeFileSync("db.json", JSON.stringify({ responses: db.data.responses }, null, 2));
     res.send("✅ Fetch 完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
   } catch (error) {
@@ -314,6 +311,10 @@ app.get("/admin", (req, res) => {
       display: block;
       margin-bottom: 10px;
     }
+    /* 管理者用の設定フォーム内フィールド */
+    .setting-field {
+      margin-bottom: 10px;
+    }
     /* 管理者用のボタン */
     .sync-btn, .fetch-btn {
       padding: 8px 16px;
@@ -337,10 +338,10 @@ app.get("/admin", (req, res) => {
     .fetch-btn:hover {
       background-color: #138496;
     }
-    /* ボタンコンテナ */
+    /* ボタンコンテナを左寄せ */
     .button-container {
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       margin-bottom: 10px;
     }
   </style>
@@ -364,20 +365,29 @@ app.get("/admin", (req, res) => {
     </li>`;
   }
   responseList += `</ul>`;
+  // 設定フォーム：募集状態、理由、さらにフロントエンドタイトルを更新
   responseList += `<form action="/update-settings" method="post">
-  <label style="display: block; margin-bottom: 10px;">
-    <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
-    募集を終了する
-  </label>
-  <label style="display: block; margin-bottom: 10px;">理由:</label>
-  <textarea name="reason" placeholder="理由（任意）" style="width:300px; height:80px; font-size:0.9em; color:black;">${db.data.settings.reason || ""}</textarea>
+  <div class="setting-field">
+    <label>
+      <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+      募集を終了する
+    </label>
+  </div>
+  <div class="setting-field">
+    <label>理由:</label><br>
+    <textarea name="reason" placeholder="理由（任意）" style="width:300px; height:80px; font-size:0.9em; color:black;">${db.data.settings.reason || ""}</textarea>
+  </div>
+  <div class="setting-field">
+    <label>フロントエンドタイトル:</label><br>
+    <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル" style="width:300px; height:60px; font-size:0.9em; color:black;">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
+  </div>
   <br>
   <button type="submit">設定を更新</button>
 </form>`;
-  // ボタンコンテナに Sync と Fetch ボタンを横並びに配置
+  // ボタンコンテナに Sync と Fetch ボタンを横並びに配置（左寄せ）
   responseList += `<div class="button-container">
-    <button class="sync-btn" onclick="location.href='/sync-requests'">Sync to GitHub</button>
-    <button class="fetch-btn" onclick="location.href='/fetch-requests'">Fetch from GitHub</button>
+    <button class="sync-btn" onclick="location.href='/sync-requests'">GitHubに同期</button>
+    <button class="fetch-btn" onclick="location.href='/fetch-requests'">GitHubから取得</button>
   </div>`;
   // その下に戻るリンク
   responseList += `<br><a href='/'>↵戻る</a>`;
@@ -411,6 +421,7 @@ app.get("/admin-login", (req, res) => {
 app.post("/update-settings", (req, res) => {
   db.data.settings.recruiting = req.body.recruiting ? false : true;
   db.data.settings.reason = req.body.reason || "";
+  db.data.settings.frontendTitle = req.body.frontendTitle || "♬曲をリクエストする";
   db.write();
   res.redirect("/admin");
 });
