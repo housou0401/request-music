@@ -1,1 +1,15 @@
-[]
+{
+  "responses": [
+    {
+      "id": "G1DThmEsRaN20_zrmW2sM",
+      "text": "テスト",
+      "remark": "ああ"
+    }
+  ],
+  "lastSubmissions": {
+    "::1": {
+      "text": "テスト",
+      "time": 1739193756863
+    }
+  }
+}
