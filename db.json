@@ -1,8 +1,18 @@
 {
-  "responses": [],
+  "responses": [
+    {
+      "id": "rfnauyuqThz6RuhBT2qWR",
+      "text": "1%の革命前夜",
+      "artist": "Losstime Life",
+      "appleMusicUrl": "https://music.apple.com/jp/album/1-%E3%81%AE%E9%9D%A9%E5%91%BD%E5%89%8D%E5%A4%9C/1538942014?i=1538942947&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ee/75/84/ee7584ef-80dd-bad5-7db6-7523532ad13b/859756298991_cover.png/100x100bb.jpg",
+      "count": 1
+    }
+  ],
   "lastSubmissions": {},
   "songCounts": {
-    "シャルル|バルーン": 1
+    "シャルル|バルーン": 1,
+    "1%の革命前夜|losstime life": 1
   },
   "settings": {
     "recruiting": true,
