@@ -17,7 +17,7 @@ const PORT = 3000;
 // Render の Environment Variables を利用
 const GITHUB_OWNER = process.env.GITHUB_OWNER; // 例: "housou0401"
 const REPO_NAME = process.env.REPO_NAME;         // 例: "request-musicE"
-const FILE_PATH = "db.json"; // リモート保存先ファイル（db.json全体を同期）
+const FILE_PATH = "db.json"; // リモート保存先ファイル
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;  // Personal Access Token
 
@@ -30,12 +30,16 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
-// 初期化：存在しない場合はデフォルト構造をセット
 db.data = db.data || { responses: [], lastSubmissions: {}, songCounts: {}, settings: {} };
 if (!db.data.lastSubmissions) db.data.lastSubmissions = {};
 if (!db.data.songCounts) db.data.songCounts = {};
 if (!db.data.settings) {
-  db.data.settings = { recruiting: true, reason: "", frontendTitle: "♬曲をリクエストする", adminPassword: "housou0401" };
+  db.data.settings = {
+    recruiting: true,
+    reason: "",
+    frontendTitle: "♬曲をリクエストする",
+    adminPassword: "housou0401"
+  };
   db.write();
 } else {
   if (db.data.settings.frontendTitle === undefined) {
@@ -46,9 +50,6 @@ if (!db.data.settings) {
   }
   db.write();
 }
-
-// 管理者パスワードは db.data.settings.adminPassword を利用
-const ADMIN_PASSWORD = db.data.settings.adminPassword;
 
 // ミドルウェア
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -65,7 +66,7 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
     const hasEnglish  = /[A-Za-z]/.test(songTitle);
-    let lang = "en_us"; // デフォルトはアメリカ英語
+    let lang = "en_us";
     if (hasKorean) {
       lang = "ko_kr";
     } else if (hasJapanese) {
@@ -165,7 +166,7 @@ window.location.href='/';
   }
   db.write();
 
-  // 保存時は db.data 全体を JSON 形式で保存
+  // db.json 全体を JSON 形式で保存
   const localContent = JSON.stringify(db.data, null, 2);
   fs.writeFileSync("db.json", localContent);
 
@@ -179,7 +180,7 @@ window.location.href='/';
 });
 
 // 【GitHub API を利用した同期関数】
-// リモートの db.json をそのままアップロードする（形式は db.data の全体）
+// リモートの db.json をそのままアップロードする（形式は db.data 全体）
 async function syncRequestsToGitHub() {
   try {
     const localContent = JSON.stringify(db.data, null, 2);
@@ -232,18 +233,18 @@ async function syncRequestsToGitHub() {
 }
 
 // 【/sync-requests エンドポイント】
-// 管理者画面の「GitHubに同期」ボタンから呼び出し
+// 管理者画面の「GitHubに同期」ボタンから呼び出し、同期完了後に管理者画面へリダイレクト
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
-    res.send("✅ Sync 完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
+    res.redirect("/admin");
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
   }
 });
 
 // 【/fetch-requests エンドポイント】
-// GitHub 上の db.json を取得し、ローカルの db.json（db.data）に上書き保存する
+// GitHub 上の db.json を取得し、ローカルの db.json（db.data）に上書き保存、完了後に管理者画面へリダイレクト
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
@@ -258,10 +259,10 @@ app.get("/fetch-requests", async (req, res) => {
     const contentBase64 = getResponse.data.content;
     const content = Buffer.from(contentBase64, "base64").toString("utf8");
     const fetchedData = JSON.parse(content);
-    db.data = fetchedData; // db全体を上書き
+    db.data = fetchedData;
     db.write();
     fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
-    res.send("✅ Fetch 完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
+    res.redirect("/admin");
   } catch (error) {
     console.error("❌ Fetch エラー:", error.response ? error.response.data : error.message);
     res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
@@ -426,10 +427,7 @@ app.get("/admin", (req, res) => {
       fetch("/sync-requests")
         .then(response => response.text())
         .then(data => {
-          alert(data);
-          document.getElementById("loadingSpinner").style.display = "none";
-          syncBtn.disabled = false;
-          fetchBtn.disabled = false;
+          window.location.href = "/admin";
         })
         .catch(err => {
           alert("エラー: " + err);
@@ -447,10 +445,7 @@ app.get("/admin", (req, res) => {
       fetch("/fetch-requests")
         .then(response => response.text())
         .then(data => {
-          alert(data);
-          document.getElementById("loadingSpinner").style.display = "none";
-          syncBtn.disabled = false;
-          fetchBtn.disabled = false;
+          window.location.href = "/admin";
         })
         .catch(err => {
           alert("エラー: " + err);
@@ -484,7 +479,6 @@ window.location.href='/admin';
 // 【管理者ログイン】
 app.get("/admin-login", (req, res) => {
   const { password } = req.query;
-  // 管理者パスワードは db.data.settings.adminPassword を使用
   res.json({ success: password === db.data.settings.adminPassword });
 });
 
@@ -497,7 +491,7 @@ app.post("/update-settings", (req, res) => {
     db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
   db.write();
-  // 更新完了後、設定完了のメッセージを表示
+  // 更新完了後、設定完了のメッセージを表示して管理者画面へリダイレクト
   res.send("設定を完了しました。<br><a href='/admin'>管理者ページに戻る</a>");
 });
 
