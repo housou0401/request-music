@@ -63,34 +63,36 @@ const getClientIP = (req) => {
 // 【Apple Music 検索】
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
+    // 入力された曲名に応じた言語コード（iTunes API では大文字小文字が重要）
+    let lang = "en_US";
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
-    const hasEnglish  = /[A-Za-z]/.test(songTitle);
-    let lang = "en_us";
     if (hasKorean) {
-      lang = "ko_kr";
+      lang = "ko_KR";
     } else if (hasJapanese) {
-      lang = "ja_jp";
-    } else if (hasEnglish) {
-      lang = "en_us";
+      lang = "ja_JP";
+    } else {
+      lang = "en_US";
     }
     
+    // 検索候補のクエリ。まずシンプルな曲名で検索し、続いて他の形式も試す
     let queries = [];
+    queries.push(songTitle); // プレーンな曲名を最初に試す
     if (artistName && artistName.trim().length > 0) {
-      queries.push(`"${songTitle}" ${artistName}`);
       queries.push(`${songTitle} ${artistName}`);
+      queries.push(`"${songTitle}" ${artistName}`);
       queries.push(`${songTitle} official ${artistName}`);
     } else {
-      queries.push(`"${songTitle}"`);
       queries.push(`${songTitle} official`);
+      queries.push(`"${songTitle}"`);
     }
-    queries.push(songTitle);
     
     for (let query of queries) {
       let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
+      // デバッグ用：console.log("Fetching URL:", url);
       let response = await fetch(url);
       
-      // 修正: レスポンスのテキストを取得し、空でなければJSONにパースする
+      // レスポンスのテキストを取得し、空でなければJSONにパース
       const text = await response.text();
       if (!text) continue;
       let data;
