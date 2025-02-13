@@ -43,7 +43,6 @@ function selectSong(song) {
             <button class="clear-btn" onclick="clearSelection()">×</button>
         </div>
     `;
-    // 隠しフィールドに選択情報を格納
     let hiddenArtist = document.getElementById("artistHidden");
     if (!hiddenArtist) {
         hiddenArtist = document.createElement("input");
