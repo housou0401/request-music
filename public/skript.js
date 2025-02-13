@@ -43,7 +43,6 @@ function selectSong(song) {
             <button class="clear-btn" onclick="clearSelection()">×</button>
         </div>
     `;
-    // 隠しフィールドに選択情報を格納
     let hiddenArtist = document.getElementById("artistHidden");
     if (!hiddenArtist) {
         hiddenArtist = document.createElement("input");
@@ -77,7 +76,6 @@ function selectSong(song) {
 
 // 選択解除ボタンの処理
 function clearSelection() {
-    // クリア処理：専用コンテナ (#selectedSong) と隠しフィールドをクリア
     document.getElementById("selectedSong").innerHTML = "";
     if (document.getElementById("artistHidden")) {
         document.getElementById("artistHidden").value = "";
@@ -88,7 +86,6 @@ function clearSelection() {
     if (document.getElementById("artworkUrlHidden")) {
         document.getElementById("artworkUrlHidden").value = "";
     }
-    // 曲名入力欄にテキストがある場合、再検索して候補リストを表示
     const songNameInput = document.getElementById("songName");
     if (songNameInput.value.trim().length > 0) {
         setTimeout(searchSongs, 100);
