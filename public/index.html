@@ -55,7 +55,6 @@
 </head>
 <body onload="checkRecruitingStatus(); updateFrontendTitle();">
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
-
   <div class="container" id="mainContainer">
     <!-- フロントエンドタイトルは /settings から取得 -->
     <h1 id="frontendTitle">♬曲をリクエストする</h1>
@@ -70,16 +69,14 @@
       <button type="submit">送信</button>
     </form>
   </div>
-
   <p class="privacy-note">個人情報は収集されません。</p>
-
   <script>
     // 募集状態チェック
     function checkRecruitingStatus() {
       fetch("/settings")
         .then(response => response.json())
         .then(data => {
-          if (!data.recruiting) {
+          if (!data.recruiting && !data.maintenance) {
             const container = document.getElementById("mainContainer");
             container.innerHTML = "";
             const message = document.createElement("div");
@@ -98,6 +95,16 @@
               reason.innerText = data.reason;
               container.appendChild(reason);
             }
+          } else if (data.maintenance) {
+            const container = document.getElementById("mainContainer");
+            container.innerHTML = "";
+            const message = document.createElement("div");
+            message.style.textAlign = "center";
+            message.style.color = "red";
+            message.style.fontSize = "1.5em";
+            message.style.margin = "20px 0";
+            message.innerText = "🔧メンテナンス中";
+            container.appendChild(message);
           }
         })
         .catch(error => console.error("設定取得エラー:", error));
@@ -109,6 +116,33 @@
         .then(data => {
           if (data.frontendTitle) {
             document.getElementById("frontendTitle").innerText = data.frontendTitle;
+          }
+          // もし表示モードが "date" なら、理由部分に日付範囲を表示（フォーマット例）
+          if (data.displayMode === "date" && data.startDatetime && data.endDatetime) {
+            const container = document.getElementById("mainContainer");
+            // 表示部分を上書きする例（簡易なフォーマット）
+            const dateMessage = `${new Date(data.startDatetime).getMonth()+1}月${new Date(data.startDatetime).getDate()}日 ${new Date(data.startDatetime).getHours()}時 ～ ${new Date(data.endDatetime).getMonth()+1}月${new Date(data.endDatetime).getDate()}日 ${new Date(data.endDatetime).getHours()}時まで`;
+            // 既存の理由の下部に追加
+            let reasonDiv = container.querySelector(".date-range");
+            if (!reasonDiv) {
+              reasonDiv = document.createElement("div");
+              reasonDiv.className = "date-range";
+              reasonDiv.style.fontSize = "12px";
+              reasonDiv.style.color = "black";
+              container.appendChild(reasonDiv);
+            }
+            reasonDiv.innerText = dateMessage;
+          } else if (data.displayMode === "instagram") {
+            const container = document.getElementById("mainContainer");
+            let instaDiv = container.querySelector(".date-range");
+            if (!instaDiv) {
+              instaDiv = document.createElement("div");
+              instaDiv.className = "date-range";
+              instaDiv.style.fontSize = "12px";
+              instaDiv.style.color = "black";
+              container.appendChild(instaDiv);
+            }
+            instaDiv.innerText = "復旧したらInstagramにて告知します！";
           }
         })
         .catch(error => console.error("タイトル取得エラー:", error));
