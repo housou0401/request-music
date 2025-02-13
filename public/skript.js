@@ -27,7 +27,7 @@ async function searchSongs() {
     }
 }
 
-// 選択された曲を入力欄に反映し、選択情報は #selectedSong に表示する
+// 選択された曲を入力欄に反映し、専用コンテナ #selectedSong に表示する
 function selectSong(song) {
     document.getElementById("songName").value = song.trackName;
     const selectedSongContainer = document.getElementById("selectedSong");
@@ -77,7 +77,7 @@ function selectSong(song) {
 
 // 選択解除ボタンの処理
 function clearSelection() {
-    // クリア処理：選択表示エリアと隠しフィールドをクリア
+    // クリア処理：専用コンテナ (#selectedSong) と隠しフィールドをクリア
     document.getElementById("selectedSong").innerHTML = "";
     if (document.getElementById("artistHidden")) {
         document.getElementById("artistHidden").value = "";
