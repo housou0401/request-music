@@ -7,12 +7,48 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/1-%E3%81%AE%E9%9D%A9%E5%91%BD%E5%89%8D%E5%A4%9C/1538942014?i=1538942947&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ee/75/84/ee7584ef-80dd-bad5-7db6-7523532ad13b/859756298991_cover.png/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "jzcTE_FGlEn61mdBH7NKG",
+      "text": "ナルバキスン (Look at me, Gwisun) [JP version]",
+      "artist": "D-LITE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8A%E3%83%AB%E3%83%90%E3%82%AD%E3%82%B9%E3%83%B3-look-at-me-gwisun-jp-version/1333424771?i=1333424794&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/54/16/38/54163875-8caf-9d08-1041-2730436b7cda/ANTCD-26273.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "BNfo8ztfrbc5rV-rord_s",
+      "text": "欲望に満ちた青年団",
+      "artist": "ONE OK ROCK",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%AC%B2%E6%9C%9B%E3%81%AB%E6%BA%80%E3%81%A1%E3%81%9F%E9%9D%92%E5%B9%B4%E5%9B%A3/525998025?i=525998435&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/6b/00/fc/6b00fcad-7a9b-0446-70d1-3e94fe851196/071121_JK.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "Zd6GFL6DMWXbuGQGsMRLr",
+      "text": "君からの贈り物",
+      "artist": "ちゃんみな",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%8B%E3%82%89%E3%81%AE%E8%B4%88%E3%82%8A%E7%89%A9/1585848047?i=1585848050&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/bd/c0/80/bdc08023-823d-b74c-0b58-e161fe8ae68b/190296458705.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "OMBw6doMfOWHh2YaNQ1jC",
+      "text": "成れの果てのグリフ",
+      "artist": "まふまふ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%88%90%E3%82%8C%E3%81%AE%E6%9E%9C%E3%81%A6%E3%81%AE%E3%82%B0%E3%83%AA%E3%83%95/1783091081?i=1783091087&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/2d/46/f9/2d46f9f6-a150-50c2-3e1f-01ae4234331f/4570192936730.jpg/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
   "songCounts": {
     "シャルル|バルーン": 1,
-    "1%の革命前夜|losstime life": 1
+    "1%の革命前夜|losstime life": 1,
+    "ナルバキスン (look at me, gwisun) [jp version]|d-lite": 1,
+    "欲望に満ちた青年団|one ok rock": 1,
+    "君からの贈り物|ちゃんみな": 1,
+    "成れの果てのグリフ|まふまふ": 1
   },
   "settings": {
     "recruiting": true,
