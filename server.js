@@ -217,10 +217,10 @@ async function syncRequestsToGitHub() {
         },
       }
     );
-    console.log("✅ Sync 完了:", putResponse.data);
+    console.log("✅ 同期完了:", putResponse.data);
     return putResponse.data;
   } catch (error) {
-    console.error("❌ Sync エラー:", error.response ? error.response.data : error.message);
+    console.error("❌ 同期エラー:", error.response ? error.response.data : error.message);
     throw error;
   }
 }
@@ -233,7 +233,7 @@ app.get("/sync-requests", async (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p>
+<p style="font-size:18px; color:green;">✅ 同期が完了しました。3秒後に管理者ページに戻ります。</p>
 </body></html>`);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
@@ -261,11 +261,11 @@ app.get("/fetch-requests", async (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p>
+<p style="font-size:18px; color:green;">✅ 取得が完了しました。3秒後に管理者ページに戻ります。</p>
 </body></html>`);
   } catch (error) {
-    console.error("❌ Fetch エラー:", error.response ? error.response.data : error.message);
-    res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
+    console.error("❌ 取得エラー:", error.response ? error.response.data : error.message);
+    res.send("同期エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
   }
 });
 
