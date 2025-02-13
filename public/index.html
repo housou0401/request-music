@@ -76,35 +76,37 @@
       fetch("/settings")
         .then(response => response.json())
         .then(data => {
-          if (!data.recruiting && !data.maintenance) {
+          if (!data.recruiting) {
             const container = document.getElementById("mainContainer");
             container.innerHTML = "";
+            // メンテナンスモードの場合、理由の代わりに表示内容を切替え
+            let msg = "現在は曲を募集していません";
+            if (data.maintenance) {
+              msg = "🔧メンテナンス中";
+            }
             const message = document.createElement("div");
             message.style.textAlign = "center";
             message.style.color = "red";
             message.style.fontSize = "1.5em";
             message.style.margin = "20px 0";
-            message.innerText = "現在は曲を募集していません";
+            message.innerText = msg;
             container.appendChild(message);
             if (data.reason && data.reason.trim() !== "") {
+              let extra = data.reason;
+              // 日付モードの場合、表示形式を変更
+              if (data.startDate && data.endDate && data.instagram === false) {
+                extra = `${data.startDate}～${data.endDate}`;
+              } else if (data.instagram) {
+                extra = "復旧したらInstagramにて告知します！";
+              }
               const reason = document.createElement("div");
               reason.style.textAlign = "center";
               reason.style.color = "black";
               reason.style.fontSize = "1.2em";
               reason.style.margin = "10px 0";
-              reason.innerText = data.reason;
+              reason.innerText = extra;
               container.appendChild(reason);
             }
-          } else if (data.maintenance) {
-            const container = document.getElementById("mainContainer");
-            container.innerHTML = "";
-            const message = document.createElement("div");
-            message.style.textAlign = "center";
-            message.style.color = "red";
-            message.style.fontSize = "1.5em";
-            message.style.margin = "20px 0";
-            message.innerText = "🔧メンテナンス中";
-            container.appendChild(message);
           }
         })
         .catch(error => console.error("設定取得エラー:", error));
@@ -116,33 +118,6 @@
         .then(data => {
           if (data.frontendTitle) {
             document.getElementById("frontendTitle").innerText = data.frontendTitle;
-          }
-          // もし表示モードが "date" なら、理由部分に日付範囲を表示（フォーマット例）
-          if (data.displayMode === "date" && data.startDatetime && data.endDatetime) {
-            const container = document.getElementById("mainContainer");
-            // 表示部分を上書きする例（簡易なフォーマット）
-            const dateMessage = `${new Date(data.startDatetime).getMonth()+1}月${new Date(data.startDatetime).getDate()}日 ${new Date(data.startDatetime).getHours()}時 ～ ${new Date(data.endDatetime).getMonth()+1}月${new Date(data.endDatetime).getDate()}日 ${new Date(data.endDatetime).getHours()}時まで`;
-            // 既存の理由の下部に追加
-            let reasonDiv = container.querySelector(".date-range");
-            if (!reasonDiv) {
-              reasonDiv = document.createElement("div");
-              reasonDiv.className = "date-range";
-              reasonDiv.style.fontSize = "12px";
-              reasonDiv.style.color = "black";
-              container.appendChild(reasonDiv);
-            }
-            reasonDiv.innerText = dateMessage;
-          } else if (data.displayMode === "instagram") {
-            const container = document.getElementById("mainContainer");
-            let instaDiv = container.querySelector(".date-range");
-            if (!instaDiv) {
-              instaDiv = document.createElement("div");
-              instaDiv.className = "date-range";
-              instaDiv.style.fontSize = "12px";
-              instaDiv.style.color = "black";
-              container.appendChild(instaDiv);
-            }
-            instaDiv.innerText = "復旧したらInstagramにて告知します！";
           }
         })
         .catch(error => console.error("タイトル取得エラー:", error));
