@@ -533,8 +533,8 @@ app.get("/settings", (req, res) => {
 });
 
 // ---------- 自動更新ジョブ ----------
-// 5分ごとに db.json 全体を GitHub にアップロードする
-cron.schedule("*/5 * * * *", async () => {
+// 10分ごとに db.json 全体を GitHub にアップロードする
+cron.schedule("*/10 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
     await syncRequestsToGitHub();
