@@ -5,7 +5,6 @@ async function searchSongs() {
 
     const suggestionsContainer = document.getElementById("suggestions");
     suggestionsContainer.innerHTML = "";
-    suggestionsContainer.style.display = "block"; // 候補リストを表示
 
     try {
         const response = await fetch(`/search?query=${encodeURIComponent(songQuery)}`);
@@ -14,12 +13,12 @@ async function searchSongs() {
             const item = document.createElement("div");
             item.classList.add("suggestion-item");
             item.innerHTML = `
-        <img src="${song.artworkUrl}" alt="Cover">
-        <div>
-          <strong>${song.trackName}</strong><br>
-          <small>${song.artistName}</small>
-        </div>
-      `;
+                <img src="${song.artworkUrl}" alt="Cover">
+                <div>
+                    <strong>${song.trackName}</strong><br>
+                    <small>${song.artistName}</small>
+                </div>
+            `;
             item.onclick = () => selectSong(song);
             suggestionsContainer.appendChild(item);
         });
@@ -33,17 +32,17 @@ function selectSong(song) {
     document.getElementById("songName").value = song.trackName;
     const selectedSongContainer = document.getElementById("selectedSong");
     selectedSongContainer.innerHTML = `
-    <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
-      <div style="display: flex; align-items: center;">
-        <img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
-        <div>
-          <strong>${song.trackName}</strong><br>
-          <small>${song.artistName}</small>
+        <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center;">
+                <img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
+                <div>
+                    <strong>${song.trackName}</strong><br>
+                    <small>${song.artistName}</small>
+                </div>
+            </div>
+            <button class="clear-btn" onclick="clearSelection()">×</button>
         </div>
-      </div>
-      <button class="clear-btn" onclick="clearSelection()">×</button>
-    </div>
-  `;
+    `;
     // 隠しフィールドに選択情報を格納
     let hiddenArtist = document.getElementById("artistHidden");
     if (!hiddenArtist) {
@@ -54,7 +53,7 @@ function selectSong(song) {
         document.getElementById("requestForm").appendChild(hiddenArtist);
     }
     hiddenArtist.value = song.artistName;
-
+  
     let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
     if (!hiddenAppleUrl) {
         hiddenAppleUrl = document.createElement("input");
@@ -64,7 +63,7 @@ function selectSong(song) {
         document.getElementById("requestForm").appendChild(hiddenAppleUrl);
     }
     hiddenAppleUrl.value = song.trackViewUrl;
-
+  
     let hiddenArtwork = document.getElementById("artworkUrlHidden");
     if (!hiddenArtwork) {
         hiddenArtwork = document.createElement("input");
@@ -74,13 +73,11 @@ function selectSong(song) {
         document.getElementById("requestForm").appendChild(hiddenArtwork);
     }
     hiddenArtwork.value = song.artworkUrl;
-
-    // 近似曲候補リストは選択後に非表示にする
-    document.getElementById("suggestions").style.display = "none";
 }
 
 // 選択解除ボタンの処理
 function clearSelection() {
+    // クリア処理：選択表示エリアと隠しフィールドをクリア
     document.getElementById("selectedSong").innerHTML = "";
     if (document.getElementById("artistHidden")) {
         document.getElementById("artistHidden").value = "";
@@ -91,9 +88,7 @@ function clearSelection() {
     if (document.getElementById("artworkUrlHidden")) {
         document.getElementById("artworkUrlHidden").value = "";
     }
-    // 近似曲候補リストを再表示する
-    document.getElementById("suggestions").style.display = "block";
-    // 入力欄にテキストがある場合、再検索して候補リストを表示
+    // 曲名入力欄にテキストがある場合、再検索して候補リストを表示
     const songNameInput = document.getElementById("songName");
     if (songNameInput.value.trim().length > 0) {
         setTimeout(searchSongs, 100);
