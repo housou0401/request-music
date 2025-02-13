@@ -26,7 +26,7 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// データベース設定（lowdb用の db.json は responses などを含む）
+// db.json の初期構造
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -39,10 +39,10 @@ if (!db.data.settings) {
     reason: "",
     frontendTitle: "♬曲をリクエストする",
     adminPassword: "housou0401",
-    maintenance: false,        // メンテナンスモード
-    displayMode: "date",         // "date" か "instagram"
-    startDatetime: "",           // 例: "2024-04-01T10:00"
-    endDatetime: ""              // 例: "2024-04-01T18:00"
+    maintenance: false,
+    startDate: "",
+    endDate: "",
+    instagram: false
   };
   db.write();
 } else {
@@ -55,14 +55,14 @@ if (!db.data.settings) {
   if (db.data.settings.maintenance === undefined) {
     db.data.settings.maintenance = false;
   }
-  if (db.data.settings.displayMode === undefined) {
-    db.data.settings.displayMode = "date";
+  if (db.data.settings.startDate === undefined) {
+    db.data.settings.startDate = "";
   }
-  if (db.data.settings.startDatetime === undefined) {
-    db.data.settings.startDatetime = "";
+  if (db.data.settings.endDate === undefined) {
+    db.data.settings.endDate = "";
   }
-  if (db.data.settings.endDatetime === undefined) {
-    db.data.settings.endDatetime = "";
+  if (db.data.settings.instagram === undefined) {
+    db.data.settings.instagram = false;
   }
   db.write();
 }
@@ -242,7 +242,7 @@ async function syncRequestsToGitHub() {
 }
 
 // 【/sync-requests エンドポイント】
-// 管理者画面の「GitHubに同期」ボタン押下時、同期完了後に管理者画面へ自動リダイレクト
+// 管理者画面の「GitHubに同期」ボタン押下時、同期完了後に管理者画面へ自動リダイレクト（3秒後）
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
@@ -257,7 +257,7 @@ app.get("/sync-requests", async (req, res) => {
 });
 
 // 【/fetch-requests エンドポイント】
-// GitHub 上の db.json を取得し、ローカルに上書き保存後、管理者画面へ自動リダイレクト
+// GitHub 上の db.json を取得し、ローカルの db.data に上書き保存、完了後に管理者画面へ自動リダイレクト（3秒後）
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
@@ -285,28 +285,12 @@ app.get("/fetch-requests", async (req, res) => {
   }
 });
 
-// 【db.jsonリセットエンドポイント】
-// 管理者画面の「db.jsonリセット」ボタン押下時、db.jsonを初期状態に戻し、管理者画面へ自動リダイレクト
+// 【/reset-db エンドポイント】
+// db.json の responses 部分（その他設定はそのまま）をリセット（空にする）
 app.get("/reset-db", (req, res) => {
-  // 初期状態の db.json（以下の形式）
-  const initialData = {
-    responses: [],
-    lastSubmissions: {},
-    songCounts: {},
-    settings: {
-      recruiting: true,
-      reason: "",
-      frontendTitle: "♬曲をリクエストする",
-      adminPassword: "housou0401",
-      maintenance: false,
-      displayMode: "date",
-      startDatetime: "",
-      endDatetime: ""
-    }
-  };
-  db.data = initialData;
+  db.data.responses = [];
   db.write();
-  fs.writeFileSync("db.json", JSON.stringify(initialData, null, 2));
+  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
   res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
@@ -328,13 +312,11 @@ app.post("/update-settings", (req, res) => {
   if (req.body.adminPassword && req.body.adminPassword.trim().length > 0) {
     db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
-  // メンテナンスモードの設定（checkbox: onならtrue）
-  db.data.settings.maintenance = req.body.maintenance === "on";
-  // 表示モード（ラジオボタン： "date" または "instagram"）
-  db.data.settings.displayMode = req.body.displayMode || "date";
-  // 開始・終了日時（input type="datetime-local" の値）
-  db.data.settings.startDatetime = req.body.startDatetime || "";
-  db.data.settings.endDatetime = req.body.endDatetime || "";
+  // 新たに、メンテナンス、開始日時、終了日時、Instagramの設定を更新
+  db.data.settings.maintenance = req.body.maintenance === "on" ? true : false;
+  db.data.settings.startDate = req.body.startDate || "";
+  db.data.settings.endDate = req.body.endDate || "";
+  db.data.settings.instagram = req.body.instagram === "on" ? true : false;
   db.write();
   res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
