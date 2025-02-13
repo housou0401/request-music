@@ -89,7 +89,18 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     for (let query of queries) {
       let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
       let response = await fetch(url);
-      let data = await response.json();
+      
+      // 修正: レスポンスのテキストを取得し、空でなければJSONにパースする
+      const text = await response.text();
+      if (!text) continue;
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        console.error("JSON parse error in fetchAppleMusicInfo:", error);
+        continue;
+      }
+      
       if (data.results && data.results.length > 0) {
         const uniqueResults = [];
         const seen = new Set();
@@ -454,7 +465,6 @@ app.get("/admin", (req, res) => {
       fetch("/sync-requests")
         .then(response => response.text())
         .then(data => {
-          // ページ更新時に分かりやすくメッセージ表示（自動リダイレクト）
           document.body.innerHTML = data;
         })
         .catch(err => {
@@ -519,7 +529,6 @@ app.post("/update-settings", (req, res) => {
     db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
   db.write();
-  // 更新完了後、設定完了のメッセージを表示して管理者画面へ自動リダイレクト（3秒後）
   res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
