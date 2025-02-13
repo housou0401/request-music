@@ -63,70 +63,49 @@ const getClientIP = (req) => {
 // 【Apple Music 検索】
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
-    // 言語判定（※今回の検索URLには使用しません）
-    let lang = "en_us";
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
+    const hasEnglish  = /[A-Za-z]/.test(songTitle);
+    let lang = "en_us";
     if (hasKorean) {
       lang = "ko_kr";
     } else if (hasJapanese) {
       lang = "ja_jp";
+    } else if (hasEnglish) {
+      lang = "en_us";
     }
     
-    // 検索候補のクエリを組み立てる
     let queries = [];
-    queries.push(songTitle); // シンプルな曲名で検索
     if (artistName && artistName.trim().length > 0) {
-      queries.push(`${songTitle} ${artistName}`);
       queries.push(`"${songTitle}" ${artistName}`);
+      queries.push(`${songTitle} ${artistName}`);
       queries.push(`${songTitle} official ${artistName}`);
     } else {
-      queries.push(`${songTitle} official`);
       queries.push(`"${songTitle}"`);
+      queries.push(`${songTitle} official`);
     }
+    queries.push(songTitle);
     
-    // ※lang パラメータは削除しています
     for (let query of queries) {
-      let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no`;
-      console.log("Fetching URL:", url);
-      let response = await fetch(url, {
-        headers: {
-          // 一部のAPIではUser-Agentが必要な場合があります
-          'User-Agent': 'Mozilla/5.0'
-        }
-      });
-      if (!response.ok) {
-         console.error("Response not OK:", response.status, response.statusText);
-         continue;
-      }
-      const text = await response.text();
-      if (!text) {
-         console.error("Empty response for URL:", url);
-         continue;
-      }
-      let data;
-      try {
-         data = JSON.parse(text);
-      } catch (error) {
-         console.error("JSON parse error in fetchAppleMusicInfo:", error);
-         continue;
-      }
+      let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
+      let response = await fetch(url);
+      let data = await response.json();
       if (data.results && data.results.length > 0) {
-         const uniqueResults = [];
-         const seen = new Set();
-         for (let track of data.results) {
-           const key = (track.trackName + "|" + track.artistName).toLowerCase();
-           if (!seen.has(key)) {
-             seen.add(key);
-             uniqueResults.push({
-               trackName: track.trackName,
-               artistName: track.artistName,
-               trackViewUrl: track.trackViewUrl,
-               artworkUrl: track.artworkUrl100
-             });
-           }
-         }
-         if (uniqueResults.length > 0) return uniqueResults;
+        const uniqueResults = [];
+        const seen = new Set();
+        for (let track of data.results) {
+          const key = (track.trackName + "|" + track.artistName).toLowerCase();
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniqueResults.push({
+              trackName: track.trackName,
+              artistName: track.artistName,
+              trackViewUrl: track.trackViewUrl,
+              artworkUrl: track.artworkUrl100
+            });
+          }
+        }
+        if (uniqueResults.length > 0) return uniqueResults;
       }
     }
     return [];
@@ -238,10 +217,10 @@ async function syncRequestsToGitHub() {
         },
       }
     );
-    console.log("✅ 同期完了:", putResponse.data);
+    console.log("✅ Sync 完了:", putResponse.data);
     return putResponse.data;
   } catch (error) {
-    console.error("❌ 同期エラー:", error.response ? error.response.data : error.message);
+    console.error("❌ Sync エラー:", error.response ? error.response.data : error.message);
     throw error;
   }
 }
@@ -254,7 +233,7 @@ app.get("/sync-requests", async (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">✅ 同期が完了しました。3秒後に管理者ページに戻ります。</p>
+<p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p>
 </body></html>`);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
@@ -282,11 +261,11 @@ app.get("/fetch-requests", async (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">✅ 取得が完了しました。3秒後に管理者ページに戻ります。</p>
+<p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p>
 </body></html>`);
   } catch (error) {
-    console.error("❌ 取得エラー:", error.response ? error.response.data : error.message);
-    res.send("同期エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
+    console.error("❌ Fetch エラー:", error.response ? error.response.data : error.message);
+    res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
   }
 });
 
@@ -461,7 +440,7 @@ app.get("/admin", (req, res) => {
     <div class="spinner" id="loadingSpinner"></div>
   </div>`;
   // 選択中ラベル（例：選択中の楽曲表示の上に小さく表示）
-  responseList += `<div style="text-align:left; width:300px; font-size:12px; color:#555;"></div>`;
+  responseList += `<div style="text-align:left; width:300px; font-size:12px; color:#555;">選択中</div>`;
   // 戻るリンクはボタンコンテナの下
   responseList += `<br><a href='/'>↵戻る</a>`;
   responseList += `
@@ -475,6 +454,7 @@ app.get("/admin", (req, res) => {
       fetch("/sync-requests")
         .then(response => response.text())
         .then(data => {
+          // ページ更新時に分かりやすくメッセージ表示（自動リダイレクト）
           document.body.innerHTML = data;
         })
         .catch(err => {
@@ -539,10 +519,11 @@ app.post("/update-settings", (req, res) => {
     db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
   db.write();
+  // 更新完了後、設定完了のメッセージを表示して管理者画面へ自動リダイレクト（3秒後）
   res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">設定を完了しました。3秒後に管理者ページに戻ります。</p>
+<p style="font-size:18px; color:green;">設定を完了しました。</p>
 </body></html>`);
 });
 
@@ -552,8 +533,8 @@ app.get("/settings", (req, res) => {
 });
 
 // ---------- 自動更新ジョブ ----------
-// 10分ごとに db.json 全体を GitHub にアップロードする
-cron.schedule("*/10 * * * *", async () => {
+// 20分ごとに db.json 全体を GitHub にアップロードする
+cron.schedule("*/20 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
     await syncRequestsToGitHub();
