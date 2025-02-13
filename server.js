@@ -17,7 +17,7 @@ const PORT = 3000;
 // Render の Environment Variables を利用
 const GITHUB_OWNER = process.env.GITHUB_OWNER; // 例: "housou0401"
 const REPO_NAME = process.env.REPO_NAME;         // 例: "request-musicE"
-const FILE_PATH = "db.json"; // リモート保存先ファイル（db.json 全体）
+const FILE_PATH = "db.json"; // リモート保存先ファイル
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;  // Personal Access Token
 
@@ -26,7 +26,7 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// データベース設定（lowdb用の db.json は responses 等を含む）
+// データベース設定（lowdb用の db.json は responses などを含む）
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -38,7 +38,11 @@ if (!db.data.settings) {
     recruiting: true,
     reason: "",
     frontendTitle: "♬曲をリクエストする",
-    adminPassword: "housou0401"
+    adminPassword: "housou0401",
+    maintenance: false,        // メンテナンスモード
+    displayMode: "date",         // "date" か "instagram"
+    startDatetime: "",           // 例: "2024-04-01T10:00"
+    endDatetime: ""              // 例: "2024-04-01T18:00"
   };
   db.write();
 } else {
@@ -48,6 +52,18 @@ if (!db.data.settings) {
   if (db.data.settings.adminPassword === undefined) {
     db.data.settings.adminPassword = "housou0401";
   }
+  if (db.data.settings.maintenance === undefined) {
+    db.data.settings.maintenance = false;
+  }
+  if (db.data.settings.displayMode === undefined) {
+    db.data.settings.displayMode = "date";
+  }
+  if (db.data.settings.startDatetime === undefined) {
+    db.data.settings.startDatetime = "";
+  }
+  if (db.data.settings.endDatetime === undefined) {
+    db.data.settings.endDatetime = "";
+  }
   db.write();
 }
 
@@ -55,7 +71,7 @@ if (!db.data.settings) {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// クライアントのIP取得（必要に応じて）
+// クライアントのIP取得（必要なら）
 const getClientIP = (req) => {
   return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
 };
@@ -233,7 +249,7 @@ app.get("/sync-requests", async (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p>
+<p style="font-size:18px; color:green;">✅ Sync 完了しました。</p>
 </body></html>`);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
@@ -261,7 +277,7 @@ app.get("/fetch-requests", async (req, res) => {
     res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p>
+<p style="font-size:18px; color:green;">✅ Fetch 完了しました。</p>
 </body></html>`);
   } catch (error) {
     console.error("❌ Fetch エラー:", error.response ? error.response.data : error.message);
@@ -269,239 +285,33 @@ app.get("/fetch-requests", async (req, res) => {
   }
 });
 
-// 【管理者ページ】
-app.get("/admin", (req, res) => {
-  let responseList = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>管理者ページ</title>
-  <style>
-    li { margin-bottom: 10px; }
-    .entry-container { position: relative; display: inline-block; }
-    .entry {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      border: 1px solid rgba(0,0,0,0.1);
-      padding: 10px;
-      border-radius: 10px;
-      width: fit-content;
+// 【db.jsonリセットエンドポイント】
+// 管理者画面の「db.jsonリセット」ボタン押下時、db.jsonを初期状態に戻し、管理者画面へ自動リダイレクト
+app.get("/reset-db", (req, res) => {
+  // 初期状態の db.json（以下の形式）
+  const initialData = {
+    responses: [],
+    lastSubmissions: {},
+    songCounts: {},
+    settings: {
+      recruiting: true,
+      reason: "",
+      frontendTitle: "♬曲をリクエストする",
+      adminPassword: "housou0401",
+      maintenance: false,
+      displayMode: "date",
+      startDatetime: "",
+      endDatetime: ""
     }
-    .entry:hover { background-color: rgba(0,0,0,0.05); }
-    .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
-    .delete {
-      position: absolute;
-      left: calc(100% + 10px);
-      top: 50%;
-      transform: translateY(-50%);
-      color: red;
-      text-decoration: none;
-    }
-    .count-badge {
-      background-color: #ff6b6b;
-      color: white;
-      font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 5px;
-      margin-right: 10px;
-    }
-    h1 { font-size: 1.5em; margin-bottom: 20px; }
-    form { margin: 20px 0; text-align: left; }
-    textarea {
-      width: 300px;
-      height: 80px;
-      font-size: 0.9em;
-      color: black;
-      display: block;
-      margin-bottom: 10px;
-    }
-    /* 管理者用の設定フォーム内フィールド */
-    .setting-field {
-      margin-bottom: 10px;
-    }
-    /* 管理者用のボタン */
-    .sync-btn, .fetch-btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .sync-btn {
-      background-color: #28a745;
-      color: white;
-    }
-    .sync-btn:hover {
-      background-color: #218838;
-    }
-    .fetch-btn {
-      background-color: #17a2b8;
-      color: white;
-      margin-left: 10px;
-    }
-    .fetch-btn:hover {
-      background-color: #138496;
-    }
-    /* ボタンコンテナを左寄せ */
-    .button-container {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 10px;
-    }
-    /* ローディングスピナー */
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      display: none;
-      margin-left: 10px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    /* 選択中ラベル */
-    .selected-label {
-      font-size: 12px;
-      color: #555;
-      margin-bottom: 5px;
-      text-align: left;
-    }
-    /* スマートフォン・PC対応 */
-    @media (max-width: 600px) {
-      .container, form, textarea, input[type="text"] {
-        width: 95%;
-      }
-      .sync-btn, .fetch-btn {
-        font-size: 14px;
-        padding: 10px 16px;
-      }
-    }
-    /* テキストボックスの自動拡大を抑制 */
-    input, textarea {
-      -webkit-text-size-adjust: 100%;
-    }
-    /* 過剰スクロール防止 */
-    html, body {
-      overscroll-behavior: contain;
-    }
-  </style>
-</head>
-<body>
-<h1>✉アンケート回答一覧</h1>
-<ul>`;
-  for (let entry of db.data.responses) {
-    responseList += `<li>
-      <div class="entry-container">
-        <a href="${(entry.appleMusicUrl && entry.appleMusicUrl !== "") ? entry.appleMusicUrl : "#"}" target="_blank" class="entry">
-          <div class="count-badge">${entry.count}</div>
-          <img src="${entry.artworkUrl}" alt="Cover">
-          <div>
-            <strong>${entry.text}</strong><br>
-            <small>${entry.artist || "🎤アーティスト不明"}</small>
-          </div>
-        </a>
-        <a href="/delete/${entry.id}" class="delete">🗑️</a>
-      </div>
-    </li>`;
-  }
-  responseList += `</ul>`;
-  // 設定フォーム：募集状態、理由、フロントエンドタイトル、管理者パスワード変更
-  responseList += `<form action="/update-settings" method="post">
-  <div class="setting-field">
-    <label>
-      <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
-      募集を終了する
-    </label>
-  </div>
-  <div class="setting-field">
-    <label>理由:</label><br>
-    <textarea name="reason" placeholder="理由（任意）" style="width:300px; height:80px; font-size:0.9em; color:black;">${db.data.settings.reason || ""}</textarea>
-  </div>
-  <div class="setting-field">
-    <label>フロントエンドタイトル:</label><br>
-    <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル" style="width:300px; height:60px; font-size:0.9em; color:black;">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
-  </div>
-  <div class="setting-field">
-    <label>管理者パスワード:</label><br>
-    <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px; font-size:0.9em;">
-  </div>
-  <br>
-  <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
-</form>`;
-  // ボタンコンテナ：Sync と Fetch ボタン、左寄せ＋ローディングスピナー
-  responseList += `<div class="button-container">
-    <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
-    <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
-    <div class="spinner" id="loadingSpinner"></div>
-  </div>`;
-  // 選択中ラベル（例：選択中の楽曲表示の上に小さく表示）
-  responseList += `<div style="text-align:left; width:300px; font-size:12px; color:#555;"></div>`;
-  // 戻るリンクはボタンコンテナの下
-  responseList += `<br><a href='/'>↵戻る</a>`;
-  responseList += `
-  <script>
-    function syncToGitHub() {
-      const syncBtn = document.getElementById("syncBtn");
-      const fetchBtn = document.getElementById("fetchBtn");
-      syncBtn.disabled = true;
-      fetchBtn.disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/sync-requests")
-        .then(response => response.text())
-        .then(data => {
-          // ページ更新時に分かりやすくメッセージ表示（自動リダイレクト）
-          document.body.innerHTML = data;
-        })
-        .catch(err => {
-          alert("エラー: " + err);
-          document.getElementById("loadingSpinner").style.display = "none";
-          syncBtn.disabled = false;
-          fetchBtn.disabled = false;
-        });
-    }
-    function fetchFromGitHub() {
-      const syncBtn = document.getElementById("syncBtn");
-      const fetchBtn = document.getElementById("fetchBtn");
-      syncBtn.disabled = true;
-      fetchBtn.disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/fetch-requests")
-        .then(response => response.text())
-        .then(data => {
-          document.body.innerHTML = data;
-        })
-        .catch(err => {
-          alert("エラー: " + err);
-          document.getElementById("loadingSpinner").style.display = "none";
-          syncBtn.disabled = false;
-          fetchBtn.disabled = false;
-        });
-    }
-  </script>
-  `;
-  responseList += `</body></html>`;
-  res.set("Content-Type", "text/html");
-  res.send(responseList);
-});
-
-// 【リクエスト削除機能】
-app.get("/delete/:id", (req, res) => {
-  const id = req.params.id;
-  db.data.responses = db.data.responses.filter(entry => entry.id !== id);
+  };
+  db.data = initialData;
   db.write();
-  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
-  res.set("Content-Type", "text/html");
+  fs.writeFileSync("db.json", JSON.stringify(initialData, null, 2));
   res.send(`<!DOCTYPE html>
-<html lang="ja"><head><meta charset="UTF-8"></head>
-<body><script>
-alert("🗑️削除しました！");
-window.location.href="/admin";
-</script></body></html>`);
+<html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
+<body>
+<p style="font-size:18px; color:green;">✅ db.json をリセットしました。</p>
+</body></html>`);
 });
 
 // 【管理者ログイン】
@@ -518,12 +328,18 @@ app.post("/update-settings", (req, res) => {
   if (req.body.adminPassword && req.body.adminPassword.trim().length > 0) {
     db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
+  // メンテナンスモードの設定（checkbox: onならtrue）
+  db.data.settings.maintenance = req.body.maintenance === "on";
+  // 表示モード（ラジオボタン： "date" または "instagram"）
+  db.data.settings.displayMode = req.body.displayMode || "date";
+  // 開始・終了日時（input type="datetime-local" の値）
+  db.data.settings.startDatetime = req.body.startDatetime || "";
+  db.data.settings.endDatetime = req.body.endDatetime || "";
   db.write();
-  // 更新完了後、設定完了のメッセージを表示して管理者画面へ自動リダイレクト（3秒後）
   res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">設定を完了しました。3秒後に管理者ページに戻ります。</p>
+<p style="font-size:18px; color:green;">設定を完了しました。</p>
 </body></html>`);
 });
 
