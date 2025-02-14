@@ -39,6 +39,14 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E6%88%90%E3%82%8C%E3%81%AE%E6%9E%9C%E3%81%A6%E3%81%AE%E3%82%B0%E3%83%AA%E3%83%95/1783091081?i=1783091087&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/2d/46/f9/2d46f9f6-a150-50c2-3e1f-01ae4234331f/4570192936730.jpg/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "k6pwQVXNBBzDTK4yakAK1",
+      "text": "朧月",
+      "artist": "まふまふ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%A7%E6%9C%88/1482222513?i=1482222519&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/a7/6b/f4/a76bf4d9-5643-9c20-c3be-d4dd3b2f6b81/4580684120264.jpg/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -49,7 +57,8 @@
     "欲望に満ちた青年団|one ok rock": 1,
     "君からの贈り物|ちゃんみな": 1,
     "成れの果てのグリフ|まふまふ": 1,
-    "恋|アーティスト不明": 1
+    "恋|アーティスト不明": 1,
+    "朧月|まふまふ": 1
   },
   "settings": {
     "recruiting": true,
