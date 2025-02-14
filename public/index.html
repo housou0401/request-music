@@ -56,15 +56,20 @@
 <body onload="checkRecruitingStatus(); updateFrontendTitle();">
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
   <div class="container" id="mainContainer">
+    <!-- 検索モード切替ボタン -->
+    <div style="display:flex; justify-content: center; margin-bottom:10px;">
+      <button id="modeSong" onclick="setSearchMode('song');" style="flex:1; padding:8px;">曲名(アーティスト)で検索</button>
+      <button id="modeArtist" onclick="setSearchMode('artist');" style="flex:1; padding:8px;">アーティストから検索</button>
+    </div>
     <!-- フロントエンドタイトルは /settings から取得 -->
     <h1 id="frontendTitle">♬曲をリクエストする</h1>
     <!-- 送信フォーム -->
     <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
       <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
-      <!-- アーティスト名入力欄 -->
+      <!-- アーティスト名入力欄（songモードの場合のみ表示） -->
       <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力してください" oninput="searchSongs()">
       <div id="suggestions"></div>
-      <!-- 選択中ラベルと選択された曲表示エリア -->
+      <!-- 「選択中」ラベルは候補一覧（#suggestions）の下、選択された曲（#selectedSong）の上に配置 -->
       <div id="selectedLabel"></div>
       <div id="selectedSong"></div>
       <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
