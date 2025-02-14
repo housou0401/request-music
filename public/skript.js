@@ -101,7 +101,7 @@ function selectArtist(artist) {
   artistPhase = 1;
   // 選択中のアーティスト表示（「選択中のアーティスト」ラベル付き）
   document.getElementById("selectedArtist").innerHTML = `
-    <div class="selected-label">選択中のアーティスト</div>
+    <div class="selected-label">↓選択中のアーティスト↓</div>
     <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; margin-top:10px;">
       <div style="display: flex; align-items: center;">
         <img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
@@ -148,7 +148,7 @@ function selectSong(song) {
       document.getElementById("artistName").value = song.artistName;
     }
   }
-  document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中の曲</div>`;
+  document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">↓選択中の曲↓</div>`;
   const selectedSongContainer = document.getElementById("selectedSong");
   selectedSongContainer.innerHTML = `
     <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; margin-top:10px;">
@@ -205,7 +205,7 @@ function handleSubmit(event) {
   event.preventDefault();
   const appleUrl = document.getElementById("appleMusicUrlHidden").value.trim();
   if (!appleUrl) {
-    alert("必ず候補一覧から曲を選択してください");
+    alert("⚠️必ず候補一覧から曲を選択してください");
     return;
   }
   document.getElementById("requestForm").submit();
