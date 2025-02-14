@@ -1,7 +1,7 @@
-// 曲名入力欄に基づいて、Apple Musicから近似の曲候補を取得して表示する
+// 曲名およびアーティスト名入力欄に基づいて、Apple Musicから近似の曲候補を取得して表示する
 async function searchSongs() {
   const songQuery = document.getElementById("songName").value.trim();
-  const artistQuery = document.getElementById("artistName").value.trim(); // 追加
+  const artistQuery = document.getElementById("artistName").value.trim();
   if (songQuery.length < 2) return;
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
@@ -26,14 +26,13 @@ async function searchSongs() {
   }
 }
 
-// 選択された曲を入力欄に反映し、専用コンテナ #selectedSong に表示する
+// 選択された曲を入力欄に反映し、専用コンテナ #selectedSong に表示する（前回の形式に戻す）
 function selectSong(song) {
   document.getElementById("songName").value = song.trackName;
-  document.getElementById("artistName").value = song.artistName; // visible artistName にセット
+  document.getElementById("artistName").value = song.artistName; // アーティスト名欄にもセット
   const selectedSongContainer = document.getElementById("selectedSong");
   selectedSongContainer.innerHTML = `
-    <div class="selected-label">選択中</div>
-    <div class="selected-item">
+    <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; margin-top: 10px;">
       <div style="display: flex; align-items: center;">
         <img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
         <div>
@@ -44,7 +43,7 @@ function selectSong(song) {
       <button class="clear-btn" onclick="clearSelection()">×</button>
     </div>
   `;
-  // 隠しフィールドは appleMusicUrl と artworkUrl のみ
+  // hidden fields（appleMusicUrl と artworkUrl のみ）
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
