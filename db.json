@@ -103,11 +103,19 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%B2%E3%81%9F%E3%82%80%E3%81%8D%E3%82%B7%E3%83%B3%E3%83%87%E3%83%AC%E3%83%A9/1773182069?i=1773182072&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/15/66/08/15660826-26d9-5c6f-249b-bc5a481f1086/4580789670411.png/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "jui31mOtyf8IJXDTbFN_K",
+      "text": "シャルル",
+      "artist": "バルーン",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%B7%E3%83%A3%E3%83%AB%E3%83%AB/1168548928?i=1168548985&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/a9/b8/fa/a9b8fab5-f5bc-36f2-5a54-ee8cce6b6b82/avogado6.jpg/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
   "songCounts": {
-    "シャルル|バルーン": 4,
+    "シャルル|バルーン": 5,
     "1%の革命前夜|losstime life": 1,
     "ナルバキスン (look at me, gwisun) [jp version]|d-lite": 1,
     "欲望に満ちた青年団|one ok rock": 1,
