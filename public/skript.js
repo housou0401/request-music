@@ -29,10 +29,10 @@ async function searchSongs() {
 // 選択された曲を入力欄に反映し、専用コンテナ #selectedSong に表示する（前回の形式に戻す）
 function selectSong(song) {
   document.getElementById("songName").value = song.trackName;
-  document.getElementById("artistName").value = song.artistName; // アーティスト名欄にもセット
+  document.getElementById("artistName").value = song.artistName;
   const selectedSongContainer = document.getElementById("selectedSong");
   selectedSongContainer.innerHTML = `
-    <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; margin-top: 10px;">
+    <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between;">
       <div style="display: flex; align-items: center;">
         <img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
         <div>
