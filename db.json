@@ -129,30 +129,6 @@
       "count": 1
     },
     {
-      "id": "FzarfF3-NifdqmoJmn7na",
-      "text": "shine",
-      "artist": "jagwar twin",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 1
-    },
-    {
-      "id": "sExfQUXCEp04mFQjvns0E",
-      "text": "onion boy",
-      "artist": "Isaac Dunbar",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 1
-    },
-    {
-      "id": "xKis8plKEK5y6HIiemmJd",
-      "text": "Ashes",
-      "artist": "stellar",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 1
-    },
-    {
       "id": "780OL2QlekYUuiexMhTF6",
       "text": "エイトビート",
       "artist": "シンガーズハイ",
@@ -271,6 +247,22 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/start/1440745429?i=1440745441&l=en&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/0b/35/3a/0b353aeb-db33-a263-889d-1a8a7bfdbcec/00600406599247.rgb.jpg/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "cJR39bMhicHGMOI6w4bfT",
+      "text": "Shine",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/shine/1459889366?i=1459889381&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/65/80/43/65804376-be29-d793-1df8-80a4dc07aea2/075679849137.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "b8VEh6csrvUTENJEyk2A0",
+      "text": "onion boy",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/onion-boy/1484137547?i=1484137549&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/9f/4c/cb/9f4ccb11-5b67-c843-2df1-ef42d4616207/886448075004.jpg/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -319,7 +311,9 @@
     "糸|中島みゆき": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
     "シャルル|神田沙也加": 1,
-    "start|mrs. green apple": 1
+    "start|mrs. green apple": 1,
+    "shine|アーティスト不明": 1,
+    "onion boy|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
