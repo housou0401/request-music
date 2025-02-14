@@ -279,6 +279,14 @@
       "appleMusicUrl": "",
       "artworkUrl": "",
       "count": 1
+    },
+    {
+      "id": "oUB9tsRVCYGUWNlPuCpAI",
+      "text": "糸",
+      "artist": "中島みゆき",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%B3%B8/118594595?i=118593606&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music3/v4/9a/89/36/9a893670-cade-dfc3-48aa-3151d788b267/dj.tudzzvxs.jpg/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -323,7 +331,8 @@
     "うらみつらみきわみ|official髭男dism": 1,
     "らぶきゅん♡うぉんてっど|きゅるりんってしてみて": 1,
     "drop|hana": 1,
-    "我がまま|くじら": 1
+    "我がまま|くじら": 1,
+    "糸|中島みゆき": 1
   },
   "settings": {
     "recruiting": true,
