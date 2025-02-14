@@ -1,11 +1,12 @@
 // 曲名入力欄に基づいて、Apple Musicから近似の曲候補を取得して表示する
 async function searchSongs() {
   const songQuery = document.getElementById("songName").value.trim();
+  const artistQuery = document.getElementById("artistName").value.trim(); // 追加
   if (songQuery.length < 2) return;
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
   try {
-    const response = await fetch(`/search?query=${encodeURIComponent(songQuery)}`);
+    const response = await fetch(`/search?query=${encodeURIComponent(songQuery)}&artist=${encodeURIComponent(artistQuery)}`);
     const suggestions = await response.json();
     suggestions.forEach(song => {
       const item = document.createElement("div");
@@ -28,10 +29,11 @@ async function searchSongs() {
 // 選択された曲を入力欄に反映し、専用コンテナ #selectedSong に表示する
 function selectSong(song) {
   document.getElementById("songName").value = song.trackName;
+  document.getElementById("artistName").value = song.artistName; // visible artistName にセット
   const selectedSongContainer = document.getElementById("selectedSong");
   selectedSongContainer.innerHTML = `
     <div class="selected-label">選択中</div>
-    <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="selected-item">
       <div style="display: flex; align-items: center;">
         <img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
         <div>
@@ -42,16 +44,7 @@ function selectSong(song) {
       <button class="clear-btn" onclick="clearSelection()">×</button>
     </div>
   `;
-  let hiddenArtist = document.getElementById("artistHidden");
-  if (!hiddenArtist) {
-    hiddenArtist = document.createElement("input");
-    hiddenArtist.type = "hidden";
-    hiddenArtist.id = "artistHidden";
-    hiddenArtist.name = "artist";
-    document.getElementById("requestForm").appendChild(hiddenArtist);
-  }
-  hiddenArtist.value = song.artistName;
-  
+  // 隠しフィールドは appleMusicUrl と artworkUrl のみ
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
@@ -76,7 +69,6 @@ function selectSong(song) {
 // 選択解除ボタンの処理
 function clearSelection() {
   document.getElementById("selectedSong").innerHTML = "";
-  if (document.getElementById("artistHidden")) document.getElementById("artistHidden").value = "";
   if (document.getElementById("appleMusicUrlHidden")) document.getElementById("appleMusicUrlHidden").value = "";
   if (document.getElementById("artworkUrlHidden")) document.getElementById("artworkUrlHidden").value = "";
   const songNameInput = document.getElementById("songName");
