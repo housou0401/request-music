@@ -99,7 +99,7 @@ async function searchSongs() {
 function selectArtist(artist) {
   selectedArtistId = artist.artistId;
   artistPhase = 1;
-  // アーティスト選択中表示（「選択中のアーティスト」ラベル付き）
+  // 選択中のアーティスト表示（「選択中のアーティスト」ラベル付き）
   document.getElementById("selectedArtist").innerHTML = `
     <div class="selected-label">選択中のアーティスト</div>
     <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; margin-top:10px;">
@@ -142,14 +142,12 @@ async function fetchArtistTracksAndShow() {
 }
 
 function selectSong(song) {
-  // 曲選択時：songName は必ず更新。artistName は、songモードの場合のみ更新（上書きしない）
   document.getElementById("songName").value = song.trackName;
   if (searchMode === "song") {
     if (document.getElementById("artistName").value.trim() === "") {
       document.getElementById("artistName").value = song.artistName;
     }
   }
-  // 「選択中の曲」ラベル表示
   document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中の曲</div>`;
   const selectedSongContainer = document.getElementById("selectedSong");
   selectedSongContainer.innerHTML = `
@@ -164,7 +162,6 @@ function selectSong(song) {
       <button class="clear-btn" onclick="clearSelection()">×</button>
     </div>
   `;
-  // 隠しフィールドにセット
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
