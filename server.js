@@ -14,19 +14,19 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Render の Environment Variables を利用
-const GITHUB_OWNER = process.env.GITHUB_OWNER; // 例: "housou0401"
-const REPO_NAME = process.env.REPO_NAME;         // 例: "request-musicE"
-const FILE_PATH = "db.json"; // リモート保存先ファイル（db.json 全体）
+// 環境変数
+const GITHUB_OWNER = process.env.GITHUB_OWNER;
+const REPO_NAME = process.env.REPO_NAME;
+const FILE_PATH = "db.json";
 const BRANCH = process.env.GITHUB_BRANCH || "main";
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;  // Personal Access Token
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
-  console.error("必要な環境変数が設定されていません。Render の Environment Variables を確認してください。");
+  console.error("環境変数が不足しています。");
   process.exit(1);
 }
 
-// データベース設定（lowdb 用の db.json は responses、lastSubmissions、songCounts、settings を含む）
+// db.json 読み込み
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -51,17 +51,10 @@ if (!db.data.settings) {
   db.write();
 }
 
-// ミドルウェア
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// クライアントのIP取得（必要に応じて）
-const getClientIP = (req) => {
-  return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
-};
-
-/* --- Apple Music 検索関連 --- */
-// 補助関数：指定した言語でクエリを実行し、JSON を返す
+// Apple Music検索用の補助関数
 const fetchResultsForQuery = async (query, lang) => {
   const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
   const response = await fetch(url);
@@ -81,7 +74,7 @@ const fetchResultsForQuery = async (query, lang) => {
   }
 };
 
-// Apple Music 検索：対応言語は日本語、韓国語、英語（en_us / en_gb）に対応
+// Apple Music検索メイン関数
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
@@ -97,7 +90,7 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     } else {
       lang = "en_us";
     }
-    
+
     let queries = [];
     if (artistName && artistName.trim().length > 0) {
       queries.push(`"${songTitle}" ${artistName}`);
@@ -108,7 +101,7 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
       queries.push(`${songTitle} official`);
     }
     queries.push(songTitle);
-    
+
     for (let query of queries) {
       let data;
       if (lang === "en_us" || lang === "en_gb") {
@@ -145,16 +138,18 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
   }
 };
 
-// /search エンドポイント：mode によって処理を分岐
+// /search エンドポイント
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   if (mode === "artist") {
-    const query = req.query.query;
-    if (!query || query.trim().length === 0) return res.json([]);
-    // アーティストから検索の場合、入力された文字列をアーティスト名として扱う
-    const suggestions = await fetchAppleMusicInfo(query.trim(), query.trim());
+    // アーティストから検索の場合
+    const artistQuery = req.query.query;
+    if (!artistQuery || artistQuery.trim().length === 0) return res.json([]);
+    // artistQueryを曲名にもアーティスト名にも同じ文字列を入れて検索
+    const suggestions = await fetchAppleMusicInfo(artistQuery.trim(), artistQuery.trim());
     res.json(suggestions);
   } else {
+    // songモード
     const query = req.query.query;
     const artist = req.query.artist || "";
     if (!query || query.trim().length === 0) return res.json([]);
@@ -163,16 +158,15 @@ app.get("/search", async (req, res) => {
   }
 });
 
-/* --- エンドポイント --- */
-// リクエスト送信処理（必ず選択済みの曲がある場合のみ送信可能）
+// リクエスト送信
 app.post("/submit", async (req, res) => {
-  // ここでは隠しフィールド appleMusicUrlHidden や artworkUrlHidden が必須
+  // 曲選択が必須：appleMusicUrlHidden が空なら拒否
   if (!req.body.appleMusicUrl || !req.body.artworkUrl) {
     res.set("Content-Type", "text/html");
     return res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"></head>
 <body><script>
-alert("⚠️必ず曲を選択してください");
+alert("⚠️必ず候補一覧から曲を選択してください");
 window.location.href="/";
 </script></body></html>`);
   }
@@ -223,7 +217,7 @@ window.location.href="/";
 </script></body></html>`);
 });
 
-// GitHub API を利用した同期関数（db.json 全体をそのままアップロード）
+// GitHub 同期用
 async function syncRequestsToGitHub() {
   try {
     const localContent = JSON.stringify(db.data, null, 2);
@@ -274,7 +268,6 @@ async function syncRequestsToGitHub() {
   }
 }
 
-// /sync-requests エンドポイント（同期完了後、3秒後に管理者画面へ自動リダイレクト）
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
@@ -288,7 +281,7 @@ app.get("/sync-requests", async (req, res) => {
   }
 });
 
-// /fetch-requests エンドポイント（取得完了後、3秒後に管理者画面へ自動リダイレクト）
+// GitHub から取得
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
@@ -316,7 +309,7 @@ app.get("/fetch-requests", async (req, res) => {
   }
 });
 
-// 【管理者ページ】
+// 管理者ページ
 app.get("/admin", (req, res) => {
   let responseList = `<!DOCTYPE html>
 <html lang="ja">
@@ -363,11 +356,10 @@ app.get("/admin", (req, res) => {
       display: block;
       margin-bottom: 10px;
     }
-    /* 管理者用の設定フォーム内フィールド */
+    /* 管理者用設定フォーム内 */
     .setting-field {
       margin-bottom: 10px;
     }
-    /* 管理者用のボタン */
     .sync-btn, .fetch-btn {
       padding: 12px 20px;
       border: none;
@@ -390,13 +382,11 @@ app.get("/admin", (req, res) => {
     .fetch-btn:hover {
       background-color: #138496;
     }
-    /* ボタンコンテナを左寄せ */
     .button-container {
       display: flex;
       justify-content: flex-start;
       margin-bottom: 10px;
     }
-    /* ローディングスピナー */
     .spinner {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #3498db;
@@ -411,14 +401,12 @@ app.get("/admin", (req, res) => {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* 選択中ラベル（ユーザーフォームの候補一覧と選択された曲の間に表示） */
     .selected-label {
       font-size: 12px;
       color: #555;
       margin-bottom: 5px;
       text-align: left;
     }
-    /* スマートフォン・PC対応 */
     @media (max-width: 600px) {
       .container, form, textarea, input[type="text"] {
         width: 95%;
@@ -428,11 +416,9 @@ app.get("/admin", (req, res) => {
         padding: 10px 16px;
       }
     }
-    /* テキストボックスの自動拡大抑制 */
     input, textarea {
       -webkit-text-size-adjust: 100%;
     }
-    /* 過剰スクロール防止 */
     html, body {
       overscroll-behavior: contain;
     }
@@ -486,8 +472,6 @@ app.get("/admin", (req, res) => {
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>`;
-  // 選択中ラベル（管理者ページでは非表示、すでにユーザーフォーム側に配置済み）
-  // 戻るリンク
   responseList += `<br><a href='/'>↵戻る</a>`;
   responseList += `
   <script>
@@ -576,7 +560,7 @@ app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
 
-// 自動更新ジョブ（20分ごとに db.json 全体を GitHub にアップロード）
+// 自動更新ジョブ
 cron.schedule("*/20 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
