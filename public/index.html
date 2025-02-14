@@ -61,9 +61,10 @@
     <!-- 送信フォーム -->
     <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
       <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
+      <!-- 新規：アーティスト名入力欄 -->
+      <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力してください" oninput="searchSongs()">
       <div id="suggestions"></div>
       <div id="selectedSong"></div>
-      <input type="hidden" id="artistHidden" name="artist">
       <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
       <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
       <button type="submit">送信</button>
