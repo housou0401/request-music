@@ -199,6 +199,22 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%B5%E3%82%AF%E3%83%A9%E3%82%AD%E3%83%9F%E3%83%AF%E3%82%BF%E3%82%B7/1781833057?i=1781833066&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f3/c0/47/f3c04781-71d4-1a2c-5a50-81e68bddcc5d/4582649401234.jpg/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "cEXu03TCvCX7T9TNs2JL9",
+      "text": "BRIGHTEN UP",
+      "artist": "GLAY",
+      "appleMusicUrl": "https://music.apple.com/jp/album/brighten-up/1767754694?i=1767754821&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/42/e7/72/42e772bd-6620-0910-703b-5c629d11e937/4524135203991.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "E5v9T3lR4nIL2-ZwBFZY9",
+      "text": "チョコスプレー♡",
+      "artist": "いぎなり東北産",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%81%E3%83%A7%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC%E3%83%BC/1774372586?i=1774372593&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/41/69/4c/41694c4c-13fa-230a-cd1f-53a5b87a8e1b/4580789672545.png/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -233,7 +249,9 @@
     "エイトビート|シンガーズハイ": 1,
     "home|bts": 1,
     "初心love (うぶらぶ)|なにわ男子": 1,
-    "サクラキミワタシ|tuki.": 1
+    "サクラキミワタシ|tuki.": 1,
+    "brighten up|glay": 1,
+    "チョコスプレー♡|いぎなり東北産": 1
   },
   "settings": {
     "recruiting": true,
