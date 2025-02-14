@@ -47,6 +47,30 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%A7%E6%9C%88/1482222513?i=1482222519&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/a7/6b/f4/a76bf4d9-5643-9c20-c3be-d4dd3b2f6b81/4580684120264.jpg/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "t0c4Asyytl03488310Pyp",
+      "text": "リヴ",
+      "artist": "B'z",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%AA%E3%83%B4/1645230820?i=1645231185&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/b8/00/f1/b800f145-5927-c9d0-c5ae-7fa0e4cbafa3/BMCV-8066.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "cak9TqZuDkmG2MHKA9Dg8",
+      "text": "Shadow",
+      "artist": "SEVENTEEN",
+      "appleMusicUrl": "https://music.apple.com/jp/album/shadow/1625554104?i=1625554114&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/cc/33/57/cc335787-dbac-063b-6327-a44757b41783/dj.zicfzhkh.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "-b11OwwHkKMfXhfH5R8og",
+      "text": "アウトライン",
+      "artist": "imase",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%A6%E3%83%88%E3%83%A9%E3%82%A4%E3%83%B3/1773929941?i=1773929942&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/0d/36/b3/0d36b3af-36ad-ca6b-d92a-48f134ccbfc2/24UM1IM08293.rgb.jpg/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -58,7 +82,12 @@
     "君からの贈り物|ちゃんみな": 1,
     "成れの果てのグリフ|まふまふ": 1,
     "恋|アーティスト不明": 1,
-    "朧月|まふまふ": 1
+    "朧月|まふまふ": 1,
+    "リヴ|b'z": 1,
+    "shadow|アーティスト不明": 1,
+    "shadow|seventeen": 1,
+    "アウトライン|アーティスト不明": 1,
+    "アウトライン|imase": 1
   },
   "settings": {
     "recruiting": true,
