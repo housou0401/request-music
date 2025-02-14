@@ -26,7 +26,7 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// データベース設定（lowdb用の db.json は responses などを含む）
+// データベース設定（lowdb 用の db.json は responses、lastSubmissions、songCounts、settings を含む）
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -61,6 +61,7 @@ const getClientIP = (req) => {
 };
 
 /* --- Apple Music 検索関連 --- */
+
 // 補助関数：指定した言語でクエリを実行し、JSON を返す
 const fetchResultsForQuery = async (query, lang) => {
   const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
@@ -74,7 +75,7 @@ const fetchResultsForQuery = async (query, lang) => {
   }
 };
 
-// Apple Music 検索：対応言語は日本語、韓国語、英語（en_us/en_gb）に対応
+// Apple Music 検索：対応言語は日本語、韓国語、英語（en_us / en_gb）に対応
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
@@ -187,7 +188,6 @@ window.location.href="/";
     });
   }
   db.write();
-  // 保存時は db.data 全体を JSON 形式で保存
   const localContent = JSON.stringify(db.data, null, 2);
   fs.writeFileSync("db.json", localContent);
   res.set("Content-Type", "text/html");
@@ -250,7 +250,7 @@ async function syncRequestsToGitHub() {
   }
 }
 
-// /sync-requests エンドポイント（完了後に管理者画面へ自動リダイレクト）
+// /sync-requests エンドポイント（同期完了後、3秒後に管理者画面へ自動リダイレクト）
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
@@ -264,7 +264,7 @@ app.get("/sync-requests", async (req, res) => {
   }
 });
 
-// /fetch-requests エンドポイント（完了後に管理者画面へ自動リダイレクト）
+// /fetch-requests エンドポイント（取得完了後、3秒後に管理者画面へ自動リダイレクト）
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
@@ -462,9 +462,9 @@ app.get("/admin", (req, res) => {
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>`;
-  // 選択中ラベル
+  // 選択中ラベル（ユーザーフォームと近似曲一覧の間に配置）
   responseList += `<div class="selected-label">選択中</div>`;
-  // 戻るリンクはボタンコンテナの下
+  // 戻るリンク
   responseList += `<br><a href='/'>↵戻る</a>`;
   responseList += `
   <script>
