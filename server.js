@@ -75,7 +75,7 @@ const fetchResultsForQuery = async (query, lang) => {
   }
 };
 
-// Apple Music 検索：対応言語は日本語、韓国語、英語（アメリカ・イギリス）に対応
+// Apple Music 検索：対応言語は日本語、韓国語、英語（en_us/en_gb）に対応
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
@@ -87,13 +87,13 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     } else if (hasJapanese) {
       lang = "ja_jp";
     } else if (hasEnglish) {
-      // 英語の場合、まず試すのは en_us
       lang = "en_us";
     } else {
       lang = "en_us";
     }
     
     let queries = [];
+    // もしアーティスト名が入力されていれば、検索クエリに含める
     if (artistName && artistName.trim().length > 0) {
       queries.push(`"${songTitle}" ${artistName}`);
       queries.push(`${songTitle} ${artistName}`);
@@ -102,15 +102,14 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
       queries.push(`"${songTitle}"`);
       queries.push(`${songTitle} official`);
     }
+    // 曲名単体の検索も試行
     queries.push(songTitle);
     
     for (let query of queries) {
       let data;
       if (lang === "en_us" || lang === "en_gb") {
-        // 試行: まず指定の言語
         data = await fetchResultsForQuery(query, lang);
-        // もし失敗または結果が不十分なら、もう一方の英語コードを試す
-        if (!data || !data.results) {
+        if (!data || !data.results || data.results.length === 0) {
           const altLang = (lang === "en_us") ? "en_gb" : "en_us";
           data = await fetchResultsForQuery(query, altLang);
         }
@@ -142,15 +141,16 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
   }
 };
 
-/* --- エンドポイント --- */
-
-// /search エンドポイント
+// /search エンドポイント：曲名とアーティスト名の両方のクエリを受け取る
 app.get("/search", async (req, res) => {
   const query = req.query.query;
+  const artist = req.query.artist || "";
   if (!query || query.trim().length === 0) return res.json([]);
-  const suggestions = await fetchAppleMusicInfo(query.trim(), "");
+  const suggestions = await fetchAppleMusicInfo(query.trim(), artist.trim());
   res.json(suggestions);
 });
+
+/* --- エンドポイント --- */
 
 // リクエスト送信処理
 app.post("/submit", async (req, res) => {
@@ -190,7 +190,7 @@ window.location.href="/";
     });
   }
   db.write();
-  // 保存時は db.data 全体を JSON 形式で保存
+  // db.json 全体を保存
   const localContent = JSON.stringify(db.data, null, 2);
   fs.writeFileSync("db.json", localContent);
   res.set("Content-Type", "text/html");
@@ -253,7 +253,7 @@ async function syncRequestsToGitHub() {
   }
 }
 
-// /sync-requests エンドポイント（同期完了後に管理者画面へ自動リダイレクト）
+// /sync-requests エンドポイント（完了後に管理者画面へ自動リダイレクト）
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
@@ -267,7 +267,7 @@ app.get("/sync-requests", async (req, res) => {
   }
 });
 
-// /fetch-requests エンドポイント（取得完了後に管理者画面へ自動リダイレクト）
+// /fetch-requests エンドポイント（完了後に管理者画面へ自動リダイレクト）
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
@@ -514,7 +514,7 @@ app.get("/admin", (req, res) => {
   res.send(responseList);
 });
 
-// 【リクエスト削除機能】
+// リクエスト削除機能
 app.get("/delete/:id", (req, res) => {
   const id = req.params.id;
   db.data.responses = db.data.responses.filter(entry => entry.id !== id);
@@ -529,13 +529,13 @@ window.location.href="/admin";
 </script></body></html>`);
 });
 
-// 【管理者ログイン】
+// 管理者ログイン
 app.get("/admin-login", (req, res) => {
   const { password } = req.query;
   res.json({ success: password === db.data.settings.adminPassword });
 });
 
-// 【設定更新機能】
+// 設定更新機能
 app.post("/update-settings", (req, res) => {
   db.data.settings.recruiting = req.body.recruiting ? false : true;
   db.data.settings.reason = req.body.reason || "";
@@ -551,13 +551,12 @@ app.post("/update-settings", (req, res) => {
 </body></html>`);
 });
 
-// 【設定取得機能（ユーザーフォーム用）】
+// 設定取得機能（ユーザーフォーム用）
 app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
 
-// ---------- 自動更新ジョブ ----------
-// 20分ごとに db.json 全体を GitHub にアップロードする
+// 自動更新ジョブ（20分ごとに db.json 全体を GitHub にアップロード）
 cron.schedule("*/20 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
@@ -568,7 +567,7 @@ cron.schedule("*/20 * * * *", async () => {
   }
 });
 
-// ---------- サーバー起動 ----------
+// サーバー起動
 app.listen(PORT, () => {
   console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
 });
