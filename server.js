@@ -145,19 +145,37 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
   }
 };
 
-// /search エンドポイント：曲名とアーティスト名の両方を受け取る
+// /search エンドポイント：mode によって処理を分岐
 app.get("/search", async (req, res) => {
-  const query = req.query.query;
-  const artist = req.query.artist || "";
-  if (!query || query.trim().length === 0) return res.json([]);
-  const suggestions = await fetchAppleMusicInfo(query.trim(), artist.trim());
-  res.json(suggestions);
+  const mode = req.query.mode || "song";
+  if (mode === "artist") {
+    const query = req.query.query;
+    if (!query || query.trim().length === 0) return res.json([]);
+    // アーティストから検索の場合、入力された文字列をアーティスト名として扱う
+    const suggestions = await fetchAppleMusicInfo(query.trim(), query.trim());
+    res.json(suggestions);
+  } else {
+    const query = req.query.query;
+    const artist = req.query.artist || "";
+    if (!query || query.trim().length === 0) return res.json([]);
+    const suggestions = await fetchAppleMusicInfo(query.trim(), artist.trim());
+    res.json(suggestions);
+  }
 });
 
 /* --- エンドポイント --- */
-
-// リクエスト送信処理
+// リクエスト送信処理（必ず選択済みの曲がある場合のみ送信可能）
 app.post("/submit", async (req, res) => {
+  // ここでは隠しフィールド appleMusicUrlHidden や artworkUrlHidden が必須
+  if (!req.body.appleMusicUrl || !req.body.artworkUrl) {
+    res.set("Content-Type", "text/html");
+    return res.send(`<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"></head>
+<body><script>
+alert("⚠️必ず曲を選択してください");
+window.location.href="/";
+</script></body></html>`);
+  }
   const responseText = req.body.response?.trim();
   const artistText = req.body.artist?.trim() || "アーティスト不明";
   if (!responseText) {
@@ -393,7 +411,7 @@ app.get("/admin", (req, res) => {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    /* 選択中ラベル */
+    /* 選択中ラベル（ユーザーフォームの候補一覧と選択された曲の間に表示） */
     .selected-label {
       font-size: 12px;
       color: #555;
@@ -462,14 +480,13 @@ app.get("/admin", (req, res) => {
   <br>
   <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
 </form>`;
-  // ボタンコンテナ：Sync と Fetch ボタン、左寄せ＋ローディングスピナー
+  // ボタンコンテナ
   responseList += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>`;
-  // 選択中ラベルを、ユーザーフォームの近似曲一覧と選択された曲の間に配置
-  responseList += `<div class="selected-label">選択中</div>`;
+  // 選択中ラベル（管理者ページでは非表示、すでにユーザーフォーム側に配置済み）
   // 戻るリンク
   responseList += `<br><a href='/'>↵戻る</a>`;
   responseList += `
