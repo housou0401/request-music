@@ -102,7 +102,7 @@
       "artist": "CUTIE STREET",
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%B2%E3%81%9F%E3%82%80%E3%81%8D%E3%82%B7%E3%83%B3%E3%83%87%E3%83%AC%E3%83%A9/1773182069?i=1773182072&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/15/66/08/15660826-26d9-5c6f-249b-bc5a481f1086/4580789670411.png/100x100bb.jpg",
-      "count": 1
+      "count": 2
     },
     {
       "id": "lLh8EDz8BkCpOw_5LF7NT",
@@ -127,6 +127,46 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/cbz-prime-time/1786535486?i=1786535487&l=en&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b4/30/94/b43094fa-78cc-bebf-9bea-9012528aa9e0/24UM1IM40912.rgb.jpg/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "FzarfF3-NifdqmoJmn7na",
+      "text": "shine",
+      "artist": "jagwar twin",
+      "appleMusicUrl": "",
+      "artworkUrl": "",
+      "count": 1
+    },
+    {
+      "id": "sExfQUXCEp04mFQjvns0E",
+      "text": "onion boy",
+      "artist": "Isaac Dunbar",
+      "appleMusicUrl": "",
+      "artworkUrl": "",
+      "count": 1
+    },
+    {
+      "id": "8cZT-dAekkOnsUg4p0jUL",
+      "text": "可愛いだけじゃダメですか",
+      "artist": "CUTIE STREET",
+      "appleMusicUrl": "",
+      "artworkUrl": "",
+      "count": 1
+    },
+    {
+      "id": "xKis8plKEK5y6HIiemmJd",
+      "text": "Ashes",
+      "artist": "stellar",
+      "appleMusicUrl": "",
+      "artworkUrl": "",
+      "count": 1
+    },
+    {
+      "id": "c4dG1rgTVfpjTHZAnCgI_",
+      "text": "start",
+      "artist": "ミセスグリーンアップル",
+      "appleMusicUrl": "",
+      "artworkUrl": "",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -147,12 +187,17 @@
     "yeppi yeppi|aespa": 1,
     "のだ|大漠波新": 1,
     "ベルベットの詩|back number": 1,
-    "ひたむきシンデレラ!|cutie street": 1,
+    "ひたむきシンデレラ!|cutie street": 2,
     "campus mode!!|初星学園": 1,
     "キス・ミー・パティシエ|candy tune": 1,
     "cbz (prime time)|bss": 1,
     "hold my hand|stray kids": 1,
-    "チョコスプレー|アーティスト不明": 1
+    "チョコスプレー|アーティスト不明": 1,
+    "shine|jagwar twin": 1,
+    "onion boy|isaac dunbar": 1,
+    "可愛いだけじゃダメですか|cutie street": 1,
+    "ashes|stellar": 1,
+    "start|ミセスグリーンアップル": 1
   },
   "settings": {
     "recruiting": true,
