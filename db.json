@@ -167,6 +167,22 @@
       "appleMusicUrl": "",
       "artworkUrl": "",
       "count": 1
+    },
+    {
+      "id": "780OL2QlekYUuiexMhTF6",
+      "text": "エイトビート",
+      "artist": "シンガーズハイ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A8%E3%82%A4%E3%83%88%E3%83%93%E3%83%BC%E3%83%88/1740458479?i=1740458481&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/04/13/d6/0413d609-f394-5aaf-9d49-265ccf15eeac/PA00143272_0_188786_jacket.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "kGq_a7XOupCiWVcgEqltF",
+      "text": "HOME",
+      "artist": "BTS",
+      "appleMusicUrl": "https://music.apple.com/jp/album/home/1459251626?i=1459251666&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/ac/e7/2c/ace72c80-5225-bc1a-2f80-2143e36d1ab9/19UMGIM33663.rgb.jpg/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -197,7 +213,9 @@
     "onion boy|isaac dunbar": 1,
     "可愛いだけじゃダメですか|cutie street": 1,
     "ashes|stellar": 1,
-    "start|ミセスグリーンアップル": 1
+    "start|ミセスグリーンアップル": 1,
+    "エイトビート|シンガーズハイ": 1,
+    "home|bts": 1
   },
   "settings": {
     "recruiting": true,
