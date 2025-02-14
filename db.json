@@ -153,14 +153,6 @@
       "count": 1
     },
     {
-      "id": "c4dG1rgTVfpjTHZAnCgI_",
-      "text": "start",
-      "artist": "ミセスグリーンアップル",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 1
-    },
-    {
       "id": "780OL2QlekYUuiexMhTF6",
       "text": "エイトビート",
       "artist": "シンガーズハイ",
@@ -233,46 +225,6 @@
       "count": 1
     },
     {
-      "id": "ZzAHRBOPdowAQwrePzW-I",
-      "text": "Smile",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 1
-    },
-    {
-      "id": "5JW6S8idcrvCsLVDlKD_Y",
-      "text": "うらみつらみきわみ",
-      "artist": "official髭男dism",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 2
-    },
-    {
-      "id": "BUtDF3wzLTc4bAqOhTmtA",
-      "text": "らぶきゅん♡うぉんてっど",
-      "artist": "きゅるりんってしてみて",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 1
-    },
-    {
-      "id": "V-fBveYa4GPzSuAKlKYAi",
-      "text": "Drop",
-      "artist": "HANA",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 1
-    },
-    {
-      "id": "K4O5EvFAcgkqZgK2u-luq",
-      "text": "我がまま",
-      "artist": "くじら",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 1
-    },
-    {
       "id": "oUB9tsRVCYGUWNlPuCpAI",
       "text": "糸",
       "artist": "中島みゆき",
@@ -286,6 +238,38 @@
       "artist": "CUTIE STREET",
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84%E3%81%A0%E3%81%91%E3%81%98%E3%82%83%E3%81%A0%E3%82%81%E3%81%A7%E3%81%99%E3%81%8B/1763186227?i=1763186228&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a3/8c/56/a38c56a0-65c8-e97f-fa21-b9c5671f09f6/4580789660139.png/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "ZJJfmP-jq-zf2ATsyvRnb",
+      "text": "我がまま",
+      "artist": "くじら",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%88%91%E3%81%8C%E3%81%BE%E3%81%BE/1754273051?i=1754273054&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d2/3f/41/d23f41dd-0c81-73e8-9039-57f5cf6eb607/4547366694857.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "isRU5xYuyy1vK2cH9-8kL",
+      "text": "うらみつらみきわみ",
+      "artist": "Official髭男dism",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%86%E3%82%89%E3%81%BF%E3%81%A4%E3%82%89%E3%81%BF%E3%81%8D%E3%82%8F%E3%81%BF/1754117467?i=1754117750&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5e/35/b0/5e35b0e7-4c59-d77b-5856-5edc4413adae/PCCA_06304_A.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "mez5sMPnO1QuLxjTokQ9J",
+      "text": "らぶきゅん♡うぉんてっど",
+      "artist": "きゅるりんってしてみて",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%89%E3%81%B6%E3%81%8D%E3%82%85%E3%82%93-%E3%81%86%E3%81%89%E3%82%93%E3%81%A6%E3%81%A3%E3%81%A9/1733786499?i=1733786503&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0b/5c/b6/0b5cb6d8-47bd-43e8-7d07-33881f7da296/3617222626733_cover.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "BZUcwXPPgP3qmtHB-9mtC",
+      "text": "StaRt",
+      "artist": "Mrs. GREEN APPLE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/start/1440745429?i=1440745441&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/0b/35/3a/0b353aeb-db33-a263-889d-1a8a7bfdbcec/00600406599247.rgb.jpg/100x100bb.jpg",
       "count": 1
     }
   ],
@@ -328,13 +312,14 @@
     "what's going on?|official髭男dism": 2,
     "candy ~can u be my baby~ (new vocal mix 2024)|中島健人": 1,
     "smile|アーティスト不明": 1,
-    "うらみつらみきわみ|official髭男dism": 2,
-    "らぶきゅん♡うぉんてっど|きゅるりんってしてみて": 1,
+    "うらみつらみきわみ|official髭男dism": 3,
+    "らぶきゅん♡うぉんてっど|きゅるりんってしてみて": 3,
     "drop|hana": 1,
-    "我がまま|くじら": 1,
+    "我がまま|くじら": 2,
     "糸|中島みゆき": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
-    "シャルル|神田沙也加": 1
+    "シャルル|神田沙也加": 1,
+    "start|mrs. green apple": 1
   },
   "settings": {
     "recruiting": false,
