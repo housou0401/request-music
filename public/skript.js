@@ -23,7 +23,7 @@ function setSearchMode(mode) {
   if (mode === "artist") {
     // アーティストモード：artistName入力欄を非表示、songNameを再利用
     document.getElementById("artistName").style.display = "none";
-    document.getElementById("songName").placeholder = "アーティスト名を入力";
+    document.getElementById("songName").placeholder = "アーティスト名を入力してください";
     document.getElementById("modeArtist").style.backgroundColor = "#007bff";
     document.getElementById("modeArtist").style.color = "white";
     document.getElementById("modeSong").style.backgroundColor = "";
@@ -31,7 +31,7 @@ function setSearchMode(mode) {
   } else {
     // 曲名モード：通常表示
     document.getElementById("artistName").style.display = "block";
-    document.getElementById("songName").placeholder = "曲名を入力";
+    document.getElementById("songName").placeholder = "曲名を入力してください";
     document.getElementById("modeSong").style.backgroundColor = "#007bff";
     document.getElementById("modeSong").style.color = "white";
     document.getElementById("modeArtist").style.backgroundColor = "";
@@ -99,8 +99,9 @@ async function searchSongs() {
 function selectArtist(artist) {
   selectedArtistId = artist.artistId;
   artistPhase = 1;
-  // 表示：選択中のアーティストカード（artistモード用）
+  // アーティスト選択中表示（「選択中のアーティスト」ラベル付き）
   document.getElementById("selectedArtist").innerHTML = `
+    <div class="selected-label">選択中のアーティスト</div>
     <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; margin-top:10px;">
       <div style="display: flex; align-items: center;">
         <img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
@@ -112,7 +113,7 @@ function selectArtist(artist) {
     </div>
   `;
   document.getElementById("suggestions").innerHTML = "";
-  // そのアーティストの曲一覧を表示
+  // アーティスト選択後、アーティストの曲一覧を表示
   fetchArtistTracksAndShow();
 }
 
@@ -141,14 +142,15 @@ async function fetchArtistTracksAndShow() {
 }
 
 function selectSong(song) {
-  // 曲選択時：songName は必ず更新。artistName は、songモードの場合のみ上書きしない
+  // 曲選択時：songName は必ず更新。artistName は、songモードの場合のみ更新（上書きしない）
   document.getElementById("songName").value = song.trackName;
   if (searchMode === "song") {
     if (document.getElementById("artistName").value.trim() === "") {
       document.getElementById("artistName").value = song.artistName;
     }
   }
-  document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中</div>`;
+  // 「選択中の曲」ラベル表示
+  document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中の曲</div>`;
   const selectedSongContainer = document.getElementById("selectedSong");
   selectedSongContainer.innerHTML = `
     <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; margin-top:10px;">
@@ -162,6 +164,7 @@ function selectSong(song) {
       <button class="clear-btn" onclick="clearSelection()">×</button>
     </div>
   `;
+  // 隠しフィールドにセット
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
