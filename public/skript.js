@@ -26,13 +26,15 @@ async function searchSongs() {
   }
 }
 
-// 選択された曲を入力欄に反映し、専用コンテナ #selectedSong に表示する（前回の形式に戻す）
+// 選択された曲を入力欄に反映し、専用コンテナ #selectedSong に表示する
 function selectSong(song) {
   document.getElementById("songName").value = song.trackName;
   document.getElementById("artistName").value = song.artistName;
+  // 選択中ラベルを表示
+  document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中</div>`;
   const selectedSongContainer = document.getElementById("selectedSong");
   selectedSongContainer.innerHTML = `
-    <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; margin-top: 10px;">
       <div style="display: flex; align-items: center;">
         <img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
         <div>
@@ -43,7 +45,6 @@ function selectSong(song) {
       <button class="clear-btn" onclick="clearSelection()">×</button>
     </div>
   `;
-  // hidden fields（appleMusicUrl と artworkUrl のみ）
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
@@ -68,8 +69,13 @@ function selectSong(song) {
 // 選択解除ボタンの処理
 function clearSelection() {
   document.getElementById("selectedSong").innerHTML = "";
-  if (document.getElementById("appleMusicUrlHidden")) document.getElementById("appleMusicUrlHidden").value = "";
-  if (document.getElementById("artworkUrlHidden")) document.getElementById("artworkUrlHidden").value = "";
+  document.getElementById("selectedLabel").innerHTML = "";
+  if (document.getElementById("appleMusicUrlHidden")) {
+    document.getElementById("appleMusicUrlHidden").value = "";
+  }
+  if (document.getElementById("artworkUrlHidden")) {
+    document.getElementById("artworkUrlHidden").value = "";
+  }
   const songNameInput = document.getElementById("songName");
   if (songNameInput.value.trim().length > 0) {
     setTimeout(searchSongs, 100);
