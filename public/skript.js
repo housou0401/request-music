@@ -29,10 +29,9 @@ async function searchSongs() {
 function selectSong(song) {
   document.getElementById("songName").value = song.trackName;
   const selectedSongContainer = document.getElementById("selectedSong");
-  // 「選択中」ラベルを追加し、選択された曲カードを表示
   selectedSongContainer.innerHTML = `
-    <div style="text-align:left; font-size:12px; color:#555; margin-bottom:5px;">選択中</div>
-    <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; background: #f0f0f0; border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 20px;">
+    <div class="selected-label">選択中</div>
+    <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between;">
       <div style="display: flex; align-items: center;">
         <img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
         <div>
