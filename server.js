@@ -582,7 +582,7 @@ app.post("/update-settings", (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">設定を完了しました。</p>
+<p style="font-size:18px; color:green;">設定を完了しました。3秒後に管理者ページに戻ります。</p>
 </body></html>`);
 });
 
