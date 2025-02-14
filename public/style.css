@@ -22,7 +22,7 @@ body {
 }
 
 h1 {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 input[type="text"], textarea {
@@ -140,11 +140,11 @@ button:hover {
   margin-right: 10px;
 }
 
-/* 検索モード切り替えボタン */
+/* 検索モード切替ボタン */
 #modeSong, #modeArtist {
   flex: 1;
-  font-size: 14px;
-  padding: 6px 8px;
+  font-size: 13px;
+  padding: 5px 6px;
   margin: 0 2px;
   border: 1px solid #ccc;
   background-color: #f0f0f0;
@@ -153,11 +153,11 @@ button:hover {
   cursor: pointer;
   outline: none;
 }
-
 #modeSong:hover, #modeArtist:hover {
   background-color: #e0e0e0;
 }
 
+/* ボタンコンテナ */
 .button-container {
   display: flex;
   justify-content: flex-start;
@@ -174,12 +174,12 @@ button:hover {
   display: none;
   margin-left: 10px;
 }
-
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
+/* レスポンシブ */
 @media (max-width: 600px) {
   .container, form, textarea, input[type="text"] {
     width: 95%;
@@ -189,7 +189,7 @@ button:hover {
     padding: 10px;
   }
   #modeSong, #modeArtist {
-    font-size: 13px;
-    padding: 5px 6px;
+    font-size: 12px;
+    padding: 4px 5px;
   }
 }
