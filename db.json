@@ -145,14 +145,6 @@
       "count": 1
     },
     {
-      "id": "8cZT-dAekkOnsUg4p0jUL",
-      "text": "可愛いだけじゃダメですか",
-      "artist": "CUTIE STREET",
-      "appleMusicUrl": "",
-      "artworkUrl": "",
-      "count": 1
-    },
-    {
       "id": "xKis8plKEK5y6HIiemmJd",
       "text": "Ashes",
       "artist": "stellar",
@@ -287,6 +279,14 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E7%B3%B8/118594595?i=118593606&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music3/v4/9a/89/36/9a893670-cade-dfc3-48aa-3151d788b267/dj.tudzzvxs.jpg/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "M_Tx2ZkEJOZD3FuO2FvuL",
+      "text": "かわいいだけじゃだめですか?",
+      "artist": "CUTIE STREET",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84%E3%81%A0%E3%81%91%E3%81%98%E3%82%83%E3%81%A0%E3%82%81%E3%81%A7%E3%81%99%E3%81%8B/1763186227?i=1763186228&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a3/8c/56/a38c56a0-65c8-e97f-fa21-b9c5671f09f6/4580789660139.png/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -332,7 +332,8 @@
     "らぶきゅん♡うぉんてっど|きゅるりんってしてみて": 1,
     "drop|hana": 1,
     "我がまま|くじら": 1,
-    "糸|中島みゆき": 1
+    "糸|中島みゆき": 1,
+    "かわいいだけじゃだめですか?|cutie street": 1
   },
   "settings": {
     "recruiting": true,
