@@ -61,17 +61,23 @@ const getClientIP = (req) => {
 };
 
 /* --- Apple Music 検索関連 --- */
-
 // 補助関数：指定した言語でクエリを実行し、JSON を返す
 const fetchResultsForQuery = async (query, lang) => {
   const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
   const response = await fetch(url);
+  if (!response.ok) {
+    console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
+    return { results: [] };
+  }
   const text = await response.text();
+  if (text.trim() === "") {
+    return { results: [] };
+  }
   try {
     return JSON.parse(text);
   } catch (e) {
     console.error(`JSON parse error for lang=${lang} and query=${query}:`, e);
-    return null;
+    return { results: [] };
   }
 };
 
@@ -433,7 +439,7 @@ app.get("/admin", (req, res) => {
     </li>`;
   }
   responseList += `</ul>`;
-  // 設定フォーム：募集状態、理由、フロントエンドタイトル、管理者パスワード変更
+  // 設定フォーム
   responseList += `<form action="/update-settings" method="post">
   <div class="setting-field">
     <label>
@@ -462,7 +468,7 @@ app.get("/admin", (req, res) => {
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>`;
-  // 選択中ラベル（ユーザーフォームと近似曲一覧の間に配置）
+  // 選択中ラベルを、ユーザーフォームの近似曲一覧と選択された曲の間に配置
   responseList += `<div class="selected-label">選択中</div>`;
   // 戻るリンク
   responseList += `<br><a href='/'>↵戻る</a>`;
