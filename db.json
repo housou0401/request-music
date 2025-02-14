@@ -287,14 +287,6 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84%E3%81%A0%E3%81%91%E3%81%98%E3%82%83%E3%81%A0%E3%82%81%E3%81%A7%E3%81%99%E3%81%8B/1763186227?i=1763186228&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a3/8c/56/a38c56a0-65c8-e97f-fa21-b9c5671f09f6/4580789660139.png/100x100bb.jpg",
       "count": 1
-    },
-    {
-      "id": "4rYNTexQSVhSClMCDwu_K",
-      "text": "シャルル",
-      "artist": "神田沙也加",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%B7%E3%83%A3%E3%83%AB%E3%83%AB/1350691791?i=1350692051&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/2e/b9/e4/2eb9e4b3-b462-4b0b-441b-8dd2b90fcf80/QWCE_00675.jpg/100x100bb.jpg",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -345,7 +337,7 @@
     "シャルル|神田沙也加": 1
   },
   "settings": {
-    "recruiting": true,
+    "recruiting": false,
     "reason": "🔧調整中🔧",
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401"
