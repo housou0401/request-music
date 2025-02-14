@@ -61,7 +61,6 @@ const getClientIP = (req) => {
 };
 
 /* --- Apple Music 検索関連 --- */
-
 // 補助関数：指定した言語でクエリを実行し、JSON を返す
 const fetchResultsForQuery = async (query, lang) => {
   const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
@@ -93,7 +92,6 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     }
     
     let queries = [];
-    // もしアーティスト名が入力されていれば、検索クエリに含める
     if (artistName && artistName.trim().length > 0) {
       queries.push(`"${songTitle}" ${artistName}`);
       queries.push(`${songTitle} ${artistName}`);
@@ -102,7 +100,6 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
       queries.push(`"${songTitle}"`);
       queries.push(`${songTitle} official`);
     }
-    // 曲名単体の検索も試行
     queries.push(songTitle);
     
     for (let query of queries) {
@@ -141,7 +138,7 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
   }
 };
 
-// /search エンドポイント：曲名とアーティスト名の両方のクエリを受け取る
+// /search エンドポイント：曲名とアーティスト名の両方を受け取る
 app.get("/search", async (req, res) => {
   const query = req.query.query;
   const artist = req.query.artist || "";
@@ -190,7 +187,7 @@ window.location.href="/";
     });
   }
   db.write();
-  // db.json 全体を保存
+  // 保存時は db.data 全体を JSON 形式で保存
   const localContent = JSON.stringify(db.data, null, 2);
   fs.writeFileSync("db.json", localContent);
   res.set("Content-Type", "text/html");
