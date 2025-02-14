@@ -105,11 +105,11 @@
       "count": 1
     },
     {
-      "id": "jui31mOtyf8IJXDTbFN_K",
-      "text": "シャルル",
-      "artist": "バルーン",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%B7%E3%83%A3%E3%83%AB%E3%83%AB/1168548928?i=1168548985&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/a9/b8/fa/a9b8fab5-f5bc-36f2-5a54-ee8cce6b6b82/avogado6.jpg/100x100bb.jpg",
+      "id": "lLh8EDz8BkCpOw_5LF7NT",
+      "text": "Campus mode!!",
+      "artist": "初星学園",
+      "appleMusicUrl": "https://music.apple.com/jp/album/campus-mode/1749006685?i=1749006701&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/43/37/02/4337024f-e5fd-79ca-87ec-5dc1c7523e4d/PA00155503_0_193627_jacket.jpg/100x100bb.jpg",
       "count": 1
     }
   ],
@@ -131,7 +131,8 @@
     "yeppi yeppi|aespa": 1,
     "のだ|大漠波新": 1,
     "ベルベットの詩|back number": 1,
-    "ひたむきシンデレラ!|cutie street": 1
+    "ひたむきシンデレラ!|cutie street": 1,
+    "campus mode!!|初星学園": 1
   },
   "settings": {
     "recruiting": true,
