@@ -85,6 +85,7 @@ const fetchArtistTracks = async (artistId) => {
   try {
     const data = JSON.parse(text);
     if (!data.results || data.results.length <= 1) return [];
+    // 先頭はアーティスト情報なので除外
     return data.results.slice(1).map(r => ({
       trackName: r.trackName,
       artistName: r.artistName,
@@ -163,7 +164,7 @@ app.get("/search", async (req, res) => {
         const tracks = await fetchArtistTracks(req.query.artistId.trim());
         return res.json(tracks);
       } else {
-        // アーティスト一覧検索：entity=album で検索して、代表アルバムの artworkUrl をアイコンに
+        // アーティスト一覧検索：entity="album" を利用して代表画像を取得
         const query = req.query.query?.trim();
         if (!query || query.length === 0) return res.json([]);
         const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
@@ -177,7 +178,7 @@ app.get("/search", async (req, res) => {
           if (album.artistName && album.artistId) {
             if (!artistMap.has(album.artistId)) {
               artistMap.set(album.artistId, {
-                trackName: album.artistName,
+                trackName: album.artistName, // Apple Music の正確なアーティスト名
                 artistName: album.artistName,
                 artworkUrl: album.artworkUrl100 || "",
                 artistId: album.artistId
@@ -201,7 +202,7 @@ app.get("/search", async (req, res) => {
   }
 });
 
-// リクエスト送信（必ず曲選択済み）
+// リクエスト送信（曲選択必須）
 app.post("/submit", async (req, res) => {
   if (!req.body.appleMusicUrl || !req.body.artworkUrl) {
     res.set("Content-Type", "text/html");
@@ -582,7 +583,7 @@ app.post("/update-settings", (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
-<p style="font-size:18px; color:green;">設定を完了しました。3秒後に管理者ページに戻ります。</p>
+<p style="font-size:18px; color:green;">設定を完了しました。</p>
 </body></html>`);
 });
 
