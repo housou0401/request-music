@@ -160,7 +160,7 @@ app.get("/search", async (req, res) => {
   try {
     if (mode === "artist") {
       if (req.query.artistId) {
-        // 既にアーティストが選択済み → そのアーティストの曲一覧を返す
+        // アーティストが選択済み → そのアーティストの曲一覧を返す
         const tracks = await fetchArtistTracks(req.query.artistId.trim());
         return res.json(tracks);
       } else {
@@ -439,7 +439,8 @@ app.get("/admin", (req, res) => {
     .selected-label {
       font-size: 12px;
       color: #555;
-      margin-bottom: 5px;
+      margin-top: 8px;
+      margin-bottom: 8px;
       text-align: left;
     }
     @media (max-width: 600px) {
@@ -501,13 +502,13 @@ app.get("/admin", (req, res) => {
   <br>
   <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
 </form>`;
-  // 同期/取得ボタン
+  // 同期/取得ボタンと戻るボタン（戻るボタンを大きく）
   responseList += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>`;
-  responseList += `<br><a href='/'>↵戻る</a>`;
+  responseList += `<br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
   responseList += `
   <script>
     function syncToGitHub() {
