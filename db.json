@@ -71,11 +71,43 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%A6%E3%83%88%E3%83%A9%E3%82%A4%E3%83%B3/1773929941?i=1773929942&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/0d/36/b3/0d36b3af-36ad-ca6b-d92a-48f134ccbfc2/24UM1IM08293.rgb.jpg/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "q8NHv4echAmdmB21qYp7b",
+      "text": "シャルル",
+      "artist": "バルーン",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%B7%E3%83%A3%E3%83%AB%E3%83%AB/1168548928?i=1168548985&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/a9/b8/fa/a9b8fab5-f5bc-36f2-5a54-ee8cce6b6b82/avogado6.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "Cac5g7atM1wUi8nlziS75",
+      "text": "YEPPI YEPPI",
+      "artist": "aespa",
+      "appleMusicUrl": "https://music.apple.com/jp/album/yeppi-yeppi/1587844523?i=1587844527&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/51/f7/85/51f7852b-7602-136b-ac15-8b3878260c64/4000aespa_M01_Savage_DC.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "Mao7p20-GPsJ6aKtryAOt",
+      "text": "のだ",
+      "artist": "大漠波新",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%AE%E3%81%A0/1738619803?i=1738620253&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/75/be/b2/75beb2ac-5852-470b-257f-f3674c468859/PA00139998_0_187863_jacket.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "sQ2pMz9DKnxmlMVWTxqh6",
+      "text": "ベルベットの詩",
+      "artist": "back number",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%99%E3%83%AB%E3%83%99%E3%83%83%E3%83%88%E3%81%AE%E8%A9%A9/1639449124?i=1639449127&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/02/c8/d6/02c8d65e-8def-94c4-371f-99c7ac99c77d/22UMGIM77641.rgb.jpg/100x100bb.jpg",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
   "songCounts": {
-    "シャルル|バルーン": 1,
+    "シャルル|バルーン": 2,
     "1%の革命前夜|losstime life": 1,
     "ナルバキスン (look at me, gwisun) [jp version]|d-lite": 1,
     "欲望に満ちた青年団|one ok rock": 1,
@@ -87,7 +119,10 @@
     "shadow|アーティスト不明": 1,
     "shadow|seventeen": 1,
     "アウトライン|アーティスト不明": 1,
-    "アウトライン|imase": 1
+    "アウトライン|imase": 1,
+    "yeppi yeppi|aespa": 1,
+    "のだ|大漠波新": 1,
+    "ベルベットの詩|back number": 1
   },
   "settings": {
     "recruiting": true,
