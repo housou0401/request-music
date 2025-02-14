@@ -55,7 +55,6 @@
 </head>
 <body onload="checkRecruitingStatus(); updateFrontendTitle();">
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
-
   <div class="container" id="mainContainer">
     <!-- フロントエンドタイトルは /settings から取得 -->
     <h1 id="frontendTitle">♬曲をリクエストする</h1>
@@ -70,9 +69,7 @@
       <button type="submit">送信</button>
     </form>
   </div>
-
   <p class="privacy-note">個人情報は収集されません。</p>
-
   <script>
     // 募集状態チェック
     function checkRecruitingStatus() {
