@@ -85,7 +85,6 @@ const fetchArtistTracks = async (artistId) => {
   try {
     const data = JSON.parse(text);
     if (!data.results || data.results.length <= 1) return [];
-    // 先頭はアーティスト情報なので除外
     return data.results.slice(1).map(r => ({
       trackName: r.trackName,
       artistName: r.artistName,
@@ -98,7 +97,7 @@ const fetchArtistTracks = async (artistId) => {
   }
 };
 
-// 曲名検索用 (song mode)
+// 曲名検索用（song mode）
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
@@ -159,35 +158,34 @@ app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
     if (mode === "artist") {
-      // アーティストモード
       if (req.query.artistId) {
         // 既にアーティストが選択済み → そのアーティストの曲一覧を返す
         const tracks = await fetchArtistTracks(req.query.artistId.trim());
         return res.json(tracks);
       } else {
-        // アーティスト一覧検索 (entity=musicArtist)
+        // アーティスト一覧検索：entity=album で検索して、代表アルバムの artworkUrl をアイコンに
         const query = req.query.query?.trim();
         if (!query || query.length === 0) return res.json([]);
         const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
         const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(query);
         const hasEnglish  = /[A-Za-z]/.test(query);
         let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
-        const data = await fetchResultsForQuery(query, lang, "musicArtist");
+        const data = await fetchResultsForQuery(query, lang, "album");
         if (!data || !data.results) return res.json([]);
-        const artistList = [];
-        const seen = new Set();
-        for (let r of data.results) {
-          if (r.artistName && r.artistId && !seen.has(r.artistId)) {
-            seen.add(r.artistId);
-            artistList.push({
-              trackName: r.artistName, // 表示用
-              artistName: "アーティスト",
-              artworkUrl: r.artworkUrl100 || "",
-              artistId: r.artistId
-            });
+        const artistMap = new Map();
+        for (let album of data.results) {
+          if (album.artistName && album.artistId) {
+            if (!artistMap.has(album.artistId)) {
+              artistMap.set(album.artistId, {
+                trackName: album.artistName,
+                artistName: album.artistName,
+                artworkUrl: album.artworkUrl100 || "",
+                artistId: album.artistId
+              });
+            }
           }
         }
-        return res.json(artistList);
+        return res.json(Array.from(artistMap.values()));
       }
     } else {
       // songモード
@@ -203,7 +201,7 @@ app.get("/search", async (req, res) => {
   }
 });
 
-// リクエスト送信（曲選択が必須）
+// リクエスト送信（必ず曲選択済み）
 app.post("/submit", async (req, res) => {
   if (!req.body.appleMusicUrl || !req.body.artworkUrl) {
     res.set("Content-Type", "text/html");
@@ -349,7 +347,6 @@ app.get("/fetch-requests", async (req, res) => {
   }
 });
 
-// 管理者ページ
 app.get("/admin", (req, res) => {
   let responseList = `<!DOCTYPE html>
 <html lang="ja">
