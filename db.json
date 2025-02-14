@@ -215,6 +215,54 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%81%E3%83%A7%E3%82%B3%E3%82%B9%E3%83%97%E3%83%AC%E3%83%BC/1774372586?i=1774372593&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/41/69/4c/41694c4c-13fa-230a-cd1f-53a5b87a8e1b/4580789672545.png/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "GkRs1mp64SaAQMRdJCy0T",
+      "text": "eek!!",
+      "artist": "Hey! Say! JUMP",
+      "appleMusicUrl": "https://music.apple.com/jp/album/eek/1779244073?i=1779244089&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/3f/57/6e/3f576e5b-0495-aa0d-7fdc-52b76403135f/4517331092391.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "P8BL4SfuEEA4b5w19w-ae",
+      "text": "What's Going On?",
+      "artist": "Official髭男dism",
+      "appleMusicUrl": "https://music.apple.com/jp/album/whats-going-on/1165242325?i=1165242337&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/c7/b4/46/c7b4466b-776b-48b2-2290-066bc7156904/jkt.jpg/100x100bb.jpg",
+      "count": 2
+    },
+    {
+      "id": "MLWDULD0f_5hMrGEBVm3l",
+      "text": "CANDY ~Can U be my BABY~ (New Vocal Mix 2024)",
+      "artist": "中島健人",
+      "appleMusicUrl": "https://music.apple.com/jp/album/candy-can-u-be-my-baby-new-vocal-mix-2024/1784409717?i=1784410763&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2a/f2/48/2af248c8-4b0d-79c5-ad4c-a47a21706524/4547366724776.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
+      "id": "ZzAHRBOPdowAQwrePzW-I",
+      "text": "Smile",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "",
+      "artworkUrl": "",
+      "count": 1
+    },
+    {
+      "id": "5JW6S8idcrvCsLVDlKD_Y",
+      "text": "うらみつらみきわみ",
+      "artist": "official髭男dism",
+      "appleMusicUrl": "",
+      "artworkUrl": "",
+      "count": 1
+    },
+    {
+      "id": "BUtDF3wzLTc4bAqOhTmtA",
+      "text": "らぶきゅん♡うぉんてっど",
+      "artist": "きゅるりんってしてみて",
+      "appleMusicUrl": "",
+      "artworkUrl": "",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -251,7 +299,13 @@
     "初心love (うぶらぶ)|なにわ男子": 1,
     "サクラキミワタシ|tuki.": 1,
     "brighten up|glay": 1,
-    "チョコスプレー♡|いぎなり東北産": 1
+    "チョコスプレー♡|いぎなり東北産": 1,
+    "eek!!|hey! say! jump": 1,
+    "what's going on?|official髭男dism": 2,
+    "candy ~can u be my baby~ (new vocal mix 2024)|中島健人": 1,
+    "smile|アーティスト不明": 1,
+    "うらみつらみきわみ|official髭男dism": 1,
+    "らぶきゅん♡うぉんてっど|きゅるりんってしてみて": 1
   },
   "settings": {
     "recruiting": true,
