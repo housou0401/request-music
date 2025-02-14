@@ -61,15 +61,15 @@
     
     <!-- 検索モード切替ボタン（見出し下、フォーム上） -->
     <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-      <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
-      <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
+      <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名+アーティスト名(任意)で検索</button>
+      <button id="modeArtist" onclick="setSearchMode('artist');">アーティスト名から検索</button>
     </div>
     
     <!-- 送信フォーム -->
     <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
       <input type="text" id="songName" name="response" placeholder="曲名を入力" oninput="searchSongs()">
       <!-- 曲名モードの場合のみ表示 -->
-      <input type="text" id="artistName" name="artist" placeholder="アーティストを入力" oninput="searchSongs()">
+      <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力" oninput="searchSongs()">
       
       <!-- 候補一覧 -->
       <div id="suggestions"></div>
