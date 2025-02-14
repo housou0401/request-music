@@ -26,7 +26,7 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// データベース設定（lowdb用の db.json は responses 等を含む）
+// データベース設定（lowdb用の db.json は responses などを含む）
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -60,18 +60,36 @@ const getClientIP = (req) => {
   return req.headers["x-forwarded-for"]?.split(",")[0] || req.socket?.remoteAddress || "unknown";
 };
 
-// 【Apple Music 検索】
+/* --- Apple Music 検索関連 --- */
+
+// 補助関数：指定した言語でクエリを実行し、JSON を返す
+const fetchResultsForQuery = async (query, lang) => {
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no&lang=${lang}`;
+  const response = await fetch(url);
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error(`JSON parse error for lang=${lang} and query=${query}:`, e);
+    return null;
+  }
+};
+
+// Apple Music 検索：対応言語は日本語、韓国語、英語（アメリカ・イギリス）に対応
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
     const hasEnglish  = /[A-Za-z]/.test(songTitle);
-    let lang = "en_us";
+    let lang;
     if (hasKorean) {
       lang = "ko_kr";
     } else if (hasJapanese) {
       lang = "ja_jp";
     } else if (hasEnglish) {
+      // 英語の場合、まず試すのは en_us
+      lang = "en_us";
+    } else {
       lang = "en_us";
     }
     
@@ -87,10 +105,19 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     queries.push(songTitle);
     
     for (let query of queries) {
-      let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=song&limit=50&explicit=no`;
-      let response = await fetch(url);
-      let data = await response.json();
-      if (data.results && data.results.length > 0) {
+      let data;
+      if (lang === "en_us" || lang === "en_gb") {
+        // 試行: まず指定の言語
+        data = await fetchResultsForQuery(query, lang);
+        // もし失敗または結果が不十分なら、もう一方の英語コードを試す
+        if (!data || !data.results) {
+          const altLang = (lang === "en_us") ? "en_gb" : "en_us";
+          data = await fetchResultsForQuery(query, altLang);
+        }
+      } else {
+        data = await fetchResultsForQuery(query, lang);
+      }
+      if (data && data.results && data.results.length > 0) {
         const uniqueResults = [];
         const seen = new Set();
         for (let track of data.results) {
@@ -115,7 +142,9 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
   }
 };
 
-// 【/search エンドポイント】
+/* --- エンドポイント --- */
+
+// /search エンドポイント
 app.get("/search", async (req, res) => {
   const query = req.query.query;
   if (!query || query.trim().length === 0) return res.json([]);
@@ -123,7 +152,7 @@ app.get("/search", async (req, res) => {
   res.json(suggestions);
 });
 
-// 【リクエスト送信処理】
+// リクエスト送信処理
 app.post("/submit", async (req, res) => {
   const responseText = req.body.response?.trim();
   const artistText = req.body.artist?.trim() || "アーティスト不明";
@@ -173,8 +202,7 @@ window.location.href="/";
 </script></body></html>`);
 });
 
-// 【GitHub API を利用した同期関数】
-// db.json 全体をそのままアップロードする
+// GitHub API を利用した同期関数（db.json 全体をそのままアップロード）
 async function syncRequestsToGitHub() {
   try {
     const localContent = JSON.stringify(db.data, null, 2);
@@ -225,8 +253,7 @@ async function syncRequestsToGitHub() {
   }
 }
 
-// 【/sync-requests エンドポイント】
-// 管理者画面の「GitHubに同期」ボタン押下時、同期完了後に管理者画面へ自動リダイレクト
+// /sync-requests エンドポイント（同期完了後に管理者画面へ自動リダイレクト）
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
@@ -240,8 +267,7 @@ app.get("/sync-requests", async (req, res) => {
   }
 });
 
-// 【/fetch-requests エンドポイント】
-// GitHub 上の db.json を取得し、ローカルに上書き保存後、管理者画面へ自動リダイレクト
+// /fetch-requests エンドポイント（取得完了後に管理者画面へ自動リダイレクト）
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
@@ -381,7 +407,7 @@ app.get("/admin", (req, res) => {
         padding: 10px 16px;
       }
     }
-    /* テキストボックスの自動拡大を抑制 */
+    /* テキストボックスの自動拡大抑制 */
     input, textarea {
       -webkit-text-size-adjust: 100%;
     }
@@ -439,8 +465,8 @@ app.get("/admin", (req, res) => {
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>`;
-  // 選択中ラベル（例：選択中の楽曲表示の上に小さく表示）
-  responseList += `<div style="text-align:left; width:300px; font-size:12px; color:#555;">選択中</div>`;
+  // 選択中ラベル
+  responseList += `<div class="selected-label">選択中</div>`;
   // 戻るリンクはボタンコンテナの下
   responseList += `<br><a href='/'>↵戻る</a>`;
   responseList += `
@@ -454,7 +480,6 @@ app.get("/admin", (req, res) => {
       fetch("/sync-requests")
         .then(response => response.text())
         .then(data => {
-          // ページ更新時に分かりやすくメッセージ表示（自動リダイレクト）
           document.body.innerHTML = data;
         })
         .catch(err => {
@@ -519,7 +544,6 @@ app.post("/update-settings", (req, res) => {
     db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
   db.write();
-  // 更新完了後、設定完了のメッセージを表示して管理者画面へ自動リダイレクト（3秒後）
   res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
