@@ -23,7 +23,7 @@ function setSearchMode(mode) {
   if (mode === "artist") {
     // アーティストモード：artistName入力欄を非表示、songNameを再利用
     document.getElementById("artistName").style.display = "none";
-    document.getElementById("songName").placeholder = "アーティスト名を入力してください";
+    document.getElementById("songName").placeholder = "アーティスト名を入力";
     document.getElementById("modeArtist").style.backgroundColor = "#007bff";
     document.getElementById("modeArtist").style.color = "white";
     document.getElementById("modeSong").style.backgroundColor = "";
@@ -31,7 +31,7 @@ function setSearchMode(mode) {
   } else {
     // 曲名モード：通常表示
     document.getElementById("artistName").style.display = "block";
-    document.getElementById("songName").placeholder = "曲名を入力してください";
+    document.getElementById("songName").placeholder = "曲名を入力";
     document.getElementById("modeSong").style.backgroundColor = "#007bff";
     document.getElementById("modeSong").style.color = "white";
     document.getElementById("modeArtist").style.backgroundColor = "";
