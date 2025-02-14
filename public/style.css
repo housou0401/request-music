@@ -181,10 +181,10 @@ button:hover {
 
 /* 「選択中」ラベル用 */
 #selectedLabel {
-  margin-top: 8px;
-  margin-bottom: 8px;
-  text-align: left;
-  font-size: 12px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 16px;
   color: #555;
 }
 
