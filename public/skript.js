@@ -1,12 +1,11 @@
-let searchMode = "song"; 
-let artistPhase = 0; 
+let searchMode = "song";
+let artistPhase = 0;
 let selectedArtistId = null;
 let previewAudio = null;
 let isPlaying = false;
 let isMuted = false;
-let playerControlsEnabled = true; // ユーザーページ側で設定取得
+let playerControlsEnabled = true;
 
-// ページ初期化
 window.onload = async function() {
   document.getElementById("modeSong").style.backgroundColor = "#007bff";
   document.getElementById("modeSong").style.color = "white";
@@ -167,19 +166,16 @@ function selectSong(song) {
         </div>
       </div>
       <div style="display:flex; align-items:center;">
-        ${
-          playerControlsEnabled ? `
+        ${playerControlsEnabled ? `
           <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
           <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
-          <input type="range" min="1" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
-          <span id="volIcon" style="margin-left:8px;">🔉</span>
-          ` : ""
-        }
+          <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
+        ` : ""}
         <button type="button" class="clear-btn" onclick="clearSelection()" style="margin-left:10px;">×</button>
       </div>
     </div>
   `;
-  // 隠しフィールド更新（プレビューURLも別hiddenで管理する場合）
+  // 隠しフィールド更新
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
@@ -208,13 +204,13 @@ function selectSong(song) {
       document.body.appendChild(previewAudio);
     }
     previewAudio.src = song.previewUrl;
-    previewAudio.volume = 0; // ここからフェードイン
+    previewAudio.volume = 0; // フェードイン開始
     previewAudio.currentTime = 10;
     previewAudio.loop = false;
     previewAudio.play();
     isPlaying = true;
     isMuted = false;
-    fadeInUserAudio(500, 0.5); // 0.75sフェードイン　（750msの場合も可）
+    fadeInUserAudio(750, 0.5);
     updatePlayPauseIcon();
     updateMuteIcon();
   }
@@ -288,47 +284,62 @@ function updatePlayPauseIcon() {
 function toggleMute(e) {
   e.stopPropagation();
   if (!previewAudio) return;
-  isMuted = !isMuted;
-  previewAudio.muted = isMuted;
+  if (previewAudio.volume === 0 || isMuted) {
+    // スライダーの値に戻す
+    const slider = document.getElementById("volumeSlider");
+    let vol = slider ? parseInt(slider.value, 10) / 100 : 0.5;
+    previewAudio.volume = vol;
+    isMuted = false;
+  } else {
+    isMuted = true;
+    previewAudio.muted = true;
+  }
   updateMuteIcon();
 }
 
 function updateMuteIcon() {
   const btn = document.getElementById("muteBtn");
   if (!btn) return;
-  if (isMuted) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
+  let vol = previewAudio ? previewAudio.volume : 0;
+  let svg;
+  if (vol < 0.01 || isMuted) {
+    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
       <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
       <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
     </svg>`;
+  } else if (vol < 0.31) {
+    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
+      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
+    </svg>`;
+  } else if (vol < 0.61) {
+    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
+      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
+    </svg>`;
   } else {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
+    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
       <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
+  btn.innerHTML = svg;
 }
 
 function changeVolume(val) {
   if (!previewAudio) return;
   let volume = parseInt(val, 10) / 100;
   previewAudio.volume = volume;
-  const iconSpan = document.getElementById("volIcon");
-  if (!iconSpan) return;
-  if (volume < 0.25) {
-    iconSpan.innerText = "🔈";
-  } else if (volume < 0.5) {
-    iconSpan.innerText = "🔉";
-  } else if (volume >= 0.75) {
-    iconSpan.innerText = "🔊";
-  } else {
-    iconSpan.innerText = "🔉";
+  // もしミュート状態なら解除
+  if (volume > 0 && isMuted) {
+    previewAudio.muted = false;
+    isMuted = false;
   }
+  updateMuteIcon();
 }
 
 function clearSelection() {
-  // フェードアウトしてからクリア
   fadeOutUserAudio(200);
   setTimeout(() => {
     document.getElementById("selectedLabel").innerHTML = "";
@@ -337,6 +348,8 @@ function clearSelection() {
       document.getElementById("appleMusicUrlHidden").value = "";
     if (document.getElementById("artworkUrlHidden"))
       document.getElementById("artworkUrlHidden").value = "";
+    if (document.getElementById("previewUrlHidden"))
+      document.getElementById("previewUrlHidden").value = "";
     clearArtistSelection();
     searchSongs();
   }, 250);
