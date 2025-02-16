@@ -457,7 +457,6 @@ app.get("/admin", (req, res) => {
 <body>
 <h1>✉アンケート回答一覧</h1>`;
   
-  // 上部ページネーション（左寄せ）
   html += createPaginationLinks(page, totalPages);
   
   html += `<ul style="padding:0;">`;
@@ -475,7 +474,6 @@ app.get("/admin", (req, res) => {
             <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">&#9658;</button>
             <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')">&#128266;</button>
             <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
-            <!-- 音量アイコンの表示は削除 -->
           </div>
         </div>
         <a href="/delete/${entry.id}" class="delete">🗑️</a>
@@ -484,10 +482,8 @@ app.get("/admin", (req, res) => {
   });
   html += `</ul>`;
   
-  // 下部ページネーション（左寄せ）
   html += createPaginationLinks(page, totalPages);
   
-  // 設定フォーム
   html += `<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
@@ -517,7 +513,6 @@ app.get("/admin", (req, res) => {
     <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
   </form>`;
   
-  // 同期/取得ボタン
   html += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
@@ -542,7 +537,6 @@ function adminTogglePlay(id) {
   const previewUrl = getPreviewUrl(id);
   if (!previewUrl) return;
 
-  // 他の再生中の音源をすべて停止する
   Object.keys(adminAudioMap).forEach(key => {
     if (key !== id && adminIsPlayingMap[key]) {
       fadeOutAudio(key, 200);
@@ -554,8 +548,7 @@ function adminTogglePlay(id) {
   if (!adminAudioMap[id]) {
     const audio = new Audio();
     audio.src = previewUrl;
-    audio.volume = 0; // フェードイン開始
-    // ユーザーページと同様に、再生開始位置を設定（必要に応じて変更）
+    audio.volume = 0;
     audio.currentTime = 10;
     adminAudioMap[id] = audio;
     adminIsPlayingMap[id] = false;
@@ -588,7 +581,7 @@ function fadeInAudio(id, finalVolume, duration) {
       clearInterval(adminFadeIntervalMap[id]);
       adminFadeIntervalMap[id] = null;
     }
-    adminAudioMap[id].volume = newVol;
+    if(adminAudioMap[id]) adminAudioMap[id].volume = newVol;
   }, stepTime);
 }
 
@@ -629,15 +622,37 @@ function updateAdminPlayIcon(id) {
 
 function adminToggleMute(id) {
   if (!adminAudioMap[id]) return;
+  const slider = document.getElementById(`vol-${id}`);
+  if (adminIsMutedMap[id]) {
+    const vol = slider ? slider.value / 100 : 0.5;
+    adminAudioMap[id].volume = vol;
+  }
   adminIsMutedMap[id] = !adminIsMutedMap[id];
   adminAudioMap[id].muted = adminIsMutedMap[id];
+  updateAdminMuteIcon(id);
+}
+
+function adminChangeVolume(id, val) {
+  if (!adminAudioMap[id]) return;
+  const volume = parseInt(val, 10) / 100;
+  adminAudioMap[id].volume = volume;
+  if (volume === 0) {
+    adminIsMutedMap[id] = true;
+    adminAudioMap[id].muted = true;
+  } else {
+    if (adminIsMutedMap[id]) {
+      adminIsMutedMap[id] = false;
+      adminAudioMap[id].muted = false;
+    }
+  }
   updateAdminMuteIcon(id);
 }
 
 function updateAdminMuteIcon(id) {
   const btn = document.querySelector('.entry[data-id="' + id + '"] .control-btn[onclick^="adminToggleMute"]');
   if (!btn) return;
-  if (adminIsMutedMap[id]) {
+  const currentVolume = adminAudioMap[id] ? adminAudioMap[id].volume : 1;
+  if (adminIsMutedMap[id] || currentVolume === 0) {
     btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
       '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
       '<line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>' +
@@ -649,24 +664,6 @@ function updateAdminMuteIcon(id) {
       '<path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>' +
     '</svg>';
   }
-}
-
-function adminChangeVolume(id, val) {
-  if (!adminAudioMap[id]) return;
-  const volume = parseInt(val, 10) / 100;
-  adminAudioMap[id].volume = volume;
-  // スライダーの値が0の場合は自動的にミュート状態にする
-  if (volume === 0) {
-    adminIsMutedMap[id] = true;
-    adminAudioMap[id].muted = true;
-  } else {
-    // もし以前ミュート状態であれば解除する
-    if (adminIsMutedMap[id]) {
-      adminIsMutedMap[id] = false;
-      adminAudioMap[id].muted = false;
-    }
-  }
-  updateAdminMuteIcon(id);
 }
 </script>
 </body>
