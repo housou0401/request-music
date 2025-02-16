@@ -11,7 +11,6 @@ window.onload = function() {
   document.getElementById("modeSong").style.color = "white";
 };
 
-// モード切替
 function setSearchMode(mode) {
   searchMode = mode;
   artistPhase = 0;
@@ -26,6 +25,8 @@ function setSearchMode(mode) {
   if (previewAudio) {
     previewAudio.pause();
     previewAudio.currentTime = 0;
+    isPlaying = false;
+    updatePlayPauseIcon();
   }
   if (mode === "artist") {
     document.getElementById("artistName").style.display = "none";
@@ -47,6 +48,7 @@ function setSearchMode(mode) {
 async function searchSongs() {
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
+  
   if (searchMode === "artist") {
     if (artistPhase === 0) {
       const artistQuery = document.getElementById("songName").value.trim();
@@ -106,7 +108,7 @@ function selectArtist(artist) {
         <img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
         <div><strong>${artist.trackName}</strong></div>
       </div>
-      <button class="clear-btn" onclick="clearArtistSelection()">×</button>
+      <button type="button" class="clear-btn" onclick="clearArtistSelection()">×</button>
     </div>
   `;
   document.getElementById("suggestions").innerHTML = "";
@@ -138,7 +140,6 @@ async function fetchArtistTracksAndShow() {
 }
 
 function selectSong(song) {
-  // 曲選択時：更新
   document.getElementById("songName").value = song.trackName;
   if (searchMode === "song") {
     if (document.getElementById("artistName").value.trim() === "") {
@@ -157,15 +158,14 @@ function selectSong(song) {
           <small>${song.artistName}</small>
         </div>
       </div>
-      <div>
-        <button class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
-        <button class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
-        <button class="clear-btn" onclick="clearSelection()">×</button>
+      <div style="display:flex; align-items:center;">
+        <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
+        <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
+        <button type="button" class="clear-btn" onclick="clearSelection()">×</button>
       </div>
     </div>
   `;
-  // 設定：隠しフィールドにプレビュー URL をセット
-  // ここでは previewUrl を利用
+  // 隠しフィールドに previewUrl をセット
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
@@ -186,7 +186,7 @@ function selectSong(song) {
   }
   hiddenArtwork.value = song.artworkUrl || "";
   
-  // 再生準備：音源がある場合、ループ再生（10秒～25秒）するように設定
+  // 再生準備：初期状態は自動再生、音量は 0.5 に設定
   if (song.previewUrl) {
     if (!previewAudio) {
       previewAudio = document.createElement("audio");
@@ -195,14 +195,11 @@ function selectSong(song) {
       document.body.appendChild(previewAudio);
     }
     previewAudio.src = song.previewUrl;
+    previewAudio.volume = 0.5;
     previewAudio.currentTime = 10;
-    previewAudio.addEventListener("timeupdate", () => {
-      if (previewAudio.currentTime >= 25) {
-        previewAudio.currentTime = 10;
-      }
-    });
-    // 初期は停止状態
-    isPlaying = false;
+    previewAudio.loop = false;
+    previewAudio.play();
+    isPlaying = true;
     updatePlayPauseIcon();
     isMuted = false;
     updateMuteIcon();
@@ -225,13 +222,13 @@ function togglePlay(e) {
 function updatePlayPauseIcon() {
   const btn = document.getElementById("playPauseBtn");
   if (isPlaying) {
-    // Pause icon (例: 四角形2つ)
+    // Pause icon (四角形2つ)
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <rect x="4" y="3" width="4" height="14" fill="#007bff"/>
       <rect x="12" y="3" width="4" height="14" fill="#007bff"/>
     </svg>`;
   } else {
-    // Play icon (例: 三角形)
+    // Play icon (三角形)
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="5,3 17,10 5,17" fill="#007bff"/>
     </svg>`;
@@ -249,14 +246,12 @@ function toggleMute(e) {
 function updateMuteIcon() {
   const btn = document.getElementById("muteBtn");
   if (isMuted) {
-    // Muted icon
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#007bff"/>
       <line x1="14" y1="6" x2="18" y2="14" stroke="#007bff" stroke-width="2"/>
       <line x1="18" y1="6" x2="14" y2="14" stroke="#007bff" stroke-width="2"/>
     </svg>`;
   } else {
-    // Sound on icon
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#007bff"/>
       <path d="M14 6 L16 10 L14 14" stroke="#007bff" stroke-width="2" fill="none"/>
@@ -286,7 +281,21 @@ function clearArtistSelection() {
   selectedArtistId = null;
   artistPhase = 0;
   document.getElementById("selectedArtist").innerHTML = "";
+  // 同時に選択中の曲も解除
+  document.getElementById("selectedLabel").innerHTML = "";
+  document.getElementById("selectedSong").innerHTML = "";
+  if (previewAudio) {
+    previewAudio.pause();
+    previewAudio.currentTime = 0;
+    isPlaying = false;
+    updatePlayPauseIcon();
+  }
   document.getElementById("suggestions").innerHTML = "";
+  searchSongs();
+}
+
+function clearInput(id) {
+  document.getElementById(id).value = "";
   searchSongs();
 }
 
