@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="skript.js" defer></script>
   <style>
-    /* ページ独自のスタイル（必要最小限） */
+    /* ページ独自のスタイル */
     body {
       display: flex;
       flex-direction: column;
@@ -67,15 +67,9 @@
     
     <!-- 送信フォーム -->
     <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
-      <div class="input-container">
-        <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
-        <button type="button" class="clear-btn-input" onclick="clearInput('songName')">×</button>
-      </div>
+      <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
       <!-- 曲名モードの場合のみ表示 -->
-      <div class="input-container" id="artistContainer">
-        <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力してください" oninput="searchSongs()">
-        <button type="button" class="clear-btn-input" onclick="clearInput('artistName')">×</button>
-      </div>
+      <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力してください" oninput="searchSongs()">
       
       <!-- 候補一覧 -->
       <div id="suggestions"></div>
