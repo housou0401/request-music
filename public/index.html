@@ -90,13 +90,13 @@
       
       <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
       <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
+      <input type="hidden" id="previewUrlHidden" name="previewUrl">
       
       <button type="submit">送信</button>
     </form>
   </div>
   <p class="privacy-note">個人情報は収集されません。</p>
   <script>
-    // 募集状態チェックとタイトル更新
     function checkRecruitingStatus() {
       fetch("/settings")
         .then(response => response.json())
