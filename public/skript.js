@@ -29,14 +29,15 @@ function setSearchMode(mode) {
     updatePlayPauseIcon();
   }
   if (mode === "artist") {
-    document.getElementById("artistName").style.display = "none";
+    // アーティストモード：入力コンテナ全体を非表示（artistInputContainer）を隠す
+    document.getElementById("artistInputContainer").style.display = "none";
     document.getElementById("songName").placeholder = "アーティスト名を入力してください";
     document.getElementById("modeArtist").style.backgroundColor = "#007bff";
     document.getElementById("modeArtist").style.color = "white";
     document.getElementById("modeSong").style.backgroundColor = "";
     document.getElementById("modeSong").style.color = "";
   } else {
-    document.getElementById("artistName").style.display = "block";
+    document.getElementById("artistInputContainer").style.display = "block";
     document.getElementById("songName").placeholder = "曲名を入力してください";
     document.getElementById("modeSong").style.backgroundColor = "#007bff";
     document.getElementById("modeSong").style.color = "white";
@@ -146,7 +147,6 @@ function selectSong(song) {
       document.getElementById("artistName").value = song.artistName;
     }
   }
-  // 表示「選択中の曲」
   document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中の曲</div>`;
   const selectedSongContainer = document.getElementById("selectedSong");
   selectedSongContainer.innerHTML = `
@@ -165,7 +165,6 @@ function selectSong(song) {
       </div>
     </div>
   `;
-  // 隠しフィールドに previewUrl をセット
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
@@ -186,7 +185,7 @@ function selectSong(song) {
   }
   hiddenArtwork.value = song.artworkUrl || "";
   
-  // 再生準備：初期状態は自動再生、音量は 0.5 に設定
+  // 再生準備：初期状態で自動再生、音量 0.5、10秒～25秒ループ
   if (song.previewUrl) {
     if (!previewAudio) {
       previewAudio = document.createElement("audio");
@@ -222,13 +221,11 @@ function togglePlay(e) {
 function updatePlayPauseIcon() {
   const btn = document.getElementById("playPauseBtn");
   if (isPlaying) {
-    // Pause icon (四角形2つ)
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <rect x="4" y="3" width="4" height="14" fill="#007bff"/>
       <rect x="12" y="3" width="4" height="14" fill="#007bff"/>
     </svg>`;
   } else {
-    // Play icon (三角形)
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="5,3 17,10 5,17" fill="#007bff"/>
     </svg>`;
@@ -281,7 +278,6 @@ function clearArtistSelection() {
   selectedArtistId = null;
   artistPhase = 0;
   document.getElementById("selectedArtist").innerHTML = "";
-  // 同時に選択中の曲も解除
   document.getElementById("selectedLabel").innerHTML = "";
   document.getElementById("selectedSong").innerHTML = "";
   if (previewAudio) {
