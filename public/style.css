@@ -1,4 +1,4 @@
-html, body {
+html, body { 
   overscroll-behavior: contain;
   -webkit-text-size-adjust: 100%;
 }
@@ -53,6 +53,9 @@ h1 {
   top: 50%;
   right: 5px;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .input-clear-btn:hover {
