@@ -287,11 +287,19 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/not-like-us/1781353928?i=1781353929&l=en&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/31/3a/3f/313a3fbc-bb8f-80c7-b5a2-e226869a38cd/24UMGIM51924.rgb.jpg/100x100bb.jpg",
       "count": 1
+    },
+    {
+      "id": "eP-fCxnIX6-2xtYOreDhn",
+      "text": "シャルル",
+      "artist": "バルーン",
+      "appleMusicUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview71/v4/17/dc/8e/17dc8ed1-976c-b525-ad94-0c18f74e8f3c/mzaf_237385256287222340.plus.aac.p.m4a",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/a9/b8/fa/a9b8fab5-f5bc-36f2-5a54-ee8cce6b6b82/avogado6.jpg/100x100bb.jpg",
+      "count": 7
     }
   ],
   "lastSubmissions": {},
   "songCounts": {
-    "シャルル|バルーン": 5,
+    "シャルル|バルーン": 7,
     "1%の革命前夜|losstime life": 1,
     "ナルバキスン (look at me, gwisun) [jp version]|d-lite": 1,
     "欲望に満ちた青年団|one ok rock": 1,
