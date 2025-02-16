@@ -596,7 +596,7 @@ function fadeOutAudio(id, duration) {
 }
 
 function updateAdminPlayIcon(id) {
-  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminTogglePlay"]\`);
+  const btn = document.querySelector(`.entry[data-id="${id}"] .control-btn[onclick^="adminTogglePlay"]`);
   if (!btn) return;
   if (adminIsPlayingMap[id]) {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" fill="#888"/><rect x="12" y="3" width="4" height="14" fill="#888"/></svg>`;
