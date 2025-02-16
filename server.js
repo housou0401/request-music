@@ -54,16 +54,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 /* --- Apple Music 検索関連 --- */
-// fetchResultsForQuery: attribute パラメータと User-Agent ヘッダーを追加
+// fetchResultsForQuery: attribute パラメータと User-Agent ヘッダー追加
 const fetchResultsForQuery = async (query, lang, entity = "song", attribute = "") => {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   if (attribute) {
     url += `&attribute=${attribute}`;
   }
   const response = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-    }
+    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
   });
   if (!response.ok) {
     console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
@@ -98,7 +96,8 @@ const fetchArtistTracks = async (artistId) => {
       trackName: r.trackName,
       artistName: r.artistName,
       trackViewUrl: r.trackViewUrl,
-      artworkUrl: r.artworkUrl100
+      artworkUrl: r.artworkUrl100,
+      previewUrl: r.previewUrl || ""
     }));
   } catch (e) {
     console.error("JSON parse error (fetchArtistTracks):", e);
@@ -145,7 +144,8 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
               trackName: track.trackName,
               artistName: track.artistName,
               trackViewUrl: track.trackViewUrl,
-              artworkUrl: track.artworkUrl100
+              artworkUrl: track.artworkUrl100,
+              previewUrl: track.previewUrl || ""
             });
           }
         }
@@ -166,11 +166,11 @@ app.get("/search", async (req, res) => {
   try {
     if (mode === "artist") {
       if (req.query.artistId) {
-        // 選択済みアーティスト → 曲一覧取得
+        // 選択済みアーティスト → そのアーティストの曲一覧を返す
         const tracks = await fetchArtistTracks(req.query.artistId.trim());
         return res.json(tracks);
       } else {
-        // アーティスト一覧検索：entity=album, attribute=artistTerm を利用
+        // アーティスト一覧検索：entity="album", attribute="artistTerm" を利用
         const query = req.query.query?.trim();
         if (!query || query.length === 0) return res.json([]);
         const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
@@ -184,7 +184,7 @@ app.get("/search", async (req, res) => {
           if (album.artistName && album.artistId) {
             if (!artistMap.has(album.artistId)) {
               artistMap.set(album.artistId, {
-                trackName: album.artistName,
+                trackName: album.artistName, // Apple Music 正確なアーティスト名
                 artistName: album.artistName,
                 artworkUrl: album.artworkUrl100 || "",
                 artistId: album.artistId
@@ -195,7 +195,7 @@ app.get("/search", async (req, res) => {
         return res.json(Array.from(artistMap.values()));
       }
     } else {
-      // song モード
+      // songモード
       const query = req.query.query?.trim();
       const artist = req.query.artist?.trim() || "";
       if (!query || query.length === 0) return res.json([]);
