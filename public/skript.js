@@ -21,17 +21,15 @@ function setSearchMode(mode) {
   document.getElementById("selectedArtist").innerHTML = "";
   
   if (mode === "artist") {
-    // アーティストモード：artistName入力欄を非表示、songNameを再利用
     document.getElementById("artistName").style.display = "none";
-    document.getElementById("songName").placeholder = "アーティスト名を入力";
+    document.getElementById("songName").placeholder = "アーティスト名を入力してください";
     document.getElementById("modeArtist").style.backgroundColor = "#007bff";
     document.getElementById("modeArtist").style.color = "white";
     document.getElementById("modeSong").style.backgroundColor = "";
     document.getElementById("modeSong").style.color = "";
   } else {
-    // 曲名モード：通常表示
     document.getElementById("artistName").style.display = "block";
-    document.getElementById("songName").placeholder = "曲名を入力";
+    document.getElementById("songName").placeholder = "曲名を入力してください";
     document.getElementById("modeSong").style.backgroundColor = "#007bff";
     document.getElementById("modeSong").style.color = "white";
     document.getElementById("modeArtist").style.backgroundColor = "";
@@ -39,13 +37,13 @@ function setSearchMode(mode) {
   }
 }
 
+// メインの検索処理
 async function searchSongs() {
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
   
   if (searchMode === "artist") {
     if (artistPhase === 0) {
-      // アーティスト一覧検索
       const artistQuery = document.getElementById("songName").value.trim();
       if (artistQuery.length < 2) return;
       try {
@@ -70,7 +68,6 @@ async function searchSongs() {
       await fetchArtistTracksAndShow();
     }
   } else {
-    // 曲名モード
     const songQuery = document.getElementById("songName").value.trim();
     const artistQuery = document.getElementById("artistName").value.trim();
     if (songQuery.length < 2) return;
@@ -101,7 +98,7 @@ function selectArtist(artist) {
   artistPhase = 1;
   // 選択中のアーティスト表示（「選択中のアーティスト」ラベル付き）
   document.getElementById("selectedArtist").innerHTML = `
-    <div class="selected-label">↓選択中のアーティスト↓</div>
+    <div class="selected-label">選択中のアーティスト</div>
     <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; margin-top:10px;">
       <div style="display: flex; align-items: center;">
         <img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
@@ -113,7 +110,6 @@ function selectArtist(artist) {
     </div>
   `;
   document.getElementById("suggestions").innerHTML = "";
-  // アーティスト選択後、アーティストの曲一覧を表示
   fetchArtistTracksAndShow();
 }
 
@@ -148,7 +144,7 @@ function selectSong(song) {
       document.getElementById("artistName").value = song.artistName;
     }
   }
-  document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">↓選択中の曲↓</div>`;
+  document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中の曲</div>`;
   const selectedSongContainer = document.getElementById("selectedSong");
   selectedSongContainer.innerHTML = `
     <div class="selected-item" style="display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.2); border-radius: 10px; padding: 10px; margin-top:10px;">
@@ -197,7 +193,14 @@ function clearArtistSelection() {
   selectedArtistId = null;
   artistPhase = 0;
   document.getElementById("selectedArtist").innerHTML = "";
+  // 解除時、曲選択もあれば解除する
+  clearSelection();
   document.getElementById("suggestions").innerHTML = "";
+  searchSongs();
+}
+
+function clearInput(fieldId) {
+  document.getElementById(fieldId).value = "";
   searchSongs();
 }
 
@@ -205,7 +208,7 @@ function handleSubmit(event) {
   event.preventDefault();
   const appleUrl = document.getElementById("appleMusicUrlHidden").value.trim();
   if (!appleUrl) {
-    alert("⚠️必ず候補一覧から曲を選択してください");
+    alert("必ず候補一覧から曲を選択してください");
     return;
   }
   document.getElementById("requestForm").submit();
@@ -213,16 +216,4 @@ function handleSubmit(event) {
 
 function showAdminLogin() {
   const password = prompt("⚠️管理者パスワードを入力してください:");
-  if (password) {
-    fetch(`/admin-login?password=${encodeURIComponent(password)}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          window.location.href = "/admin";
-        } else {
-          alert("⚠️パスワードが間違っています。");
-        }
-      })
-      .catch(error => console.error("管理者ログインエラー:", error));
-  }
-}
+  if (password
