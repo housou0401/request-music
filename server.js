@@ -54,13 +54,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 /* --- Apple Music 検索関連 --- */
-// 送信前にクエリ中のダブルクォートを除去
-const cleanQuery = (q) => q.replace(/"/g, "");
-
-const fetchResultsForQuery = async (query, lang, entity = "song") => {
-  const cleanQ = cleanQuery(query);
-  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQ)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
-  const response = await fetch(url);
+// fetchResultsForQuery: attribute パラメータと User-Agent ヘッダーを追加
+const fetchResultsForQuery = async (query, lang, entity = "song", attribute = "") => {
+  let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
+  if (attribute) {
+    url += `&attribute=${attribute}`;
+  }
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    }
+  });
   if (!response.ok) {
     console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
     return { results: [] };
@@ -78,7 +82,9 @@ const fetchResultsForQuery = async (query, lang, entity = "song") => {
 // アーティストの曲一覧取得（lookup API）
 const fetchArtistTracks = async (artistId) => {
   const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=50`;
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
+  });
   if (!response.ok) {
     console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
     return [];
@@ -100,12 +106,9 @@ const fetchArtistTracks = async (artistId) => {
   }
 };
 
-// 曲名検索用（song mode）
+// 曲名検索用（song mode）→ attribute=songTerm を使用
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
-    songTitle = cleanQuery(songTitle);
-    artistName = cleanQuery(artistName);
-    
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
     const hasEnglish  = /[A-Za-z]/.test(songTitle);
@@ -123,13 +126,13 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     for (let query of queries) {
       let data;
       if (lang === "en_us" || lang === "en_gb") {
-        data = await fetchResultsForQuery(query, lang, "song");
+        data = await fetchResultsForQuery(query, lang, "song", "songTerm");
         if (!data || !data.results || data.results.length === 0) {
           const altLang = (lang === "en_us") ? "en_gb" : "en_us";
-          data = await fetchResultsForQuery(query, altLang, "song");
+          data = await fetchResultsForQuery(query, altLang, "song", "songTerm");
         }
       } else {
-        data = await fetchResultsForQuery(query, lang, "song");
+        data = await fetchResultsForQuery(query, lang, "song", "songTerm");
       }
       if (data && data.results && data.results.length > 0) {
         const uniqueResults = [];
@@ -163,24 +166,25 @@ app.get("/search", async (req, res) => {
   try {
     if (mode === "artist") {
       if (req.query.artistId) {
+        // 選択済みアーティスト → 曲一覧取得
         const tracks = await fetchArtistTracks(req.query.artistId.trim());
         return res.json(tracks);
       } else {
-        // アーティスト一覧検索：entity="album" で代表画像を取得
+        // アーティスト一覧検索：entity=album, attribute=artistTerm を利用
         const query = req.query.query?.trim();
         if (!query || query.length === 0) return res.json([]);
         const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
         const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(query);
         const hasEnglish  = /[A-Za-z]/.test(query);
         let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
-        const data = await fetchResultsForQuery(query, lang, "album");
+        const data = await fetchResultsForQuery(query, lang, "album", "artistTerm");
         if (!data || !data.results) return res.json([]);
         const artistMap = new Map();
         for (let album of data.results) {
           if (album.artistName && album.artistId) {
             if (!artistMap.has(album.artistId)) {
               artistMap.set(album.artistId, {
-                trackName: album.artistName, // Apple Music の正確なアーティスト名
+                trackName: album.artistName,
                 artistName: album.artistName,
                 artworkUrl: album.artworkUrl100 || "",
                 artistId: album.artistId
@@ -191,6 +195,7 @@ app.get("/search", async (req, res) => {
         return res.json(Array.from(artistMap.values()));
       }
     } else {
+      // song モード
       const query = req.query.query?.trim();
       const artist = req.query.artist?.trim() || "";
       if (!query || query.length === 0) return res.json([]);
@@ -503,7 +508,7 @@ app.get("/admin", (req, res) => {
   <br>
   <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
 </form>`;
-  // 同期/取得ボタンと戻るボタン（戻るボタン大きめ）
+  // 同期/取得ボタンと戻るボタン（戻るボタンを大きく）
   responseList += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
