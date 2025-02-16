@@ -4,7 +4,9 @@ let selectedArtistId = null;
 let previewAudio = null;
 let isPlaying = false;
 let isMuted = false;
+let playerControlsEnabled = true; // ユーザーページ側で設定取得
 
+// ページ初期化
 window.onload = async function() {
   document.getElementById("modeSong").style.backgroundColor = "#007bff";
   document.getElementById("modeSong").style.color = "white";
@@ -14,9 +16,11 @@ window.onload = async function() {
 async function loadSettings() {
   try {
     const res = await fetch("/settings");
-    await res.json();
+    const data = await res.json();
+    playerControlsEnabled = data.playerControlsEnabled !== false;
   } catch (e) {
     console.error("設定読み込みエラー:", e);
+    playerControlsEnabled = true;
   }
 }
 
@@ -163,13 +167,19 @@ function selectSong(song) {
         </div>
       </div>
       <div style="display:flex; align-items:center;">
+        ${
+          playerControlsEnabled ? `
           <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
-          <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)"> </button>
+          <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
           <input type="range" min="1" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
-          <button type="button" class="clear-btn" onclick="clearSelection()" style="margin-left:10px;">×</button>
+          <span id="volIcon" style="margin-left:8px;">🔉</span>
+          ` : ""
+        }
+        <button type="button" class="clear-btn" onclick="clearSelection()" style="margin-left:10px;">×</button>
       </div>
     </div>
   `;
+  // 隠しフィールド更新（プレビューURLも別hiddenで管理する場合）
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
@@ -190,7 +200,7 @@ function selectSong(song) {
   }
   hiddenArtwork.value = song.artworkUrl || "";
   
-  if (song.previewUrl) {
+  if (playerControlsEnabled && song.previewUrl) {
     if (!previewAudio) {
       previewAudio = document.createElement("audio");
       previewAudio.id = "previewAudio";
@@ -198,13 +208,13 @@ function selectSong(song) {
       document.body.appendChild(previewAudio);
     }
     previewAudio.src = song.previewUrl;
-    previewAudio.volume = 0;
+    previewAudio.volume = 0; // ここからフェードイン
     previewAudio.currentTime = 10;
     previewAudio.loop = false;
     previewAudio.play();
     isPlaying = true;
     isMuted = false;
-    fadeInUserAudio(750, 0.5);
+    fadeInUserAudio(500, 0.5); // 0.75sフェードイン　（750msの場合も可）
     updatePlayPauseIcon();
     updateMuteIcon();
   }
@@ -252,7 +262,6 @@ function togglePlay(e) {
   if (!previewAudio) return;
   if (isPlaying) {
     fadeOutUserAudio(200);
-    isPlaying = false;
   } else {
     previewAudio.play();
     isPlaying = true;
@@ -279,41 +288,24 @@ function updatePlayPauseIcon() {
 function toggleMute(e) {
   e.stopPropagation();
   if (!previewAudio) return;
-  if (isMuted) {
-    previewAudio.muted = false;
-    isMuted = false;
-  } else {
-    previewAudio.muted = true;
-    isMuted = true;
-  }
+  isMuted = !isMuted;
+  previewAudio.muted = isMuted;
   updateMuteIcon();
 }
 
 function updateMuteIcon() {
   const btn = document.getElementById("muteBtn");
   if (!btn) return;
-  const slider = document.getElementById("volumeSlider");
-  let volume = slider ? parseInt(slider.value, 10) : 50;
-  if (isMuted || volume === 0) {
+  if (isMuted) {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <rect x="2" y="6" width="6" height="8" fill="#888"/>
-      <line x1="12" y1="4" x2="18" y2="16" stroke="#888" stroke-width="2"/>
-      <line x1="18" y1="4" x2="12" y2="16" stroke="#888" stroke-width="2"/>
-    </svg>`;
-  } else if (volume >= 61) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <rect x="2" y="6" width="6" height="8" fill="#888"/>
-      <path d="M12 4 L12 16" stroke="#888" stroke-width="2"/>
-      <path d="M14 2 L14 18" stroke="#888" stroke-width="2"/>
-    </svg>`;
-  } else if (volume >= 31) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <rect x="2" y="6" width="6" height="8" fill="#888"/>
-      <path d="M12 8 L12 12" stroke="#888" stroke-width="2"/>
+      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+      <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
+      <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <rect x="2" y="6" width="6" height="8" fill="#888"/>
+      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
 }
@@ -322,10 +314,21 @@ function changeVolume(val) {
   if (!previewAudio) return;
   let volume = parseInt(val, 10) / 100;
   previewAudio.volume = volume;
-  updateMuteIcon();
+  const iconSpan = document.getElementById("volIcon");
+  if (!iconSpan) return;
+  if (volume < 0.25) {
+    iconSpan.innerText = "🔈";
+  } else if (volume < 0.5) {
+    iconSpan.innerText = "🔉";
+  } else if (volume >= 0.75) {
+    iconSpan.innerText = "🔊";
+  } else {
+    iconSpan.innerText = "🔉";
+  }
 }
 
 function clearSelection() {
+  // フェードアウトしてからクリア
   fadeOutUserAudio(200);
   setTimeout(() => {
     document.getElementById("selectedLabel").innerHTML = "";
