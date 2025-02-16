@@ -322,21 +322,21 @@ app.get("/admin", (req, res) => {
     let html = `<div style="text-align:left; margin-bottom:10px;">`;
     html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
     const prevPage = Math.max(1, currentPage - 1);
-    html += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
+    html += `<a href="?page=` + prevPage + `" style="margin:0 5px;">&lt;</a>`;
     for (let p = 1; p <= totalPages; p++) {
       if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
         if (p === currentPage) {
-          html += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
+          html += `<span style="margin:0 5px; font-weight:bold;">` + p + `</span>`;
         } else {
-          html += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
+          html += `<a href="?page=` + p + `" style="margin:0 5px;">` + p + `</a>`;
         }
       } else if (Math.abs(p - currentPage) === 3) {
         html += `...`;
       }
     }
     const nextPage = Math.min(totalPages, currentPage + 1);
-    html += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
-    html += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
+    html += `<a href="?page=` + nextPage + `" style="margin:0 5px;">&gt;</a>`;
+    html += `<a href="?page=` + totalPages + `" style="margin:0 5px;">最後のページ &gt;|</a>`;
     html += `</div>`;
     return html;
   }
@@ -463,20 +463,20 @@ app.get("/admin", (req, res) => {
   pageItems.forEach(entry => {
     html += `<li>
       <div class="entry-container">
-        <div class="entry" data-previewurl="${entry.previewUrl}" data-id="${entry.id}">
-          <div class="count-badge">${entry.count}</div>
-          <img src="${entry.artworkUrl}" alt="Cover">
+        <div class="entry" data-previewurl="` + entry.previewUrl + `" data-id="` + entry.id + `">
+          <div class="count-badge">` + entry.count + `</div>
+          <img src="` + entry.artworkUrl + `" alt="Cover">
           <div>
-            <strong>${entry.text}</strong><br>
-            <small>${entry.artist}</small>
+            <strong>` + entry.text + `</strong><br>
+            <small>` + entry.artist + `</small>
           </div>
           <div style="display:flex; align-items:center; margin-left:10px;">
-            <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">&#9658;</button>
-            <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')">&#128266;</button>
-            <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
+            <button type="button" class="control-btn" onclick="adminTogglePlay('` + entry.id + `')">&#9658;</button>
+            <button type="button" class="control-btn" onclick="adminToggleMute('` + entry.id + `')"> </button>
+            <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-` + entry.id + `" oninput="adminChangeVolume('` + entry.id + `', this.value)">
           </div>
         </div>
-        <a href="/delete/${entry.id}" class="delete">🗑️</a>
+        <a href="/delete/` + entry.id + `" class="delete">🗑️</a>
       </div>
     </li>`;
   });
@@ -487,17 +487,17 @@ app.get("/admin", (req, res) => {
   html += `<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
-        <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        <input type="checkbox" name="recruiting" value="off" ` + (db.data.settings.recruiting ? "" : "checked") + ` style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
         募集を終了する
       </label>
     </div>
     <div class="setting-field">
       <label>理由:</label><br>
-      <textarea name="reason" placeholder="理由（任意)">${db.data.settings.reason || ""}</textarea>
+      <textarea name="reason" placeholder="理由（任意)">` + (db.data.settings.reason || "") + `</textarea>
     </div>
     <div class="setting-field">
       <label>フロントエンドタイトル:</label><br>
-      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
+      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">` + (db.data.settings.frontendTitle || "♬曲をリクエストする") + `</textarea>
     </div>
     <div class="setting-field">
       <label>管理者パスワード:</label><br>
@@ -505,7 +505,7 @@ app.get("/admin", (req, res) => {
     </div>
     <div class="setting-field">
       <label>
-        <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        <input type="checkbox" name="playerControlsEnabled" value="on" ` + (db.data.settings.playerControlsEnabled ? "checked" : "") + ` style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
         ユーザーページの再生・音量ボタンを表示する
       </label>
     </div>
@@ -536,15 +536,16 @@ function getPreviewUrl(id) {
 function adminTogglePlay(id) {
   const previewUrl = getPreviewUrl(id);
   if (!previewUrl) return;
-
+  
+  // 他の再生中の音源を停止
   Object.keys(adminAudioMap).forEach(key => {
     if (key !== id && adminIsPlayingMap[key]) {
-      fadeOutAudio(key, 200);
+      adminAudioMap[key].pause();
       adminIsPlayingMap[key] = false;
       updateAdminPlayIcon(key);
     }
   });
-
+  
   if (!adminAudioMap[id]) {
     const audio = new Audio();
     audio.src = previewUrl;
@@ -554,15 +555,20 @@ function adminTogglePlay(id) {
     adminIsPlayingMap[id] = false;
     adminIsMutedMap[id] = false;
   }
+  
   if (adminIsPlayingMap[id]) {
     fadeOutAudio(id, 200);
     adminIsPlayingMap[id] = false;
   } else {
     adminAudioMap[id].muted = false;
-    adminIsPlayingMap[id] = true;
-    adminAudioMap[id].play();
-    fadeInAudio(id, 0.5, 750);
+    adminAudioMap[id].play().then(() => {
+      adminIsPlayingMap[id] = true;
+      fadeInAudio(id, 0.5, 750);
+    }).catch(err => {
+      console.error("Admin play error:", err);
+    });
   }
+  
   updateAdminPlayIcon(id);
   updateAdminMuteIcon(id);
 }
@@ -622,14 +628,13 @@ function updateAdminPlayIcon(id) {
 
 function adminToggleMute(id) {
   if (!adminAudioMap[id]) return;
-  // テンプレートリテラルの代わりに文字列連結で取得
-  const slider = document.getElementById("vol-" + id);
   if (adminIsMutedMap[id]) {
-    const vol = slider ? slider.value / 100 : 0.5;
-    adminAudioMap[id].volume = vol;
+    adminAudioMap[id].muted = false;
+    adminIsMutedMap[id] = false;
+  } else {
+    adminAudioMap[id].muted = true;
+    adminIsMutedMap[id] = true;
   }
-  adminIsMutedMap[id] = !adminIsMutedMap[id];
-  adminAudioMap[id].muted = adminIsMutedMap[id];
   updateAdminMuteIcon(id);
 }
 
@@ -652,17 +657,32 @@ function adminChangeVolume(id, val) {
 function updateAdminMuteIcon(id) {
   const btn = document.querySelector('.entry[data-id="' + id + '"] .control-btn[onclick^="adminToggleMute"]');
   if (!btn) return;
-  const currentVolume = adminAudioMap[id] ? adminAudioMap[id].volume : 1;
-  if (adminIsMutedMap[id] || currentVolume === 0) {
+  const slider = document.getElementById("vol-" + id);
+  let volume = slider ? parseInt(slider.value, 10) : 50;
+  if (adminIsMutedMap[id] || volume === 0) {
+    // ミュートアイコン
     btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
       '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
       '<line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>' +
       '<line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>' +
     '</svg>';
-  } else {
+  } else if (volume >= 61) {
+    // 高音量アイコン
     btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
       '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
-      '<path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>' +
+      '<path d="M15 5 L15 15" stroke="#888" stroke-width="2"/>' +
+      '<path d="M17 3 L17 17" stroke="#888" stroke-width="2"/>' +
+    '</svg>';
+  } else if (volume >= 31) {
+    // 中音量アイコン
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
+      '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
+      '<path d="M15 7 L15 13" stroke="#888" stroke-width="2"/>' +
+    '</svg>';
+  } else {
+    // 低音量アイコン
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
+      '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
     '</svg>';
   }
 }
