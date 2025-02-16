@@ -457,76 +457,75 @@ app.get("/admin", (req, res) => {
 <body>
 <h1>✉アンケート回答一覧</h1>`;
 
-  // 上部ページネーション（左寄せ）
-  html += createPaginationLinks(page, totalPages);
+// 上部ページネーション（左寄せ）
+html += createPaginationLinks(page, totalPages);
 
-  html += `<ul style="padding:0;">`;
-  pageItems.forEach(entry => {
-    html += `<li>
-      <div class="entry-container">
-        <div class="entry" data-previewurl="${entry.previewUrl}" data-id="${entry.id}">
-          <div class="count-badge">${entry.count}</div>
-          <img src="${entry.artworkUrl}" alt="Cover">
-          <div>
-            <strong>${entry.text}</strong><br>
-            <small>${entry.artist}</small>
-          </div>
-          <div style="display:flex; align-items:center; margin-left:10px;">
-            <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">&#9658;</button>
-            <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')">&#128266;</button>
-            <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
-            <span id="volIcon-${entry.id}" style="margin-left:8px;">🔉</span>
-          </div>
+html += `<ul style="padding:0;">`;
+pageItems.forEach(entry => {
+  html += `<li>
+    <div class="entry-container">
+      <div class="entry" data-previewurl="${entry.previewUrl}" data-id="${entry.id}">
+        <div class="count-badge">${entry.count}</div>
+        <img src="${entry.artworkUrl}" alt="Cover">
+        <div>
+          <strong>${entry.text}</strong><br>
+          <small>${entry.artist}</small>
         </div>
-        <a href="/delete/${entry.id}" class="delete">🗑️</a>
+        <div style="display:flex; align-items:center; margin-left:10px;">
+          <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">&#9658;</button>
+          <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')">&#128266;</button>
+          <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
+          <span id="volIcon-${entry.id}" style="margin-left:8px;">🔉</span>
+        </div>
       </div>
-    </li>`;
-  });
-  html += `</ul>`;
+      <a href="/delete/${entry.id}" class="delete">🗑️</a>
+    </div>
+  </li>`;
+});
+html += `</ul>`;
 
-  // 下部ページネーション（左寄せ）
-  html += createPaginationLinks(page, totalPages);
+// 下部ページネーション（左寄せ）
+html += createPaginationLinks(page, totalPages);
 
-  // 設定フォーム
-  html += `<form action="/update-settings" method="post">
-    <div class="setting-field">
-      <label>
-        <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
-        募集を終了する
-      </label>
-    </div>
-    <div class="setting-field">
-      <label>理由:</label><br>
-      <textarea name="reason" placeholder="理由（任意)">${db.data.settings.reason || ""}</textarea>
-    </div>
-    <div class="setting-field">
-      <label>フロントエンドタイトル:</label><br>
-      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
-    </div>
-    <div class="setting-field">
-      <label>管理者パスワード:</label><br>
-      <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;">
-    </div>
-    <div class="setting-field">
-      <label>
-        <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
-        ユーザーページの再生・音量ボタンを表示する
-      </label>
-    </div>
-    <br>
-    <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
-  </form>`;
-
-  // 同期/取得ボタン
-  html += `<div class="button-container">
-    <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
-    <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
-    <div class="spinner" id="loadingSpinner"></div>
+// 設定フォーム
+html += `<form action="/update-settings" method="post">
+  <div class="setting-field">
+    <label>
+      <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+      募集を終了する
+    </label>
   </div>
-  <br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
+  <div class="setting-field">
+    <label>理由:</label><br>
+    <textarea name="reason" placeholder="理由（任意)">${db.data.settings.reason || ""}</textarea>
+  </div>
+  <div class="setting-field">
+    <label>フロントエンドタイトル:</label><br>
+    <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
+  </div>
+  <div class="setting-field">
+    <label>管理者パスワード:</label><br>
+    <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;">
+  </div>
+  <div class="setting-field">
+    <label>
+      <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+      ユーザーページの再生・音量ボタンを表示する
+    </label>
+  </div>
+  <br>
+  <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
+</form>`;
 
-  // 管理者用スクリプト
-  html += `
+// 同期/取得ボタン
+html += `<div class="button-container">
+  <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
+  <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
+  <div class="spinner" id="loadingSpinner"></div>
+</div>
+<br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
+
+html += `
 <script>
 // 管理者用プレイヤー処理
 let adminAudioMap = {};
@@ -535,7 +534,7 @@ let adminIsMutedMap = {};
 let adminFadeIntervalMap = {};
 
 function getPreviewUrl(id) {
-  const entry = document.querySelector('.entry[data-id="' + id + '"]');
+  const entry = document.querySelector(\`.entry[data-id="\${id}"]\`);
   return entry ? entry.dataset.previewurl : "";
 }
 
@@ -603,17 +602,17 @@ function fadeOutAudio(id, duration) {
 }
 
 function updateAdminPlayIcon(id) {
-  const btn = document.querySelector('.entry[data-id="' + id + '"] .control-btn[onclick^="adminTogglePlay"]');
+  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminTogglePlay"]\`);
   if (!btn) return;
   if (adminIsPlayingMap[id]) {
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<rect x="4" y="3" width="4" height="14" fill="#888"/>' +
-      '<rect x="12" y="3" width="4" height="14" fill="#888"/>' +
-      '</svg>';
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
+      <rect x="4" y="3" width="4" height="14" fill="#888"/>
+      <rect x="12" y="3" width="4" height="14" fill="#888"/>
+    </svg>`;
   } else {
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<polygon points="5,3 17,10 5,17" fill="#888"/>' +
-      '</svg>';
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
+      <polygon points="5,3 17,10 5,17" fill="#888"/>
+    </svg>`;
   }
 }
 
@@ -625,19 +624,19 @@ function adminToggleMute(id) {
 }
 
 function updateAdminMuteIcon(id) {
-  const btn = document.querySelector('.entry[data-id="' + id + '"] .control-btn[onclick^="adminToggleMute"]');
+  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminToggleMute"]\`);
   if (!btn) return;
   if (adminIsMutedMap[id]) {
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
-      '<line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>' +
-      '<line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>' +
-      '</svg>';
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
+      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+      <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
+      <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
+    </svg>`;
   } else {
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
-      '<path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>' +
-      '</svg>';
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
+      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
+    </svg>`;
   }
 }
 
@@ -645,7 +644,7 @@ function adminChangeVolume(id, val) {
   if (!adminAudioMap[id]) return;
   const volume = parseInt(val, 10) / 100;
   adminAudioMap[id].volume = volume;
-  const iconSpan = document.getElementById('volIcon-' + id);
+  const iconSpan = document.getElementById(`volIcon-${id}`);
   if (!iconSpan) return;
   if (volume < 0.25) {
     iconSpan.innerText = "🔈";
@@ -660,7 +659,7 @@ function adminChangeVolume(id, val) {
 </script>
 </body>
 </html>`;
-
+  
   res.send(html);
 });
 
