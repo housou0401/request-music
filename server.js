@@ -238,8 +238,8 @@ async function syncRequestsToGitHub() {
         {
           headers: {
             Authorization: `token ${GITHUB_TOKEN}`,
-            Accept: "application/vnd.github.v3+json",
-          },
+            Accept: "application/vnd.github.v3+json"
+          }
         }
       );
       sha = getResponse.data.sha;
@@ -254,7 +254,7 @@ async function syncRequestsToGitHub() {
     const putData = {
       message: "Sync db.json",
       content: contentEncoded,
-      branch: BRANCH,
+      branch: BRANCH
     };
     if (sha) putData.sha = sha;
     const putResponse = await axios.put(
@@ -263,8 +263,8 @@ async function syncRequestsToGitHub() {
       {
         headers: {
           Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3+json",
-        },
+          Accept: "application/vnd.github.v3+json"
+        }
       }
     );
     return putResponse.data;
@@ -290,8 +290,8 @@ app.get("/fetch-requests", async (req, res) => {
       {
         headers: {
           Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3+json",
-        },
+          Accept: "application/vnd.github.v3+json"
+        }
       }
     );
     const contentBase64 = getResponse.data.content;
@@ -427,8 +427,7 @@ app.get("/admin", (req, res) => {
       100% { transform: rotate(360deg); }
     }
     .control-btn {
-      width: 24px;
-      height: 24px;
+      width: 24px; height: 24px;
       background: none;
       border: none;
       margin-left: 8px;
@@ -455,7 +454,6 @@ app.get("/admin", (req, res) => {
 <body>
 <h1>✉アンケート回答一覧</h1>`;
 
-// 上部ページネーション（左寄せ）
 html += createPaginationLinks(page, totalPages);
 
 html += `<ul style="padding:0;">`;
@@ -470,14 +468,11 @@ pageItems.forEach(entry => {
           <small>${entry.artist}</small>
         </div>
         <div style="display:flex; align-items:center; margin-left:10px;">
-          ${
-            // playerControlsEnabled の設定に合わせて再生・音量UIを表示
-            db.data.settings.playerControlsEnabled ? `
-            <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">&#9658;</button>
-            <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')">&#128266;</button>
+          ${ db.data.settings.playerControlsEnabled ? `
+            <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')"><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg></button>
+            <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')"><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg></button>
             <input type="range" min="0" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
-            ` : ""
-          }
+          ` : "" }
           <button type="button" class="clear-btn" onclick="location.href='/delete/${entry.id}'" style="margin-left:10px;">×</button>
         </div>
       </div>
@@ -486,10 +481,8 @@ pageItems.forEach(entry => {
 });
 html += `</ul>`;
 
-// 下部ページネーション（左寄せ）
 html += createPaginationLinks(page, totalPages);
 
-// 設定フォーム
 html += `<form action="/update-settings" method="post">
   <div class="setting-field">
     <label>
@@ -528,7 +521,6 @@ html += `<div class="button-container">
 
 html += `
 <script>
-// 管理者用プレイヤー処理
 let adminAudioMap = {};
 let adminIsPlayingMap = {};
 let adminIsMutedMap = {};
@@ -545,7 +537,7 @@ function adminTogglePlay(id) {
   if (!adminAudioMap[id]) {
     const audio = new Audio();
     audio.src = previewUrl;
-    audio.volume = 0; // フェードイン開始
+    audio.volume = 0; 
     audio.currentTime = 10;
     adminAudioMap[id] = audio;
     adminIsPlayingMap[id] = false;
@@ -558,7 +550,7 @@ function adminTogglePlay(id) {
     adminIsMutedMap[id] = false;
     adminAudioMap[id].play();
     adminIsPlayingMap[id] = true;
-    fadeInAudio(id, 0.5, 750); // 0.75秒で音量0.5までフェードイン
+    fadeInAudio(id, 0.5, 750);
   }
   updateAdminPlayIcon(id);
   updateAdminMuteIcon(id);
@@ -607,14 +599,9 @@ function updateAdminPlayIcon(id) {
   const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminTogglePlay"]\`);
   if (!btn) return;
   if (adminIsPlayingMap[id]) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <rect x="4" y="3" width="4" height="14" fill="#888"/>
-      <rect x="12" y="3" width="4" height="14" fill="#888"/>
-    </svg>`;
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" fill="#888"/><rect x="12" y="3" width="4" height="14" fill="#888"/></svg>`;
   } else {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="5,3 17,10 5,17" fill="#888"/>
-    </svg>`;
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg>`;
   }
 }
 
@@ -628,35 +615,16 @@ function adminToggleMute(id) {
 function updateAdminMuteIcon(id) {
   const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminToggleMute"]\`);
   if (!btn) return;
-  const vol = adminAudioMap[id] ? adminAudioMap[id].volume : 0;
-  // アイコンは、音量0～<0.25: mute, 0.25～0.5: speaker, 0.5～0.75: sound, 0.75～: loud_sound
+  let vol = adminAudioMap[id] ? adminAudioMap[id].volume : 0;
   let svg;
-  if (vol < 0.01) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
-      <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
-    </svg>`;
-  } else if (vol < 0.25) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
-    </svg>`;
-  } else if (vol < 0.5) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
-    </svg>`;
-  } else if (vol < 0.75) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
-    </svg>`;
+  if (vol < 0.01 || adminIsMutedMap[id]) {
+    svg = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/><line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/></svg>`;
+  } else if (vol < 0.31) {
+    svg = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>`;
+  } else if (vol < 0.61) {
+    svg = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>`;
   } else {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
-    </svg>`;
+    svg = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>`;
   }
   btn.innerHTML = svg;
 }
@@ -665,15 +633,13 @@ function adminChangeVolume(id, val) {
   if (!adminAudioMap[id]) return;
   const volume = parseInt(val, 10) / 100;
   adminAudioMap[id].volume = volume;
-  // もしミュート状態なら解除
   if (volume > 0 && adminIsMutedMap[id]) {
-    adminIsMutedMap[id] = false;
     adminAudioMap[id].muted = false;
+    adminIsMutedMap[id] = false;
   }
   updateAdminMuteIcon(id);
 }
 
-// ここでは createPaginationLinks 関数を共通関数として定義
 function createPaginationLinks(currentPage, totalPages) {
   let html = `<div style="text-align:left; margin-bottom:10px;">`;
   html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
@@ -700,17 +666,15 @@ function createPaginationLinks(currentPage, totalPages) {
 </script>
 </body>
 </html>`;
-
-res.send(html);
+  
+  res.send(html);
 });
 
-/* --- 管理者ログイン --- */
 app.get("/admin-login", (req, res) => {
   const { password } = req.query;
   res.json({ success: password === db.data.settings.adminPassword });
 });
 
-/* --- 設定更新 --- */
 app.post("/update-settings", (req, res) => {
   db.data.settings.recruiting = req.body.recruiting ? false : true;
   db.data.settings.reason = req.body.reason || "";
@@ -724,12 +688,10 @@ app.post("/update-settings", (req, res) => {
 <script>setTimeout(()=>{location.href="/admin"},3000)</script>`);
 });
 
-/* --- 設定取得 --- */
 app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
 
-/* --- 自動同期ジョブ --- */
 cron.schedule("*/20 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
