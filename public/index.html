@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="skript.js" defer></script>
   <style>
-    /* ページ独自のスタイル */
+    /* ページ独自のスタイル（index用） */
     body {
       display: flex;
       flex-direction: column;
@@ -67,9 +67,14 @@
     
     <!-- 送信フォーム -->
     <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
-      <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
-      <!-- 曲名モードの場合のみ表示 -->
-      <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力してください" oninput="searchSongs()">
+      <div class="input-container">
+        <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
+        <button type="button" class="input-clear-btn" onclick="clearInput('songName')">×</button>
+      </div>
+      <div class="input-container" id="artistInputContainer">
+        <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力してください" oninput="searchSongs()">
+        <button type="button" class="input-clear-btn" onclick="clearInput('artistName')">×</button>
+      </div>
       
       <!-- 候補一覧 -->
       <div id="suggestions"></div>
@@ -91,7 +96,7 @@
   </div>
   <p class="privacy-note">個人情報は収集されません。</p>
   <script>
-    // 募集状態チェックとタイトル更新（既存の関数）
+    // 募集状態チェックとタイトル更新
     function checkRecruitingStatus() {
       fetch("/settings")
         .then(response => response.json())
@@ -129,11 +134,10 @@
         })
         .catch(error => console.error("タイトル取得エラー:", error));
     }
-    // 定期的に設定を更新して反映（10秒毎にポーリング）
-    setInterval(() => {
-      updateFrontendTitle();
-      checkRecruitingStatus();
-    }, 10000);
+    function clearInput(id) {
+      document.getElementById(id).value = "";
+      searchSongs();
+    }
   </script>
 </body>
 </html>
