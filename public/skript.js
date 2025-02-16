@@ -14,7 +14,7 @@ window.onload = async function() {
 async function loadSettings() {
   try {
     const res = await fetch("/settings");
-    const data = await res.json();
+    await res.json();
   } catch (e) {
     console.error("設定読み込みエラー:", e);
   }
@@ -164,7 +164,7 @@ function selectSong(song) {
       </div>
       <div style="display:flex; align-items:center;">
           <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
-          <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
+          <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)"> </button>
           <input type="range" min="1" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
           <button type="button" class="clear-btn" onclick="clearSelection()" style="margin-left:10px;">×</button>
       </div>
@@ -252,6 +252,7 @@ function togglePlay(e) {
   if (!previewAudio) return;
   if (isPlaying) {
     fadeOutUserAudio(200);
+    isPlaying = false;
   } else {
     previewAudio.play();
     isPlaying = true;
@@ -278,30 +279,41 @@ function updatePlayPauseIcon() {
 function toggleMute(e) {
   e.stopPropagation();
   if (!previewAudio) return;
-  const slider = document.getElementById("volumeSlider");
   if (isMuted) {
-    const vol = slider ? slider.value / 100 : 0.5;
-    previewAudio.volume = vol;
+    previewAudio.muted = false;
+    isMuted = false;
+  } else {
+    previewAudio.muted = true;
+    isMuted = true;
   }
-  isMuted = !isMuted;
-  previewAudio.muted = isMuted;
   updateMuteIcon();
 }
 
 function updateMuteIcon() {
   const btn = document.getElementById("muteBtn");
   if (!btn) return;
-  const currentVolume = previewAudio ? previewAudio.volume : 1;
-  if (isMuted || currentVolume === 0) {
+  const slider = document.getElementById("volumeSlider");
+  let volume = slider ? parseInt(slider.value, 10) : 50;
+  if (isMuted || volume === 0) {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
       <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
       <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
     </svg>`;
+  } else if (volume >= 61) {
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
+      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+      <path d="M15 5 L15 15" stroke="#888" stroke-width="2"/>
+      <path d="M17 3 L17 17" stroke="#888" stroke-width="2"/>
+    </svg>`;
+  } else if (volume >= 31) {
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
+      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+      <path d="M15 7 L15 13" stroke="#888" stroke-width="2"/>
+    </svg>`;
   } else {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
 }
