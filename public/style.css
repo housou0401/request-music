@@ -25,6 +25,30 @@ h1 {
   margin-bottom: 10px;
 }
 
+.input-container {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.input-container input[type="text"] {
+  width: 100%;
+  padding-right: 30px; /* クリアボタン分の余白 */
+}
+
+.clear-btn-input {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+}
+
+/* テキストボックス・textarea 基本スタイル */
 input[type="text"], textarea {
   width: 100%;
   padding: 10px;
@@ -179,7 +203,7 @@ button:hover {
   100% { transform: rotate(360deg); }
 }
 
-/* 「選択中」ラベル用 */
+/* 「選択中」ラベル */
 #selectedLabel {
   margin-top: 16px;
   margin-bottom: 16px;
