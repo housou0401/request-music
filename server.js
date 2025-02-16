@@ -54,9 +54,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 /* --- Apple Music 検索関連 --- */
-// 指定言語、entity でクエリ実行
+// 送信前にクエリ中のダブルクォートを除去
+const cleanQuery = (q) => q.replace(/"/g, "");
+
 const fetchResultsForQuery = async (query, lang, entity = "song") => {
-  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
+  const cleanQ = cleanQuery(query);
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQ)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   const response = await fetch(url);
   if (!response.ok) {
     console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
@@ -85,7 +88,6 @@ const fetchArtistTracks = async (artistId) => {
   try {
     const data = JSON.parse(text);
     if (!data.results || data.results.length <= 1) return [];
-    // 先頭はアーティスト情報なので除外
     return data.results.slice(1).map(r => ({
       trackName: r.trackName,
       artistName: r.artistName,
@@ -101,6 +103,9 @@ const fetchArtistTracks = async (artistId) => {
 // 曲名検索用（song mode）
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
+    songTitle = cleanQuery(songTitle);
+    artistName = cleanQuery(artistName);
+    
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
     const hasEnglish  = /[A-Za-z]/.test(songTitle);
@@ -108,14 +113,12 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     
     let queries = [];
     if (artistName && artistName.trim().length > 0) {
-      queries.push(`"${songTitle}" ${artistName}`);
       queries.push(`${songTitle} ${artistName}`);
       queries.push(`${songTitle} official ${artistName}`);
     } else {
-      queries.push(`"${songTitle}"`);
+      queries.push(songTitle);
       queries.push(`${songTitle} official`);
     }
-    queries.push(songTitle);
     
     for (let query of queries) {
       let data;
@@ -160,11 +163,10 @@ app.get("/search", async (req, res) => {
   try {
     if (mode === "artist") {
       if (req.query.artistId) {
-        // アーティストが選択済み → そのアーティストの曲一覧を返す
         const tracks = await fetchArtistTracks(req.query.artistId.trim());
         return res.json(tracks);
       } else {
-        // アーティスト一覧検索：entity="album" を利用して代表画像を取得
+        // アーティスト一覧検索：entity="album" で代表画像を取得
         const query = req.query.query?.trim();
         if (!query || query.length === 0) return res.json([]);
         const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
@@ -189,7 +191,6 @@ app.get("/search", async (req, res) => {
         return res.json(Array.from(artistMap.values()));
       }
     } else {
-      // songモード
       const query = req.query.query?.trim();
       const artist = req.query.artist?.trim() || "";
       if (!query || query.length === 0) return res.json([]);
@@ -437,11 +438,11 @@ app.get("/admin", (req, res) => {
       100% { transform: rotate(360deg); }
     }
     .selected-label {
-      font-size: 12px;
+      font-size: 16px;
       color: #555;
-      margin-top: 8px;
-      margin-bottom: 8px;
-      text-align: left;
+      margin-top: 16px;
+      margin-bottom: 16px;
+      text-align: center;
     }
     @media (max-width: 600px) {
       .container, form, textarea, input[type="text"] {
@@ -502,7 +503,7 @@ app.get("/admin", (req, res) => {
   <br>
   <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
 </form>`;
-  // 同期/取得ボタンと戻るボタン（戻るボタンを大きく）
+  // 同期/取得ボタンと戻るボタン（戻るボタン大きめ）
   responseList += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
