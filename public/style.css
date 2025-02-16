@@ -32,7 +32,7 @@ h1 {
 
 .input-container input[type="text"] {
   width: 100%;
-  /* 上下左右のパディング：右側はclearボタン分余裕を持たせる */
+  /* 右側はクリアボタン分余裕を持たせる */
   padding: 10px 40px 10px 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
