@@ -91,7 +91,7 @@
   </div>
   <p class="privacy-note">個人情報は収集されません。</p>
   <script>
-    // 募集状態チェックとフロントエンドタイトル更新（既存の関数）
+    // 募集状態チェックとタイトル更新（既存の関数）
     function checkRecruitingStatus() {
       fetch("/settings")
         .then(response => response.json())
@@ -129,6 +129,11 @@
         })
         .catch(error => console.error("タイトル取得エラー:", error));
     }
+    // 定期的に設定を更新して反映（10秒毎にポーリング）
+    setInterval(() => {
+      updateFrontendTitle();
+      checkRecruitingStatus();
+    }, 10000);
   </script>
 </body>
 </html>
