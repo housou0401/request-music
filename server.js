@@ -54,7 +54,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 /* --- Apple Music 検索関連 --- */
-// fetchResultsForQuery: attribute パラメータと User-Agent ヘッダー追加
+// fetchResultsForQuery: attribute と User-Agent ヘッダーを追加
 const fetchResultsForQuery = async (query, lang, entity = "song", attribute = "") => {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   if (attribute) {
@@ -105,7 +105,7 @@ const fetchArtistTracks = async (artistId) => {
   }
 };
 
-// 曲名検索用（song mode）→ attribute=songTerm を使用
+// 曲名検索用（song mode）→ attribute=songTerm
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
@@ -170,7 +170,7 @@ app.get("/search", async (req, res) => {
         const tracks = await fetchArtistTracks(req.query.artistId.trim());
         return res.json(tracks);
       } else {
-        // アーティスト一覧検索：entity="album", attribute="artistTerm" を利用
+        // アーティスト一覧検索：entity="album", attribute="artistTerm"
         const query = req.query.query?.trim();
         if (!query || query.length === 0) return res.json([]);
         const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
@@ -184,7 +184,7 @@ app.get("/search", async (req, res) => {
           if (album.artistName && album.artistId) {
             if (!artistMap.has(album.artistId)) {
               artistMap.set(album.artistId, {
-                trackName: album.artistName, // Apple Music 正確なアーティスト名
+                trackName: album.artistName,
                 artistName: album.artistName,
                 artworkUrl: album.artworkUrl100 || "",
                 artistId: album.artistId
