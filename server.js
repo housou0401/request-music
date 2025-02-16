@@ -347,108 +347,27 @@ app.get("/admin", (req, res) => {
   <style>
     li { margin-bottom: 10px; list-style:none; }
     .entry-container { position: relative; display: inline-block; margin-bottom:10px; }
-    .entry {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      border: 1px solid rgba(0,0,0,0.1);
-      padding: 10px;
-      border-radius: 10px;
-      width: fit-content;
-    }
+    .entry { display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; width: fit-content; }
     .entry:hover { background-color: rgba(0,0,0,0.05); }
     .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
-    .delete {
-      position: absolute;
-      left: calc(100% + 10px);
-      top: 50%;
-      transform: translateY(-50%);
-      color: red;
-      text-decoration: none;
-    }
-    .count-badge {
-      background-color: #ff6b6b;
-      color: white;
-      font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 5px;
-      margin-right: 10px;
-    }
+    .delete { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: red; text-decoration: none; }
+    .count-badge { background-color: #ff6b6b; color: white; font-weight: bold; padding: 4px 8px; border-radius: 5px; margin-right: 10px; }
     h1 { font-size: 1.5em; margin-bottom: 20px; }
     form { margin: 20px 0; text-align: left; }
-    textarea {
-      width: 300px;
-      height: 80px;
-      font-size: 0.9em;
-      color: black;
-      display: block;
-      margin-bottom: 10px;
-    }
+    textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }
     .setting-field { margin-bottom: 10px; }
-    .sync-btn, .fetch-btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .sync-btn {
-      background-color: #28a745;
-      color: white;
-    }
-    .sync-btn:hover {
-      background-color: #218838;
-    }
-    .fetch-btn {
-      background-color: #17a2b8;
-      color: white;
-      margin-left: 10px;
-    }
-    .fetch-btn:hover {
-      background-color: #138496;
-    }
-    .button-container {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 10px;
-    }
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      display: none;
-      margin-left: 10px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .control-btn {
-      width: 24px; height: 24px;
-      background: none;
-      border: none;
-      margin-left: 8px;
-      cursor: pointer;
-      fill: #888;
-    }
-    .control-btn:hover {
-      background-color: lightgray;
-      border-radius: 50%;
-    }
-    .volume-slider {
-      width: 100px;
-      margin-left: 10px;
-    }
-    .selected-label {
-      font-size: 16px;
-      color: #555;
-      margin-top: 16px;
-      margin-bottom: 16px;
-      text-align: center;
-    }
+    .sync-btn, .fetch-btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    .sync-btn { background-color: #28a745; color: white; }
+    .sync-btn:hover { background-color: #218838; }
+    .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
+    .fetch-btn:hover { background-color: #138496; }
+    .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
+    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .control-btn { width: 24px; height: 24px; background: none; border: none; margin-left: 8px; cursor: pointer; fill: #888; }
+    .control-btn:hover { background-color: lightgray; border-radius: 50%; }
+    .volume-slider { width: 100px; margin-left: 10px; }
+    .selected-label { font-size: 16px; color: #555; margin-top: 16px; margin-bottom: 16px; text-align: center; }
   </style>
 </head>
 <body>
@@ -469,8 +388,8 @@ pageItems.forEach(entry => {
         </div>
         <div style="display:flex; align-items:center; margin-left:10px;">
           ${ db.data.settings.playerControlsEnabled ? `
-            <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')"><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg></button>
-            <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')"><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg></button>
+            <button type="button" class="control-btn" data-action="adminTogglePlay" onclick="adminTogglePlay('${entry.id}')"><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg></button>
+            <button type="button" class="control-btn" data-action="adminToggleMute" onclick="adminToggleMute('${entry.id}')"><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg></button>
             <input type="range" min="0" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
           ` : "" }
           <button type="button" class="clear-btn" onclick="location.href='/delete/${entry.id}'" style="margin-left:10px;">×</button>
@@ -537,7 +456,7 @@ function adminTogglePlay(id) {
   if (!adminAudioMap[id]) {
     const audio = new Audio();
     audio.src = previewUrl;
-    audio.volume = 0; 
+    audio.volume = 0;
     audio.currentTime = 10;
     adminAudioMap[id] = audio;
     adminIsPlayingMap[id] = false;
@@ -596,7 +515,7 @@ function fadeOutAudio(id, duration) {
 }
 
 function updateAdminPlayIcon(id) {
-  const btn = document.querySelector(`.entry[data-id="${id}"] .control-btn[onclick^="adminTogglePlay"]`);
+  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[data-action="adminTogglePlay"]\`);
   if (!btn) return;
   if (adminIsPlayingMap[id]) {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" fill="#888"/><rect x="12" y="3" width="4" height="14" fill="#888"/></svg>`;
@@ -613,7 +532,7 @@ function adminToggleMute(id) {
 }
 
 function updateAdminMuteIcon(id) {
-  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminToggleMute"]\`);
+  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[data-action="adminToggleMute"]\`);
   if (!btn) return;
   let vol = adminAudioMap[id] ? adminAudioMap[id].volume : 0;
   let svg;
@@ -662,12 +581,11 @@ function createPaginationLinks(currentPage, totalPages) {
   html += `</div>`;
   return html;
 }
-
 </script>
 </body>
 </html>`;
-  
-  res.send(html);
+
+res.send(html);
 });
 
 app.get("/admin-login", (req, res) => {
