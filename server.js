@@ -37,11 +37,10 @@ if (!db.data.settings) {
     reason: "",
     frontendTitle: "♬曲をリクエストする",
     adminPassword: "housou0401",
-    playerControlsEnabled: true  // 追加: 再生ボタン・音量ボタンの表示切替
+    playerControlsEnabled: true
   };
   db.write();
 } else {
-  // 既存 settings に playerControlsEnabled がなければ追加
   if (db.data.settings.playerControlsEnabled === undefined) {
     db.data.settings.playerControlsEnabled = true;
   }
@@ -109,7 +108,7 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
     let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
     
     let queries = [];
-    if (artistName) {
+    if (artistName && artistName.trim().length > 0) {
       queries.push(`${songTitle} ${artistName}`);
       queries.push(`${songTitle} official ${artistName}`);
     } else {
@@ -305,7 +304,7 @@ app.get("/fetch-requests", async (req, res) => {
 /* --- 管理者ページ --- */
 app.get("/admin", (req, res) => {
   const page = parseInt(req.query.page || "1", 10);
-  const perPage = 10; // 1ページあたり10件
+  const perPage = 10;
   const total = db.data.responses.length;
   const totalPages = Math.ceil(total / perPage);
   const startIndex = (page - 1) * perPage;
@@ -313,20 +312,16 @@ app.get("/admin", (req, res) => {
   const pageItems = db.data.responses.slice(startIndex, endIndex);
 
   function createPaginationLinks(currentPage, totalPages) {
-    let paginationHtml = `<div style="text-align:center; margin-bottom:10px;">`;
-
+    let paginationHtml = `<div style="text-align:left; margin-bottom:10px;">`;
     // 最初のページボタン
     paginationHtml += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
-
     // 前へ
     const prevPage = Math.max(1, currentPage - 1);
     paginationHtml += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
-
     // ページ番号
     for (let p = 1; p <= totalPages; p++) {
       if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
         if (p === currentPage) {
-          // 現在のページ
           paginationHtml += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
         } else {
           paginationHtml += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
@@ -335,14 +330,11 @@ app.get("/admin", (req, res) => {
         paginationHtml += `...`;
       }
     }
-
     // 次へ
     const nextPage = Math.min(totalPages, currentPage + 1);
     paginationHtml += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
-
     // 最後のページ
     paginationHtml += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
-
     paginationHtml += `</div>`;
     return paginationHtml;
   }
@@ -353,7 +345,7 @@ app.get("/admin", (req, res) => {
   <meta charset="UTF-8">
   <title>管理者ページ</title>
   <style>
-    li { margin-bottom: 10px; }
+    li { margin-bottom: 10px; list-style:none; }
     .entry-container { position: relative; display: inline-block; margin-bottom:10px; }
     .entry {
       display: flex;
@@ -440,6 +432,11 @@ app.get("/admin", (req, res) => {
       border: none;
       margin-left: 8px;
       cursor: pointer;
+      fill: #888;
+    }
+    .control-btn:hover {
+      background-color: lightgray;
+      border-radius: 50%;
     }
     .volume-slider {
       width: 100px;
@@ -450,16 +447,15 @@ app.get("/admin", (req, res) => {
 <body>
 <h1>✉アンケート回答一覧</h1>`;
 
-// ページネーション（上部）
+// 上部ページネーション (左寄せ)
 responseList += createPaginationLinks(page, totalPages);
 
-// リスト表示
-responseList += `<ul style="list-style:none; padding:0;">`;
+responseList += `<ul style="padding:0;">`;
 pageItems.forEach(entry => {
-  // 各曲に対して再生コントロールを追加
+  // data-previewurl にプレビューURLを埋め込む
   responseList += `<li>
     <div class="entry-container">
-      <div class="entry">
+      <div class="entry" data-previewurl="${entry.appleMusicUrl}">
         <div class="count-badge">${entry.count}</div>
         <img src="${entry.artworkUrl}" alt="Cover">
         <div>
@@ -470,6 +466,7 @@ pageItems.forEach(entry => {
           <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">&#9658;</button>
           <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')">&#128266;</button>
           <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
+          <span id="volIcon-${entry.id}" style="margin-left:8px;">🔉</span>
         </div>
       </div>
       <a href="/delete/${entry.id}" class="delete">🗑️</a>
@@ -478,7 +475,7 @@ pageItems.forEach(entry => {
 });
 responseList += `</ul>`;
 
-// ページネーション（下部）
+// 下部ページネーション
 responseList += createPaginationLinks(page, totalPages);
 
 // 設定フォーム
@@ -491,7 +488,7 @@ responseList += `<form action="/update-settings" method="post">
   </div>
   <div class="setting-field">
     <label>理由:</label><br>
-    <textarea name="reason" placeholder="理由（任意）">${db.data.settings.reason || ""}</textarea>
+    <textarea name="reason" placeholder="理由（任意)">${db.data.settings.reason || ""}</textarea>
   </div>
   <div class="setting-field">
     <label>フロントエンドタイトル:</label><br>
@@ -519,105 +516,130 @@ responseList += `<div class="button-container">
 </div>
 <br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
 
+// 管理者用スクリプト
 responseList += `
 <script>
-let adminAudioMap = {}; // id -> HTMLAudioElement
+let adminAudioMap = {}; 
 let adminIsPlayingMap = {};
 let adminIsMutedMap = {};
-
+let adminFadeIntervalMap = {};
+function getPreviewUrl(div) {
+  return div.dataset.previewurl || "";
+}
 function adminTogglePlay(id) {
+  const entryDiv = document.querySelector(\`.entry[data-previewurl][onclick=""]\`); 
+  // ↑ ここでは複数あるため、idと結びつけるために container から検索
+  // 実際には id -> previewUrl を保存する仕組みが必要
+  const container = document.querySelector(\`.entry-container .entry[data-previewurl]\`);
+  if (!container) return;
+  const previewUrl = container.dataset.previewurl || "";
   if (!adminAudioMap[id]) {
-    adminAudioMap[id] = new Audio();
-    adminAudioMap[id].src = getPreviewUrl(id);
-    adminAudioMap[id].volume = 0.5;
-    adminAudioMap[id].currentTime = 10;
-    adminAudioMap[id].loop = false;
+    const audio = new Audio();
+    audio.src = previewUrl;
+    audio.volume = 0; // フェードイン開始 (0)
+    audio.currentTime = 10;
+    adminAudioMap[id] = audio;
     adminIsPlayingMap[id] = false;
     adminIsMutedMap[id] = false;
   }
   if (adminIsPlayingMap[id]) {
+    // 停止
     adminAudioMap[id].pause();
     adminIsPlayingMap[id] = false;
+    clearInterval(adminFadeIntervalMap[id]);
+    adminFadeIntervalMap[id] = null;
   } else {
+    // 再生 + フェードイン
+    adminAudioMap[id].muted = false;
+    adminIsMutedMap[id] = false;
     adminAudioMap[id].play();
     adminIsPlayingMap[id] = true;
+    fadeInAudio(id, 0.5, 750); // 0.75sで音量0.5までフェードイン
   }
   updateAdminPlayIcon(id);
+  updateAdminMuteIcon(id);
+}
+function fadeInAudio(id, finalVolume, duration) {
+  const steps = 30;
+  const stepTime = duration / steps;
+  let currentStep = 0;
+  const stepVol = finalVolume / steps;
+  clearInterval(adminFadeIntervalMap[id]);
+  adminFadeIntervalMap[id] = setInterval(()=>{
+    currentStep++;
+    let newVol = stepVol * currentStep;
+    if (newVol >= finalVolume) {
+      newVol = finalVolume;
+      clearInterval(adminFadeIntervalMap[id]);
+      adminFadeIntervalMap[id] = null;
+    }
+    adminAudioMap[id].volume = newVol;
+  }, stepTime);
 }
 function updateAdminPlayIcon(id) {
-  const btn = document.querySelector(\`[onclick="adminTogglePlay('\${id}')"]\`);
+  const btn = document.querySelector(\`.entry-container .entry button[onclick="adminTogglePlay('${id}')"]\`);
   if (!btn) return;
   if (adminIsPlayingMap[id]) {
+    // Pause icon
     btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
       <rect x="4" y="3" width="4" height="14" fill="#888"/>
       <rect x="12" y="3" width="4" height="14" fill="#888"/>
     </svg>\`;
   } else {
+    // Play icon
     btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="5,3 17,10 5,17" fill="#888"/>
     </svg>\`;
   }
 }
-
 function adminToggleMute(id) {
   if (!adminAudioMap[id]) {
-    adminAudioMap[id] = new Audio();
-    adminAudioMap[id].src = getPreviewUrl(id);
-    adminAudioMap[id].volume = 0.5;
-    adminAudioMap[id].currentTime = 10;
-    adminAudioMap[id].loop = false;
-    adminIsPlayingMap[id] = true;
-    adminAudioMap[id].play();
-    adminIsMutedMap[id] = false;
+    return; 
   }
   adminIsMutedMap[id] = !adminIsMutedMap[id];
   adminAudioMap[id].muted = adminIsMutedMap[id];
   updateAdminMuteIcon(id);
 }
 function updateAdminMuteIcon(id) {
-  const btn = document.querySelector(\`[onclick="adminToggleMute('\${id}')"]\`);
+  const btn = document.querySelector(\`.entry-container .entry button[onclick="adminToggleMute('${id}')"]\`);
   if (!btn) return;
   if (adminIsMutedMap[id]) {
+    // Muted icon
     btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
       <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
       <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
     </svg>\`;
   } else {
+    // Sound on
     btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
       <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
     </svg>\`;
   }
 }
-
 function adminChangeVolume(id, val) {
   if (!adminAudioMap[id]) {
-    adminAudioMap[id] = new Audio();
-    adminAudioMap[id].src = getPreviewUrl(id);
-    adminAudioMap[id].volume = 0.5;
-    adminAudioMap[id].currentTime = 10;
-    adminAudioMap[id].loop = false;
-    adminIsPlayingMap[id] = true;
-    adminAudioMap[id].play();
-    adminIsMutedMap[id] = false;
+    return;
   }
   const volume = parseInt(val, 10) / 100;
   adminAudioMap[id].volume = volume;
+  // アイコン切り替え
+  const iconSpan = document.getElementById(\`volIcon-\${id}\`);
+  if (!iconSpan) return;
+  if (volume < 0.25) {
+    iconSpan.innerText = "🔈";
+  } else if (volume < 0.5) {
+    iconSpan.innerText = "🔉";
+  } else if (volume >= 0.75) {
+    iconSpan.innerText = "🔊";
+  } else {
+    iconSpan.innerText = "🔉";
+  }
 }
+</script>
+</body></html>`;
 
-function getPreviewUrl(id) {
-  // HTML内に previewUrl は埋め込んでいないので
-  // 本来ならサーバーから previewUrl を取得するか
-  // ここで track info を持たせる必要があるが、簡易実装として仮で空文字
-  // => 実際には trackごとに hidden input などに previewUrl を埋め込んでおき、そこから取得するなど工夫が必要
-  return "";
-}
-
-/* 同期/取得ボタンは既存のsyncToGitHub, fetchFromGitHub関数 */
-</script>`;
-
-responseList += `</body></html>`;
 res.send(responseList);
 });
 
@@ -635,7 +657,6 @@ app.post("/update-settings", (req, res) => {
   if (req.body.adminPassword && req.body.adminPassword.trim()) {
     db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
-  // プレイヤーコントロールのON/OFF
   db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
   db.write();
   res.send(`<p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p>
