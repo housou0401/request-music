@@ -296,24 +296,24 @@ function updateMuteIcon() {
   let volume = slider ? parseInt(slider.value, 10) : 50;
   if (isMuted || volume === 0) {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
-      <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
+      <rect x="2" y="6" width="6" height="8" fill="#888"/>
+      <line x1="12" y1="4" x2="18" y2="16" stroke="#888" stroke-width="2"/>
+      <line x1="18" y1="4" x2="12" y2="16" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (volume >= 61) {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M15 5 L15 15" stroke="#888" stroke-width="2"/>
-      <path d="M17 3 L17 17" stroke="#888" stroke-width="2"/>
+      <rect x="2" y="6" width="6" height="8" fill="#888"/>
+      <path d="M12 4 L12 16" stroke="#888" stroke-width="2"/>
+      <path d="M14 2 L14 18" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (volume >= 31) {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M15 7 L15 13" stroke="#888" stroke-width="2"/>
+      <rect x="2" y="6" width="6" height="8" fill="#888"/>
+      <path d="M12 8 L12 12" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else {
     btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+      <rect x="2" y="6" width="6" height="8" fill="#888"/>
     </svg>`;
   }
 }
