@@ -54,7 +54,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 /* --- Apple Music 検索関連 --- */
-// fetchResultsForQuery: attribute と User-Agent ヘッダーを追加
+// fetchResultsForQuery: attribute と User-Agent ヘッダー追加
 const fetchResultsForQuery = async (query, lang, entity = "song", attribute = "") => {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   if (attribute) {
@@ -508,7 +508,7 @@ app.get("/admin", (req, res) => {
   <br>
   <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
 </form>`;
-  // 同期/取得ボタンと戻るボタン（戻るボタンを大きく）
+  // 同期/取得ボタンと戻るボタン
   responseList += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
