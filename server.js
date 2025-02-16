@@ -150,47 +150,53 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
 /* --- /search エンドポイント --- */
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
-  if (mode === "artist") {
-    if (req.query.artistId) {
-      const tracks = await fetchArtistTracks(req.query.artistId.trim());
-      return res.json(tracks);
-    } else {
-      const query = req.query.query?.trim();
-      if (!query) return res.json([]);
-      const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
-      const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(query);
-      const hasEnglish  = /[A-Za-z]/.test(query);
-      let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
-      const data = await fetchResultsForQuery(query, lang, "album", "artistTerm");
-      if (!data || !data.results) return res.json([]);
-      const artistMap = new Map();
-      for (let album of data.results) {
-        if (album.artistName && album.artistId) {
-          if (!artistMap.has(album.artistId)) {
-            artistMap.set(album.artistId, {
-              trackName: album.artistName,
-              artistName: album.artistName,
-              artworkUrl: album.artworkUrl100 || "",
-              artistId: album.artistId
-            });
+  try {
+    if (mode === "artist") {
+      if (req.query.artistId) {
+        const tracks = await fetchArtistTracks(req.query.artistId.trim());
+        return res.json(tracks);
+      } else {
+        const query = req.query.query?.trim();
+        if (!query) return res.json([]);
+        const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
+        const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(query);
+        const hasEnglish  = /[A-Za-z]/.test(query);
+        let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
+        const data = await fetchResultsForQuery(query, lang, "album", "artistTerm");
+        if (!data || !data.results) return res.json([]);
+        const artistMap = new Map();
+        for (let album of data.results) {
+          if (album.artistName && album.artistId) {
+            if (!artistMap.has(album.artistId)) {
+              artistMap.set(album.artistId, {
+                trackName: album.artistName,
+                artistName: album.artistName,
+                artworkUrl: album.artworkUrl100 || "",
+                artistId: album.artistId
+              });
+            }
           }
         }
+        return res.json(Array.from(artistMap.values()));
       }
-      return res.json(Array.from(artistMap.values()));
+    } else {
+      const query = req.query.query?.trim();
+      const artist = req.query.artist?.trim() || "";
+      if (!query) return res.json([]);
+      const suggestions = await fetchAppleMusicInfo(query, artist);
+      return res.json(suggestions);
     }
-  } else {
-    const query = req.query.query?.trim();
-    const artist = req.query.artist?.trim() || "";
-    if (!query) return res.json([]);
-    const suggestions = await fetchAppleMusicInfo(query, artist);
-    return res.json(suggestions);
+  } catch (err) {
+    console.error("❌ /search エラー:", err);
+    return res.json([]);
   }
 });
 
-/* --- リクエスト送信処理 --- */
+/* --- リクエスト送信 --- */
 app.post("/submit", (req, res) => {
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
   const artworkUrl = req.body.artworkUrl?.trim();
+  const previewUrl = req.body.previewUrl?.trim() || "";
   if (!appleMusicUrl || !artworkUrl) {
     return res.send(`<script>alert("必ず候補一覧から曲を選択してください"); window.location.href="/";</script>`);
   }
@@ -214,6 +220,7 @@ app.post("/submit", (req, res) => {
       artist: artistText,
       appleMusicUrl,
       artworkUrl,
+      previewUrl,
       count: db.data.songCounts[key]
     });
   }
@@ -312,34 +319,29 @@ app.get("/admin", (req, res) => {
   const pageItems = db.data.responses.slice(startIndex, endIndex);
 
   function createPaginationLinks(currentPage, totalPages) {
-    let paginationHtml = `<div style="text-align:left; margin-bottom:10px;">`;
-    // 最初のページボタン
-    paginationHtml += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
-    // 前へ
+    let html = `<div style="text-align:left; margin-bottom:10px;">`;
+    html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
     const prevPage = Math.max(1, currentPage - 1);
-    paginationHtml += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
-    // ページ番号
+    html += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
     for (let p = 1; p <= totalPages; p++) {
       if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
         if (p === currentPage) {
-          paginationHtml += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
+          html += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
         } else {
-          paginationHtml += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
+          html += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
         }
       } else if (Math.abs(p - currentPage) === 3) {
-        paginationHtml += `...`;
+        html += `...`;
       }
     }
-    // 次へ
     const nextPage = Math.min(totalPages, currentPage + 1);
-    paginationHtml += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
-    // 最後のページ
-    paginationHtml += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
-    paginationHtml += `</div>`;
-    return paginationHtml;
+    html += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
+    html += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
+    html += `</div>`;
+    return html;
   }
 
-  let responseList = `<!DOCTYPE html>
+  let html = `<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -427,7 +429,8 @@ app.get("/admin", (req, res) => {
       100% { transform: rotate(360deg); }
     }
     .control-btn {
-      width: 24px; height: 24px;
+      width: 24px;
+      height: 24px;
       background: none;
       border: none;
       margin-left: 8px;
@@ -442,20 +445,26 @@ app.get("/admin", (req, res) => {
       width: 100px;
       margin-left: 10px;
     }
+    .selected-label {
+      font-size: 16px;
+      color: #555;
+      margin-top: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 <h1>✉アンケート回答一覧</h1>`;
 
-// 上部ページネーション (左寄せ)
-responseList += createPaginationLinks(page, totalPages);
+// 上部ページネーション（左寄せ）
+html += createPaginationLinks(page, totalPages);
 
-responseList += `<ul style="padding:0;">`;
+html += `<ul style="padding:0;">`;
 pageItems.forEach(entry => {
-  // data-previewurl にプレビューURLを埋め込む
-  responseList += `<li>
+  html += `<li>
     <div class="entry-container">
-      <div class="entry" data-previewurl="${entry.appleMusicUrl}">
+      <div class="entry" data-previewurl="${entry.previewUrl}" data-id="${entry.id}">
         <div class="count-badge">${entry.count}</div>
         <img src="${entry.artworkUrl}" alt="Cover">
         <div>
@@ -473,13 +482,13 @@ pageItems.forEach(entry => {
     </div>
   </li>`;
 });
-responseList += `</ul>`;
+html += `</ul>`;
 
-// 下部ページネーション
-responseList += createPaginationLinks(page, totalPages);
+// 下部ページネーション（左寄せ）
+html += createPaginationLinks(page, totalPages);
 
 // 設定フォーム
-responseList += `<form action="/update-settings" method="post">
+html += `<form action="/update-settings" method="post">
   <div class="setting-field">
     <label>
       <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
@@ -509,63 +518,58 @@ responseList += `<form action="/update-settings" method="post">
 </form>`;
 
 // 同期/取得ボタン
-responseList += `<div class="button-container">
+html += `<div class="button-container">
   <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
   <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
   <div class="spinner" id="loadingSpinner"></div>
 </div>
 <br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
 
-// 管理者用スクリプト
-responseList += `
+html += `
 <script>
-let adminAudioMap = {}; 
+// 管理者用プレイヤー処理
+let adminAudioMap = {};
 let adminIsPlayingMap = {};
 let adminIsMutedMap = {};
 let adminFadeIntervalMap = {};
-function getPreviewUrl(div) {
-  return div.dataset.previewurl || "";
+
+function getPreviewUrl(id) {
+  const entry = document.querySelector(\`.entry[data-id="\${id}"]\`);
+  return entry ? entry.dataset.previewurl : "";
 }
+
 function adminTogglePlay(id) {
-  const entryDiv = document.querySelector(\`.entry[data-previewurl][onclick=""]\`); 
-  // ↑ ここでは複数あるため、idと結びつけるために container から検索
-  // 実際には id -> previewUrl を保存する仕組みが必要
-  const container = document.querySelector(\`.entry-container .entry[data-previewurl]\`);
-  if (!container) return;
-  const previewUrl = container.dataset.previewurl || "";
+  const previewUrl = getPreviewUrl(id);
+  if (!previewUrl) return;
   if (!adminAudioMap[id]) {
     const audio = new Audio();
     audio.src = previewUrl;
-    audio.volume = 0; // フェードイン開始 (0)
+    audio.volume = 0; // フェードイン開始
     audio.currentTime = 10;
     adminAudioMap[id] = audio;
     adminIsPlayingMap[id] = false;
     adminIsMutedMap[id] = false;
   }
   if (adminIsPlayingMap[id]) {
-    // 停止
-    adminAudioMap[id].pause();
-    adminIsPlayingMap[id] = false;
-    clearInterval(adminFadeIntervalMap[id]);
-    adminFadeIntervalMap[id] = null;
+    fadeOutAudio(id, 200);
   } else {
-    // 再生 + フェードイン
     adminAudioMap[id].muted = false;
     adminIsMutedMap[id] = false;
     adminAudioMap[id].play();
     adminIsPlayingMap[id] = true;
-    fadeInAudio(id, 0.5, 750); // 0.75sで音量0.5までフェードイン
+    fadeInAudio(id, 0.5, 750);
   }
   updateAdminPlayIcon(id);
   updateAdminMuteIcon(id);
 }
+
 function fadeInAudio(id, finalVolume, duration) {
   const steps = 30;
   const stepTime = duration / steps;
   let currentStep = 0;
   const stepVol = finalVolume / steps;
   clearInterval(adminFadeIntervalMap[id]);
-  adminFadeIntervalMap[id] = setInterval(()=>{
+  adminFadeIntervalMap[id] = setInterval(() => {
     currentStep++;
     let newVol = stepVol * currentStep;
     if (newVol >= finalVolume) {
@@ -576,56 +580,71 @@ function fadeInAudio(id, finalVolume, duration) {
     adminAudioMap[id].volume = newVol;
   }, stepTime);
 }
+
+function fadeOutAudio(id, duration) {
+  if (!adminAudioMap[id]) return;
+  const steps = 10;
+  const stepTime = duration / steps;
+  let currentStep = 0;
+  const initialVolume = adminAudioMap[id].volume;
+  const stepVol = initialVolume / steps;
+  const interval = setInterval(() => {
+    currentStep++;
+    let newVol = initialVolume - stepVol * currentStep;
+    if (newVol <= 0) {
+      newVol = 0;
+      clearInterval(interval);
+      adminAudioMap[id].pause();
+      adminIsPlayingMap[id] = false;
+    }
+    adminAudioMap[id].volume = newVol;
+  }, stepTime);
+}
+
 function updateAdminPlayIcon(id) {
-  const btn = document.querySelector(\`.entry-container .entry button[onclick="adminTogglePlay('${id}')"]\`);
+  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminTogglePlay"]\`);
   if (!btn) return;
   if (adminIsPlayingMap[id]) {
-    // Pause icon
-    btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <rect x="4" y="3" width="4" height="14" fill="#888"/>
       <rect x="12" y="3" width="4" height="14" fill="#888"/>
-    </svg>\`;
+    </svg>`;
   } else {
-    // Play icon
-    btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="5,3 17,10 5,17" fill="#888"/>
-    </svg>\`;
+    </svg>`;
   }
 }
+
 function adminToggleMute(id) {
-  if (!adminAudioMap[id]) {
-    return; 
-  }
+  if (!adminAudioMap[id]) return;
   adminIsMutedMap[id] = !adminIsMutedMap[id];
   adminAudioMap[id].muted = adminIsMutedMap[id];
   updateAdminMuteIcon(id);
 }
+
 function updateAdminMuteIcon(id) {
-  const btn = document.querySelector(\`.entry-container .entry button[onclick="adminToggleMute('${id}')"]\`);
+  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminToggleMute"]\`);
   if (!btn) return;
   if (adminIsMutedMap[id]) {
-    // Muted icon
-    btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
       <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
       <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
-    </svg>\`;
+    </svg>`;
   } else {
-    // Sound on
-    btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
       <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
-    </svg>\`;
+    </svg>`;
   }
 }
+
 function adminChangeVolume(id, val) {
-  if (!adminAudioMap[id]) {
-    return;
-  }
+  if (!adminAudioMap[id]) return;
   const volume = parseInt(val, 10) / 100;
   adminAudioMap[id].volume = volume;
-  // アイコン切り替え
-  const iconSpan = document.getElementById(\`volIcon-\${id}\`);
+  const iconSpan = document.getElementById(`volIcon-${id}`);
   if (!iconSpan) return;
   if (volume < 0.25) {
     iconSpan.innerText = "🔈";
@@ -638,9 +657,10 @@ function adminChangeVolume(id, val) {
   }
 }
 </script>
-</body></html>`;
-
-res.send(responseList);
+</body>
+</html>`;
+  
+  res.send(html);
 });
 
 /* --- 管理者ログイン --- */
