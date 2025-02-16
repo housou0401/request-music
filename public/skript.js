@@ -4,23 +4,21 @@ let selectedArtistId = null;
 let previewAudio = null;
 let isPlaying = false;
 let isMuted = false;
-let playerControlsEnabled = true; // 管理者ページの設定を反映
+let playerControlsEnabled = true; // ユーザーページ側で設定取得
 
 // ページ初期化
 window.onload = async function() {
   document.getElementById("modeSong").style.backgroundColor = "#007bff";
   document.getElementById("modeSong").style.color = "white";
-  // 管理者設定を取得
   await loadSettings();
 };
 
-// 設定を読み込み、playerControlsEnabled が false の場合は再生・音量UIを非表示
 async function loadSettings() {
   try {
     const res = await fetch("/settings");
     const data = await res.json();
     playerControlsEnabled = data.playerControlsEnabled !== false;
-  } catch(e) {
+  } catch (e) {
     console.error("設定読み込みエラー:", e);
     playerControlsEnabled = true;
   }
@@ -30,7 +28,6 @@ function setSearchMode(mode) {
   searchMode = mode;
   artistPhase = 0;
   selectedArtistId = null;
-  // 入力欄・候補をクリア
   document.getElementById("songName").value = "";
   document.getElementById("artistName").value = "";
   document.getElementById("suggestions").innerHTML = "";
@@ -41,6 +38,7 @@ function setSearchMode(mode) {
     previewAudio.pause();
     previewAudio.currentTime = 0;
     isPlaying = false;
+    updatePlayPauseIcon();
   }
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
@@ -60,7 +58,8 @@ function setSearchMode(mode) {
 }
 
 async function searchSongs() {
-  document.getElementById("suggestions").innerHTML = "";
+  const suggestionsContainer = document.getElementById("suggestions");
+  suggestionsContainer.innerHTML = "";
   if (searchMode === "artist") {
     if (artistPhase === 0) {
       const artistQuery = document.getElementById("songName").value.trim();
@@ -68,7 +67,7 @@ async function searchSongs() {
       try {
         const response = await fetch(`/search?mode=artist&query=${encodeURIComponent(artistQuery)}`);
         const suggestions = await response.json();
-        for (let artist of suggestions) {
+        suggestions.forEach(artist => {
           const item = document.createElement("div");
           item.classList.add("suggestion-item");
           item.innerHTML = `
@@ -76,9 +75,9 @@ async function searchSongs() {
             <div><strong>${artist.trackName}</strong></div>
           `;
           item.onclick = () => selectArtist(artist);
-          document.getElementById("suggestions").appendChild(item);
-        }
-      } catch(e) {
+          suggestionsContainer.appendChild(item);
+        });
+      } catch (e) {
         console.error("アーティスト検索エラー:", e);
       }
     } else if (artistPhase === 1 && selectedArtistId) {
@@ -91,7 +90,7 @@ async function searchSongs() {
     try {
       const response = await fetch(`/search?query=${encodeURIComponent(songQuery)}&artist=${encodeURIComponent(artistQuery)}`);
       const suggestions = await response.json();
-      for (let song of suggestions) {
+      suggestions.forEach(song => {
         const item = document.createElement("div");
         item.classList.add("suggestion-item");
         item.innerHTML = `
@@ -102,9 +101,9 @@ async function searchSongs() {
           </div>
         `;
         item.onclick = () => selectSong(song);
-        document.getElementById("suggestions").appendChild(item);
-      }
-    } catch(e) {
+        suggestionsContainer.appendChild(item);
+      });
+    } catch (e) {
       console.error("曲検索エラー:", e);
     }
   }
@@ -128,11 +127,12 @@ function selectArtist(artist) {
 }
 
 async function fetchArtistTracksAndShow() {
-  document.getElementById("suggestions").innerHTML = "";
+  const suggestionsContainer = document.getElementById("suggestions");
+  suggestionsContainer.innerHTML = "";
   try {
     const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
     const tracks = await res.json();
-    for (let song of tracks) {
+    tracks.forEach(song => {
       const item = document.createElement("div");
       item.classList.add("suggestion-item");
       item.innerHTML = `
@@ -143,19 +143,17 @@ async function fetchArtistTracksAndShow() {
         </div>
       `;
       item.onclick = () => selectSong(song);
-      document.getElementById("suggestions").appendChild(item);
-    }
-  } catch(e) {
+      suggestionsContainer.appendChild(item);
+    });
+  } catch (e) {
     console.error("アーティストの曲一覧取得エラー:", e);
   }
 }
 
 function selectSong(song) {
   document.getElementById("songName").value = song.trackName;
-  if (searchMode === "song") {
-    if (!document.getElementById("artistName").value.trim()) {
-      document.getElementById("artistName").value = song.artistName;
-    }
+  if (searchMode === "song" && !document.getElementById("artistName").value.trim()) {
+    document.getElementById("artistName").value = song.artistName;
   }
   document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中の曲</div>`;
   const container = document.getElementById("selectedSong");
@@ -170,17 +168,18 @@ function selectSong(song) {
       </div>
       <div style="display:flex; align-items:center;">
         ${
-          // 再生・音量コントロールを表示するかどうか
           playerControlsEnabled ? `
-            <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
-            <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
-            <input type="range" min="1" max="100" value="50" style="width:100px; margin-left:8px;" oninput="changeVolume(this.value)" id="volumeSlider">
+          <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
+          <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
+          <input type="range" min="1" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
+          <span id="volIcon" style="margin-left:8px;">🔉</span>
           ` : ""
         }
         <button type="button" class="clear-btn" onclick="clearSelection()" style="margin-left:10px;">×</button>
       </div>
     </div>
   `;
+  // 隠しフィールド更新（プレビューURLも別hiddenで管理する場合）
   let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
   if (!hiddenAppleUrl) {
     hiddenAppleUrl = document.createElement("input");
@@ -200,34 +199,73 @@ function selectSong(song) {
     document.getElementById("requestForm").appendChild(hiddenArtwork);
   }
   hiddenArtwork.value = song.artworkUrl || "";
-
+  
   if (playerControlsEnabled && song.previewUrl) {
     if (!previewAudio) {
       previewAudio = document.createElement("audio");
+      previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
     }
     previewAudio.src = song.previewUrl;
-    previewAudio.volume = 0.5;
+    previewAudio.volume = 0; // ここからフェードイン
     previewAudio.currentTime = 10;
     previewAudio.loop = false;
     previewAudio.play();
     isPlaying = true;
     isMuted = false;
+    fadeInUserAudio(500, 0.5); // 0.75sフェードイン　（750msの場合も可）
     updatePlayPauseIcon();
     updateMuteIcon();
   }
+}
+
+function fadeInUserAudio(duration, finalVolume) {
+  const steps = 30;
+  const stepTime = duration / steps;
+  let currentStep = 0;
+  const stepVol = finalVolume / steps;
+  const interval = setInterval(() => {
+    currentStep++;
+    let newVol = stepVol * currentStep;
+    if (newVol >= finalVolume) {
+      newVol = finalVolume;
+      clearInterval(interval);
+    }
+    if (previewAudio) previewAudio.volume = newVol;
+  }, stepTime);
+}
+
+function fadeOutUserAudio(duration) {
+  if (!previewAudio) return;
+  const steps = 10;
+  const stepTime = duration / steps;
+  let currentStep = 0;
+  const initialVolume = previewAudio.volume;
+  const stepVol = initialVolume / steps;
+  const interval = setInterval(() => {
+    currentStep++;
+    let newVol = initialVolume - stepVol * currentStep;
+    if (newVol <= 0) {
+      newVol = 0;
+      clearInterval(interval);
+      previewAudio.pause();
+      isPlaying = false;
+      updatePlayPauseIcon();
+    }
+    previewAudio.volume = newVol;
+  }, stepTime);
 }
 
 function togglePlay(e) {
   e.stopPropagation();
   if (!previewAudio) return;
   if (isPlaying) {
-    previewAudio.pause();
-    isPlaying = false;
+    fadeOutUserAudio(200);
   } else {
     previewAudio.play();
     isPlaying = true;
+    fadeInUserAudio(750, 0.5);
   }
   updatePlayPauseIcon();
 }
@@ -272,26 +310,36 @@ function updateMuteIcon() {
   }
 }
 
-// 音量スライダー
 function changeVolume(val) {
   if (!previewAudio) return;
   let volume = parseInt(val, 10) / 100;
   previewAudio.volume = volume;
+  const iconSpan = document.getElementById("volIcon");
+  if (!iconSpan) return;
+  if (volume < 0.25) {
+    iconSpan.innerText = "🔈";
+  } else if (volume < 0.5) {
+    iconSpan.innerText = "🔉";
+  } else if (volume >= 0.75) {
+    iconSpan.innerText = "🔊";
+  } else {
+    iconSpan.innerText = "🔉";
+  }
 }
 
 function clearSelection() {
-  document.getElementById("selectedLabel").innerHTML = "";
-  document.getElementById("selectedSong").innerHTML = "";
-  if (document.getElementById("appleMusicUrlHidden")) document.getElementById("appleMusicUrlHidden").value = "";
-  if (document.getElementById("artworkUrlHidden")) document.getElementById("artworkUrlHidden").value = "";
-  if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    isPlaying = false;
-    updatePlayPauseIcon();
-  }
-  clearArtistSelection();
-  searchSongs();
+  // フェードアウトしてからクリア
+  fadeOutUserAudio(200);
+  setTimeout(() => {
+    document.getElementById("selectedLabel").innerHTML = "";
+    document.getElementById("selectedSong").innerHTML = "";
+    if (document.getElementById("appleMusicUrlHidden"))
+      document.getElementById("appleMusicUrlHidden").value = "";
+    if (document.getElementById("artworkUrlHidden"))
+      document.getElementById("artworkUrlHidden").value = "";
+    clearArtistSelection();
+    searchSongs();
+  }, 250);
 }
 
 function clearArtistSelection() {
@@ -301,10 +349,7 @@ function clearArtistSelection() {
   document.getElementById("selectedLabel").innerHTML = "";
   document.getElementById("selectedSong").innerHTML = "";
   if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    isPlaying = false;
-    updatePlayPauseIcon();
+    fadeOutUserAudio(200);
   }
   document.getElementById("suggestions").innerHTML = "";
   searchSongs();
