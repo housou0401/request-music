@@ -21,6 +21,7 @@ function setSearchMode(mode) {
   document.getElementById("selectedArtist").innerHTML = "";
   
   if (mode === "artist") {
+    // アーティストモード：artistName入力欄を非表示、songNameを再利用
     document.getElementById("artistName").style.display = "none";
     document.getElementById("songName").placeholder = "アーティスト名を入力してください";
     document.getElementById("modeArtist").style.backgroundColor = "#007bff";
@@ -28,6 +29,7 @@ function setSearchMode(mode) {
     document.getElementById("modeSong").style.backgroundColor = "";
     document.getElementById("modeSong").style.color = "";
   } else {
+    // 曲名モード：通常表示
     document.getElementById("artistName").style.display = "block";
     document.getElementById("songName").placeholder = "曲名を入力してください";
     document.getElementById("modeSong").style.backgroundColor = "#007bff";
@@ -37,13 +39,13 @@ function setSearchMode(mode) {
   }
 }
 
-// メインの検索処理
 async function searchSongs() {
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
   
   if (searchMode === "artist") {
     if (artistPhase === 0) {
+      // アーティスト一覧検索
       const artistQuery = document.getElementById("songName").value.trim();
       if (artistQuery.length < 2) return;
       try {
@@ -68,6 +70,7 @@ async function searchSongs() {
       await fetchArtistTracksAndShow();
     }
   } else {
+    // 曲名モード
     const songQuery = document.getElementById("songName").value.trim();
     const artistQuery = document.getElementById("artistName").value.trim();
     if (songQuery.length < 2) return;
@@ -110,6 +113,7 @@ function selectArtist(artist) {
     </div>
   `;
   document.getElementById("suggestions").innerHTML = "";
+  // アーティスト選択後、アーティストの曲一覧を表示
   fetchArtistTracksAndShow();
 }
 
@@ -186,6 +190,8 @@ function clearSelection() {
     document.getElementById("appleMusicUrlHidden").value = "";
   if (document.getElementById("artworkUrlHidden"))
     document.getElementById("artworkUrlHidden").value = "";
+  // もしアーティスト選択中がある場合も解除する
+  clearArtistSelection();
   searchSongs();
 }
 
@@ -193,14 +199,7 @@ function clearArtistSelection() {
   selectedArtistId = null;
   artistPhase = 0;
   document.getElementById("selectedArtist").innerHTML = "";
-  // 解除時、曲選択もあれば解除する
-  clearSelection();
   document.getElementById("suggestions").innerHTML = "";
-  searchSongs();
-}
-
-function clearInput(fieldId) {
-  document.getElementById(fieldId).value = "";
   searchSongs();
 }
 
@@ -216,4 +215,16 @@ function handleSubmit(event) {
 
 function showAdminLogin() {
   const password = prompt("⚠️管理者パスワードを入力してください:");
-  if (password
+  if (password) {
+    fetch(`/admin-login?password=${encodeURIComponent(password)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = "/admin";
+        } else {
+          alert("⚠️パスワードが間違っています。");
+        }
+      })
+      .catch(error => console.error("管理者ログインエラー:", error));
+  }
+}
