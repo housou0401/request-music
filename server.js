@@ -227,7 +227,7 @@ app.post("/submit", (req, res) => {
   res.send(`<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>`);
 });
 
-/* --- GitHub 同期/取得 --- */
+/* --- GitHub 同期／取得 --- */
 async function syncRequestsToGitHub() {
   try {
     const localContent = JSON.stringify(db.data, null, 2);
@@ -345,144 +345,40 @@ app.get("/admin", (req, res) => {
   <meta charset="UTF-8">
   <title>管理者ページ</title>
   <style>
-    li { margin-bottom: 10px; list-style:none; }
-    .entry-container { position: relative; display: inline-block; margin-bottom:10px; }
-    .entry {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      border: 1px solid rgba(0,0,0,0.1);
-      padding: 10px;
-      border-radius: 10px;
-      width: fit-content;
-    }
-    .entry:hover { background-color: rgba(0,0,0,0.05); }
-    .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
-    .delete {
-      position: absolute;
-      left: calc(100% + 10px);
-      top: 50%;
-      transform: translateY(-50%);
-      color: red;
-      text-decoration: none;
-    }
-    .count-badge {
-      background-color: #ff6b6b;
-      color: white;
-      font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 5px;
-      margin-right: 10px;
-    }
-    h1 { font-size: 1.5em; margin-bottom: 20px; }
-    form { margin: 20px 0; text-align: left; }
-    textarea {
-      width: 300px;
-      height: 80px;
-      font-size: 0.9em;
-      color: black;
-      display: block;
-      margin-bottom: 10px;
-    }
-    .setting-field { margin-bottom: 10px; }
-    .sync-btn, .fetch-btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .sync-btn {
-      background-color: #28a745;
-      color: white;
-    }
-    .sync-btn:hover {
-      background-color: #218838;
-    }
-    .fetch-btn {
-      background-color: #17a2b8;
-      color: white;
-      margin-left: 10px;
-    }
-    .fetch-btn:hover {
-      background-color: #138496;
-    }
-    .button-container {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 10px;
-    }
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      display: none;
-      margin-left: 10px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .control-btn {
-      width: 24px;
-      height: 24px;
-      background: none;
-      border: none;
-      margin-left: 8px;
-      cursor: pointer;
-      fill: #888;
-    }
-    .control-btn:hover {
-      background-color: lightgray;
-      border-radius: 50%;
-    }
-    .volume-slider {
-      width: 100px;
-      margin-left: 10px;
-    }
-    .selected-label {
-      font-size: 16px;
-      color: #555;
-      margin-top: 16px;
-      margin-bottom: 16px;
-      text-align: center;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .entry-container { margin-bottom: 15px; }
+    .entry { display: flex; align-items: center; border: 1px solid #ccc; padding: 10px; border-radius: 5px; }
+    .entry img { width: 50px; height: 50px; margin-right: 10px; }
+    .controls { margin-left: auto; display: flex; align-items: center; }
+    .control-btn { width: 24px; height: 24px; margin: 0 5px; cursor: pointer; }
+    .volume-slider { width: 100px; }
   </style>
 </head>
 <body>
-<h1>✉アンケート回答一覧</h1>`;
+<h1>管理者ページ - アンケート回答一覧</h1>`;
   
   html += createPaginationLinks(page, totalPages);
   
-  html += `<ul style="padding:0;">`;
   pageItems.forEach(entry => {
-    html += `<li>
-      <div class="entry-container">
-        <div class="entry" data-previewurl="${entry.previewUrl}" data-id="${entry.id}">
-          <div class="count-badge">${entry.count}</div>
-          <img src="${entry.artworkUrl}" alt="Cover">
-          <div>
-            <strong>${entry.text}</strong><br>
-            <small>${entry.artist}</small>
-          </div>
-          <div style="display:flex; align-items:center; margin-left:10px;">
-            <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">Play</button>
-            <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')"></button>
-            <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
-          </div>
+    html += `<div class="entry-container">
+      <div class="entry" data-id="${entry.id}" data-previewurl="${entry.previewUrl}">
+        <div>
+          <div><strong>${entry.text}</strong></div>
+          <div><small>${entry.artist}</small></div>
         </div>
-        <a href="/delete/${entry.id}" class="delete">🗑️</a>
+        <div class="controls">
+          <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">Play</button>
+          <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')"></button>
+          <input type="range" id="vol-${entry.id}" class="volume-slider" min="1" max="100" value="50" onchange="adminChangeVolume('${entry.id}', this.value)">
+        </div>
       </div>
-    </li>`;
+      <div>リクエスト数: ${entry.count}</div>
+    </div>`;
   });
-  html += `</ul>`;
   
   html += createPaginationLinks(page, totalPages);
   
-  // 設定フォーム
+  // 設定フォームと同期ボタン
   html += `<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
@@ -511,13 +407,12 @@ app.get("/admin", (req, res) => {
     <button type="submit">設定を更新</button>
   </form>`;
   
-  // 同期／取得ボタン
   html += `<div class="button-container">
     <button class="sync-btn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>
-  <br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
+  <div><a href="/">戻る</a></div>`;
   
   // 管理者用プレイヤー処理スクリプト
   html += `<script>
@@ -529,10 +424,7 @@ app.get("/admin", (req, res) => {
       const entry = document.querySelector('.entry[data-id="' + id + '"]');
       if (!entry) { console.error("Entry not found for id", id); return; }
       const previewUrl = entry.getAttribute('data-previewurl');
-      console.log("AdminTogglePlay: id:", id, "previewUrl:", previewUrl);
       if (!previewUrl) return;
-      
-      // 停止中の他のオーディオを全て停止
       for (const key in adminAudioMap) {
         if (key !== id && adminIsPlayingMap[key]) {
           adminAudioMap[key].pause();
@@ -540,7 +432,6 @@ app.get("/admin", (req, res) => {
           updateAdminPlayButton(key);
         }
       }
-      
       if (!adminAudioMap[id]) {
         const audio = new Audio(previewUrl);
         audio.volume = 0;
@@ -549,7 +440,6 @@ app.get("/admin", (req, res) => {
         adminIsPlayingMap[id] = false;
         adminIsMutedMap[id] = false;
       }
-      
       if (adminIsPlayingMap[id]) {
         adminAudioMap[id].pause();
         adminIsPlayingMap[id] = false;
