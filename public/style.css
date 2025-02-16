@@ -41,6 +41,9 @@ h1 {
 
 .input-clear-btn {
   position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 24px;
   height: 24px;
   font-size: 18px;
@@ -50,11 +53,7 @@ h1 {
   border: none;
   color: #888;
   cursor: pointer;
-  top: 50%;
-  right: 5px;
-  transform: translateY(-50%);
 }
-
 .input-clear-btn:hover {
   background-color: lightgray;
   border-radius: 50%;
@@ -70,7 +69,6 @@ button {
   cursor: pointer;
   font-size: 16px;
 }
-
 button:hover {
   background-color: #0056b3;
 }
@@ -87,7 +85,6 @@ button:hover {
   text-align: center;
   font-size: 14px;
 }
-
 .admin-button:hover {
   background-color: #555;
 }
@@ -113,11 +110,9 @@ button:hover {
   cursor: pointer;
   transition: background 0.3s;
 }
-
 .suggestion-item:hover {
   background-color: rgba(0,0,0,0.05);
 }
-
 .suggestion-item img {
   width: 50px;
   height: 50px;
@@ -169,7 +164,6 @@ button:hover {
   height: 24px;
   background: none;
   border: none;
-  padding: 0;
   margin-left: 8px;
   cursor: pointer;
   fill: #888;
