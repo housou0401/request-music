@@ -457,7 +457,6 @@ app.get("/admin", (req, res) => {
 <body>
 <h1>✉アンケート回答一覧</h1>`;
 
-// 上部ページネーション（左寄せ）
 html += createPaginationLinks(page, totalPages);
 
 html += `<ul style="padding:0;">`;
@@ -484,10 +483,8 @@ pageItems.forEach(entry => {
 });
 html += `</ul>`;
 
-// 下部ページネーション（左寄せ）
 html += createPaginationLinks(page, totalPages);
 
-// 設定フォーム
 html += `<form action="/update-settings" method="post">
   <div class="setting-field">
     <label>
@@ -517,7 +514,6 @@ html += `<form action="/update-settings" method="post">
   <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
 </form>`;
 
-// 同期/取得ボタン
 html += `<div class="button-container">
   <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
   <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
@@ -538,13 +534,43 @@ function getPreviewUrl(id) {
   return entry ? entry.dataset.previewurl : "";
 }
 
+function updateAdminPlayIcon(id) {
+  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminTogglePlay"]\`);
+  if (!btn) return;
+  if (adminIsPlayingMap[id]) {
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" fill="#888"/><rect x="12" y="3" width="4" height="14" fill="#888"/></svg>`;
+  } else {
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg>`;
+  }
+}
+
+function updateAdminMuteIcon(id) {
+  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminToggleMute"]\`);
+  if (!btn) return;
+  if (adminIsMutedMap[id]) {
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/><line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/></svg>`;
+  } else {
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>`;
+  }
+}
+
 function adminTogglePlay(id) {
   const previewUrl = getPreviewUrl(id);
   if (!previewUrl) return;
+  
+  // 他の再生中の音声を停止する
+  for (const key in adminAudioMap) {
+    if (key !== id && adminIsPlayingMap[key]) {
+      fadeOutAudio(key, 200);
+      adminIsPlayingMap[key] = false;
+      updateAdminPlayIcon(key);
+    }
+  }
+  
   if (!adminAudioMap[id]) {
     const audio = new Audio();
     audio.src = previewUrl;
-    audio.volume = 0; // フェードイン開始
+    audio.volume = 0;
     audio.currentTime = 10;
     adminAudioMap[id] = audio;
     adminIsPlayingMap[id] = false;
@@ -552,9 +578,9 @@ function adminTogglePlay(id) {
   }
   if (adminIsPlayingMap[id]) {
     fadeOutAudio(id, 200);
+    adminIsPlayingMap[id] = false;
   } else {
     adminAudioMap[id].muted = false;
-    adminIsMutedMap[id] = false;
     adminAudioMap[id].play();
     adminIsPlayingMap[id] = true;
     fadeInAudio(id, 0.5, 750);
@@ -601,43 +627,11 @@ function fadeOutAudio(id, duration) {
   }, stepTime);
 }
 
-function updateAdminPlayIcon(id) {
-  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminTogglePlay"]\`);
-  if (!btn) return;
-  if (adminIsPlayingMap[id]) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <rect x="4" y="3" width="4" height="14" fill="#888"/>
-      <rect x="12" y="3" width="4" height="14" fill="#888"/>
-    </svg>`;
-  } else {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="5,3 17,10 5,17" fill="#888"/>
-    </svg>`;
-  }
-}
-
 function adminToggleMute(id) {
   if (!adminAudioMap[id]) return;
   adminIsMutedMap[id] = !adminIsMutedMap[id];
   adminAudioMap[id].muted = adminIsMutedMap[id];
   updateAdminMuteIcon(id);
-}
-
-function updateAdminMuteIcon(id) {
-  const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminToggleMute"]\`);
-  if (!btn) return;
-  if (adminIsMutedMap[id]) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
-      <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
-    </svg>`;
-  } else {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
-    </svg>`;
-  }
 }
 
 function adminChangeVolume(id, val) {
@@ -659,7 +653,7 @@ function adminChangeVolume(id, val) {
 </script>
 </body>
 </html>`;
-  
+
   res.send(html);
 });
 
