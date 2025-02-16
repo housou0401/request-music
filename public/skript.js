@@ -33,12 +33,7 @@ function setSearchMode(mode) {
   document.getElementById("selectedLabel").innerHTML = "";
   document.getElementById("selectedSong").innerHTML = "";
   document.getElementById("selectedArtist").innerHTML = "";
-  if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    isPlaying = false;
-    updatePlayPauseIcon();
-  }
+  if (previewAudio) { previewAudio.pause(); previewAudio.currentTime = 0; isPlaying = false; updatePlayPauseIcon(); }
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
     document.getElementById("songName").placeholder = "アーティスト名を入力してください";
@@ -69,16 +64,11 @@ async function searchSongs() {
         suggestions.forEach(artist => {
           const item = document.createElement("div");
           item.classList.add("suggestion-item");
-          item.innerHTML = `
-            <img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
-            <div><strong>${artist.trackName}</strong></div>
-          `;
+          item.innerHTML = `<img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;"><div><strong>${artist.trackName}</strong></div>`;
           item.onclick = () => selectArtist(artist);
           suggestionsContainer.appendChild(item);
         });
-      } catch (e) {
-        console.error("アーティスト検索エラー:", e);
-      }
+      } catch (e) { console.error("アーティスト検索エラー:", e); }
     } else if (artistPhase === 1 && selectedArtistId) {
       await fetchArtistTracksAndShow();
     }
@@ -92,35 +82,22 @@ async function searchSongs() {
       suggestions.forEach(song => {
         const item = document.createElement("div");
         item.classList.add("suggestion-item");
-        item.innerHTML = `
-          <img src="${song.artworkUrl}" alt="Cover">
-          <div>
-            <strong>${song.trackName}</strong><br>
-            <small>${song.artistName}</small>
-          </div>
-        `;
+        item.innerHTML = `<img src="${song.artworkUrl}" alt="Cover"><div><strong>${song.trackName}</strong><br><small>${song.artistName}</small></div>`;
         item.onclick = () => selectSong(song);
         suggestionsContainer.appendChild(item);
       });
-    } catch (e) {
-      console.error("曲検索エラー:", e);
-    }
+    } catch (e) { console.error("曲検索エラー:", e); }
   }
 }
 
 function selectArtist(artist) {
   selectedArtistId = artist.artistId;
   artistPhase = 1;
-  document.getElementById("selectedArtist").innerHTML = `
-    <div class="selected-label">選択中のアーティスト</div>
+  document.getElementById("selectedArtist").innerHTML = `<div class="selected-label">選択中のアーティスト</div>
     <div class="selected-item" style="display:flex; align-items:center; justify-content:space-between; margin-top:10px;">
-      <div style="display:flex; align-items:center;">
-        <img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
-        <div><strong>${artist.trackName}</strong></div>
-      </div>
+      <div style="display:flex; align-items:center;"><img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;"><div><strong>${artist.trackName}</strong></div></div>
       <button type="button" class="clear-btn" onclick="clearArtistSelection()">×</button>
-    </div>
-  `;
+    </div>`;
   document.getElementById("suggestions").innerHTML = "";
   fetchArtistTracksAndShow();
 }
@@ -134,19 +111,11 @@ async function fetchArtistTracksAndShow() {
     tracks.forEach(song => {
       const item = document.createElement("div");
       item.classList.add("suggestion-item");
-      item.innerHTML = `
-        <img src="${song.artworkUrl}" alt="Cover">
-        <div>
-          <strong>${song.trackName}</strong><br>
-          <small>${song.artistName}</small>
-        </div>
-      `;
+      item.innerHTML = `<img src="${song.artworkUrl}" alt="Cover"><div><strong>${song.trackName}</strong><br><small>${song.artistName}</small></div>`;
       item.onclick = () => selectSong(song);
       suggestionsContainer.appendChild(item);
     });
-  } catch (e) {
-    console.error("アーティストの曲一覧取得エラー:", e);
-  }
+  } catch (e) { console.error("アーティストの曲一覧取得エラー:", e); }
 }
 
 function selectSong(song) {
@@ -156,47 +125,21 @@ function selectSong(song) {
   }
   document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中の曲</div>`;
   const container = document.getElementById("selectedSong");
-  container.innerHTML = `
-    <div class="selected-item" style="display:flex; align-items:center; justify-content:space-between; border:1px solid rgba(0,0,0,0.2); border-radius:10px; padding:10px; margin-top:10px;">
+  container.innerHTML = `<div class="selected-item" style="display:flex; align-items:center; justify-content:space-between; border:1px solid rgba(0,0,0,0.2); border-radius:10px; padding:10px; margin-top:10px;">
+      <div style="display:flex; align-items:center;"><img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;"><div><strong>${song.trackName}</strong><br><small>${song.artistName}</small></div></div>
       <div style="display:flex; align-items:center;">
-        <img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
-        <div>
-          <strong>${song.trackName}</strong><br>
-          <small>${song.artistName}</small>
-        </div>
-      </div>
-      <div style="display:flex; align-items:center;">
-        ${
-          playerControlsEnabled ? `
-          <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
-          <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
-          <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
-          ` : ""
-        }
+        ${playerControlsEnabled ? `<button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
+        <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
+        <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">` : ""}
         <button type="button" class="clear-btn" onclick="clearSelection()" style="margin-left:10px;">×</button>
       </div>
-    </div>
-  `;
-  let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden");
-  if (!hiddenAppleUrl) {
-    hiddenAppleUrl = document.createElement("input");
-    hiddenAppleUrl.type = "hidden";
-    hiddenAppleUrl.id = "appleMusicUrlHidden";
-    hiddenAppleUrl.name = "appleMusicUrl";
-    document.getElementById("requestForm").appendChild(hiddenAppleUrl);
-  }
+    </div>`;
+  let hiddenAppleUrl = document.getElementById("appleMusicUrlHidden") || document.createElement("input");
+  if (!hiddenAppleUrl.id) { hiddenAppleUrl.type = "hidden"; hiddenAppleUrl.id = "appleMusicUrlHidden"; hiddenAppleUrl.name = "appleMusicUrl"; document.getElementById("requestForm").appendChild(hiddenAppleUrl); }
   hiddenAppleUrl.value = song.previewUrl || "";
-  
-  let hiddenArtwork = document.getElementById("artworkUrlHidden");
-  if (!hiddenArtwork) {
-    hiddenArtwork = document.createElement("input");
-    hiddenArtwork.type = "hidden";
-    hiddenArtwork.id = "artworkUrlHidden";
-    hiddenArtwork.name = "artworkUrl";
-    document.getElementById("requestForm").appendChild(hiddenArtwork);
-  }
+  let hiddenArtwork = document.getElementById("artworkUrlHidden") || document.createElement("input");
+  if (!hiddenArtwork.id) { hiddenArtwork.type = "hidden"; hiddenArtwork.id = "artworkUrlHidden"; hiddenArtwork.name = "artworkUrl"; document.getElementById("requestForm").appendChild(hiddenArtwork); }
   hiddenArtwork.value = song.artworkUrl || "";
-  
   if (playerControlsEnabled && song.previewUrl) {
     if (!previewAudio) {
       previewAudio = document.createElement("audio");
@@ -205,7 +148,7 @@ function selectSong(song) {
       document.body.appendChild(previewAudio);
     }
     previewAudio.src = song.previewUrl;
-    previewAudio.volume = 0; // フェードイン開始
+    previewAudio.volume = 0;
     previewAudio.currentTime = 10;
     previewAudio.loop = false;
     previewAudio.play();
@@ -225,10 +168,7 @@ function fadeInUserAudio(duration, finalVolume) {
   const interval = setInterval(() => {
     currentStep++;
     let newVol = stepVol * currentStep;
-    if (newVol >= finalVolume) {
-      newVol = finalVolume;
-      clearInterval(interval);
-    }
+    if (newVol >= finalVolume) { newVol = finalVolume; clearInterval(interval); }
     if (previewAudio) previewAudio.volume = newVol;
   }, stepTime);
 }
@@ -243,13 +183,7 @@ function fadeOutUserAudio(duration) {
   const interval = setInterval(() => {
     currentStep++;
     let newVol = initialVolume - stepVol * currentStep;
-    if (newVol <= 0) {
-      newVol = 0;
-      clearInterval(interval);
-      previewAudio.pause();
-      isPlaying = false;
-      updatePlayPauseIcon();
-    }
+    if (newVol <= 0) { newVol = 0; clearInterval(interval); previewAudio.pause(); isPlaying = false; updatePlayPauseIcon(); }
     previewAudio.volume = newVol;
   }, stepTime);
 }
@@ -257,13 +191,8 @@ function fadeOutUserAudio(duration) {
 function togglePlay(e) {
   e.stopPropagation();
   if (!previewAudio) return;
-  if (isPlaying) {
-    fadeOutUserAudio(200);
-  } else {
-    previewAudio.play();
-    isPlaying = true;
-    fadeInUserAudio(750, 0.5);
-  }
+  if (isPlaying) { fadeOutUserAudio(200); }
+  else { previewAudio.play(); isPlaying = true; fadeInUserAudio(750, 0.5); }
   updatePlayPauseIcon();
 }
 
@@ -285,10 +214,7 @@ function toggleMute(e) {
     let vol = slider ? parseInt(slider.value, 10) / 100 : 0.5;
     previewAudio.volume = vol;
     isMuted = false;
-  } else {
-    isMuted = true;
-    previewAudio.muted = true;
-  }
+  } else { isMuted = true; previewAudio.muted = true; }
   updateMuteIcon();
 }
 
@@ -313,10 +239,7 @@ function changeVolume(val) {
   if (!previewAudio) return;
   let volume = parseInt(val, 10) / 100;
   previewAudio.volume = volume;
-  if (volume > 0 && isMuted) {
-    previewAudio.muted = false;
-    isMuted = false;
-  }
+  if (volume > 0 && isMuted) { previewAudio.muted = false; isMuted = false; }
   updateMuteIcon();
 }
 
@@ -342,9 +265,7 @@ function clearArtistSelection() {
   document.getElementById("selectedArtist").innerHTML = "";
   document.getElementById("selectedLabel").innerHTML = "";
   document.getElementById("selectedSong").innerHTML = "";
-  if (previewAudio) {
-    fadeOutUserAudio(200);
-  }
+  if (previewAudio) { fadeOutUserAudio(200); }
   document.getElementById("suggestions").innerHTML = "";
   searchSongs();
 }
@@ -357,10 +278,7 @@ function clearInput(id) {
 function handleSubmit(e) {
   e.preventDefault();
   const appleUrl = document.getElementById("appleMusicUrlHidden")?.value.trim();
-  if (!appleUrl) {
-    alert("必ず候補一覧から曲を選択してください");
-    return;
-  }
+  if (!appleUrl) { alert("必ず候補一覧から曲を選択してください"); return; }
   document.getElementById("requestForm").submit();
 }
 
@@ -369,10 +287,7 @@ function showAdminLogin() {
   if (password) {
     fetch(`/admin-login?password=${encodeURIComponent(password)}`)
       .then(r => r.json())
-      .then(d => {
-        if (d.success) window.location.href = "/admin";
-        else alert("⚠️パスワードが間違っています。");
-      })
+      .then(d => { if (d.success) window.location.href = "/admin"; else alert("⚠️パスワードが間違っています。"); })
       .catch(err => console.error("管理者ログインエラー:", err));
   }
 }
