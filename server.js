@@ -475,7 +475,7 @@ app.get("/admin", (req, res) => {
             <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">&#9658;</button>
             <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')">&#128266;</button>
             <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
-            <span id="volIcon-${entry.id}" style="margin-left:8px;">🔉</span>
+            <!-- 音量アイコンの表示は削除 -->
           </div>
         </div>
         <a href="/delete/${entry.id}" class="delete">🗑️</a>
@@ -542,7 +542,7 @@ function adminTogglePlay(id) {
   const previewUrl = getPreviewUrl(id);
   if (!previewUrl) return;
 
-  // 他の再生中の音源をすべて停止する処理
+  // 他の再生中の音源をすべて停止する
   Object.keys(adminAudioMap).forEach(key => {
     if (key !== id && adminIsPlayingMap[key]) {
       fadeOutAudio(key, 200);
@@ -555,6 +555,7 @@ function adminTogglePlay(id) {
     const audio = new Audio();
     audio.src = previewUrl;
     audio.volume = 0; // フェードイン開始
+    // ユーザーページと同様に、再生開始位置を設定（必要に応じて変更）
     audio.currentTime = 10;
     adminAudioMap[id] = audio;
     adminIsPlayingMap[id] = false;
@@ -654,17 +655,18 @@ function adminChangeVolume(id, val) {
   if (!adminAudioMap[id]) return;
   const volume = parseInt(val, 10) / 100;
   adminAudioMap[id].volume = volume;
-  const iconSpan = document.getElementById('volIcon-' + id);
-  if (!iconSpan) return;
-  if (volume < 0.25) {
-    iconSpan.innerText = "🔈";
-  } else if (volume < 0.5) {
-    iconSpan.innerText = "🔉";
-  } else if (volume >= 0.75) {
-    iconSpan.innerText = "🔊";
+  // スライダーの値が0の場合は自動的にミュート状態にする
+  if (volume === 0) {
+    adminIsMutedMap[id] = true;
+    adminAudioMap[id].muted = true;
   } else {
-    iconSpan.innerText = "🔉";
+    // もし以前ミュート状態であれば解除する
+    if (adminIsMutedMap[id]) {
+      adminIsMutedMap[id] = false;
+      adminAudioMap[id].muted = false;
+    }
   }
+  updateAdminMuteIcon(id);
 }
 </script>
 </body>
