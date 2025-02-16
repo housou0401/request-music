@@ -55,12 +55,10 @@
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
   <div class="container" id="mainContainer">
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
-    
     <div style="display: flex; justify-content: center; margin-bottom: 10px;">
       <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
       <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
     </div>
-    
     <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
       <div class="input-container">
         <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
@@ -70,16 +68,13 @@
         <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力してください" oninput="searchSongs()">
         <button type="button" class="input-clear-btn" onclick="clearInput('artistName')">×</button>
       </div>
-      
       <div id="suggestions"></div>
       <div id="selectedArtist"></div>
       <div id="selectedLabel"></div>
       <div id="selectedSong"></div>
-      
       <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
       <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
       <input type="hidden" id="previewUrlHidden" name="previewUrl">
-      
       <button type="submit">送信</button>
     </form>
   </div>
