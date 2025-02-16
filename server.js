@@ -622,7 +622,8 @@ function updateAdminPlayIcon(id) {
 
 function adminToggleMute(id) {
   if (!adminAudioMap[id]) return;
-  const slider = document.getElementById(`vol-${id}`);
+  // テンプレートリテラルの代わりに文字列連結で取得
+  const slider = document.getElementById("vol-" + id);
   if (adminIsMutedMap[id]) {
     const vol = slider ? slider.value / 100 : 0.5;
     adminAudioMap[id].volume = vol;
