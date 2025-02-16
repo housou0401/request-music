@@ -538,9 +538,14 @@ function updateAdminPlayIcon(id) {
   const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminTogglePlay"]\`);
   if (!btn) return;
   if (adminIsPlayingMap[id]) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" fill="#888"/><rect x="12" y="3" width="4" height="14" fill="#888"/></svg>`;
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
+                    '<rect x="4" y="3" width="4" height="14" fill="#888"/>' +
+                    '<rect x="12" y="3" width="4" height="14" fill="#888"/>' +
+                    '</svg>';
   } else {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg>`;
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
+                    '<polygon points="5,3 17,10 5,17" fill="#888"/>' +
+                    '</svg>';
   }
 }
 
@@ -548,9 +553,16 @@ function updateAdminMuteIcon(id) {
   const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[onclick^="adminToggleMute"]\`);
   if (!btn) return;
   if (adminIsMutedMap[id]) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/><line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/></svg>`;
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
+                    '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
+                    '<line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>' +
+                    '<line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>' +
+                    '</svg>';
   } else {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>`;
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
+                    '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
+                    '<path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>' +
+                    '</svg>';
   }
 }
 
