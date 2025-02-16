@@ -104,7 +104,6 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
   try {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
-    const hasEnglish  = /[A-Za-z]/.test(songTitle);
     let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
     
     let queries = [];
@@ -160,7 +159,6 @@ app.get("/search", async (req, res) => {
         if (!query) return res.json([]);
         const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
         const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(query);
-        const hasEnglish  = /[A-Za-z]/.test(query);
         let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
         const data = await fetchResultsForQuery(query, lang, "album", "artistTerm");
         if (!data || !data.results) return res.json([]);
@@ -322,21 +320,21 @@ app.get("/admin", (req, res) => {
     let html = `<div style="text-align:left; margin-bottom:10px;">`;
     html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
     const prevPage = Math.max(1, currentPage - 1);
-    html += `<a href="?page=` + prevPage + `" style="margin:0 5px;">&lt;</a>`;
+    html += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
     for (let p = 1; p <= totalPages; p++) {
       if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
         if (p === currentPage) {
-          html += `<span style="margin:0 5px; font-weight:bold;">` + p + `</span>`;
+          html += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
         } else {
-          html += `<a href="?page=` + p + `" style="margin:0 5px;">` + p + `</a>`;
+          html += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
         }
       } else if (Math.abs(p - currentPage) === 3) {
         html += `...`;
       }
     }
     const nextPage = Math.min(totalPages, currentPage + 1);
-    html += `<a href="?page=` + nextPage + `" style="margin:0 5px;">&gt;</a>`;
-    html += `<a href="?page=` + totalPages + `" style="margin:0 5px;">最後のページ &gt;|</a>`;
+    html += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
+    html += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
     html += `</div>`;
     return html;
   }
@@ -463,20 +461,20 @@ app.get("/admin", (req, res) => {
   pageItems.forEach(entry => {
     html += `<li>
       <div class="entry-container">
-        <div class="entry" data-previewurl="` + entry.previewUrl + `" data-id="` + entry.id + `">
-          <div class="count-badge">` + entry.count + `</div>
-          <img src="` + entry.artworkUrl + `" alt="Cover">
+        <div class="entry" data-previewurl="${entry.previewUrl}" data-id="${entry.id}">
+          <div class="count-badge">${entry.count}</div>
+          <img src="${entry.artworkUrl}" alt="Cover">
           <div>
-            <strong>` + entry.text + `</strong><br>
-            <small>` + entry.artist + `</small>
+            <strong>${entry.text}</strong><br>
+            <small>${entry.artist}</small>
           </div>
           <div style="display:flex; align-items:center; margin-left:10px;">
-            <button type="button" class="control-btn" onclick="adminTogglePlay('` + entry.id + `')">&#9658;</button>
-            <button type="button" class="control-btn" onclick="adminToggleMute('` + entry.id + `')"> </button>
-            <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-` + entry.id + `" oninput="adminChangeVolume('` + entry.id + `', this.value)">
+            <button type="button" class="control-btn" onclick="adminTogglePlay('${entry.id}')">Play</button>
+            <button type="button" class="control-btn" onclick="adminToggleMute('${entry.id}')"></button>
+            <input type="range" min="1" max="100" value="50" class="volume-slider" id="vol-${entry.id}" oninput="adminChangeVolume('${entry.id}', this.value)">
           </div>
         </div>
-        <a href="/delete/` + entry.id + `" class="delete">🗑️</a>
+        <a href="/delete/${entry.id}" class="delete">🗑️</a>
       </div>
     </li>`;
   });
@@ -484,211 +482,150 @@ app.get("/admin", (req, res) => {
   
   html += createPaginationLinks(page, totalPages);
   
+  // 設定フォーム
   html += `<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
-        <input type="checkbox" name="recruiting" value="off" ` + (db.data.settings.recruiting ? "" : "checked") + ` style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"}>
         募集を終了する
       </label>
     </div>
     <div class="setting-field">
       <label>理由:</label><br>
-      <textarea name="reason" placeholder="理由（任意)">` + (db.data.settings.reason || "") + `</textarea>
+      <textarea name="reason" placeholder="理由（任意)">${db.data.settings.reason || ""}</textarea>
     </div>
     <div class="setting-field">
       <label>フロントエンドタイトル:</label><br>
-      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">` + (db.data.settings.frontendTitle || "♬曲をリクエストする") + `</textarea>
+      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
     </div>
     <div class="setting-field">
       <label>管理者パスワード:</label><br>
-      <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;">
+      <input type="text" name="adminPassword" placeholder="新しい管理者パスワード">
     </div>
     <div class="setting-field">
       <label>
-        <input type="checkbox" name="playerControlsEnabled" value="on" ` + (db.data.settings.playerControlsEnabled ? "checked" : "") + ` style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""}>
         ユーザーページの再生・音量ボタンを表示する
       </label>
     </div>
-    <br>
-    <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
+    <button type="submit">設定を更新</button>
   </form>`;
   
+  // 同期／取得ボタン
   html += `<div class="button-container">
-    <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
-    <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
+    <button class="sync-btn" onclick="syncToGitHub()">GitHubに同期</button>
+    <button class="fetch-btn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>
-  <br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
+  <br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
   
-  html += `
-<script>
-// 管理者用プレイヤー処理
-let adminAudioMap = {};
-let adminIsPlayingMap = {};
-let adminIsMutedMap = {};
-let adminFadeIntervalMap = {};
-
-function getPreviewUrl(id) {
-  const entry = document.querySelector('.entry[data-id="' + id + '"]');
-  return entry ? entry.getAttribute('data-previewurl') : "";
-}
-
-function adminTogglePlay(id) {
-  const previewUrl = getPreviewUrl(id);
-  if (!previewUrl) return;
-  
-  // 他の再生中の音源を停止
-  Object.keys(adminAudioMap).forEach(key => {
-    if (key !== id && adminIsPlayingMap[key]) {
-      adminAudioMap[key].pause();
-      adminIsPlayingMap[key] = false;
-      updateAdminPlayIcon(key);
+  // 管理者用プレイヤー処理スクリプト
+  html += `<script>
+    let adminAudioMap = {};
+    let adminIsPlayingMap = {};
+    let adminIsMutedMap = {};
+    
+    function adminTogglePlay(id) {
+      const entry = document.querySelector('.entry[data-id="' + id + '"]');
+      if (!entry) { console.error("Entry not found for id", id); return; }
+      const previewUrl = entry.getAttribute('data-previewurl');
+      console.log("AdminTogglePlay: id:", id, "previewUrl:", previewUrl);
+      if (!previewUrl) return;
+      
+      // 停止中の他のオーディオを全て停止
+      for (const key in adminAudioMap) {
+        if (key !== id && adminIsPlayingMap[key]) {
+          adminAudioMap[key].pause();
+          adminIsPlayingMap[key] = false;
+          updateAdminPlayButton(key);
+        }
+      }
+      
+      if (!adminAudioMap[id]) {
+        const audio = new Audio(previewUrl);
+        audio.volume = 0;
+        audio.currentTime = 10;
+        adminAudioMap[id] = audio;
+        adminIsPlayingMap[id] = false;
+        adminIsMutedMap[id] = false;
+      }
+      
+      if (adminIsPlayingMap[id]) {
+        adminAudioMap[id].pause();
+        adminIsPlayingMap[id] = false;
+      } else {
+        adminAudioMap[id].muted = false;
+        adminAudioMap[id].play().then(() => {
+          adminIsPlayingMap[id] = true;
+        }).catch(err => { console.error("Play error:", err); });
+      }
+      updateAdminPlayButton(id);
+      updateAdminMuteButton(id);
     }
-  });
-  
-  if (!adminAudioMap[id]) {
-    const audio = new Audio();
-    audio.src = previewUrl;
-    audio.volume = 0;
-    audio.currentTime = 10;
-    adminAudioMap[id] = audio;
-    adminIsPlayingMap[id] = false;
-    adminIsMutedMap[id] = false;
-  }
-  
-  if (adminIsPlayingMap[id]) {
-    fadeOutAudio(id, 200);
-    adminIsPlayingMap[id] = false;
-  } else {
-    adminAudioMap[id].muted = false;
-    adminAudioMap[id].play().then(() => {
-      adminIsPlayingMap[id] = true;
-      fadeInAudio(id, 0.5, 750);
-    }).catch(err => {
-      console.error("Admin play error:", err);
-    });
-  }
-  
-  updateAdminPlayIcon(id);
-  updateAdminMuteIcon(id);
-}
-
-function fadeInAudio(id, finalVolume, duration) {
-  const steps = 30;
-  const stepTime = duration / steps;
-  let currentStep = 0;
-  const stepVol = finalVolume / steps;
-  clearInterval(adminFadeIntervalMap[id]);
-  adminFadeIntervalMap[id] = setInterval(() => {
-    currentStep++;
-    let newVol = stepVol * currentStep;
-    if (newVol >= finalVolume) {
-      newVol = finalVolume;
-      clearInterval(adminFadeIntervalMap[id]);
-      adminFadeIntervalMap[id] = null;
+    
+    function adminToggleMute(id) {
+      if (!adminAudioMap[id]) return;
+      if (adminIsMutedMap[id]) {
+        adminAudioMap[id].muted = false;
+        adminIsMutedMap[id] = false;
+      } else {
+        adminAudioMap[id].muted = true;
+        adminIsMutedMap[id] = true;
+      }
+      updateAdminMuteButton(id);
     }
-    if(adminAudioMap[id]) adminAudioMap[id].volume = newVol;
-  }, stepTime);
-}
-
-function fadeOutAudio(id, duration) {
-  if (!adminAudioMap[id]) return;
-  const steps = 10;
-  const stepTime = duration / steps;
-  let currentStep = 0;
-  const initialVolume = adminAudioMap[id].volume;
-  const stepVol = initialVolume / steps;
-  const interval = setInterval(() => {
-    currentStep++;
-    let newVol = initialVolume - stepVol * currentStep;
-    if (newVol <= 0) {
-      newVol = 0;
-      clearInterval(interval);
-      adminAudioMap[id].pause();
-      adminIsPlayingMap[id] = false;
+    
+    function adminChangeVolume(id, val) {
+      if (!adminAudioMap[id]) return;
+      const volume = parseInt(val, 10) / 100;
+      adminAudioMap[id].volume = volume;
+      if (volume === 0) {
+        adminIsMutedMap[id] = true;
+        adminAudioMap[id].muted = true;
+      } else {
+        adminIsMutedMap[id] = false;
+        adminAudioMap[id].muted = false;
+      }
+      updateAdminMuteButton(id);
     }
-    adminAudioMap[id].volume = newVol;
-  }, stepTime);
-}
-
-function updateAdminPlayIcon(id) {
-  const btn = document.querySelector('.entry[data-id="' + id + '"] .control-btn[onclick^="adminTogglePlay"]');
-  if (!btn) return;
-  if (adminIsPlayingMap[id]) {
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<rect x="4" y="3" width="4" height="14" fill="#888"/>' +
-      '<rect x="12" y="3" width="4" height="14" fill="#888"/>' +
-    '</svg>';
-  } else {
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<polygon points="5,3 17,10 5,17" fill="#888"/>' +
-    '</svg>';
-  }
-}
-
-function adminToggleMute(id) {
-  if (!adminAudioMap[id]) return;
-  if (adminIsMutedMap[id]) {
-    adminAudioMap[id].muted = false;
-    adminIsMutedMap[id] = false;
-  } else {
-    adminAudioMap[id].muted = true;
-    adminIsMutedMap[id] = true;
-  }
-  updateAdminMuteIcon(id);
-}
-
-function adminChangeVolume(id, val) {
-  if (!adminAudioMap[id]) return;
-  const volume = parseInt(val, 10) / 100;
-  adminAudioMap[id].volume = volume;
-  if (volume === 0) {
-    adminIsMutedMap[id] = true;
-    adminAudioMap[id].muted = true;
-  } else {
-    if (adminIsMutedMap[id]) {
-      adminIsMutedMap[id] = false;
-      adminAudioMap[id].muted = false;
+    
+    function updateAdminPlayButton(id) {
+      const btn = document.querySelector('.entry[data-id="' + id + '"] .control-btn[onclick^="adminTogglePlay"]');
+      if (!btn) return;
+      btn.textContent = adminIsPlayingMap[id] ? "Pause" : "Play";
     }
-  }
-  updateAdminMuteIcon(id);
-}
-
-function updateAdminMuteIcon(id) {
-  const btn = document.querySelector('.entry[data-id="' + id + '"] .control-btn[onclick^="adminToggleMute"]');
-  if (!btn) return;
-  const slider = document.getElementById("vol-" + id);
-  let volume = slider ? parseInt(slider.value, 10) : 50;
-  if (adminIsMutedMap[id] || volume === 0) {
-    // ミュートアイコン
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
-      '<line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>' +
-      '<line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>' +
-    '</svg>';
-  } else if (volume >= 61) {
-    // 高音量アイコン
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
-      '<path d="M15 5 L15 15" stroke="#888" stroke-width="2"/>' +
-      '<path d="M17 3 L17 17" stroke="#888" stroke-width="2"/>' +
-    '</svg>';
-  } else if (volume >= 31) {
-    // 中音量アイコン
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
-      '<path d="M15 7 L15 13" stroke="#888" stroke-width="2"/>' +
-    '</svg>';
-  } else {
-    // 低音量アイコン
-    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20">' +
-      '<polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>' +
-    '</svg>';
-  }
-}
-</script>
+    
+    function updateAdminMuteButton(id) {
+      const btn = document.querySelector('.entry[data-id="' + id + '"] .control-btn[onclick^="adminToggleMute"]');
+      if (!btn) return;
+      const slider = document.getElementById("vol-" + id);
+      const volVal = slider ? parseInt(slider.value, 10) : 50;
+      if (adminIsMutedMap[id] || volVal === 0) {
+        btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
+          <rect x="2" y="6" width="6" height="8" fill="#888"/>
+          <line x1="12" y1="4" x2="18" y2="16" stroke="#888" stroke-width="2"/>
+          <line x1="18" y1="4" x2="12" y2="16" stroke="#888" stroke-width="2"/>
+        </svg>\`;
+      } else if (volVal >= 61) {
+        btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
+          <rect x="2" y="6" width="6" height="8" fill="#888"/>
+          <path d="M12 4 L12 16" stroke="#888" stroke-width="2"/>
+          <path d="M14 2 L14 18" stroke="#888" stroke-width="2"/>
+        </svg>\`;
+      } else if (volVal >= 31) {
+        btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
+          <rect x="2" y="6" width="6" height="8" fill="#888"/>
+          <path d="M12 8 L12 12" stroke="#888" stroke-width="2"/>
+        </svg>\`;
+      } else {
+        btn.innerHTML = \`<svg width="20" height="20" viewBox="0 0 20 20">
+          <rect x="2" y="6" width="6" height="8" fill="#888"/>
+        </svg>\`;
+      }
+    }
+  </script>
 </body>
-</html>`;
+</html>\`;
   
   res.send(html);
 });
@@ -709,8 +646,8 @@ app.post("/update-settings", (req, res) => {
   }
   db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
   db.write();
-  res.send(`<p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p>
-<script>setTimeout(()=>{location.href="/admin"},3000)</script>`);
+  res.send(\`<p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p>
+<script>setTimeout(()=>{location.href="/admin"},3000)</script>\`);
 });
 
 /* --- 設定取得 --- */
@@ -730,5 +667,5 @@ cron.schedule("*/20 * * * *", async () => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
+  console.log(\`🚀サーバーが http://localhost:\${PORT} で起動しました\`);
 });
