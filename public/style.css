@@ -127,7 +127,7 @@ button:hover {
   border: none;
   cursor: pointer;
   font-size: 18px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   color: #333;
@@ -154,6 +154,9 @@ button:hover {
   cursor: pointer;
   fill: #888;
   vertical-align: middle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .control-btn:hover {
   background-color: lightgray;
