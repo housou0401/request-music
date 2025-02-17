@@ -5,18 +5,24 @@ let previewAudio = null;
 let isPlaying = false;
 let isMuted = false;
 let playerControlsEnabled = true;
+
 window.onload = async function() {
   document.getElementById("modeSong").style.backgroundColor = "#007bff";
   document.getElementById("modeSong").style.color = "white";
   await loadSettings();
 };
+
 async function loadSettings() {
   try {
     const res = await fetch("/settings");
     const data = await res.json();
     playerControlsEnabled = data.playerControlsEnabled !== false;
-  } catch (e) { console.error("設定読み込みエラー:", e); playerControlsEnabled = true; }
+  } catch (e) {
+    console.error("設定読み込みエラー:", e);
+    playerControlsEnabled = true;
+  }
 }
+
 function setSearchMode(mode) {
   searchMode = mode;
   artistPhase = 0;
@@ -44,6 +50,7 @@ function setSearchMode(mode) {
     document.getElementById("modeArtist").style.color = "";
   }
 }
+
 async function searchSongs() {
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
@@ -82,6 +89,7 @@ async function searchSongs() {
     } catch (e) { console.error("曲検索エラー:", e); }
   }
 }
+
 function selectArtist(artist) {
   selectedArtistId = artist.artistId;
   artistPhase = 1;
@@ -92,6 +100,7 @@ function selectArtist(artist) {
   document.getElementById("suggestions").innerHTML = "";
   fetchArtistTracksAndShow();
 }
+
 async function fetchArtistTracksAndShow() {
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
@@ -107,6 +116,7 @@ async function fetchArtistTracksAndShow() {
     });
   } catch (e) { console.error("アーティストの曲一覧取得エラー:", e); }
 }
+
 function selectSong(song) {
   document.getElementById("songName").value = song.trackName;
   if (searchMode === "song" && !document.getElementById("artistName").value.trim()) {
@@ -147,6 +157,7 @@ function selectSong(song) {
     updateMuteIcon();
   }
 }
+
 function fadeInUserAudio(duration, finalVolume) {
   const steps = 30;
   const stepTime = duration / steps;
@@ -159,6 +170,7 @@ function fadeInUserAudio(duration, finalVolume) {
     if (previewAudio) previewAudio.volume = newVol;
   }, stepTime);
 }
+
 function fadeOutUserAudio(duration) {
   if (!previewAudio) return;
   const steps = 10;
@@ -173,6 +185,7 @@ function fadeOutUserAudio(duration) {
     previewAudio.volume = newVol;
   }, stepTime);
 }
+
 function togglePlay(e) {
   e.stopPropagation();
   if (!previewAudio) return;
@@ -180,12 +193,14 @@ function togglePlay(e) {
   else { previewAudio.play(); isPlaying = true; fadeInUserAudio(750, 0.5); }
   updatePlayPauseIcon();
 }
+
 function updatePlayPauseIcon() {
   const btn = document.getElementById("playPauseBtn");
   if (!btn) return;
   if (isPlaying) { btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" fill="#888"/><rect x="12" y="3" width="4" height="14" fill="#888"/></svg>'; }
   else { btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg>'; }
 }
+
 function toggleMute(e) {
   e.stopPropagation();
   if (!previewAudio) return;
@@ -197,6 +212,7 @@ function toggleMute(e) {
   } else { isMuted = true; previewAudio.muted = true; }
   updateMuteIcon();
 }
+
 function updateMuteIcon() {
   const btn = document.getElementById("muteBtn");
   if (!btn) return;
@@ -213,6 +229,7 @@ function updateMuteIcon() {
   }
   btn.innerHTML = svg;
 }
+
 function changeVolume(val) {
   if (!previewAudio) return;
   let volume = parseInt(val, 10) / 100;
@@ -220,6 +237,7 @@ function changeVolume(val) {
   if (volume > 0 && isMuted) { previewAudio.muted = false; isMuted = false; }
   updateMuteIcon();
 }
+
 function clearSelection() {
   fadeOutUserAudio(200);
   setTimeout(() => {
@@ -235,6 +253,7 @@ function clearSelection() {
     searchSongs();
   }, 250);
 }
+
 function clearArtistSelection() {
   selectedArtistId = null;
   artistPhase = 0;
@@ -245,16 +264,19 @@ function clearArtistSelection() {
   document.getElementById("suggestions").innerHTML = "";
   searchSongs();
 }
+
 function clearInput(id) {
   document.getElementById(id).value = "";
   searchSongs();
 }
+
 function handleSubmit(e) {
   e.preventDefault();
   const appleUrl = document.getElementById("appleMusicUrlHidden")?.value.trim();
   if (!appleUrl) { alert("必ず候補一覧から曲を選択してください"); return; }
   document.getElementById("requestForm").submit();
 }
+
 function showAdminLogin() {
   const password = prompt("⚠️管理者パスワードを入力してください:");
   if (password) {
