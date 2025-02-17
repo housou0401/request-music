@@ -48,8 +48,8 @@ app.use(express.static("public"));
 
 const fetchResultsForQuery = async (query, lang, entity = "song", attribute = "") => {
   let url = "https://itunes.apple.com/search?term=" + encodeURIComponent(query) +
-            "&country=JP&media=music&entity=" + entity +
-            "&limit=50&explicit=no&lang=" + lang + (attribute ? "&attribute=" + attribute : "");
+    "&country=JP&media=music&entity=" + entity +
+    "&limit=50&explicit=no&lang=" + lang + (attribute ? "&attribute=" + attribute : "");
   const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } });
   if (!response.ok) {
     console.error("HTTPエラー: " + response.status + " for URL: " + url);
@@ -63,7 +63,7 @@ const fetchResultsForQuery = async (query, lang, entity = "song", attribute = ""
 
 const fetchArtistTracks = async (artistId) => {
   const url = "https://itunes.apple.com/lookup?id=" + artistId +
-              "&entity=song&country=JP&limit=50";
+    "&entity=song&country=JP&limit=50";
   const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } });
   if (!response.ok) { console.error("HTTPエラー: " + response.status + " for URL: " + url); return []; }
   const text = await response.text();
@@ -185,7 +185,7 @@ app.post("/submit", (req, res) => {
   res.send('<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>');
 });
 
-// DELETE エンドポイントの追加
+// DELETE エンドポイント
 app.get("/delete/:id", (req, res) => {
   const id = req.params.id;
   db.data.responses = db.data.responses.filter(entry => entry.id !== id);
@@ -347,9 +347,9 @@ app.get("/admin", (req, res) => {
       'const btn = document.querySelector(\'.entry[data-id="\' + id + \'"] .control-btn[data-action="adminToggleMute"]\'); if (!btn) return; ' +
       'let vol = adminAudioMap[id] ? adminAudioMap[id].volume : 0; let svg; ' +
       'if (vol < 0.01 || adminIsMutedMap[id]) { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/><line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/></svg>\'; } ' +
-      'else if (vol < 0.31) { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>\'; } ' +
-      'else if (vol < 0.61) { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>\'; } ' +
-      'else { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>\'; } ' +
+      'else if (vol < 0.31) { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/></svg>\'; } ' +
+      'else if (vol < 0.61) { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 C16 8,16 12,14 14" stroke="#888" stroke-width="2" fill="none"/></svg>\'; } ' +
+      'else { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 C16 8,16 12,14 14" stroke="#888" stroke-width="2" fill="none"/><path d="M16 4 C19 7,19 13,16 16" stroke="#888" stroke-width="2" fill="none"/></svg>\'; }' +
       'btn.innerHTML = svg;' +
     '}' +
     'function adminChangeVolume(id, val) {' +
