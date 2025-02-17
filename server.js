@@ -22,7 +22,6 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// LowDB
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -52,29 +51,21 @@ async function fetchResultsForQuery(query, lang, entity = "song", attribute = ""
   let url = "https://itunes.apple.com/search?term=" + encodeURIComponent(query) +
             "&country=JP&media=music&entity=" + entity +
             "&limit=50&explicit=no&lang=" + lang + (attribute ? "&attribute=" + attribute : "");
-  const response = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
-  });
+  const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!response.ok) {
     console.error("HTTPエラー: " + response.status + " for URL: " + url);
     return { results: [] };
   }
   const text = await response.text();
   if (!text.trim()) return { results: [] };
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("JSON parse error for url=" + url + ":", e);
-    return { results: [] };
-  }
+  try { return JSON.parse(text); }
+  catch (e) { console.error("JSON parse error for url=" + url + ":", e); return { results: [] }; }
 }
 
 async function fetchArtistTracks(artistId) {
   const url = "https://itunes.apple.com/lookup?id=" + artistId +
               "&entity=song&country=JP&limit=50";
-  const response = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
-  });
+  const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!response.ok) {
     console.error("HTTPエラー: " + response.status + " for URL: " + url);
     return [];
@@ -324,79 +315,205 @@ app.get("/admin", (req, res) => {
     return html;
   }
 
-  let html = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>管理者ページ</title><style>' +
-    'li { margin-bottom: 10px; list-style:none; } .entry-container { position: relative; display: inline-block; margin-bottom:10px; } ' +
-    '.entry { display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; width: fit-content; } ' +
-    '.entry:hover { background-color: rgba(0,0,0,0.05); } .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; } ' +
-    '.delete { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: red; text-decoration: none; } ' +
-    '.count-badge { background-color: #ff6b6b; color: white; font-weight: bold; padding: 4px 8px; border-radius: 5px; margin-right: 10px; } ' +
-    'h1 { font-size: 1.5em; margin-bottom: 20px; } form { margin: 20px 0; text-align: left; } ' +
-    'textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; } ' +
-    '.setting-field { margin-bottom: 10px; } .sync-btn, .fetch-btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; } ' +
-    '.sync-btn { background-color: #28a745; color: white; } .sync-btn:hover { background-color: #218838; } ' +
-    '.fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; } .fetch-btn:hover { background-color: #138496; } ' +
-    '.button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; } ' +
-    '.spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px; } ' +
-    '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } ' +
-    '.control-btn { width: 24px; height: 24px; background: none; border: none; margin-left: 8px; cursor: pointer; fill: #888; vertical-align: middle; display: flex; align-items: center; justify-content: center; } ' +
-    '.control-btn:hover { background-color: lightgray; border-radius: 50%; } ' +
-    '.volume-slider { width: 100px; margin-left: 10px; vertical-align: middle; } ' +
-    '.selected-label { font-size: 16px; color: #555; margin-top: 16px; margin-bottom: 16px; text-align: center; }' +
-    '.clear-btn { width: 24px; height: 24px; border-radius: 50%; background: transparent; border: none; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; color: #333; margin-left: 10px; transition: background-color 0.2s ease; } ' +
-    '.clear-btn:hover { background-color: lightgray; border-radius: 50%; }' +
-    '</style></head><body><h1>✉アンケート回答一覧</h1>';
-
-  html += createPaginationLinks(page, totalPages);
-
-  html += '<ul style="padding:0;">';
-  pageItems.forEach(entry => {
-    html += '<li><div class="entry-container"><div class="entry" data-previewurl="' + (entry.previewUrl || "") + '" data-id="' + entry.id + '">';
-    html += '<div class="count-badge">' + entry.count + '</div>';
-    html += '<img src="' + entry.artworkUrl + '" alt="Cover">';
-    html += '<div><strong>' + entry.text + '</strong><br><small>' + entry.artist + '</small></div>';
-    html += '<div style="display:flex; align-items:center; margin-left:10px;">';
-    if (db.data.settings.playerControlsEnabled) {
-      html += '<button type="button" class="control-btn" data-action="adminTogglePlay" onclick="adminTogglePlay(\'' + entry.id + '\')"><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg></button>';
-      html += '<button type="button" class="control-btn" data-action="adminToggleMute" onclick="adminToggleMute(\'' + entry.id + '\')"><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg></button>';
-      html += '<input type="range" min="0" max="100" value="50" class="volume-slider" id="vol-' + entry.id + '" oninput="adminChangeVolume(\'' + entry.id + '\', this.value)">';
+  let html = `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者ページ</title>
+  <style>
+    li { margin-bottom: 10px; list-style:none; }
+    .entry-container { position: relative; display: inline-block; margin-bottom:10px; }
+    .entry {
+      display: flex; align-items: center; cursor: pointer;
+      border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; width: fit-content;
     }
-    html += '<button type="button" class="clear-btn" onclick="location.href=\'/delete/' + entry.id + '\'" style="margin-left:10px;">×</button>';
-    html += '</div></div></div></li>';
+    .entry:hover { background-color: rgba(0,0,0,0.05); }
+    .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
+    .delete {
+      position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
+      color: red; text-decoration: none;
+    }
+    .count-badge {
+      background-color: #ff6b6b; color: white; font-weight: bold; padding: 4px 8px; border-radius: 5px;
+      margin-right: 10px;
+    }
+    h1 { font-size: 1.5em; margin-bottom: 20px; }
+    form { margin: 20px 0; text-align: left; }
+    textarea {
+      width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px;
+    }
+    .setting-field { margin-bottom: 10px; }
+    .sync-btn, .fetch-btn {
+      padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;
+    }
+    .sync-btn {
+      background-color: #28a745; color: white;
+    }
+    .sync-btn:hover {
+      background-color: #218838;
+    }
+    .fetch-btn {
+      background-color: #17a2b8; color: white; margin-left: 10px;
+    }
+    .fetch-btn:hover {
+      background-color: #138496;
+    }
+    .button-container {
+      display: flex; justify-content: flex-start; margin-bottom: 10px;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%;
+      width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .control-btn {
+      width: 32px; height: 32px; background: none; border: none; margin-left: 8px;
+      cursor: pointer; fill: #888; vertical-align: middle;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .control-btn:hover {
+      background-color: lightgray; border-radius: 50%;
+    }
+    .volume-slider {
+      width: 100px; margin-left: 10px; vertical-align: middle;
+    }
+    .selected-label {
+      font-size: 16px; color: #555; margin-top: 16px; margin-bottom: 16px; text-align: center;
+    }
+    .clear-btn {
+      width: 32px; height: 32px; border-radius: 50%; background: transparent; border: none;
+      cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
+      color: #333; margin-left: 10px; transition: background-color 0.2s ease;
+    }
+    .clear-btn:hover {
+      background-color: lightgray; border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+<h1>✉アンケート回答一覧</h1>
+${createPaginationLinks(page, totalPages)}
+<ul style="padding:0;">
+`;
+
+  // リスト出力
+  pageItems.forEach(entry => {
+    html += `
+<li>
+  <div class="entry-container">
+    <div class="entry" data-previewurl="${entry.previewUrl || ""}" data-id="${entry.id}">
+      <div class="count-badge">${entry.count}</div>
+      <img src="${entry.artworkUrl}" alt="Cover">
+      <div>
+        <strong>${entry.text}</strong><br>
+        <small>${entry.artist}</small>
+      </div>
+      <div style="display:flex; align-items:center; margin-left:10px;">
+    `;
+    if (db.data.settings.playerControlsEnabled) {
+      html += `
+        <button type="button" class="control-btn" data-action="adminTogglePlay"
+          onclick="adminTogglePlay('${entry.id}')">
+          <svg width="20" height="20" viewBox="0 0 20 20">
+            <polygon points="5,3 17,10 5,17" fill="#888"/>
+          </svg>
+        </button>
+        <button type="button" class="control-btn" data-action="adminToggleMute"
+          onclick="adminToggleMute('${entry.id}')">
+          <svg width="20" height="20" viewBox="0 0 20 20">
+            <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
+            <path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/>
+          </svg>
+        </button>
+        <input type="range" min="0" max="100" value="50"
+          class="volume-slider" id="vol-${entry.id}"
+          oninput="adminChangeVolume('${entry.id}', this.value)">
+      `;
+    }
+    html += `
+        <button type="button" class="clear-btn" style="margin-left:10px;"
+          onclick="location.href='/delete/${entry.id}'">×</button>
+      </div>
+    </div>
+  </div>
+</li>
+`;
   });
-  html += '</ul>';
 
-  html += createPaginationLinks(page, totalPages);
-
-  html += '<form action="/update-settings" method="post">' +
-    '<div class="setting-field"><label><input type="checkbox" name="recruiting" value="off" ' + (db.data.settings.recruiting ? "" : "checked") + ' style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">募集を終了する</label></div>' +
-    '<div class="setting-field"><label>理由:</label><br><textarea name="reason" placeholder="理由（任意)">' + (db.data.settings.reason || "") + '</textarea></div>' +
-    '<div class="setting-field"><label>フロントエンドタイトル:</label><br><textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">' + (db.data.settings.frontendTitle || "♬曲をリクエストする") + '</textarea></div>' +
-    '<div class="setting-field"><label>管理者パスワード:</label><br><input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;"></div>' +
-    '<div class="setting-field"><label><input type="checkbox" name="playerControlsEnabled" value="on" ' + (db.data.settings.playerControlsEnabled ? "checked" : "") + ' style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">ユーザーページの再生・音量ボタンを表示する</label></div>' +
-    '<br><button type="submit" style="font-size:18px; padding:12px;">設定を更新</button></form>';
-
-  html += '<div class="button-container">' +
-    '<button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>' +
-    '<button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>' +
-    '<div class="spinner" id="loadingSpinner"></div></div>' +
-    '<br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>';
-
-  // 管理者用のAudio連携JS
-  html += `<script>
+  html += `
+</ul>
+${createPaginationLinks(page, totalPages)}
+<form action="/update-settings" method="post">
+  <div class="setting-field">
+    <label>
+      <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"}
+        style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+      募集を終了する
+    </label>
+  </div>
+  <div class="setting-field">
+    <label>理由:</label><br>
+    <textarea name="reason" placeholder="理由（任意)">
+      ${db.data.settings.reason || ""}
+    </textarea>
+  </div>
+  <div class="setting-field">
+    <label>フロントエンドタイトル:</label><br>
+    <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">
+      ${db.data.settings.frontendTitle || "♬曲をリクエストする"}
+    </textarea>
+  </div>
+  <div class="setting-field">
+    <label>管理者パスワード:</label><br>
+    <input type="text" name="adminPassword" placeholder="新しい管理者パスワード"
+      style="width:300px; padding:10px;">
+  </div>
+  <div class="setting-field">
+    <label>
+      <input type="checkbox" name="playerControlsEnabled" value="on"
+        ${db.data.settings.playerControlsEnabled ? "checked" : ""}
+        style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+      ユーザーページの再生・音量ボタンを表示する
+    </label>
+  </div>
+  <br>
+  <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
+</form>
+<div class="button-container">
+  <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
+  <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
+  <div class="spinner" id="loadingSpinner"></div>
+</div>
+<br>
+<a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>
+<script>
 let adminAudioMap = {};
 let adminIsPlayingMap = {};
 let adminIsMutedMap = {};
 let adminFadeIntervalMap = {};
 
-// プレビュー終了時に再度再生する => ループ
+/**
+ * 再生終了 → フェードアウト → 位置リセット → フェードイン
+ * ループをなるべく自然にする
+ */
 function addEndedListener(id, audio) {
   if (!audio.hasEndedListener) {
     audio.hasEndedListener = true;
     audio.addEventListener("ended", () => {
-      audio.currentTime = 10; // プレビューの途中から再生したい場合
-      audio.play();
+      fadeOutThenInAudio(id, 10); // Apple Musicプレビューなので、10秒から再生する例
     });
   }
+}
+
+function fadeOutThenInAudio(id, fromTime=0) {
+  fadeOutAudio(id, 500, () => {
+    adminAudioMap[id].currentTime = fromTime;
+    fadeInAudio(id, 0.5, 500);
+  });
 }
 
 function getPreviewUrl(id) {
@@ -429,7 +546,7 @@ function adminTogglePlay(id) {
   updateAdminMuteIcon(id);
 }
 
-function fadeInAudio(id, finalVolume, duration) {
+function fadeInAudio(id, finalVolume, duration, callback) {
   const steps = 30;
   const stepTime = duration / steps;
   let currentStep = 0;
@@ -442,12 +559,13 @@ function fadeInAudio(id, finalVolume, duration) {
       newVol = finalVolume;
       clearInterval(adminFadeIntervalMap[id]);
       adminFadeIntervalMap[id] = null;
+      if (callback) callback();
     }
     adminAudioMap[id].volume = newVol;
   }, stepTime);
 }
 
-function fadeOutAudio(id, duration) {
+function fadeOutAudio(id, duration, onComplete) {
   if (!adminAudioMap[id]) return;
   const steps = 10;
   const stepTime = duration / steps;
@@ -463,6 +581,7 @@ function fadeOutAudio(id, duration) {
       adminAudioMap[id].pause();
       adminIsPlayingMap[id] = false;
       updateAdminPlayIcon(id);
+      if (onComplete) onComplete();
     }
     adminAudioMap[id].volume = newVol;
   }, stepTime);
@@ -522,9 +641,11 @@ function fetchFromGitHub() {
   document.getElementById("loadingSpinner").style.display = "inline-block";
   location.href = "/fetch-requests";
 }
-</script>`;
+</script>
+</body>
+</html>
+`;
 
-  html += "</body></html>";
   res.send(html);
 });
 
@@ -565,5 +686,5 @@ cron.schedule("*/20 * * * *", async () => {
 
 /** サーバー起動 **/
 app.listen(PORT, () => {
-  console.log("🚀サーバーが http://localhost:" + PORT + " で起動しました");
+  console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
 });
