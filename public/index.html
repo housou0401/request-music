@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ユーザーフォーム-放送委員会</title>
   <link rel="stylesheet" href="style.css">
+  <!-- 単一の skript.js を defer で読み込み -->
   <script src="skript.js" defer></script>
   <style>
     body {
@@ -53,6 +54,7 @@
 </head>
 <body onload="checkRecruitingStatus(); updateFrontendTitle();">
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
+
   <div class="container" id="mainContainer">
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
     <div style="display: flex; justify-content: center; margin-bottom: 10px;">
@@ -72,51 +74,16 @@
       <div id="selectedArtist"></div>
       <div id="selectedLabel"></div>
       <div id="selectedSong"></div>
+
+      <!-- 隠しフィールド -->
       <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
       <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
       <input type="hidden" id="previewUrlHidden" name="previewUrl">
+
       <button type="submit">送信</button>
     </form>
   </div>
+
   <p class="privacy-note">個人情報は収集されません。</p>
-  <script>
-    function checkRecruitingStatus() {
-      fetch("/settings")
-        .then(response => response.json())
-        .then(data => {
-          if (!data.recruiting) {
-            const container = document.getElementById("mainContainer");
-            container.innerHTML = "";
-            const message = document.createElement("div");
-            message.style.textAlign = "center";
-            message.style.color = "red";
-            message.style.fontSize = "1.5em";
-            message.style.margin = "20px 0";
-            message.innerText = "現在は曲を募集していません";
-            container.appendChild(message);
-            if (data.reason && data.reason.trim() !== "") {
-              const reason = document.createElement("div");
-              reason.style.textAlign = "center";
-              reason.style.color = "black";
-              reason.style.fontSize = "1.2em";
-              reason.style.margin = "10px 0";
-              reason.innerText = data.reason;
-              container.appendChild(reason);
-            }
-          }
-        })
-        .catch(error => console.error("設定取得エラー:", error));
-    }
-    function updateFrontendTitle() {
-      fetch("/settings")
-        .then(response => response.json())
-        .then(data => {
-          if (data.frontendTitle) {
-            document.getElementById("frontendTitle").innerText = data.frontendTitle;
-          }
-        })
-        .catch(error => console.error("タイトル取得エラー:", error));
-    }
-  </script>
 </body>
 </html>
