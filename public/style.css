@@ -2,12 +2,14 @@ html, body {
   overscroll-behavior: contain;
   -webkit-text-size-adjust: 100%;
 }
+
 body {
   font-family: Arial, sans-serif;
   background-color: #ffffff;
   margin: 0;
   padding: 0;
 }
+
 .container {
   width: 90%;
   max-width: 400px;
@@ -18,13 +20,16 @@ body {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   text-align: center;
 }
+
 h1 {
   margin-bottom: 10px;
 }
+
 .input-container {
   position: relative;
   margin-bottom: 10px;
 }
+
 .input-container input[type="text"] {
   width: 100%;
   padding: 10px;
@@ -33,10 +38,11 @@ h1 {
   border-radius: 5px;
   box-sizing: border-box;
 }
+
 .input-clear-btn {
   position: absolute;
-  right: 5px;
   top: 50%;
+  right: 5px;
   transform: translateY(-50%);
   width: 24px;
   height: 24px;
@@ -47,14 +53,12 @@ h1 {
   border: none;
   color: #888;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
+
 .input-clear-btn:hover {
   background-color: lightgray;
-  border-radius: 50%;
 }
+
 button {
   padding: 10px;
   width: 100%;
@@ -65,9 +69,11 @@ button {
   cursor: pointer;
   font-size: 16px;
 }
+
 button:hover {
   background-color: #0056b3;
 }
+
 .admin-button {
   background-color: #d3d3d3;
   margin-bottom: 10px;
@@ -80,18 +86,22 @@ button:hover {
   text-align: center;
   font-size: 14px;
 }
+
 .admin-button:hover {
   background-color: #555;
 }
+
 .privacy-note {
   margin-top: 10px;
   font-weight: bold;
 }
+
 #suggestions {
   margin-top: 10px;
   max-height: 200px;
   overflow-y: auto;
 }
+
 .suggestion-item {
   display: flex;
   align-items: center;
@@ -102,15 +112,18 @@ button:hover {
   cursor: pointer;
   transition: background 0.3s;
 }
+
 .suggestion-item:hover {
   background-color: rgba(0,0,0,0.05);
 }
+
 .suggestion-item img {
   width: 50px;
   height: 50px;
   border-radius: 5px;
   margin-right: 10px;
 }
+
 .selected-item {
   margin-bottom: 10px;
   font-weight: bold;
@@ -120,24 +133,27 @@ button:hover {
   border-radius: 10px;
   padding: 10px;
 }
+
 .clear-btn {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 20px;
-  display: flex;
+  font-size: 18px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   color: #333;
   margin-left: 10px;
   transition: background-color 0.2s ease;
 }
+
 .clear-btn:hover {
   background-color: lightgray;
 }
+
 .count-badge {
   background-color: #ff6b6b;
   color: white;
@@ -146,29 +162,62 @@ button:hover {
   border-radius: 5px;
   margin-right: 10px;
 }
+
 .control-btn {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   background: none;
   border: none;
+  padding: 0;
   margin-left: 8px;
   cursor: pointer;
   fill: #888;
-  vertical-align: middle;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
 }
-.control-btn:hover {
-  background-color: lightgray;
-  border-radius: 50%;
-}
+
 .volume-slider {
-  width: 120px;
-  margin-left: 10px;
-  vertical-align: middle;
+  width: 100px;
+  margin-left: 8px;
 }
+
+#modeSong, #modeArtist {
+  flex: 1;
+  font-size: 13px;
+  padding: 5px 6px;
+  margin: 0 2px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  color: #333;
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+}
+
+#modeSong:hover, #modeArtist:hover {
+  background-color: #e0e0e0;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  display: none;
+  margin-left: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 #selectedLabel {
   margin-top: 16px;
   margin-bottom: 16px;
@@ -176,6 +225,7 @@ button:hover {
   font-size: 16px;
   color: #555;
 }
+
 @media (max-width: 600px) {
   .container, form, textarea, input[type="text"] {
     width: 95%;
@@ -187,18 +237,5 @@ button:hover {
   #modeSong, #modeArtist {
     font-size: 12px;
     padding: 4px 5px;
-  }
-  .control-btn {
-    width: 26px;
-    height: 26px;
-    font-size: 16px;
-  }
-  .clear-btn {
-    width: 26px;
-    height: 26px;
-    font-size: 16px;
-  }
-  .volume-slider {
-    width: 100px;
   }
 }
