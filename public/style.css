@@ -53,6 +53,7 @@ h1 {
 }
 .input-clear-btn:hover {
   background-color: lightgray;
+  border-radius: 50%;
 }
 button {
   padding: 10px;
@@ -120,13 +121,13 @@ button:hover {
   padding: 10px;
 }
 .clear-btn {
-  width: 24px;
-  height: 24px;
+  width: 28px; /* 少し大きく */
+  height: 28px;
   border-radius: 50%;
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px; /* ボタン内アイコンをやや大きめ */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -146,8 +147,8 @@ button:hover {
   margin-right: 10px;
 }
 .control-btn {
-  width: 24px;
-  height: 24px;
+  width: 28px; /* ボタンをやや大きく */
+  height: 28px;
   background: none;
   border: none;
   margin-left: 8px;
@@ -157,13 +158,14 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 18px; /* テキストボタンの場合のサイズ */
 }
 .control-btn:hover {
   background-color: lightgray;
   border-radius: 50%;
 }
 .volume-slider {
-  width: 100px;
+  width: 120px; /* スマホでも操作しやすいようやや大きく */
   margin-left: 10px;
   vertical-align: middle;
 }
@@ -185,5 +187,18 @@ button:hover {
   #modeSong, #modeArtist {
     font-size: 12px;
     padding: 4px 5px;
+  }
+  .control-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 16px;
+  }
+  .clear-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 16px;
+  }
+  .volume-slider {
+    width: 100px;
   }
 }
