@@ -25,7 +25,6 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* 入力欄コンテナ */
 .input-container {
   position: relative;
   margin-bottom: 10px;
@@ -55,12 +54,10 @@ h1 {
   color: #888;
   cursor: pointer;
 }
-
 .input-clear-btn:hover {
   background-color: lightgray;
 }
 
-/* ボタン */
 button {
   padding: 10px;
   width: 100%;
@@ -71,7 +68,6 @@ button {
   cursor: pointer;
   font-size: 16px;
 }
-
 button:hover {
   background-color: #0056b3;
 }
@@ -88,7 +84,6 @@ button:hover {
   text-align: center;
   font-size: 14px;
 }
-
 .admin-button:hover {
   background-color: #555;
 }
@@ -98,7 +93,6 @@ button:hover {
   font-weight: bold;
 }
 
-/* 近似曲候補リスト */
 #suggestions {
   margin-top: 10px;
   max-height: 200px;
@@ -125,7 +119,6 @@ button:hover {
   margin-right: 10px;
 }
 
-/* 選択された曲 */
 .selected-item {
   margin-bottom: 10px;
   font-weight: bold;
@@ -136,7 +129,7 @@ button:hover {
   padding: 10px;
 }
 
-/* クリアボタン（共通：.clear-btn と .input-clear-btn 同等） */
+/* クリアボタン（共通） */
 .clear-btn, .input-clear-btn {
   width: 24px;
   height: 24px;
@@ -164,7 +157,7 @@ button:hover {
   margin-right: 10px;
 }
 
-/* 再生／ミュート用コントロール */
+/* 再生・音量コントロール用 */
 .control-btn {
   width: 24px;
   height: 24px;
