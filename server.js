@@ -53,9 +53,7 @@ app.use(express.static("public"));
 /* --- Apple Music 検索関連 --- */
 async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
-  if (attribute) {
-    url += `&attribute=${attribute}`;
-  }
+  if (attribute) url += `&attribute=${attribute}`;
   const response = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
   });
@@ -191,7 +189,7 @@ app.get("/search", async (req, res) => {
   }
 });
 
-/* --- リクエスト送信処理 --- */
+/* --- リクエスト送信 --- */
 app.post("/submit", (req, res) => {
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
   const artworkUrl = req.body.artworkUrl?.trim();
@@ -304,7 +302,6 @@ app.get("/fetch-requests", async (req, res) => {
 });
 
 /* --- 管理者ページ --- */
-// getPreviewUrl 完全版：指定IDのリクエストから previewUrl を返す
 function getPreviewUrl(id) {
   const item = db.data.responses.find(r => r.id === id);
   return item ? item.previewUrl : "";
@@ -348,7 +345,6 @@ app.get("/admin", (req, res) => {
   <meta charset="UTF-8">
   <title>管理者ページ</title>
   <style>
-    /* 管理者ページ用スタイル（再生等のコントロールは削除済み） */
     li { margin-bottom: 10px; }
     .entry-container { position: relative; display: inline-block; margin-bottom:10px; }
     .entry {
