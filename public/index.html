@@ -110,11 +110,7 @@
     function updateFrontendTitle() {
       fetch("/settings")
         .then(response => response.json())
-        .then(data => {
-          if (data.frontendTitle) {
-            document.getElementById("frontendTitle").innerText = data.frontendTitle;
-          }
-        })
+        .then(data => { if (data.frontendTitle) { document.getElementById("frontendTitle").innerText = data.frontendTitle; } })
         .catch(error => console.error("タイトル取得エラー:", error));
     }
   </script>
