@@ -55,7 +55,8 @@ const fetchResultsForQuery = async (query, lang, entity = "song", attribute = ""
   }
   const text = await response.text();
   if (!text.trim()) return { results: [] };
-  try { return JSON.parse(text); } catch (e) { console.error(`JSON parse error for url=${url}:`, e); return { results: [] }; }
+  try { return JSON.parse(text); }
+  catch (e) { console.error(`JSON parse error for url=${url}:`, e); return { results: [] }; }
 };
 
 const fetchArtistTracks = async (artistId) => {
@@ -67,7 +68,13 @@ const fetchArtistTracks = async (artistId) => {
   try {
     const data = JSON.parse(text);
     if (!data.results || data.results.length <= 1) return [];
-    return data.results.slice(1).map(r => ({ trackName: r.trackName, artistName: r.artistName, trackViewUrl: r.trackViewUrl, artworkUrl: r.artworkUrl100, previewUrl: r.previewUrl || "" }));
+    return data.results.slice(1).map(r => ({
+      trackName: r.trackName,
+      artistName: r.artistName,
+      trackViewUrl: r.trackViewUrl,
+      artworkUrl: r.artworkUrl100,
+      previewUrl: r.previewUrl || ""
+    }));
   } catch (e) { console.error("JSON parse error (fetchArtistTracks):", e); return []; }
 };
 
@@ -95,7 +102,13 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
         const seen = new Set();
         for (let track of data.results) {
           const key = (track.trackName + "|" + track.artistName).toLowerCase();
-          if (!seen.has(key)) { seen.add(key); uniqueResults.push({ trackName: track.trackName, artistName: track.artistName, trackViewUrl: track.trackViewUrl, artworkUrl: track.artworkUrl100, previewUrl: track.previewUrl || "" }); }
+          if (!seen.has(key)) { seen.add(key); uniqueResults.push({
+            trackName: track.trackName,
+            artistName: track.artistName,
+            trackViewUrl: track.trackViewUrl,
+            artworkUrl: track.artworkUrl100,
+            previewUrl: track.previewUrl || ""
+          }); }
         }
         if (uniqueResults.length > 0) return uniqueResults;
       }
@@ -108,8 +121,10 @@ app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
     if (mode === "artist") {
-      if (req.query.artistId) { const tracks = await fetchArtistTracks(req.query.artistId.trim()); return res.json(tracks); }
-      else {
+      if (req.query.artistId) {
+        const tracks = await fetchArtistTracks(req.query.artistId.trim());
+        return res.json(tracks);
+      } else {
         const query = req.query.query?.trim();
         if (!query) return res.json([]);
         const hasKorean = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
@@ -178,7 +193,8 @@ async function syncRequestsToGitHub() {
       );
       sha = getResponse.data.sha;
     } catch (err) {
-      if (err.response && err.response.status === 404) { sha = null; } else { throw err; }
+      if (err.response && err.response.status === 404) { sha = null; }
+      else { throw err; }
     }
     const contentEncoded = Buffer.from(localContent).toString("base64");
     const putData = { message: "Sync db.json", content: contentEncoded, branch: BRANCH };
@@ -370,8 +386,8 @@ function fadeOutAudio(id, duration) {
 function updateAdminPlayIcon(id) {
   const btn = document.querySelector(\`.entry[data-id="\${id}"] .control-btn[data-action="adminTogglePlay"]\`);
   if (!btn) return;
-  if (adminIsPlayingMap[id]) { btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" fill="#888"/><rect x="12" y="3" width="4" height="14" fill="#888"/></svg>`; }
-  else { btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg>`; }
+  if (adminIsPlayingMap[id]) { btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20"><rect x="4" y="3" width="4" height="14" fill="#888"/><rect x="12" y="3" width="4" height="14" fill="#888"/></svg>'; }
+  else { btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="5,3 17,10 5,17" fill="#888"/></svg>'; }
 }
 function adminToggleMute(id) {
   if (!adminAudioMap[id]) return;
@@ -384,10 +400,10 @@ function updateAdminMuteIcon(id) {
   if (!btn) return;
   let vol = adminAudioMap[id] ? adminAudioMap[id].volume : 0;
   let svg;
-  if (vol < 0.01 || adminIsMutedMap[id]) { svg = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/><line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/></svg>`; }
-  else if (vol < 0.31) { svg = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>`; }
-  else if (vol < 0.61) { svg = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>`; }
-  else { svg = `<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>`; }
+  if (vol < 0.01 || adminIsMutedMap[id]) { svg = '<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/><line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/></svg>'; }
+  else if (vol < 0.31) { svg = '<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>'; }
+  else if (vol < 0.61) { svg = '<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>'; }
+  else { svg = '<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>'; }
   btn.innerHTML = svg;
 }
 function adminChangeVolume(id, val) {
@@ -398,20 +414,20 @@ function adminChangeVolume(id, val) {
   updateAdminMuteIcon(id);
 }
 function createPaginationLinks(currentPage, totalPages) {
-  let html = `<div style="text-align:left; margin-bottom:10px;">`;
-  html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
+  let html = '<div style="text-align:left; margin-bottom:10px;">';
+  html += '<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>';
   const prevPage = Math.max(1, currentPage - 1);
   html += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
   for (let p = 1; p <= totalPages; p++) {
     if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
       if (p === currentPage) { html += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`; }
       else { html += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`; }
-    } else if (Math.abs(p - currentPage) === 3) { html += `...`; }
+    } else if (Math.abs(p - currentPage) === 3) { html += '...'; }
   }
   const nextPage = Math.min(totalPages, currentPage + 1);
   html += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
   html += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
-  html += `</div>`;
+  html += '</div>';
   return html;
 }
 </script>
