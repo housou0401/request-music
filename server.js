@@ -48,8 +48,8 @@ app.use(express.static("public"));
 
 const fetchResultsForQuery = async (query, lang, entity = "song", attribute = "") => {
   let url = "https://itunes.apple.com/search?term=" + encodeURIComponent(query) +
-    "&country=JP&media=music&entity=" + entity +
-    "&limit=50&explicit=no&lang=" + lang + (attribute ? "&attribute=" + attribute : "");
+            "&country=JP&media=music&entity=" + entity +
+            "&limit=50&explicit=no&lang=" + lang + (attribute ? "&attribute=" + attribute : "");
   const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } });
   if (!response.ok) {
     console.error("HTTPエラー: " + response.status + " for URL: " + url);
@@ -57,22 +57,15 @@ const fetchResultsForQuery = async (query, lang, entity = "song", attribute = ""
   }
   const text = await response.text();
   if (!text.trim()) return { results: [] };
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("JSON parse error for url=" + url + ":", e);
-    return { results: [] };
-  }
+  try { return JSON.parse(text); }
+  catch (e) { console.error("JSON parse error for url=" + url + ":", e); return { results: [] }; }
 };
 
 const fetchArtistTracks = async (artistId) => {
   const url = "https://itunes.apple.com/lookup?id=" + artistId +
-    "&entity=song&country=JP&limit=50";
+              "&entity=song&country=JP&limit=50";
   const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } });
-  if (!response.ok) {
-    console.error("HTTPエラー: " + response.status + " for URL: " + url);
-    return [];
-  }
+  if (!response.ok) { console.error("HTTPエラー: " + response.status + " for URL: " + url); return []; }
   const text = await response.text();
   if (!text.trim()) return [];
   try {
@@ -85,10 +78,7 @@ const fetchArtistTracks = async (artistId) => {
       artworkUrl: r.artworkUrl100,
       previewUrl: r.previewUrl || ""
     }));
-  } catch (e) {
-    console.error("JSON parse error (fetchArtistTracks):", e);
-    return [];
-  }
+  } catch (e) { console.error("JSON parse error (fetchArtistTracks):", e); return []; }
 };
 
 const fetchAppleMusicInfo = async (songTitle, artistName) => {
@@ -115,25 +105,19 @@ const fetchAppleMusicInfo = async (songTitle, artistName) => {
         const seen = new Set();
         for (let track of data.results) {
           const key = (track.trackName + "|" + track.artistName).toLowerCase();
-          if (!seen.has(key)) {
-            seen.add(key);
-            uniqueResults.push({
-              trackName: track.trackName,
-              artistName: track.artistName,
-              trackViewUrl: track.trackViewUrl,
-              artworkUrl: track.artworkUrl100,
-              previewUrl: track.previewUrl || ""
-            });
-          }
+          if (!seen.has(key)) { seen.add(key); uniqueResults.push({
+            trackName: track.trackName,
+            artistName: track.artistName,
+            trackViewUrl: track.trackViewUrl,
+            artworkUrl: track.artworkUrl100,
+            previewUrl: track.previewUrl || ""
+          }); }
         }
         if (uniqueResults.length > 0) return uniqueResults;
       }
     }
     return [];
-  } catch (error) {
-    console.error("❌ Apple Music 検索エラー:", error);
-    return [];
-  }
+  } catch (error) { console.error("❌ Apple Music 検索エラー:", error); return []; }
 };
 
 app.get("/search", async (req, res) => {
@@ -166,10 +150,7 @@ app.get("/search", async (req, res) => {
       const suggestions = await fetchAppleMusicInfo(query, artist);
       return res.json(suggestions);
     }
-  } catch (err) {
-    console.error("❌ /search エラー:", err);
-    return res.json([]);
-  }
+  } catch (err) { console.error("❌ /search エラー:", err); return res.json([]); }
 });
 
 app.post("/submit", (req, res) => {
@@ -204,6 +185,15 @@ app.post("/submit", (req, res) => {
   res.send('<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>');
 });
 
+// DELETE エンドポイントの追加
+app.get("/delete/:id", (req, res) => {
+  const id = req.params.id;
+  db.data.responses = db.data.responses.filter(entry => entry.id !== id);
+  db.write();
+  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+  res.send('<script>alert("🗑️削除しました！"); window.location.href="/admin";</script>');
+});
+
 async function syncRequestsToGitHub() {
   try {
     const localContent = JSON.stringify(db.data, null, 2);
@@ -234,9 +224,7 @@ app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
     res.send('<p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{location.href="/admin"},3000)</script>');
-  } catch (e) {
-    res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
-  }
+  } catch (e) { res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message)); }
 });
 
 app.get("/fetch-requests", async (req, res) => {
@@ -251,9 +239,7 @@ app.get("/fetch-requests", async (req, res) => {
     db.write();
     fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
     res.send('<p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{location.href="/admin"},3000)</script>');
-  } catch (error) {
-    res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
-  }
+  } catch (error) { res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message)); }
 });
 
 app.get("/admin", (req, res) => {
@@ -294,9 +280,9 @@ app.get("/admin", (req, res) => {
     '.button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; } ' +
     '.spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px; } ' +
     '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } ' +
-    '.control-btn { width: 24px; height: 24px; background: none; border: none; margin-left: 8px; cursor: pointer; fill: #888; } ' +
+    '.control-btn { width: 24px; height: 24px; background: none; border: none; margin-left: 8px; cursor: pointer; fill: #888; vertical-align: middle; } ' +
     '.control-btn:hover { background-color: lightgray; border-radius: 50%; } ' +
-    '.volume-slider { width: 100px; margin-left: 10px; } ' +
+    '.volume-slider { width: 100px; margin-left: 10px; vertical-align: middle; } ' +
     '.selected-label { font-size: 16px; color: #555; margin-top: 16px; margin-bottom: 16px; text-align: center; }' +
     '</style></head><body><h1>✉アンケート回答一覧</h1>';
   html += createPaginationLinks(page, totalPages);
@@ -363,7 +349,7 @@ app.get("/admin", (req, res) => {
       'if (vol < 0.01 || adminIsMutedMap[id]) { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/><line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/></svg>\'; } ' +
       'else if (vol < 0.31) { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>\'; } ' +
       'else if (vol < 0.61) { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>\'; } ' +
-      'else { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>\'; }' +
+      'else { svg = \'<svg width="20" height="20" viewBox="0 0 20 20"><polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/><path d="M14 6 L16 10 L14 14" stroke="#888" stroke-width="2" fill="none"/></svg>\'; } ' +
       'btn.innerHTML = svg;' +
     '}' +
     'function adminChangeVolume(id, val) {' +
@@ -384,8 +370,7 @@ app.get("/admin", (req, res) => {
       'const nextPage = Math.min(totalPages, currentPage + 1);' +
       'html += \'<a href="?page=\' + nextPage + \'" style="margin:0 5px;">&gt;</a>\';' +
       'html += \'<a href="?page=\' + totalPages + \'" style="margin:0 5px;">最後のページ &gt;|</a>\';' +
-      'html += \'</div>\';' +
-      'return html;' +
+      'html += \'</div>\'; return html;' +
     '}' +
     '</script></body></html>';
   res.send(html);
