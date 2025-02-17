@@ -207,7 +207,7 @@ function selectSong(song) {
       previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
-      // ループ区間は15秒～23秒（8秒ループ）とする
+      // フェード処理：15秒～23秒の区間ループ
       previewAudio.addEventListener("timeupdate", () => {
         if (previewAudio.currentTime >= 23) {
           fadeOutAudio(previewAudio, 750, () => {
@@ -226,7 +226,7 @@ function selectSong(song) {
     isPlaying = true;
     isMuted = false;
     updatePlayPauseIcon();
-    updateVolumeControlIcon();
+    updateVolumeIcon();
   }
 }
 
@@ -261,14 +261,19 @@ function fadeOutAudio(audio, durationMs, callback) {
 function changeVolume(val) {
   if (!previewAudio) return;
   let vol = parseInt(val, 10) / 100;
+  // もしミュート中なら解除
+  if (isMuted) {
+    isMuted = false;
+    previewAudio.muted = false;
+  }
   previewAudio.volume = vol;
-  updateVolumeControlIcon();
+  updateVolumeIcon();
 }
 
-function updateVolumeControlIcon() {
+function updateVolumeIcon() {
   const btn = document.getElementById("volumeBtn");
-  if (!btn) return;
-  let vol = previewAudio ? previewAudio.volume : 0;
+  if (!btn || !previewAudio) return;
+  let vol = previewAudio.volume;
   let svg = "";
   if (isMuted || vol <= 0.01) {
     svg = `<svg width="20" height="20" viewBox="0 0 20 20">
@@ -328,7 +333,7 @@ function toggleMute(e) {
   if (!previewAudio) return;
   isMuted = !isMuted;
   previewAudio.muted = isMuted;
-  updateVolumeControlIcon();
+  updateVolumeIcon();
 }
 
 function clearSelection() {
