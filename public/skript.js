@@ -1,5 +1,5 @@
 let searchMode = "song"; // "song" または "artist"
-let artistPhase = 0; // 0: アーティスト一覧, 1: 選択済みアーティストの曲一覧
+let artistPhase = 0; // 0: アーティスト一覧, 1: 選択済み
 let selectedArtistId = null;
 let previewAudio = null;
 let isPlaying = false;
@@ -59,14 +59,13 @@ function setSearchMode(mode) {
 async function searchSongs() {
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
-  
   if (searchMode === "artist") {
     if (artistPhase === 0) {
       const artistQuery = document.getElementById("songName").value.trim();
       if (artistQuery.length < 2) return;
       try {
-        const response = await fetch(`/search?mode=artist&query=${encodeURIComponent(artistQuery)}`);
-        const suggestions = await response.json();
+        const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(artistQuery)}`);
+        const suggestions = await res.json();
         suggestions.forEach(artist => {
           const item = document.createElement("div");
           item.classList.add("suggestion-item");
@@ -88,8 +87,8 @@ async function searchSongs() {
     const artistQuery = document.getElementById("artistName").value.trim();
     if (songQuery.length < 2) return;
     try {
-      const response = await fetch(`/search?query=${encodeURIComponent(songQuery)}&artist=${encodeURIComponent(artistQuery)}`);
-      const suggestions = await response.json();
+      const res = await fetch(`/search?query=${encodeURIComponent(songQuery)}&artist=${encodeURIComponent(artistQuery)}`);
+      const suggestions = await res.json();
       suggestions.forEach(song => {
         const item = document.createElement("div");
         item.classList.add("suggestion-item");
@@ -167,16 +166,18 @@ function selectSong(song) {
         </div>
       </div>
       <div style="display:flex; align-items:center;">
-        ${ playerControlsEnabled ? `
+        ${
+          playerControlsEnabled ? `
           <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
           <button type="button" class="control-btn" id="muteBtn" onclick="toggleMute(event)">&#128266;</button>
-          <input type="range" min="1" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
-        ` : "" }
+          <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
+          ` : ""
+        }
         <button type="button" class="clear-btn" onclick="clearSelection()">×</button>
       </div>
     </div>
   `;
-  // 設定 hidden フィールド
+  // 設定 hidden 入力
   let hiddenApple = document.getElementById("appleMusicUrlHidden");
   if (!hiddenApple) {
     hiddenApple = document.createElement("input");
@@ -213,21 +214,12 @@ function selectSong(song) {
       previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
-      // フェードイン／フェードアウト処理
-      previewAudio.addEventListener("timeupdate", () => {
-        if (previewAudio.currentTime >= 25) {
-          fadeAudio(previewAudio, previewAudio.volume, 0, 750, () => {
-            previewAudio.currentTime = 10;
-            fadeAudio(previewAudio, 0, 0.5, 750);
-          });
-        }
-      });
     }
     previewAudio.src = song.previewUrl;
-    previewAudio.volume = 0; // 初期は 0 からフェードイン
-    previewAudio.currentTime = 10;
-    previewAudio.loop = false;
-    fadeAudio(previewAudio, 0, 0.5, 750);
+    previewAudio.volume = 0.5;
+    previewAudio.loop = true; // プレビュー全体をループ
+    // フェードイン（0.75秒）処理
+    fadeInAudio(previewAudio, 0.75);
     previewAudio.play();
     isPlaying = true;
     isMuted = false;
@@ -236,19 +228,17 @@ function selectSong(song) {
   }
 }
 
-function fadeAudio(audio, from, to, duration, callback) {
-  const start = performance.now();
-  function step(now) {
-    const elapsed = now - start;
-    const progress = Math.min(elapsed / duration, 1);
-    audio.volume = from + (to - from) * progress;
-    if (progress < 1) {
-      requestAnimationFrame(step);
+function fadeInAudio(audio, durationMs) {
+  audio.volume = 0;
+  const targetVolume = 0.5;
+  const step = targetVolume / (durationMs / 16);
+  const interval = setInterval(() => {
+    if (audio.volume < targetVolume) {
+      audio.volume = Math.min(audio.volume + step, targetVolume);
     } else {
-      if (callback) callback();
+      clearInterval(interval);
     }
-  }
-  requestAnimationFrame(step);
+  }, 16);
 }
 
 function changeVolume(val) {
@@ -259,29 +249,28 @@ function changeVolume(val) {
 }
 
 function updateVolumeIcon(vol) {
-  const slider = document.getElementById("volumeSlider");
   const btn = document.getElementById("muteBtn");
   let iconSvg = "";
-  if (vol <= 0.01) {
+  if (vol <= 0.01 || isMuted) {
     iconSvg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
       <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
       <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
     </svg>`;
-  } else if (vol < 0.31) {
+  } else if (vol < 0.35) {
     iconSvg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <text x="14" y="14" font-size="10" fill="#888">🔈</text>
+      <text x="14" y="14" font-size="10" fill="#888" text-anchor="middle" alignment-baseline="central">🔈</text>
     </svg>`;
-  } else if (vol < 0.61) {
+  } else if (vol < 0.65) {
     iconSvg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <text x="14" y="14" font-size="10" fill="#888">🔉</text>
+      <text x="14" y="14" font-size="10" fill="#888" text-anchor="middle" alignment-baseline="central">🔉</text>
     </svg>`;
   } else {
     iconSvg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <text x="14" y="14" font-size="10" fill="#888">🔊</text>
+      <text x="14" y="14" font-size="10" fill="#888" text-anchor="middle" alignment-baseline="central">🔊</text>
     </svg>`;
   }
   if (btn) {
