@@ -192,7 +192,6 @@ app.get("/search", async (req, res) => {
 });
 
 /* --- リクエスト送信処理 --- */
-// previewUrl も hidden で送信
 app.post("/submit", (req, res) => {
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
   const artworkUrl = req.body.artworkUrl?.trim();
