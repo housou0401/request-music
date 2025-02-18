@@ -296,6 +296,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/25/d7/81/25d781fb-fa94-27ee-4bfe-b05191a407fb/BMCR_82.jpg/100x100bb.jpg",
       "previewUrl": "",
       "count": 1
+    },
+    {
+      "id": "4cQrGQ-gNo15-52w3dG0G",
+      "text": "かがみ",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8B%E3%81%8C%E3%81%BF/1787372751?i=1787372752&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bb/a3/6f/bba36f31-b624-8caf-0967-1054b47d875b/4580789685392.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/f6/4c/00f64c60-2903-1e39-d9c7-721293632698/mzaf_8805154899213091422.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "Vta3uNYbzV_rgN5pgj8zh",
+      "text": "ダーリン",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%80%E3%83%BC%E3%83%AA%E3%83%B3/1790599503?i=1790599512&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/7b/b9/27/7bb92776-1f4a-06c6-e36e-de889f2b8620/25UMGIM01757.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ee/73/0f/ee730fb0-6513-464c-57c7-bdfee7ef39b0/mzaf_5366734301357780316.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "0ttGvKWIZNGCMtM-KMCYu",
+      "text": "眠り姫",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%9C%A0%E3%82%8A%E5%A7%AB/985046002?i=985046186&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/39/f5/1f/39f51fe9-a092-5122-617f-b54839acc849/TFCC-89382.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/68/6a/43/686a437d-f7a7-4b04-4cca-4ea982f322c8/mzaf_12920241644518693995.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -350,7 +377,10 @@
     "歌うたいのバラッド|斉藤和義": 1,
     "ドント・ワナ・ノウ (feat. ケンドリック・ラマー)|マルーン5": 1,
     "not like us|ケンドリック・ラマー": 1,
-    "#1090 (thousand dreams)|松本孝弘": 1
+    "#1090 (thousand dreams)|松本孝弘": 1,
+    "かがみ|アーティスト不明": 1,
+    "ダーリン|アーティスト不明": 1,
+    "眠り姫|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
