@@ -43,6 +43,7 @@
       text-align: center;
       width: 90%;
       max-width: 400px;
+      position: relative;
     }
     .privacy-note {
       position: fixed;
@@ -51,15 +52,50 @@
       font-size: 12px;
       color: #aaa;
     }
+    /* ロード中UI */
+    #loadingIndicator {
+      display: none; /* 検索開始で display:flex に */
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255,255,255,0.7);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .loading-spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #888;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      color: #888;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body onload="checkRecruitingStatus(); updateFrontendTitle();">
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
   <div class="container" id="mainContainer">
-    <!-- フロントエンドタイトル -->
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
     
-    <!-- 検索モード切替ボタン（見出し下、フォーム上） -->
+    <!-- ロード中UI -->
+    <div id="loadingIndicator">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">読み込み中...</div>
+    </div>
+
+    <!-- 検索モード切替ボタン -->
     <div style="display: flex; justify-content: center; margin-bottom: 10px;">
       <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
       <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
@@ -76,16 +112,9 @@
         <button type="button" class="input-clear-btn" onclick="clearInput('artistName')">×</button>
       </div>
       
-      <!-- 候補一覧 -->
       <div id="suggestions"></div>
-      
-      <!-- アーティスト選択済み表示（artistモード用） -->
       <div id="selectedArtist"></div>
-      
-      <!-- 「選択中」ラベル -->
       <div id="selectedLabel"></div>
-      
-      <!-- 選択された曲表示 -->
       <div id="selectedSong"></div>
       
       <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
@@ -99,7 +128,7 @@
   <script>
     function checkRecruitingStatus() {
       fetch("/settings")
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
           if (!data.recruiting) {
             const container = document.getElementById("mainContainer");
@@ -122,18 +151,43 @@
             }
           }
         })
-        .catch(error => console.error("設定取得エラー:", error));
+        .catch(err => console.error("設定取得エラー:", err));
     }
     function updateFrontendTitle() {
       fetch("/settings")
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
           if (data.frontendTitle) {
             document.getElementById("frontendTitle").innerText = data.frontendTitle;
           }
         })
-        .catch(error => console.error("タイトル取得エラー:", error));
+        .catch(err => console.error("タイトル取得エラー:", err));
     }
+
+    // ロードUI
+    function showLoading() {
+      document.getElementById("loadingIndicator").style.display = "flex";
+    }
+    function hideLoading() {
+      document.getElementById("loadingIndicator").style.display = "none";
+    }
+
+    // 検索関数をオーバーライド
+    // skript.js の searchSongs() / fetchArtistTracksAndShow() で
+    // fetch 前に showLoading(), 結果取得後に hideLoading() を呼び出す
+    const originalSearchSongs = window.searchSongs;
+    window.searchSongs = async function() {
+      showLoading();
+      await originalSearchSongs();
+      hideLoading();
+    };
+    
+    const originalFetchArtistTracksAndShow = window.fetchArtistTracksAndShow;
+    window.fetchArtistTracksAndShow = async function() {
+      showLoading();
+      await originalFetchArtistTracksAndShow();
+      hideLoading();
+    };
   </script>
 </body>
 </html>
