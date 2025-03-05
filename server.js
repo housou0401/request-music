@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Render の Environment Variables
+// Render の Environment Variables（Render の Environment タブで設定してください）
 const GITHUB_OWNER = process.env.GITHUB_OWNER; 
 const REPO_NAME = process.env.REPO_NAME;         
 const FILE_PATH = "db.json"; 
@@ -25,7 +25,7 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// データベース設定
+// データベース設定（db.json）
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -50,13 +50,11 @@ if (!db.data.settings) {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-/* --- Apple Music 検索 --- */
+/* --- Apple Music 検索関連 --- */
 async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   if (attribute) url += `&attribute=${attribute}`;
-  const response = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0" }
-  });
+  const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!response.ok) {
     console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
     return { results: [] };
@@ -66,16 +64,14 @@ async function fetchResultsForQuery(query, lang, entity = "song", attribute = ""
   try {
     return JSON.parse(text);
   } catch (e) {
-    console.error("JSON parse error:", e);
+    console.error(`JSON parse error for url=${url}:`, e);
     return { results: [] };
   }
 }
 
 async function fetchArtistTracks(artistId) {
   const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=50`;
-  const response = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0" }
-  });
+  const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!response.ok) {
     console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
     return [];
@@ -145,7 +141,7 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
   }
 }
 
-/* --- /search --- */
+/* --- /search エンドポイント --- */
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
@@ -226,7 +222,7 @@ app.post("/submit", (req, res) => {
   res.send(`<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>`);
 });
 
-/* --- リクエスト削除機能 --- */
+/* --- リクエスト削除 --- */
 app.get("/delete/:id", (req, res) => {
   const id = req.params.id;
   db.data.responses = db.data.responses.filter(entry => entry.id !== id);
@@ -242,10 +238,10 @@ async function syncRequestsToGitHub() {
   let sha = null;
   try {
     const getResponse = await axios.get(
-      \`https://api.github.com/repos/\${GITHUB_OWNER}/\${REPO_NAME}/contents/\${FILE_PATH}?ref=\${BRANCH}\`,
+      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
       {
         headers: {
-          Authorization: \`token \${GITHUB_TOKEN}\`,
+          Authorization: `token ${GITHUB_TOKEN}`,
           Accept: "application/vnd.github.v3+json",
         },
       }
@@ -266,11 +262,11 @@ async function syncRequestsToGitHub() {
   };
   if (sha) putData.sha = sha;
   const putResponse = await axios.put(
-    \`https://api.github.com/repos/\${GITHUB_OWNER}/\${REPO_NAME}/contents/\${FILE_PATH}\`,
+    `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
     putData,
     {
       headers: {
-        Authorization: \`token \${GITHUB_TOKEN}\`,
+        Authorization: `token ${GITHUB_TOKEN}`,
         Accept: "application/vnd.github.v3+json",
       },
     }
@@ -282,21 +278,21 @@ app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
     res.set("Content-Type", "text/html");
-    res.send(\`
+    res.send(`
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="refresh" content="3;url=/admin">
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="3;url=/admin">
 </head>
 <body>
-<p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p>
-<script>
-setTimeout(()=>{ location.href="/admin"; },3000);
-</script>
+  <p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p>
+  <script>
+    setTimeout(()=>{ location.href="/admin"; },3000);
+  </script>
 </body>
 </html>
-\`);
+    `);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
   }
@@ -305,10 +301,10 @@ setTimeout(()=>{ location.href="/admin"; },3000);
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
-      \`https://api.github.com/repos/\${GITHUB_OWNER}/\${REPO_NAME}/contents/\${FILE_PATH}?ref=\${BRANCH}\`,
+      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
       {
         headers: {
-          Authorization: \`token \${GITHUB_TOKEN}\`,
+          Authorization: `token ${GITHUB_TOKEN}`,
           Accept: "application/vnd.github.v3+json",
         },
       }
@@ -319,60 +315,58 @@ app.get("/fetch-requests", async (req, res) => {
     db.write();
     fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
     res.set("Content-Type", "text/html");
-    res.send(\`
+    res.send(`
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="refresh" content="3;url=/admin">
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="3;url=/admin">
 </head>
 <body>
-<p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p>
-<script>
-setTimeout(()=>{ location.href="/admin"; },3000);
-</script>
+  <p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p>
+  <script>
+    setTimeout(()=>{ location.href="/admin"; },3000);
+  </script>
 </body>
 </html>
-\`);
+    `);
   } catch (error) {
     res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
   }
 });
 
-/* --- 管理者ページ --- */
 app.get("/admin", (req, res) => {
   const page = parseInt(req.query.page || "1", 10);
   const perPage = 10;
   const total = db.data.responses.length;
   const totalPages = Math.ceil(total / perPage);
   const startIndex = (page - 1) * perPage;
-  const endIndex = startIndex + perPage;
-  const pageItems = db.data.responses.slice(startIndex, endIndex);
+  const pageItems = db.data.responses.slice(startIndex, startIndex + perPage);
 
   function createPaginationLinks(currentPage, totalPages) {
-    let html = \`<div style="text-align:left; margin-bottom:10px;">\`;
-    html += \`<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>\`;
+    let html = `<div style="text-align:left; margin-bottom:10px;">`;
+    html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
     const prevPage = Math.max(1, currentPage - 1);
-    html += \`<a href="?page=\${prevPage}" style="margin:0 5px;">&lt;</a>\`;
+    html += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
     for (let p = 1; p <= totalPages; p++) {
       if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
         if (p === currentPage) {
-          html += \`<span style="margin:0 5px; font-weight:bold;">\${p}</span>\`;
+          html += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
         } else {
-          html += \`<a href="?page=\${p}" style="margin:0 5px;">\${p}</a>\`;
+          html += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
         }
       } else if (Math.abs(p - currentPage) === 3) {
-        html += \`...\`;
+        html += `...`;
       }
     }
     const nextPage = Math.min(totalPages, currentPage + 1);
-    html += \`<a href="?page=\${nextPage}" style="margin:0 5px;">&gt;</a>\`;
-    html += \`<a href="?page=\${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>\`;
-    html += \`</div>\`;
+    html += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
+    html += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
+    html += `</div>`;
     return html;
   }
 
-  let html = \`<!DOCTYPE html>
+  let html = `<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -445,9 +439,7 @@ app.get("/admin", (req, res) => {
 </head>
 <body>
 <h1>✉アンケート回答一覧</h1>\`;
-
   html += createPaginationLinks(page, totalPages);
-
   html += \`<ul style="list-style:none; padding:0;">\`;
   pageItems.forEach(entry => {
     html += \`<li>
@@ -465,9 +457,7 @@ app.get("/admin", (req, res) => {
     </li>\`;
   });
   html += \`</ul>\`;
-
   html += createPaginationLinks(page, totalPages);
-
   html += \`<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
@@ -496,14 +486,12 @@ app.get("/admin", (req, res) => {
     <br>
     <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
   </form>\`;
-
   html += \`<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>
   <br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>\`;
-
   html += \`
 <script>
 function syncToGitHub() {
@@ -534,20 +522,16 @@ function fetchFromGitHub() {
       document.getElementById("fetchBtn").disabled = false;
     });
 }
-</script>
-</body>
-</html>\`;
-
+</script>\`;
+  html += \`</body></html>\`;
   res.send(html);
 });
 
-/* --- 管理者ログイン --- */
 app.get("/admin-login", (req, res) => {
   const { password } = req.query;
   res.json({ success: password === db.data.settings.adminPassword });
 });
 
-/* --- 設定更新 --- */
 app.post("/update-settings", (req, res) => {
   db.data.settings.recruiting = req.body.recruiting ? false : true;
   db.data.settings.reason = req.body.reason || "";
@@ -557,25 +541,27 @@ app.post("/update-settings", (req, res) => {
   }
   db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
   db.write();
-  res.send(\`
+  res.send(`
 <!DOCTYPE html>
-<html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="3;url=/admin">
+</head>
 <body>
-<p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p>
-<script>
-setTimeout(()=>{ location.href="/admin"; },3000);
-</script>
+  <p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p>
+  <script>
+    setTimeout(()=>{ location.href="/admin"; },3000);
+  </script>
 </body>
 </html>
-\`);
+  `);
 });
 
-/* --- 設定取得 --- */
 app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
 
-/* --- 自動同期ジョブ --- */
 cron.schedule("*/20 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
@@ -587,5 +573,5 @@ cron.schedule("*/20 * * * *", async () => {
 });
 
 app.listen(PORT, () => {
-  console.log(\`🚀サーバーが http://localhost:\${PORT} で起動しました\`);
+  console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
 });
