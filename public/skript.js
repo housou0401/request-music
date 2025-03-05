@@ -167,13 +167,13 @@ function selectSong(song) {
       </div>
       <div style="display:flex; align-items:center;">
         <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
-        <button type="button" class="control-btn" id="volumeBtn" onclick="toggleMute(event)">&#128266;</button>
+        <button type="button" class="control-btn" id="volumeBtn" onclick="toggleMute(event)"></button>
         <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
         <button type="button" class="clear-btn" onclick="clearSelection()">×</button>
       </div>
     </div>
   `;
-  // hidden 入力に各情報をセット
+  // hidden 入力に情報をセット
   let hiddenApple = document.getElementById("appleMusicUrlHidden") || document.createElement("input");
   if (!document.getElementById("appleMusicUrlHidden")) {
     hiddenApple.type = "hidden";
@@ -207,7 +207,7 @@ function selectSong(song) {
       previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
-      // フェード処理：15秒～23秒の区間ループ
+      // ループ区間をプレビュー全体に設定（例：15秒～23秒）
       previewAudio.addEventListener("timeupdate", () => {
         if (previewAudio.currentTime >= 23) {
           fadeOutAudio(previewAudio, 750, () => {
@@ -261,7 +261,6 @@ function fadeOutAudio(audio, durationMs, callback) {
 function changeVolume(val) {
   if (!previewAudio) return;
   let vol = parseInt(val, 10) / 100;
-  // もしミュート中なら解除
   if (isMuted) {
     isMuted = false;
     previewAudio.muted = false;
@@ -275,26 +274,34 @@ function updateVolumeIcon() {
   if (!btn || !previewAudio) return;
   let vol = previewAudio.volume;
   let svg = "";
+  // SVGアイコンはすべて統一された灰色アイコンにします
   if (isMuted || vol <= 0.01) {
+    // Muted アイコン
     svg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
       <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
       <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
+    // Low volume: スピーカー＋1つの音波弧
     svg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <text x="10" y="14" font-size="10" fill="#888" text-anchor="middle" alignment-baseline="central">🔈</text>
+      <path d="M14,10 A4,4 0 0,1 14,6" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
+    // Medium volume: スピーカー＋2つの音波弧
     svg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <text x="10" y="14" font-size="10" fill="#888" text-anchor="middle" alignment-baseline="central">🔉</text>
+      <path d="M14,10 A4,4 0 0,1 14,6" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,10 A6,6 0 0,1 15,4" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else {
+    // High volume: スピーカー＋3つの音波弧
     svg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <text x="10" y="14" font-size="10" fill="#888" text-anchor="middle" alignment-baseline="central">🔊</text>
+      <path d="M14,10 A4,4 0 0,1 14,6" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,10 A6,6 0 0,1 15,4" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M16,10 A8,8 0 0,1 16,2" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
   btn.innerHTML = svg;
