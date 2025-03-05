@@ -1,5 +1,5 @@
-let searchMode = "song"; // "song" または "artist"
-let artistPhase = 0; // 0: アーティスト一覧, 1: 選択済み
+let searchMode = "song"; 
+let artistPhase = 0; 
 let selectedArtistId = null;
 let previewAudio = null;
 let isPlaying = false;
@@ -63,7 +63,6 @@ async function searchSongs() {
   if (searchMode === "artist") {
     if (artistPhase === 0) {
       const artistQuery = document.getElementById("songName").value.trim();
-      // 1文字以上で検索可能に変更
       if (artistQuery.length < 1) { hideLoading(); return; }
       try {
         const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(artistQuery)}`);
@@ -176,7 +175,6 @@ function selectSong(song) {
       </div>
     </div>
   `;
-  // hidden 入力
   let hiddenApple = document.getElementById("appleMusicUrlHidden") || document.createElement("input");
   if (!document.getElementById("appleMusicUrlHidden")) {
     hiddenApple.type = "hidden";
@@ -211,7 +209,7 @@ function selectSong(song) {
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
     }
-    // プレビューはサビ部分（例：15秒～23秒）をループ再生
+    // サビ部分（15秒〜23秒）をループ
     previewAudio.src = song.previewUrl;
     previewAudio.currentTime = 15;
     previewAudio.volume = 0.5;
@@ -226,43 +224,48 @@ function selectSong(song) {
 
 function changeVolume(val) {
   if (!previewAudio) return;
-  let vol = parseInt(val, 10) / 100;
+  const volumeValue = parseInt(val, 10) / 100;
+  // iOS Safariでは無効になる場合があります
   if (isMuted) {
     isMuted = false;
     previewAudio.muted = false;
   }
-  previewAudio.volume = vol;
+  previewAudio.volume = volumeValue;
   updateVolumeIcon();
 }
 
 function updateVolumeIcon() {
   const volumeBtn = document.getElementById("volumeBtn");
   if (!volumeBtn || !previewAudio) return;
-  let vol = previewAudio.volume;
+  const vol = previewAudio.volume;
   let svg = "";
   if (isMuted || vol <= 0.01) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
-      <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
+    // ミュート
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
+      <line x1="16" y1="7" x2="22" y2="17" stroke="#888" stroke-width="2"/>
+      <line x1="22" y1="7" x2="16" y2="17" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14,10 Q16,8 14,6" stroke="#888" stroke-width="2" fill="none"/>
+    // 低音量
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
+      <path d="M16,12 A4,4 0 0,0 16,8" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14,10 Q16,8 14,6" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M15,10 Q18,7 15,4" stroke="#888" stroke-width="2" fill="none"/>
+    // 中音量
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
+      <path d="M16,12 A4,4 0 0,0 16,8" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 A6,6 0 0,0 18,6" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14,10 Q16,8 14,6" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M15,10 Q18,7 15,4" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M16,10 Q20,6 16,2" stroke="#888" stroke-width="2" fill="none"/>
+    // 高音量
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
+      <path d="M16,12 A4,4 0 0,0 16,8" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 A6,6 0 0,0 18,6" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M20,12 A8,8 0 0,0 20,4" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
   volumeBtn.innerHTML = svg;
@@ -285,13 +288,15 @@ function updatePlayPauseIcon() {
   const btn = document.getElementById("playPauseBtn");
   if (!btn) return;
   if (isPlaying) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <rect x="4" y="3" width="4" height="14" fill="#888"/>
-      <rect x="12" y="3" width="4" height="14" fill="#888"/>
+    // pause
+    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <rect x="6" y="5" width="4" height="14" fill="#888"/>
+      <rect x="14" y="5" width="4" height="14" fill="#888"/>
     </svg>`;
   } else {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="5,3 17,10 5,17" fill="#888"/>
+    // play
+    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="7,4 19,12 7,20" fill="#888"/>
     </svg>`;
   }
 }
@@ -307,12 +312,9 @@ function toggleMute(e) {
 function clearSelection() {
   document.getElementById("selectedLabel").innerHTML = "";
   document.getElementById("selectedSong").innerHTML = "";
-  if (document.getElementById("appleMusicUrlHidden"))
-    document.getElementById("appleMusicUrlHidden").value = "";
-  if (document.getElementById("artworkUrlHidden"))
-    document.getElementById("artworkUrlHidden").value = "";
-  if (document.getElementById("previewUrlHidden"))
-    document.getElementById("previewUrlHidden").value = "";
+  if (document.getElementById("appleMusicUrlHidden")) document.getElementById("appleMusicUrlHidden").value = "";
+  if (document.getElementById("artworkUrlHidden")) document.getElementById("artworkUrlHidden").value = "";
+  if (document.getElementById("previewUrlHidden")) document.getElementById("previewUrlHidden").value = "";
   if (previewAudio) {
     previewAudio.pause();
     previewAudio.currentTime = 0;
@@ -367,10 +369,12 @@ function showAdminLogin() {
   }
 }
 
-/* --- ロード中UI --- */
+/* ロード中UI */
 function showLoading() {
-  document.getElementById("loadingIndicator").style.display = "flex";
+  const loader = document.getElementById("loadingIndicator");
+  if (loader) loader.style.display = "flex";
 }
 function hideLoading() {
-  document.getElementById("loadingIndicator").style.display = "none";
+  const loader = document.getElementById("loadingIndicator");
+  if (loader) loader.style.display = "none";
 }
