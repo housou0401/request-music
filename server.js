@@ -37,7 +37,7 @@ if (!db.data.settings) {
     reason: "",
     frontendTitle: "♬曲をリクエストする",
     adminPassword: "housou0401",
-    playerControlsEnabled: true  // ユーザーページの再生・音量ボタン表示
+    playerControlsEnabled: true
   };
   db.write();
 } else {
@@ -226,16 +226,26 @@ app.post("/submit", (req, res) => {
   res.send(`<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>`);
 });
 
+/* --- リクエスト削除機能 --- */
+app.get("/delete/:id", (req, res) => {
+  const id = req.params.id;
+  db.data.responses = db.data.responses.filter(entry => entry.id !== id);
+  db.write();
+  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+  res.set("Content-Type", "text/html");
+  res.send(`<script>alert("🗑️削除しました！"); window.location.href="/admin";</script>`);
+});
+
 /* --- GitHub 同期/取得 --- */
 async function syncRequestsToGitHub() {
   const localContent = JSON.stringify(db.data, null, 2);
   let sha = null;
   try {
     const getResponse = await axios.get(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
+      \`https://api.github.com/repos/\${GITHUB_OWNER}/\${REPO_NAME}/contents/\${FILE_PATH}?ref=\${BRANCH}\`,
       {
         headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
+          Authorization: \`token \${GITHUB_TOKEN}\`,
           Accept: "application/vnd.github.v3+json",
         },
       }
@@ -256,11 +266,11 @@ async function syncRequestsToGitHub() {
   };
   if (sha) putData.sha = sha;
   const putResponse = await axios.put(
-    `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
+    \`https://api.github.com/repos/\${GITHUB_OWNER}/\${REPO_NAME}/contents/\${FILE_PATH}\`,
     putData,
     {
       headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
+        Authorization: \`token \${GITHUB_TOKEN}\`,
         Accept: "application/vnd.github.v3+json",
       },
     }
@@ -272,7 +282,7 @@ app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
     res.set("Content-Type", "text/html");
-    res.send(`
+    res.send(\`
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -286,7 +296,7 @@ setTimeout(()=>{ location.href="/admin"; },3000);
 </script>
 </body>
 </html>
-`);
+\`);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
   }
@@ -295,10 +305,10 @@ setTimeout(()=>{ location.href="/admin"; },3000);
 app.get("/fetch-requests", async (req, res) => {
   try {
     const getResponse = await axios.get(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
+      \`https://api.github.com/repos/\${GITHUB_OWNER}/\${REPO_NAME}/contents/\${FILE_PATH}?ref=\${BRANCH}\`,
       {
         headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
+          Authorization: \`token \${GITHUB_TOKEN}\`,
           Accept: "application/vnd.github.v3+json",
         },
       }
@@ -309,7 +319,7 @@ app.get("/fetch-requests", async (req, res) => {
     db.write();
     fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
     res.set("Content-Type", "text/html");
-    res.send(`
+    res.send(\`
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -323,7 +333,7 @@ setTimeout(()=>{ location.href="/admin"; },3000);
 </script>
 </body>
 </html>
-`);
+\`);
   } catch (error) {
     res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
   }
@@ -340,29 +350,29 @@ app.get("/admin", (req, res) => {
   const pageItems = db.data.responses.slice(startIndex, endIndex);
 
   function createPaginationLinks(currentPage, totalPages) {
-    let html = `<div style="text-align:left; margin-bottom:10px;">`;
-    html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
+    let html = \`<div style="text-align:left; margin-bottom:10px;">\`;
+    html += \`<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>\`;
     const prevPage = Math.max(1, currentPage - 1);
-    html += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
+    html += \`<a href="?page=\${prevPage}" style="margin:0 5px;">&lt;</a>\`;
     for (let p = 1; p <= totalPages; p++) {
       if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
         if (p === currentPage) {
-          html += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
+          html += \`<span style="margin:0 5px; font-weight:bold;">\${p}</span>\`;
         } else {
-          html += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
+          html += \`<a href="?page=\${p}" style="margin:0 5px;">\${p}</a>\`;
         }
       } else if (Math.abs(p - currentPage) === 3) {
-        html += `...`;
+        html += \`...\`;
       }
     }
     const nextPage = Math.min(totalPages, currentPage + 1);
-    html += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
-    html += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
-    html += `</div>`;
+    html += \`<a href="?page=\${nextPage}" style="margin:0 5px;">&gt;</a>\`;
+    html += \`<a href="?page=\${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>\`;
+    html += \`</div>\`;
     return html;
   }
 
-  let html = `<!DOCTYPE html>
+  let html = \`<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -434,44 +444,44 @@ app.get("/admin", (req, res) => {
   </style>
 </head>
 <body>
-<h1>✉アンケート回答一覧</h1>`;
+<h1>✉アンケート回答一覧</h1>\`;
 
   html += createPaginationLinks(page, totalPages);
 
-  html += `<ul style="list-style:none; padding:0;">`;
+  html += \`<ul style="list-style:none; padding:0;">\`;
   pageItems.forEach(entry => {
-    html += `<li>
+    html += \`<li>
       <div class="entry-container">
-        <a href="${entry.appleMusicUrl || "#"}" target="_blank" class="entry">
-          <div class="count-badge">${entry.count}</div>
-          <img src="${entry.artworkUrl}" alt="Cover">
+        <a href="\${entry.appleMusicUrl || "#"}" target="_blank" class="entry">
+          <div class="count-badge">\${entry.count}</div>
+          <img src="\${entry.artworkUrl}" alt="Cover">
           <div>
-            <strong>${entry.text}</strong><br>
-            <small>${entry.artist}</small>
+            <strong>\${entry.text}</strong><br>
+            <small>\${entry.artist}</small>
           </div>
         </a>
-        <a href="/delete/${entry.id}" class="delete">🗑️</a>
+        <a href="/delete/\${entry.id}" class="delete">🗑️</a>
       </div>
-    </li>`;
+    </li>\`;
   });
-  html += `</ul>`;
+  html += \`</ul>\`;
 
   html += createPaginationLinks(page, totalPages);
 
-  html += `<form action="/update-settings" method="post">
+  html += \`<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
-        <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        <input type="checkbox" name="recruiting" value="off" \${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
         募集を終了する
       </label>
     </div>
     <div class="setting-field">
       <label>理由:</label><br>
-      <textarea name="reason" placeholder="理由（任意）">${db.data.settings.reason || ""}</textarea>
+      <textarea name="reason" placeholder="理由（任意）">\${db.data.settings.reason || ""}</textarea>
     </div>
     <div class="setting-field">
       <label>フロントエンドタイトル:</label><br>
-      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
+      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">\${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
     </div>
     <div class="setting-field">
       <label>管理者パスワード:</label><br>
@@ -479,22 +489,22 @@ app.get("/admin", (req, res) => {
     </div>
     <div class="setting-field">
       <label>
-        <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        <input type="checkbox" name="playerControlsEnabled" value="on" \${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
         ユーザーページの再生・音量ボタンを表示する
       </label>
     </div>
     <br>
     <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
-  </form>`;
+  </form>\`;
 
-  html += `<div class="button-container">
+  html += \`<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>
-  <br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
+  <br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>\`;
 
-  html += `
+  html += \`
 <script>
 function syncToGitHub() {
   document.getElementById("syncBtn").disabled = true;
@@ -526,7 +536,7 @@ function fetchFromGitHub() {
 }
 </script>
 </body>
-</html>`;
+</html>\`;
 
   res.send(html);
 });
@@ -547,7 +557,7 @@ app.post("/update-settings", (req, res) => {
   }
   db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
   db.write();
-  res.send(`
+  res.send(\`
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
 <body>
@@ -557,7 +567,7 @@ setTimeout(()=>{ location.href="/admin"; },3000);
 </script>
 </body>
 </html>
-`);
+\`);
 });
 
 /* --- 設定取得 --- */
@@ -577,5 +587,5 @@ cron.schedule("*/20 * * * *", async () => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
+  console.log(\`🚀サーバーが http://localhost:\${PORT} で起動しました\`);
 });
