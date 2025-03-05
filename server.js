@@ -278,21 +278,8 @@ app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
     res.set("Content-Type", "text/html");
-    res.send(`
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="3;url=/admin">
-</head>
-<body>
-  <p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p>
-  <script>
-    setTimeout(()=>{ location.href="/admin"; },3000);
-  </script>
-</body>
-</html>
-    `);
+    // 1行のテンプレートリテラルで返すことで改行によるパースエラーを回避
+    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
   }
@@ -315,21 +302,7 @@ app.get("/fetch-requests", async (req, res) => {
     db.write();
     fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
     res.set("Content-Type", "text/html");
-    res.send(`
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="3;url=/admin">
-</head>
-<body>
-  <p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p>
-  <script>
-    setTimeout(()=>{ location.href="/admin"; },3000);
-  </script>
-</body>
-</html>
-    `);
+    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
   } catch (error) {
     res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
   }
@@ -366,112 +339,62 @@ app.get("/admin", (req, res) => {
     return html;
   }
 
-  let html = `<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>管理者ページ</title>
+  let html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>管理者ページ</title>
   <style>
     li { margin-bottom: 10px; }
     .entry-container { position: relative; display: inline-block; margin-bottom:10px; }
-    .entry {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      border: 1px solid rgba(0,0,0,0.1);
-      padding: 10px;
-      border-radius: 10px;
-      width: fit-content;
-    }
+    .entry { display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; width: fit-content; }
     .entry:hover { background-color: rgba(0,0,0,0.05); }
     .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
-    .delete {
-      position: absolute;
-      left: calc(100% + 10px);
-      top: 50%;
-      transform: translateY(-50%);
-      color: red;
-      text-decoration: none;
-    }
-    .count-badge {
-      background-color: #ff6b6b;
-      color: white;
-      font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 5px;
-      margin-right: 10px;
-    }
+    .delete { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: red; text-decoration: none; }
+    .count-badge { background-color: #ff6b6b; color: white; font-weight: bold; padding: 4px 8px; border-radius: 5px; margin-right: 10px; }
     h1 { font-size: 1.5em; margin-bottom: 20px; }
     form { margin: 20px 0; text-align: left; }
-    textarea {
-      width: 300px;
-      height: 80px;
-      font-size: 0.9em;
-      color: black;
-      display: block;
-      margin-bottom: 10px;
-    }
+    textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }
     .setting-field { margin-bottom: 10px; }
-    .sync-btn, .fetch-btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
+    .sync-btn, .fetch-btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
     .sync-btn { background-color: #28a745; color: white; }
     .sync-btn:hover { background-color: #218838; }
     .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
     .fetch-btn:hover { background-color: #138496; }
     .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      display: none;
-      margin-left: 10px;
-    }
+    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
-</head>
-<body>
-<h1>✉アンケート回答一覧</h1>\`;
+  </head><body><h1>✉アンケート回答一覧</h1>`;
   html += createPaginationLinks(page, totalPages);
-  html += \`<ul style="list-style:none; padding:0;">\`;
+  html += `<ul style="list-style:none; padding:0;">`;
   pageItems.forEach(entry => {
-    html += \`<li>
+    html += `<li>
       <div class="entry-container">
-        <a href="\${entry.appleMusicUrl || "#"}" target="_blank" class="entry">
-          <div class="count-badge">\${entry.count}</div>
-          <img src="\${entry.artworkUrl}" alt="Cover">
+        <a href="${entry.appleMusicUrl || "#"}" target="_blank" class="entry">
+          <div class="count-badge">${entry.count}</div>
+          <img src="${entry.artworkUrl}" alt="Cover">
           <div>
-            <strong>\${entry.text}</strong><br>
-            <small>\${entry.artist}</small>
+            <strong>${entry.text}</strong><br>
+            <small>${entry.artist}</small>
           </div>
         </a>
-        <a href="/delete/\${entry.id}" class="delete">🗑️</a>
+        <a href="/delete/${entry.id}" class="delete">🗑️</a>
       </div>
-    </li>\`;
+    </li>`;
   });
-  html += \`</ul>\`;
+  html += `</ul>`;
   html += createPaginationLinks(page, totalPages);
-  html += \`<form action="/update-settings" method="post">
+  html += `<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
-        <input type="checkbox" name="recruiting" value="off" \${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
         募集を終了する
       </label>
     </div>
     <div class="setting-field">
       <label>理由:</label><br>
-      <textarea name="reason" placeholder="理由（任意）">\${db.data.settings.reason || ""}</textarea>
+      <textarea name="reason" placeholder="理由（任意）">${db.data.settings.reason || ""}</textarea>
     </div>
     <div class="setting-field">
       <label>フロントエンドタイトル:</label><br>
-      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">\${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
+      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
     </div>
     <div class="setting-field">
       <label>管理者パスワード:</label><br>
@@ -479,51 +402,50 @@ app.get("/admin", (req, res) => {
     </div>
     <div class="setting-field">
       <label>
-        <input type="checkbox" name="playerControlsEnabled" value="on" \${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
         ユーザーページの再生・音量ボタンを表示する
       </label>
     </div>
     <br>
     <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
-  </form>\`;
-  html += \`<div class="button-container">
+  </form>`;
+  html += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>
-  <br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>\`;
-  html += \`
-<script>
-function syncToGitHub() {
-  document.getElementById("syncBtn").disabled = true;
-  document.getElementById("fetchBtn").disabled = true;
-  document.getElementById("loadingSpinner").style.display = "block";
-  fetch("/sync-requests")
-    .then(r => r.text())
-    .then(d => { document.body.innerHTML = d; })
-    .catch(e => {
-      alert("エラー: " + e);
-      document.getElementById("loadingSpinner").style.display = "none";
-      document.getElementById("syncBtn").disabled = false;
-      document.getElementById("fetchBtn").disabled = false;
-    });
-}
-function fetchFromGitHub() {
-  document.getElementById("syncBtn").disabled = true;
-  document.getElementById("fetchBtn").disabled = true;
-  document.getElementById("loadingSpinner").style.display = "block";
-  fetch("/fetch-requests")
-    .then(r => r.text())
-    .then(d => { document.body.innerHTML = d; })
-    .catch(e => {
-      alert("エラー: " + e);
-      document.getElementById("loadingSpinner").style.display = "none";
-      document.getElementById("syncBtn").disabled = false;
-      document.getElementById("fetchBtn").disabled = false;
-    });
-}
-</script>\`;
-  html += \`</body></html>\`;
+  <br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
+  html += `<script>
+    function syncToGitHub() {
+      document.getElementById("syncBtn").disabled = true;
+      document.getElementById("fetchBtn").disabled = true;
+      document.getElementById("loadingSpinner").style.display = "block";
+      fetch("/sync-requests")
+        .then(r => r.text())
+        .then(d => { document.body.innerHTML = d; })
+        .catch(e => {
+          alert("エラー: " + e);
+          document.getElementById("loadingSpinner").style.display = "none";
+          document.getElementById("syncBtn").disabled = false;
+          document.getElementById("fetchBtn").disabled = false;
+        });
+    }
+    function fetchFromGitHub() {
+      document.getElementById("syncBtn").disabled = true;
+      document.getElementById("fetchBtn").disabled = true;
+      document.getElementById("loadingSpinner").style.display = "block";
+      fetch("/fetch-requests")
+        .then(r => r.text())
+        .then(d => { document.body.innerHTML = d; })
+        .catch(e => {
+          alert("エラー: " + e);
+          document.getElementById("loadingSpinner").style.display = "none";
+          document.getElementById("syncBtn").disabled = false;
+          document.getElementById("fetchBtn").disabled = false;
+        });
+    }
+</script>`;
+  html += `</body></html>`;
   res.send(html);
 });
 
@@ -541,21 +463,7 @@ app.post("/update-settings", (req, res) => {
   }
   db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
   db.write();
-  res.send(`
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="3;url=/admin">
-</head>
-<body>
-  <p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p>
-  <script>
-    setTimeout(()=>{ location.href="/admin"; },3000);
-  </script>
-</body>
-</html>
-  `);
+  res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
 });
 
 app.get("/settings", (req, res) => {
