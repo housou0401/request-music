@@ -25,7 +25,6 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* 入力欄コンテナ */
 .input-container {
   position: relative;
   margin-bottom: 10px;
@@ -59,7 +58,6 @@ h1 {
   background-color: lightgray;
 }
 
-/* ボタン */
 button {
   padding: 10px;
   width: 100%;
@@ -131,7 +129,6 @@ button:hover {
   padding: 10px;
 }
 
-/* クリアボタン（共通） */
 .clear-btn, .input-clear-btn {
   width: 24px;
   height: 24px;
@@ -159,15 +156,17 @@ button:hover {
   margin-right: 10px;
 }
 
-/* 再生・音量コントロール */
+/* 再生・音量統合ボタン */
 .control-btn {
   width: 24px;
   height: 24px;
   background: none;
   border: none;
+  padding: 0;
   margin-left: 8px;
   cursor: pointer;
   fill: #888;
+  border-radius: 50%;
 }
 .volume-slider {
   width: 100px;
@@ -209,27 +208,4 @@ button:hover {
 }
 @keyframes spin {
   0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-#selectedLabel {
-  margin-top: 16px;
-  margin-bottom: 16px;
-  text-align: center;
-  font-size: 16px;
-  color: #555;
-}
-
-@media (max-width: 600px) {
-  .container, form, textarea, input[type="text"] {
-    width: 95%;
-  }
-  button {
-    font-size: 16px;
-    padding: 10px;
-  }
-  #modeSong, #modeArtist {
-    font-size: 12px;
-    padding: 4px 5px;
-  }
-}
+  100%
