@@ -37,7 +37,7 @@ if (!db.data.settings) {
     reason: "",
     frontendTitle: "♬曲をリクエストする",
     adminPassword: "housou0401",
-    playerControlsEnabled: true  // ユーザーページの再生・音量ボタン表示設定
+    playerControlsEnabled: true  // ユーザーページの再生・音量ボタン表示
   };
   db.write();
 } else {
@@ -50,12 +50,12 @@ if (!db.data.settings) {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-/* --- Apple Music 検索関連 --- */
+/* --- Apple Music 検索 --- */
 async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   if (attribute) url += `&attribute=${attribute}`;
   const response = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
+    headers: { "User-Agent": "Mozilla/5.0" }
   });
   if (!response.ok) {
     console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
@@ -66,7 +66,7 @@ async function fetchResultsForQuery(query, lang, entity = "song", attribute = ""
   try {
     return JSON.parse(text);
   } catch (e) {
-    console.error(`JSON parse error for url=${url}:`, e);
+    console.error("JSON parse error:", e);
     return { results: [] };
   }
 }
@@ -74,7 +74,7 @@ async function fetchResultsForQuery(query, lang, entity = "song", attribute = ""
 async function fetchArtistTracks(artistId) {
   const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=50`;
   const response = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
+    headers: { "User-Agent": "Mozilla/5.0" }
   });
   if (!response.ok) {
     console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
@@ -145,7 +145,7 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
   }
 }
 
-/* --- /search エンドポイント --- */
+/* --- /search --- */
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
@@ -271,8 +271,22 @@ async function syncRequestsToGitHub() {
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
-    res.send(`<p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p>
-<script>setTimeout(()=>{location.href="/admin"},3000)</script>`);
+    res.set("Content-Type", "text/html");
+    res.send(`
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="3;url=/admin">
+</head>
+<body>
+<p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p>
+<script>
+setTimeout(()=>{ location.href="/admin"; },3000);
+</script>
+</body>
+</html>
+`);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
   }
@@ -294,19 +308,28 @@ app.get("/fetch-requests", async (req, res) => {
     db.data = JSON.parse(content);
     db.write();
     fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
-    res.send(`<p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p>
-<script>setTimeout(()=>{location.href="/admin"},3000)</script>`);
+    res.set("Content-Type", "text/html");
+    res.send(`
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="3;url=/admin">
+</head>
+<body>
+<p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p>
+<script>
+setTimeout(()=>{ location.href="/admin"; },3000);
+</script>
+</body>
+</html>
+`);
   } catch (error) {
     res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
   }
 });
 
 /* --- 管理者ページ --- */
-function getPreviewUrl(id) {
-  const item = db.data.responses.find(r => r.id === id);
-  return item ? item.previewUrl : "";
-}
-
 app.get("/admin", (req, res) => {
   const page = parseInt(req.query.page || "1", 10);
   const perPage = 10;
@@ -412,7 +435,9 @@ app.get("/admin", (req, res) => {
 </head>
 <body>
 <h1>✉アンケート回答一覧</h1>`;
+
   html += createPaginationLinks(page, totalPages);
+
   html += `<ul style="list-style:none; padding:0;">`;
   pageItems.forEach(entry => {
     html += `<li>
@@ -430,7 +455,9 @@ app.get("/admin", (req, res) => {
     </li>`;
   });
   html += `</ul>`;
+
   html += createPaginationLinks(page, totalPages);
+
   html += `<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
@@ -459,51 +486,58 @@ app.get("/admin", (req, res) => {
     <br>
     <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
   </form>`;
+
   html += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>
   <br><a href='/' style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
-  html += `<script>
-    function syncToGitHub() {
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("fetchBtn").disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/sync-requests")
-        .then(r => r.text())
-        .then(d => { document.body.innerHTML = d; })
-        .catch(e => {
-          alert("エラー: " + e);
-          document.getElementById("loadingSpinner").style.display = "none";
-          document.getElementById("syncBtn").disabled = false;
-          document.getElementById("fetchBtn").disabled = false;
-        });
-    }
-    function fetchFromGitHub() {
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("fetchBtn").disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/fetch-requests")
-        .then(r => r.text())
-        .then(d => { document.body.innerHTML = d; })
-        .catch(e => {
-          alert("エラー: " + e);
-          document.getElementById("loadingSpinner").style.display = "none";
-          document.getElementById("syncBtn").disabled = false;
-          document.getElementById("fetchBtn").disabled = false;
-        });
-    }
-  </script>`;
-  html += `</body></html>`;
+
+  html += `
+<script>
+function syncToGitHub() {
+  document.getElementById("syncBtn").disabled = true;
+  document.getElementById("fetchBtn").disabled = true;
+  document.getElementById("loadingSpinner").style.display = "block";
+  fetch("/sync-requests")
+    .then(r => r.text())
+    .then(d => { document.body.innerHTML = d; })
+    .catch(e => {
+      alert("エラー: " + e);
+      document.getElementById("loadingSpinner").style.display = "none";
+      document.getElementById("syncBtn").disabled = false;
+      document.getElementById("fetchBtn").disabled = false;
+    });
+}
+function fetchFromGitHub() {
+  document.getElementById("syncBtn").disabled = true;
+  document.getElementById("fetchBtn").disabled = true;
+  document.getElementById("loadingSpinner").style.display = "block";
+  fetch("/fetch-requests")
+    .then(r => r.text())
+    .then(d => { document.body.innerHTML = d; })
+    .catch(e => {
+      alert("エラー: " + e);
+      document.getElementById("loadingSpinner").style.display = "none";
+      document.getElementById("syncBtn").disabled = false;
+      document.getElementById("fetchBtn").disabled = false;
+    });
+}
+</script>
+</body>
+</html>`;
+
   res.send(html);
 });
 
+/* --- 管理者ログイン --- */
 app.get("/admin-login", (req, res) => {
   const { password } = req.query;
   res.json({ success: password === db.data.settings.adminPassword });
 });
 
+/* --- 設定更新 --- */
 app.post("/update-settings", (req, res) => {
   db.data.settings.recruiting = req.body.recruiting ? false : true;
   db.data.settings.reason = req.body.reason || "";
@@ -513,14 +547,25 @@ app.post("/update-settings", (req, res) => {
   }
   db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
   db.write();
-  res.send(`<p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p>
-<script>setTimeout(()=>{location.href="/admin"},3000)</script>`);
+  res.send(`
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head>
+<body>
+<p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p>
+<script>
+setTimeout(()=>{ location.href="/admin"; },3000);
+</script>
+</body>
+</html>
+`);
 });
 
+/* --- 設定取得 --- */
 app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
 
+/* --- 自動同期ジョブ --- */
 cron.schedule("*/20 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
