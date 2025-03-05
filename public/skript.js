@@ -59,12 +59,12 @@ function setSearchMode(mode) {
 async function searchSongs() {
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
-  // ロード中UIを表示
   showLoading();
   if (searchMode === "artist") {
     if (artistPhase === 0) {
       const artistQuery = document.getElementById("songName").value.trim();
-      if (artistQuery.length < 2) { hideLoading(); return; }
+      // 1文字以上で検索可能に変更
+      if (artistQuery.length < 1) { hideLoading(); return; }
       try {
         const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(artistQuery)}`);
         const suggestions = await res.json();
@@ -87,7 +87,7 @@ async function searchSongs() {
   } else {
     const songQuery = document.getElementById("songName").value.trim();
     const artistQuery = document.getElementById("artistName").value.trim();
-    if (songQuery.length < 2) { hideLoading(); return; }
+    if (songQuery.length < 1) { hideLoading(); return; }
     try {
       const res = await fetch(`/search?query=${encodeURIComponent(songQuery)}&artist=${encodeURIComponent(artistQuery)}`);
       const suggestions = await res.json();
@@ -176,7 +176,7 @@ function selectSong(song) {
       </div>
     </div>
   `;
-  // hidden 入力に情報をセット
+  // hidden 入力
   let hiddenApple = document.getElementById("appleMusicUrlHidden") || document.createElement("input");
   if (!document.getElementById("appleMusicUrlHidden")) {
     hiddenApple.type = "hidden";
@@ -211,7 +211,7 @@ function selectSong(song) {
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
     }
-    // プレビューはサビ部分として15秒～23秒をループ
+    // プレビューはサビ部分（例：15秒～23秒）をループ再生
     previewAudio.src = song.previewUrl;
     previewAudio.currentTime = 15;
     previewAudio.volume = 0.5;
@@ -226,7 +226,7 @@ function selectSong(song) {
 
 function changeVolume(val) {
   if (!previewAudio) return;
-  let vol = parseInt(val, 10) / 100; // 0～1
+  let vol = parseInt(val, 10) / 100;
   if (isMuted) {
     isMuted = false;
     previewAudio.muted = false;
@@ -240,7 +240,6 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = previewAudio.volume;
   let svg = "";
-  // 4段階のSVGアイコン（全て灰色）
   if (isMuted || vol <= 0.01) {
     svg = `<svg width="20" height="20" viewBox="0 0 20 20">
       <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
