@@ -19,7 +19,6 @@ body {
   background: #f9f9f9;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   text-align: center;
-  position: relative;
 }
 
 h1 {
@@ -160,25 +159,17 @@ button:hover {
 
 /* 統合された再生・音量ボタン */
 .control-btn {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   background: none;
   border: none;
   margin-left: 8px;
   cursor: pointer;
+  fill: #888;
   border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 .control-btn:hover {
   background-color: lightgray;
-}
-.control-btn svg {
-  pointer-events: none; /* SVGアイコンへの干渉を防ぎ、ホバー背景がズレないように */
-  width: 20px;
-  height: 20px;
-  fill: #888;
 }
 
 .volume-slider {
