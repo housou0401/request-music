@@ -46,10 +46,10 @@ h1 {
   top: 50%;
   right: 5px;
   transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-  font-size: 18px;
-  line-height: 24px;
+  width: 28px;
+  height: 28px;
+  font-size: 20px;
+  line-height: 28px;
   border-radius: 50%;
   background: transparent;
   border: none;
@@ -61,12 +61,12 @@ h1 {
 }
 
 button {
-  padding: 10px;
+  padding: 12px;
   width: 100%;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 16px;
 }
@@ -132,13 +132,13 @@ button:hover {
 }
 
 .clear-btn, .input-clear-btn {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -160,8 +160,8 @@ button:hover {
 
 /* 統合された再生・音量ボタン */
 .control-btn {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   background: none;
   border: none;
   margin-left: 8px;
@@ -176,8 +176,8 @@ button:hover {
 }
 .control-btn svg {
   pointer-events: none;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   fill: #888;
 }
 
@@ -185,7 +185,7 @@ button:hover {
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
-  width: 100px;
+  width: 120px;
   height: 4px;
   background: #ccc;
   border-radius: 2px;
@@ -195,16 +195,16 @@ button:hover {
 .volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background: #888;
   border-radius: 50%;
   cursor: pointer;
-  margin-top: -6px;
+  margin-top: -7px;
 }
 .volume-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background: #888;
   border-radius: 50%;
   cursor: pointer;
@@ -213,8 +213,8 @@ button:hover {
 /* 検索モード切替ボタン */
 #modeSong, #modeArtist {
   flex: 1;
-  font-size: 13px;
-  padding: 5px 6px;
+  font-size: 14px;
+  padding: 6px 8px;
   margin: 0 2px;
   border: 1px solid #ccc;
   background-color: #f0f0f0;
