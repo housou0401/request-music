@@ -195,16 +195,16 @@ button:hover {
 .volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   background: #888;
   border-radius: 50%;
   cursor: pointer;
-  margin-top: -8px;
+  margin-top: -5px;
 }
 .volume-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   background: #888;
   border-radius: 50%;
   cursor: pointer;
