@@ -234,23 +234,23 @@ function selectSong(song) {
       }
     }
     previewAudio.src = song.previewUrl;
-    // 再生開始位置を、音源の長さに合わせて設定
+    // 修正: onloadedmetadata イベントで再生開始位置を設定し、再生を確実に開始
     previewAudio.onloadedmetadata = function() {
       previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
-      previewAudio.play();
+      previewAudio.play().catch(err => console.error("再生エラー:", err));
     };
-    // もし既にメタデータが読み込まれているなら
+    // 万が一既にメタデータが読み込まれている場合
     if (previewAudio.readyState >= 2) {
       previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
-      previewAudio.play();
+      previewAudio.play().catch(err => console.error("再生エラー:", err));
     }
-    if (audioContext && gainNode) {
-      gainNode.gain.value = 0.5;
-    } else if (audioContext && !gainNode) {
-      const source = audioContext.createMediaElementSource(previewAudio);
-      gainNode = audioContext.createGain();
-      source.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+    if (audioContext) {
+      if (!gainNode) {
+        const source = audioContext.createMediaElementSource(previewAudio);
+        gainNode = audioContext.createGain();
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+      }
       gainNode.gain.value = 0.5;
     } else {
       previewAudio.volume = 0.5;
@@ -283,33 +283,32 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
-  // ミュート時は元のアイコン（スピーカー＋×）に戻す
   if (isMuted || vol <= 0.01) {
+    // ミュート時はスピーカー＋×表示（元に戻す）
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <line x1="16" y1="8" x2="22" y2="16" stroke="#888" stroke-width="2"/>
-      <line x1="22" y1="8" x2="16" y2="16" stroke="#888" stroke-width="2"/>
+      <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
-    // 低音量：1つの波形、上下中央揃え、間隔広め
+    // 低音量：1つの波形（波形を縦に伸ばし厚みを増加）
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C16,10 16,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
     // 中音量：2つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C16,10 16,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12 C19,8 19,16 18,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
+      <path d="M18,12 C19,6 19,18 18,12" stroke="#888" stroke-width="3" fill="none"/>
     </svg>`;
   } else {
     // 高音量：3つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C16,10 16,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12 C19,8 19,16 18,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M21,12 C22,6 22,18 21,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
+      <path d="M18,12 C19,6 19,18 18,12" stroke="#888" stroke-width="3" fill="none"/>
+      <path d="M21,12 C22,4 22,20 21,12" stroke="#888" stroke-width="3" fill="none"/>
     </svg>`;
   }
   volumeBtn.innerHTML = svg;
