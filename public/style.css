@@ -227,6 +227,25 @@ button:hover {
   background-color: #e0e0e0;
 }
 
+/* 再検索ボタン */
+#reSearchSongMode, #reSearchArtistMode {
+  margin: 10px 0;
+  display: block;
+}
+#reSearchSongMode button, #reSearchArtistMode button {
+  font-size: 14px;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  color: #333;
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+}
+#reSearchSongMode button:hover, #reSearchArtistMode button:hover {
+  background-color: #e0e0e0;
+}
+
 .button-container {
   display: flex;
   justify-content: flex-start;
@@ -282,23 +301,6 @@ button:hover {
 .loading-text {
   color: #888;
   font-size: 14px;
-}
-
-/* 再検索ボタンのスタイル（モード選択ボタンと同じサイズ） */
-#reSearchSongMode button,
-#reSearchArtistMode button {
-  font-size: 14px;
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  background-color: #f0f0f0;
-  color: #333;
-  border-radius: 5px;
-  cursor: pointer;
-  outline: none;
-}
-#reSearchSongMode button:hover,
-#reSearchArtistMode button:hover {
-  background-color: #e0e0e0;
 }
 
 @media (max-width: 600px) {
