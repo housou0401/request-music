@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Render 環境変数（Environment タブで設定）
+// Render の Environment Variables（Environment タブで設定してください）
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const FILE_PATH = "db.json";
@@ -25,7 +25,7 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// LowDB セットアップ
+// LowDB のセットアップ
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -64,7 +64,7 @@ async function fetchResultsForQuery(query, lang, entity = "song", attribute = ""
   try {
     return JSON.parse(text);
   } catch (e) {
-    console.error("JSON parse error:", e);
+    console.error(`JSON parse error for url=${url}:`, e);
     return { results: [] };
   }
 }
@@ -141,7 +141,7 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
   }
 }
 
-/* /search */
+/* /search エンドポイント */
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
@@ -380,11 +380,7 @@ app.get("/admin", (req, res) => {
     }
   </style>
   </head><body><h1>✉アンケート回答一覧</h1>`;
-
-  // ページャー上部
   html += createPaginationLinks(page, totalPages);
-
-  // リスト
   html += `<ul style="list-style:none; padding:0;">`;
   pageItems.forEach(entry => {
     html += `<li>
@@ -402,11 +398,7 @@ app.get("/admin", (req, res) => {
     </li>`;
   });
   html += `</ul>`;
-
-  // ページャー下部
   html += createPaginationLinks(page, totalPages);
-
-  // 設定フォーム
   html += `<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
@@ -435,16 +427,12 @@ app.get("/admin", (req, res) => {
     <br>
     <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
   </form>`;
-
-  // Sync / Fetch ボタン
   html += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>
   <br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
-
-  // スクリプト
   html += `<script>
     function syncToGitHub() {
       document.getElementById("syncBtn").disabled = true;
@@ -475,7 +463,6 @@ app.get("/admin", (req, res) => {
         });
     }
   </script>`;
-
   html += `</body></html>`;
   res.send(html);
 });
@@ -501,7 +488,7 @@ app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
 
-// 20分ごとに db.json を GitHub に自動同期
+// 20分ごと自動同期
 cron.schedule("*/20 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
