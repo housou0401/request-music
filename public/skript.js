@@ -1,4 +1,4 @@
-// iOS Safari 用：Web Audio API
+// iOS Safari/Chrome 用 Web Audio API
 let audioContext = null;
 let gainNode = null;
 
@@ -13,14 +13,12 @@ let playerControlsEnabled = true;
 window.onload = async function() {
   document.getElementById("modeSong").style.backgroundColor = "#007bff";
   document.getElementById("modeSong").style.color = "white";
-
-  // iOS Safariでユーザーが最初にタップしたタイミングでAudioContext.resume()
+  // 初回タップで AudioContext を再開（iOS Safari 対策）
   document.addEventListener("click", () => {
     if (audioContext && audioContext.state === "suspended") {
       audioContext.resume();
     }
   }, { once: true });
-
   await loadSettings();
 };
 
@@ -39,26 +37,22 @@ function setSearchMode(mode) {
   searchMode = mode;
   artistPhase = 0;
   selectedArtistId = null;
-
-  // 入力欄リセット
   document.getElementById("songName").value = "";
   document.getElementById("artistName").value = "";
   document.getElementById("suggestions").innerHTML = "";
   document.getElementById("selectedLabel").innerHTML = "";
   document.getElementById("selectedSong").innerHTML = "";
   document.getElementById("selectedArtist").innerHTML = "";
-
-  // プレビュー再生停止
   if (previewAudio) {
     previewAudio.pause();
     previewAudio.currentTime = 0;
     isPlaying = false;
     updatePlayPauseIcon();
   }
-
-  // モード切替
+  // モード切替と再検索ボタン表示（初期状態では常に表示）
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
+    document.getElementById("songName").placeholder = "アーティスト名を入力してください";
     document.getElementById("modeArtist").style.backgroundColor = "#007bff";
     document.getElementById("modeArtist").style.color = "white";
     document.getElementById("modeSong").style.backgroundColor = "";
@@ -67,6 +61,7 @@ function setSearchMode(mode) {
     document.getElementById("reSearchArtistMode").style.display = "block";
   } else {
     document.getElementById("artistInputContainer").style.display = "block";
+    document.getElementById("songName").placeholder = "曲名を入力してください";
     document.getElementById("modeSong").style.backgroundColor = "#007bff";
     document.getElementById("modeSong").style.color = "white";
     document.getElementById("modeArtist").style.backgroundColor = "";
@@ -77,7 +72,6 @@ function setSearchMode(mode) {
 }
 
 function reSearch() {
-  // 現在の入力内容で再検索
   searchSongs();
 }
 
@@ -85,7 +79,6 @@ async function searchSongs() {
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
   showLoading();
-
   if (searchMode === "artist") {
     if (artistPhase === 0) {
       const artistQuery = document.getElementById("songName").value.trim();
@@ -133,7 +126,6 @@ async function searchSongs() {
       console.error("曲検索エラー:", e);
     }
   }
-
   hideLoading();
 }
 
@@ -202,7 +194,7 @@ function selectSong(song) {
       </div>
     </div>
   `;
-  // hidden input
+  // hidden fields
   let hiddenApple = document.getElementById("appleMusicUrlHidden") || document.createElement("input");
   if (!document.getElementById("appleMusicUrlHidden")) {
     hiddenApple.type = "hidden";
@@ -236,7 +228,6 @@ function selectSong(song) {
       previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
-      // Web Audio API
       if (!window.AudioContext && !window.webkitAudioContext) {
         console.warn("Web Audio API がサポートされていません");
       } else {
@@ -244,8 +235,7 @@ function selectSong(song) {
       }
     }
     previewAudio.src = song.previewUrl;
-    previewAudio.currentTime = 15;
-    // 初期音量 50%
+    previewAudio.currentTime = 15; // サビ部分の開始
     if (audioContext) {
       if (!gainNode) {
         const source = audioContext.createMediaElementSource(previewAudio);
@@ -286,29 +276,25 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
-  // スピーカー + 波形（🔊）
+  // SVG アイコン（24x24）: ミュート / 低音量 / 中音量 / 高音量
   if (isMuted || vol <= 0.01) {
-    // ミュート
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
       <line x1="16" y1="8" x2="22" y2="16" stroke="#888" stroke-width="2"/>
       <line x1="22" y1="8" x2="16" y2="16" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
-    // 低音量
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
       <path d="M15,12 a3,3 0 0,0 0,-3" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
-    // 中音量
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
       <path d="M15,12 a3,3 0 0,0 0,-3" stroke="#888" stroke-width="2" fill="none"/>
       <path d="M17,12 a5,5 0 0,0 0,-5" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else {
-    // 高音量
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
       <path d="M15,12 a3,3 0 0,0 0,-3" stroke="#888" stroke-width="2" fill="none"/>
@@ -340,13 +326,11 @@ function updatePlayPauseIcon() {
   if (!btn) return;
   let svg = "";
   if (isPlaying) {
-    // pause
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <rect x="6" y="5" width="4" height="14" fill="#888"/>
       <rect x="14" y="5" width="4" height="14" fill="#888"/>
     </svg>`;
   } else {
-    // play
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="7,4 19,12 7,20" fill="#888"/>
     </svg>`;
@@ -365,9 +349,12 @@ function toggleMute(e) {
 function clearSelection() {
   document.getElementById("selectedLabel").innerHTML = "";
   document.getElementById("selectedSong").innerHTML = "";
-  if (document.getElementById("appleMusicUrlHidden")) document.getElementById("appleMusicUrlHidden").value = "";
-  if (document.getElementById("artworkUrlHidden")) document.getElementById("artworkUrlHidden").value = "";
-  if (document.getElementById("previewUrlHidden")) document.getElementById("previewUrlHidden").value = "";
+  if (document.getElementById("appleMusicUrlHidden"))
+    document.getElementById("appleMusicUrlHidden").value = "";
+  if (document.getElementById("artworkUrlHidden"))
+    document.getElementById("artworkUrlHidden").value = "";
+  if (document.getElementById("previewUrlHidden"))
+    document.getElementById("previewUrlHidden").value = "";
   if (previewAudio) {
     previewAudio.pause();
     previewAudio.currentTime = 0;
