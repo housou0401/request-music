@@ -200,7 +200,7 @@ button:hover {
   background: #888;
   border-radius: 50%;
   cursor: pointer;
-  margin-top: -7px;
+  margin-top: -8px;
 }
 .volume-slider::-moz-range-thumb {
   width: 18px;
@@ -227,7 +227,7 @@ button:hover {
   background-color: #e0e0e0;
 }
 
-/* 再検索ボタン */
+/* 再検索ボタン（初回から必ず1つ表示） */
 #reSearchSongMode, #reSearchArtistMode {
   margin: 10px 0;
   display: block;
