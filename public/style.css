@@ -181,6 +181,7 @@ button:hover {
   fill: #888;
 }
 
+/* Apple Music風の音量スライダー */
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
