@@ -21,7 +21,7 @@ const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;  
 
 if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
-  console.error("必要な環境変数が設定されていません。");
+  console.error("必要な環境変数(GITHUB_OWNER, REPO_NAME, GITHUB_TOKEN)が設定されていません。");
   process.exit(1);
 }
 
@@ -278,7 +278,6 @@ app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
     res.set("Content-Type", "text/html");
-    // 1行のテンプレートリテラルで返すことで改行によるパースエラーを回避
     res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
@@ -404,82 +403,4 @@ app.get("/admin", (req, res) => {
       <label>
         <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
         ユーザーページの再生・音量ボタンを表示する
-      </label>
-    </div>
-    <br>
-    <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
-  </form>`;
-  html += `<div class="button-container">
-    <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
-    <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
-    <div class="spinner" id="loadingSpinner"></div>
-  </div>
-  <br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
-  html += `<script>
-    function syncToGitHub() {
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("fetchBtn").disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/sync-requests")
-        .then(r => r.text())
-        .then(d => { document.body.innerHTML = d; })
-        .catch(e => {
-          alert("エラー: " + e);
-          document.getElementById("loadingSpinner").style.display = "none";
-          document.getElementById("syncBtn").disabled = false;
-          document.getElementById("fetchBtn").disabled = false;
-        });
-    }
-    function fetchFromGitHub() {
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("fetchBtn").disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/fetch-requests")
-        .then(r => r.text())
-        .then(d => { document.body.innerHTML = d; })
-        .catch(e => {
-          alert("エラー: " + e);
-          document.getElementById("loadingSpinner").style.display = "none";
-          document.getElementById("syncBtn").disabled = false;
-          document.getElementById("fetchBtn").disabled = false;
-        });
-    }
-</script>`;
-  html += `</body></html>`;
-  res.send(html);
-});
-
-app.get("/admin-login", (req, res) => {
-  const { password } = req.query;
-  res.json({ success: password === db.data.settings.adminPassword });
-});
-
-app.post("/update-settings", (req, res) => {
-  db.data.settings.recruiting = req.body.recruiting ? false : true;
-  db.data.settings.reason = req.body.reason || "";
-  db.data.settings.frontendTitle = req.body.frontendTitle || "♬曲をリクエストする";
-  if (req.body.adminPassword && req.body.adminPassword.trim()) {
-    db.data.settings.adminPassword = req.body.adminPassword.trim();
-  }
-  db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
-  db.write();
-  res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
-});
-
-app.get("/settings", (req, res) => {
-  res.json(db.data.settings);
-});
-
-cron.schedule("*/20 * * * *", async () => {
-  console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
-  try {
-    await syncRequestsToGitHub();
-    console.log("自動更新完了");
-  } catch (e) {
-    console.error("自動更新エラー:", e);
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
-});
+ｉｍｐｏｒｔ express from ”express”；
