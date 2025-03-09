@@ -368,7 +368,16 @@ app.get("/admin", (req, res) => {
     .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
     .fetch-btn:hover { background-color: #138496; }
     .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
-    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px; }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin-left: 10px;
+    }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
   </head><body><h1>✉アンケート回答一覧</h1>`;
