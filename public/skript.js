@@ -284,9 +284,8 @@ function updateVolumeIcon() {
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
   if (isMuted || vol <= 0.01) {
-    // ミュート時はスピーカー＋×表示（元に戻す）
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
       <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
