@@ -11,9 +11,9 @@ let isMuted = false;
 let playerControlsEnabled = true;
 
 window.onload = async function() {
-  document.getElementById("modeSong").style.backgroundColor = "#007bff";
-  document.getElementById("modeSong").style.color = "white";
-  // 初回タップで AudioContext 再開（iOS Safari/Chrome対策）
+  // 初期状態は曲名モード
+  setSearchMode('song');
+  // 初回タップで AudioContext 再開（iOS/Chrome対策）
   document.addEventListener("click", () => {
     if (audioContext && audioContext.state === "suspended") {
       audioContext.resume();
@@ -49,7 +49,6 @@ function setSearchMode(mode) {
     isPlaying = false;
     updatePlayPauseIcon();
   }
-  // モードに応じた表示切替
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
     document.getElementById("songName").placeholder = "アーティスト名を入力してください";
@@ -235,15 +234,16 @@ function selectSong(song) {
       }
     }
     previewAudio.src = song.previewUrl;
-    // プレビューの再生開始位置は、音源の長さに合わせて設定
-    previewAudio.addEventListener("loadedmetadata", function() {
-      if (previewAudio.duration > 15) {
-        previewAudio.currentTime = 15;
-      } else {
-        previewAudio.currentTime = 0;
-      }
+    // 再生開始位置を、音源の長さに合わせて設定
+    previewAudio.onloadedmetadata = function() {
+      previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
       previewAudio.play();
-    }, { once: true });
+    };
+    // もし既にメタデータが読み込まれているなら
+    if (previewAudio.readyState >= 2) {
+      previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
+      previewAudio.play();
+    }
     if (audioContext && gainNode) {
       gainNode.gain.value = 0.5;
     } else if (audioContext && !gainNode) {
@@ -283,28 +283,33 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
+  // ミュート時は元のアイコン（スピーカー＋×）に戻す
   if (isMuted || vol <= 0.01) {
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
-      <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="2"/>
+      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <line x1="16" y1="8" x2="22" y2="16" stroke="#888" stroke-width="2"/>
+      <line x1="22" y1="8" x2="16" y2="16" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
+    // 低音量：1つの波形、上下中央揃え、間隔広め
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
-      <path d="M15,12 a3,3 0 0,0 0,-3" stroke="#888" stroke-width="2" fill="none"/>
+      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <path d="M15,12 C16,10 16,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
+    // 中音量：2つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
-      <path d="M15,12 a3,3 0 0,0 0,-3" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M17,12 a5,5 0 0,0 0,-5" stroke="#888" stroke-width="2" fill="none"/>
+      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <path d="M15,12 C16,10 16,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 C19,8 19,16 18,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else {
+    // 高音量：3つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
-      <path d="M15,12 a3,3 0 0,0 0,-3" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M17,12 a5,5 0 0,0 0,-5" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M19,12 a7,7 0 0,0 0,-7" stroke="#888" stroke-width="2" fill="none"/>
+      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <path d="M15,12 C16,10 16,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 C19,8 19,16 18,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M21,12 C22,6 22,18 21,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
   volumeBtn.innerHTML = svg;
