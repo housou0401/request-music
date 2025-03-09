@@ -1,9 +1,9 @@
-// Web Audio API 用の変数（iOS Safari 対策）
+// Web Audio API 用（iOS Safari対応）
 let audioContext = null;
 let gainNode = null;
 
-let searchMode = "song"; // "song" または "artist"
-let artistPhase = 0; // 0: アーティスト一覧, 1: 選択済み
+let searchMode = "song"; 
+let artistPhase = 0; 
 let selectedArtistId = null;
 let previewAudio = null;
 let isPlaying = false;
@@ -43,21 +43,29 @@ function setSearchMode(mode) {
     isPlaying = false;
     updatePlayPauseIcon();
   }
+  // 再検索ボタン表示切り替え
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
-    document.getElementById("songName").placeholder = "アーティスト名を入力してください";
     document.getElementById("modeArtist").style.backgroundColor = "#007bff";
     document.getElementById("modeArtist").style.color = "white";
     document.getElementById("modeSong").style.backgroundColor = "";
     document.getElementById("modeSong").style.color = "";
+    document.getElementById("reSearchSongMode").style.display = "none";
+    document.getElementById("reSearchArtistMode").style.display = "block";
   } else {
     document.getElementById("artistInputContainer").style.display = "block";
-    document.getElementById("songName").placeholder = "曲名を入力してください";
     document.getElementById("modeSong").style.backgroundColor = "#007bff";
     document.getElementById("modeSong").style.color = "white";
     document.getElementById("modeArtist").style.backgroundColor = "";
     document.getElementById("modeArtist").style.color = "";
+    document.getElementById("reSearchSongMode").style.display = "block";
+    document.getElementById("reSearchArtistMode").style.display = "none";
   }
+}
+
+function reSearch() {
+  // 入力されている内容をもとに再検索
+  searchSongs();
 }
 
 async function searchSongs() {
@@ -213,7 +221,7 @@ function selectSong(song) {
       previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
-      // Web Audio API 初期化（iOS Safari 対策）
+      // Web Audio API 初期化
       if (!window.AudioContext && !window.webkitAudioContext) {
         console.warn("Web Audio API がサポートされていません");
       } else {
@@ -222,8 +230,8 @@ function selectSong(song) {
     }
     previewAudio.src = song.previewUrl;
     previewAudio.currentTime = 15;
-    // Web Audio API 経由で音量制御
     if (audioContext) {
+      // Web Audio APIで音量制御
       if (!gainNode) {
         const source = audioContext.createMediaElementSource(previewAudio);
         gainNode = audioContext.createGain();
@@ -245,7 +253,7 @@ function selectSong(song) {
 
 function changeVolume(val) {
   if (!previewAudio) return;
-  let volumeValue = parseInt(val, 10) / 100; // 0～1
+  const volumeValue = parseInt(val, 10) / 100;
   if (isMuted) {
     isMuted = false;
     previewAudio.muted = false;
@@ -263,30 +271,34 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
-  // SVGアイコンを Apple Music に近い形状に統一（24x24）
+  // Apple Music風の🔊アイコン
   if (isMuted || vol <= 0.01) {
+    // ミュート
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
       <line x1="16" y1="8" x2="22" y2="16" stroke="#888" stroke-width="2"/>
       <line x1="22" y1="8" x2="16" y2="16" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
+    // 低音量
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M16,12a3 3 0 0,0 0-4" stroke="#888" stroke-width="2" fill="none"/>
+      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
+      <path d="M15,12 a3,3 0 0,0 0,-3" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
+    // 中音量
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M16,12a3 3 0 0,0 0-4" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12a5 5 0 0,0 0-6" stroke="#888" stroke-width="2" fill="none"/>
+      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
+      <path d="M15,12 a3,3 0 0,0 0,-3" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M17,12 a5,5 0 0,0 0,-5" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else {
+    // 高音量
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M16,12a3 3 0 0,0 0-4" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12a5 5 0 0,0 0-6" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M20,12a7 7 0 0,0 0-8" stroke="#888" stroke-width="2" fill="none"/>
+      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
+      <path d="M15,12 a3,3 0 0,0 0,-3" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M17,12 a5,5 0 0,0 0,-5" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M19,12 a7,7 0 0,0 0,-7" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
   volumeBtn.innerHTML = svg;
@@ -299,7 +311,7 @@ function togglePlay(e) {
     previewAudio.pause();
     isPlaying = false;
   } else {
-    // iOS Safari対応: ユーザー操作でAudioContextを再開
+    // iOS Safari対策
     if (audioContext && audioContext.state === "suspended") {
       audioContext.resume();
     }
@@ -312,16 +324,20 @@ function togglePlay(e) {
 function updatePlayPauseIcon() {
   const btn = document.getElementById("playPauseBtn");
   if (!btn) return;
+  let svg = "";
   if (isPlaying) {
-    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+    // pause
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <rect x="6" y="5" width="4" height="14" fill="#888"/>
       <rect x="14" y="5" width="4" height="14" fill="#888"/>
     </svg>`;
   } else {
-    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+    // play
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="7,4 19,12 7,20" fill="#888"/>
     </svg>`;
   }
+  btn.innerHTML = svg;
 }
 
 function toggleMute(e) {
@@ -335,12 +351,9 @@ function toggleMute(e) {
 function clearSelection() {
   document.getElementById("selectedLabel").innerHTML = "";
   document.getElementById("selectedSong").innerHTML = "";
-  if (document.getElementById("appleMusicUrlHidden"))
-    document.getElementById("appleMusicUrlHidden").value = "";
-  if (document.getElementById("artworkUrlHidden"))
-    document.getElementById("artworkUrlHidden").value = "";
-  if (document.getElementById("previewUrlHidden"))
-    document.getElementById("previewUrlHidden").value = "";
+  if (document.getElementById("appleMusicUrlHidden")) document.getElementById("appleMusicUrlHidden").value = "";
+  if (document.getElementById("artworkUrlHidden")) document.getElementById("artworkUrlHidden").value = "";
+  if (document.getElementById("previewUrlHidden")) document.getElementById("previewUrlHidden").value = "";
   if (previewAudio) {
     previewAudio.pause();
     previewAudio.currentTime = 0;
@@ -395,7 +408,7 @@ function showAdminLogin() {
   }
 }
 
-/* --- ロード中UI --- */
+/* ロード中UI */
 function showLoading() {
   const loader = document.getElementById("loadingIndicator");
   if (loader) loader.style.display = "flex";
