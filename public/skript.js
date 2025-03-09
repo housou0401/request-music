@@ -1,3 +1,7 @@
+// Web Audio API 用の変数（iOS Safari 対策）
+let audioContext = null;
+let gainNode = null;
+
 let searchMode = "song"; // "song" または "artist"
 let artistPhase = 0; // 0: アーティスト一覧, 1: 選択済み
 let selectedArtistId = null;
@@ -63,7 +67,6 @@ async function searchSongs() {
   if (searchMode === "artist") {
     if (artistPhase === 0) {
       const artistQuery = document.getElementById("songName").value.trim();
-      // 1文字以上で検索可能に変更
       if (artistQuery.length < 1) { hideLoading(); return; }
       try {
         const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(artistQuery)}`);
@@ -169,7 +172,7 @@ function selectSong(song) {
         </div>
       </div>
       <div style="display:flex; align-items:center;">
-        <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)">&#9658;</button>
+        <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)"></button>
         <button type="button" class="control-btn" id="volumeBtn" onclick="toggleMute(event)"></button>
         <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
         <button type="button" class="clear-btn" onclick="clearSelection()">×</button>
@@ -210,11 +213,27 @@ function selectSong(song) {
       previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
+      // Web Audio API 初期化（iOS Safari 対策）
+      if (!window.AudioContext && !window.webkitAudioContext) {
+        console.warn("Web Audio API がサポートされていません");
+      } else {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
     }
-    // プレビューはサビ部分（例：15秒～23秒）をループ再生
     previewAudio.src = song.previewUrl;
     previewAudio.currentTime = 15;
-    previewAudio.volume = 0.5;
+    // Web Audio API 経由で音量制御
+    if (audioContext) {
+      if (!gainNode) {
+        const source = audioContext.createMediaElementSource(previewAudio);
+        gainNode = audioContext.createGain();
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+      }
+      gainNode.gain.value = 0.5;
+    } else {
+      previewAudio.volume = 0.5;
+    }
     previewAudio.loop = true;
     previewAudio.play();
     isPlaying = true;
@@ -226,43 +245,48 @@ function selectSong(song) {
 
 function changeVolume(val) {
   if (!previewAudio) return;
-  let vol = parseInt(val, 10) / 100;
+  let volumeValue = parseInt(val, 10) / 100; // 0～1
   if (isMuted) {
     isMuted = false;
     previewAudio.muted = false;
   }
-  previewAudio.volume = vol;
+  if (audioContext && gainNode) {
+    gainNode.gain.value = volumeValue;
+  } else {
+    previewAudio.volume = volumeValue;
+  }
   updateVolumeIcon();
 }
 
 function updateVolumeIcon() {
   const volumeBtn = document.getElementById("volumeBtn");
   if (!volumeBtn || !previewAudio) return;
-  let vol = previewAudio.volume;
+  let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
+  // SVGアイコンを Apple Music に近い形状に統一（24x24）
   if (isMuted || vol <= 0.01) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <line x1="14" y1="6" x2="18" y2="14" stroke="#888" stroke-width="2"/>
-      <line x1="18" y1="6" x2="14" y2="14" stroke="#888" stroke-width="2"/>
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <line x1="16" y1="8" x2="22" y2="16" stroke="#888" stroke-width="2"/>
+      <line x1="22" y1="8" x2="16" y2="16" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14,10 Q16,8 14,6" stroke="#888" stroke-width="2" fill="none"/>
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <path d="M16,12a3 3 0 0,0 0-4" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14,10 Q16,8 14,6" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M15,10 Q18,7 15,4" stroke="#888" stroke-width="2" fill="none"/>
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <path d="M16,12a3 3 0 0,0 0-4" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12a5 5 0 0,0 0-6" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else {
-    svg = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="3,7 7,7 12,3 12,17 7,13 3,13" fill="#888"/>
-      <path d="M14,10 Q16,8 14,6" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M15,10 Q18,7 15,4" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M16,10 Q20,6 16,2" stroke="#888" stroke-width="2" fill="none"/>
+    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <path d="M16,12a3 3 0 0,0 0-4" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12a5 5 0 0,0 0-6" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M20,12a7 7 0 0,0 0-8" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
   volumeBtn.innerHTML = svg;
@@ -275,6 +299,10 @@ function togglePlay(e) {
     previewAudio.pause();
     isPlaying = false;
   } else {
+    // iOS Safari対応: ユーザー操作でAudioContextを再開
+    if (audioContext && audioContext.state === "suspended") {
+      audioContext.resume();
+    }
     previewAudio.play();
     isPlaying = true;
   }
@@ -285,13 +313,13 @@ function updatePlayPauseIcon() {
   const btn = document.getElementById("playPauseBtn");
   if (!btn) return;
   if (isPlaying) {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <rect x="4" y="3" width="4" height="14" fill="#888"/>
-      <rect x="12" y="3" width="4" height="14" fill="#888"/>
+    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <rect x="6" y="5" width="4" height="14" fill="#888"/>
+      <rect x="14" y="5" width="4" height="14" fill="#888"/>
     </svg>`;
   } else {
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20">
-      <polygon points="5,3 17,10 5,17" fill="#888"/>
+    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
+      <polygon points="7,4 19,12 7,20" fill="#888"/>
     </svg>`;
   }
 }
@@ -369,8 +397,10 @@ function showAdminLogin() {
 
 /* --- ロード中UI --- */
 function showLoading() {
-  document.getElementById("loadingIndicator").style.display = "flex";
+  const loader = document.getElementById("loadingIndicator");
+  if (loader) loader.style.display = "flex";
 }
 function hideLoading() {
-  document.getElementById("loadingIndicator").style.display = "none";
+  const loader = document.getElementById("loadingIndicator");
+  if (loader) loader.style.display = "none";
 }
