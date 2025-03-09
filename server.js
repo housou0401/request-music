@@ -50,7 +50,7 @@ if (!db.data.settings) {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-/* Apple Music検索関連の関数 */
+/* Apple Music 検索関数 */
 async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   if (attribute) url += `&attribute=${attribute}`;
@@ -64,7 +64,7 @@ async function fetchResultsForQuery(query, lang, entity = "song", attribute = ""
   try {
     return JSON.parse(text);
   } catch (e) {
-    console.error(`JSON parse error for url=${url}:`, e);
+    console.error("JSON parse error:", e);
     return { results: [] };
   }
 }
@@ -99,7 +99,7 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
     const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
     let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
-    
+
     let queries = [];
     if (artistName && artistName.trim()) {
       queries.push(`${songTitle} ${artistName}`);
@@ -108,7 +108,7 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
       queries.push(songTitle);
       queries.push(`${songTitle} official`);
     }
-    
+
     for (let query of queries) {
       let data = await fetchResultsForQuery(query, lang, "song", "songTerm");
       if (data.results.length === 0 && (lang === "en_us" || lang === "en_gb")) {
@@ -141,7 +141,7 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
   }
 }
 
-/* /search エンドポイント */
+/* /search */
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
@@ -346,20 +346,63 @@ app.get("/admin", (req, res) => {
     .entry { display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; width: fit-content; }
     .entry:hover { background-color: rgba(0,0,0,0.05); }
     .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
-    .delete { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: red; text-decoration: none; }
-    .count-badge { background-color: #ff6b6b; color: white; font-weight: bold; padding: 4px 8px; border-radius: 5px; margin-right: 10px; }
+    .delete {
+      position: absolute;
+      left: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      color: red;
+      text-decoration: none;
+    }
+    .count-badge {
+      background-color: #ff6b6b;
+      color: white;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
     h1 { font-size: 1.5em; margin-bottom: 20px; }
     form { margin: 20px 0; text-align: left; }
-    textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }
+    textarea {
+      width: 300px;
+      height: 80px;
+      font-size: 0.9em;
+      color: black;
+      display: block;
+      margin-bottom: 10px;
+    }
     .setting-field { margin-bottom: 10px; }
-    .sync-btn, .fetch-btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    .sync-btn, .fetch-btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
     .sync-btn { background-color: #28a745; color: white; }
     .sync-btn:hover { background-color: #218838; }
     .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
     .fetch-btn:hover { background-color: #138496; }
-    .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
-    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .button-container {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 10px;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin-left: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
   </head><body><h1>✉アンケート回答一覧</h1>`;
   html += createPaginationLinks(page, totalPages);
