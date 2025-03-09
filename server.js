@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Render の Environment Variables（Environment タブで設定）
+// Render 環境変数（Environment タブで設定）
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const FILE_PATH = "db.json";
@@ -25,7 +25,7 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// LowDB の設定
+// LowDB セットアップ
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
@@ -50,7 +50,7 @@ if (!db.data.settings) {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-/* Apple Music 検索関数 */
+/* Apple Music 検索関連 */
 async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   if (attribute) url += `&attribute=${attribute}`;
@@ -346,32 +346,11 @@ app.get("/admin", (req, res) => {
     .entry { display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; width: fit-content; }
     .entry:hover { background-color: rgba(0,0,0,0.05); }
     .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
-    .delete {
-      position: absolute;
-      left: calc(100% + 10px);
-      top: 50%;
-      transform: translateY(-50%);
-      color: red;
-      text-decoration: none;
-    }
-    .count-badge {
-      background-color: #ff6b6b;
-      color: white;
-      font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 5px;
-      margin-right: 10px;
-    }
+    .delete { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: red; text-decoration: none; }
+    .count-badge { background-color: #ff6b6b; color: white; font-weight: bold; padding: 4px 8px; border-radius: 5px; margin-right: 10px; }
     h1 { font-size: 1.5em; margin-bottom: 20px; }
     form { margin: 20px 0; text-align: left; }
-    textarea {
-      width: 300px;
-      height: 80px;
-      font-size: 0.9em;
-      color: black;
-      display: block;
-      margin-bottom: 10px;
-    }
+    textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }
     .setting-field { margin-bottom: 10px; }
     .sync-btn, .fetch-btn {
       padding: 12px 20px;
@@ -384,11 +363,7 @@ app.get("/admin", (req, res) => {
     .sync-btn:hover { background-color: #218838; }
     .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
     .fetch-btn:hover { background-color: #138496; }
-    .button-container {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 10px;
-    }
+    .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
     .spinner {
       border: 4px solid #f3f3f3;
       border-top: 4px solid #3498db;
@@ -405,7 +380,11 @@ app.get("/admin", (req, res) => {
     }
   </style>
   </head><body><h1>✉アンケート回答一覧</h1>`;
+
+  // ページャー上部
   html += createPaginationLinks(page, totalPages);
+
+  // リスト
   html += `<ul style="list-style:none; padding:0;">`;
   pageItems.forEach(entry => {
     html += `<li>
@@ -423,7 +402,11 @@ app.get("/admin", (req, res) => {
     </li>`;
   });
   html += `</ul>`;
+
+  // ページャー下部
   html += createPaginationLinks(page, totalPages);
+
+  // 設定フォーム
   html += `<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
@@ -452,12 +435,16 @@ app.get("/admin", (req, res) => {
     <br>
     <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
   </form>`;
+
+  // Sync / Fetch ボタン
   html += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
     <div class="spinner" id="loadingSpinner"></div>
   </div>
   <br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
+
+  // スクリプト
   html += `<script>
     function syncToGitHub() {
       document.getElementById("syncBtn").disabled = true;
@@ -488,6 +475,7 @@ app.get("/admin", (req, res) => {
         });
     }
   </script>`;
+
   html += `</body></html>`;
   res.send(html);
 });
@@ -513,7 +501,7 @@ app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
 
-// 20分ごと自動同期
+// 20分ごとに db.json を GitHub に自動同期
 cron.schedule("*/20 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
