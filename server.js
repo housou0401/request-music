@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Render の Environment Variables（Render の Environment タブで設定してください）
+// Render の Environment Variables（Environment タブで設定）
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const FILE_PATH = "db.json";
@@ -50,7 +50,7 @@ if (!db.data.settings) {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-/* --- Apple Music 検索関連 --- */
+/* Apple Music検索関連の関数 */
 async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   if (attribute) url += `&attribute=${attribute}`;
@@ -141,7 +141,7 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
   }
 }
 
-/* --- /search エンドポイント --- */
+/* /search エンドポイント */
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
@@ -185,7 +185,7 @@ app.get("/search", async (req, res) => {
   }
 });
 
-/* --- リクエスト送信 --- */
+/* リクエスト送信 */
 app.post("/submit", (req, res) => {
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
   const artworkUrl = req.body.artworkUrl?.trim();
@@ -222,7 +222,7 @@ app.post("/submit", (req, res) => {
   res.send(`<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>`);
 });
 
-/* --- リクエスト削除 --- */
+/* リクエスト削除 */
 app.get("/delete/:id", (req, res) => {
   const id = req.params.id;
   db.data.responses = db.data.responses.filter(entry => entry.id !== id);
@@ -232,7 +232,7 @@ app.get("/delete/:id", (req, res) => {
   res.send(`<script>alert("🗑️削除しました！"); window.location.href="/admin";</script>`);
 });
 
-/* --- GitHub 同期/取得 --- */
+/* GitHub 同期/取得 */
 async function syncRequestsToGitHub() {
   const localContent = JSON.stringify(db.data, null, 2);
   let sha = null;
@@ -307,6 +307,7 @@ app.get("/fetch-requests", async (req, res) => {
   }
 });
 
+/* 管理者ページ */
 app.get("/admin", (req, res) => {
   const page = parseInt(req.query.page || "1", 10);
   const perPage = 10;
@@ -469,6 +470,7 @@ app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
 
+// 20分ごと自動同期
 cron.schedule("*/20 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
