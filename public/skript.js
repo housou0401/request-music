@@ -1,9 +1,9 @@
-// Web Audio API 用（iOS Safari対応）
+// iOS Safari 用：Web Audio API
 let audioContext = null;
 let gainNode = null;
 
-let searchMode = "song"; 
-let artistPhase = 0; 
+let searchMode = "song";
+let artistPhase = 0;
 let selectedArtistId = null;
 let previewAudio = null;
 let isPlaying = false;
@@ -13,6 +13,14 @@ let playerControlsEnabled = true;
 window.onload = async function() {
   document.getElementById("modeSong").style.backgroundColor = "#007bff";
   document.getElementById("modeSong").style.color = "white";
+
+  // iOS Safariでユーザーが最初にタップしたタイミングでAudioContext.resume()
+  document.addEventListener("click", () => {
+    if (audioContext && audioContext.state === "suspended") {
+      audioContext.resume();
+    }
+  }, { once: true });
+
   await loadSettings();
 };
 
@@ -31,19 +39,24 @@ function setSearchMode(mode) {
   searchMode = mode;
   artistPhase = 0;
   selectedArtistId = null;
+
+  // 入力欄リセット
   document.getElementById("songName").value = "";
   document.getElementById("artistName").value = "";
   document.getElementById("suggestions").innerHTML = "";
   document.getElementById("selectedLabel").innerHTML = "";
   document.getElementById("selectedSong").innerHTML = "";
   document.getElementById("selectedArtist").innerHTML = "";
+
+  // プレビュー再生停止
   if (previewAudio) {
     previewAudio.pause();
     previewAudio.currentTime = 0;
     isPlaying = false;
     updatePlayPauseIcon();
   }
-  // 再検索ボタン表示切り替え
+
+  // モード切替
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
     document.getElementById("modeArtist").style.backgroundColor = "#007bff";
@@ -64,7 +77,7 @@ function setSearchMode(mode) {
 }
 
 function reSearch() {
-  // 入力されている内容をもとに再検索
+  // 現在の入力内容で再検索
   searchSongs();
 }
 
@@ -72,6 +85,7 @@ async function searchSongs() {
   const suggestionsContainer = document.getElementById("suggestions");
   suggestionsContainer.innerHTML = "";
   showLoading();
+
   if (searchMode === "artist") {
     if (artistPhase === 0) {
       const artistQuery = document.getElementById("songName").value.trim();
@@ -119,6 +133,7 @@ async function searchSongs() {
       console.error("曲検索エラー:", e);
     }
   }
+
   hideLoading();
 }
 
@@ -187,7 +202,7 @@ function selectSong(song) {
       </div>
     </div>
   `;
-  // hidden 入力
+  // hidden input
   let hiddenApple = document.getElementById("appleMusicUrlHidden") || document.createElement("input");
   if (!document.getElementById("appleMusicUrlHidden")) {
     hiddenApple.type = "hidden";
@@ -196,7 +211,7 @@ function selectSong(song) {
     document.getElementById("requestForm").appendChild(hiddenApple);
   }
   hiddenApple.value = song.trackViewUrl;
-  
+
   let hiddenArtwork = document.getElementById("artworkUrlHidden") || document.createElement("input");
   if (!document.getElementById("artworkUrlHidden")) {
     hiddenArtwork.type = "hidden";
@@ -205,7 +220,7 @@ function selectSong(song) {
     document.getElementById("requestForm").appendChild(hiddenArtwork);
   }
   hiddenArtwork.value = song.artworkUrl;
-  
+
   let hiddenPreview = document.getElementById("previewUrlHidden") || document.createElement("input");
   if (!document.getElementById("previewUrlHidden")) {
     hiddenPreview.type = "hidden";
@@ -214,14 +229,14 @@ function selectSong(song) {
     document.getElementById("requestForm").appendChild(hiddenPreview);
   }
   hiddenPreview.value = song.previewUrl;
-  
+
   if (playerControlsEnabled && song.previewUrl) {
     if (!previewAudio) {
       previewAudio = document.createElement("audio");
       previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
       document.body.appendChild(previewAudio);
-      // Web Audio API 初期化
+      // Web Audio API
       if (!window.AudioContext && !window.webkitAudioContext) {
         console.warn("Web Audio API がサポートされていません");
       } else {
@@ -230,8 +245,8 @@ function selectSong(song) {
     }
     previewAudio.src = song.previewUrl;
     previewAudio.currentTime = 15;
+    // 初期音量 50%
     if (audioContext) {
-      // Web Audio APIで音量制御
       if (!gainNode) {
         const source = audioContext.createMediaElementSource(previewAudio);
         gainNode = audioContext.createGain();
@@ -271,7 +286,7 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
-  // Apple Music風の🔊アイコン
+  // スピーカー + 波形（🔊）
   if (isMuted || vol <= 0.01) {
     // ミュート
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
@@ -311,7 +326,6 @@ function togglePlay(e) {
     previewAudio.pause();
     isPlaying = false;
   } else {
-    // iOS Safari対策
     if (audioContext && audioContext.state === "suspended") {
       audioContext.resume();
     }
