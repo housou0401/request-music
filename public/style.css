@@ -181,7 +181,6 @@ button:hover {
   fill: #888;
 }
 
-/* Apple Music風の音量スライダー */
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
@@ -200,7 +199,7 @@ button:hover {
   background: #888;
   border-radius: 50%;
   cursor: pointer;
-  margin-top: -6px; /* スライダーの中央に配置 */
+  margin-top: -6px;
 }
 .volume-slider::-moz-range-thumb {
   width: 16px;
