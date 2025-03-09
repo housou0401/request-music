@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Render の Environment Variables（Environment タブで設定してください）
+// Render の Environment Variables（Environment タブで設定）
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const FILE_PATH = "db.json";
@@ -222,9 +222,14 @@ app.post("/submit", (req, res) => {
   res.send(`<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>`);
 });
 
-/* リクエスト削除 */
+/* リクエスト削除（リクエスト回数もリセット） */
 app.get("/delete/:id", (req, res) => {
   const id = req.params.id;
+  const toDelete = db.data.responses.find(entry => entry.id === id);
+  if (toDelete) {
+    const key = `${toDelete.text.toLowerCase()}|${toDelete.artist.toLowerCase()}`;
+    delete db.data.songCounts[key];
+  }
   db.data.responses = db.data.responses.filter(entry => entry.id !== id);
   db.write();
   fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
@@ -307,7 +312,6 @@ app.get("/fetch-requests", async (req, res) => {
   }
 });
 
-/* 管理者ページ */
 app.get("/admin", (req, res) => {
   const page = parseInt(req.query.page || "1", 10);
   const perPage = 10;
@@ -364,20 +368,8 @@ app.get("/admin", (req, res) => {
     .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
     .fetch-btn:hover { background-color: #138496; }
     .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      display: none;
-      margin-left: 10px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
   </head><body><h1>✉アンケート回答一覧</h1>`;
   html += createPaginationLinks(page, totalPages);
