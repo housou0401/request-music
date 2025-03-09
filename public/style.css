@@ -35,7 +35,7 @@ h1 {
 .input-container input[type="text"] {
   width: 100%;
   padding: 10px;
-  padding-right: 30px;
+  padding-right: 40px;
   border: 1px solid #ccc;
   border-radius: 5px;
   box-sizing: border-box;
@@ -44,7 +44,7 @@ h1 {
 .input-clear-btn {
   position: absolute;
   top: 50%;
-  right: 5px;
+  right: 8px;
   transform: translateY(-50%);
   width: 28px;
   height: 28px;
@@ -284,6 +284,23 @@ button:hover {
   font-size: 14px;
 }
 
+/* 再検索ボタンのスタイル（モード選択ボタンと同じサイズ） */
+#reSearchSongMode button,
+#reSearchArtistMode button {
+  font-size: 14px;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  color: #333;
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+}
+#reSearchSongMode button:hover,
+#reSearchArtistMode button:hover {
+  background-color: #e0e0e0;
+}
+
 @media (max-width: 600px) {
   .container, form, textarea, input[type="text"] {
     width: 95%;
@@ -292,7 +309,7 @@ button:hover {
     font-size: 16px;
     padding: 10px;
   }
-  #modeSong, #modeArtist {
+  #modeSong, #modeArtist, #reSearchSongMode button, #reSearchArtistMode button {
     font-size: 12px;
     padding: 4px 5px;
   }
