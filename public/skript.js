@@ -234,24 +234,31 @@ function selectSong(song) {
       previewAudio = document.createElement("audio");
       previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
-      previewAudio.autoplay = true;
+      // 一旦 muted にして自動再生制限を回避
+      previewAudio.muted = true;
       document.body.appendChild(previewAudio);
-      if (!window.AudioContext && !window.webkitAudioContext) {
-        console.warn("Web Audio API がサポートされていません");
-      } else {
+      if (window.AudioContext || window.webkitAudioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
     }
     previewAudio.src = song.previewUrl;
     previewAudio.load();
     previewAudio.onloadedmetadata = function() {
+      // 再生開始位置（例：15秒以上あれば15秒、短ければ0秒）
       previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
-      previewAudio.play().catch(err => { console.error("Playback error:", err); });
+      previewAudio.play().then(() => {
+        // 再生開始後、ミュート解除
+        previewAudio.muted = false;
+      }).catch(err => {
+        console.error("Playback error:", err);
+      });
     };
+    // イベント oncanplay でも再生を試行
     previewAudio.oncanplay = function() {
-      // 念のため oncanplay 時にも再生
       if (previewAudio.paused) {
-        previewAudio.play().catch(err => { console.error("Playback error:", err); });
+        previewAudio.play().then(() => {
+          previewAudio.muted = false;
+        }).catch(err => { console.error("Playback error:", err); });
       }
     };
     if (audioContext && gainNode) {
@@ -301,24 +308,24 @@ function updateVolumeIcon() {
       <line x1="21" y1="4" x2="15" y2="20" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
-    // 低音量：1つの波形、縦に長く、細めに
+    // 低音量：1つの波形、細く、縦に長く
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
       <path d="M15,12 C15.5,8 15.5,16 15,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
-    // 中音量：2つの波形
+    // 中音量：2つの波形、少し間隔を広げ
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
       <path d="M15,12 C15.5,8 15.5,16 15,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12 C18.5,7 18.5,17 18,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 C18.7,7 18.7,17 18,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else {
-    // 高音量：3つの波形
+    // 高音量：3つの波形、各波形の間隔をさらに広めに
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
       <path d="M15,12 C15.5,8 15.5,16 15,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12 C18.5,7 18.5,17 18,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 C18.7,7 18.7,17 18,12" stroke="#888" stroke-width="2" fill="none"/>
       <path d="M21,12 C21.5,6 21.5,18 21,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
