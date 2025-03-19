@@ -49,7 +49,7 @@ function setSearchMode(mode) {
     isPlaying = false;
     updatePlayPauseIcon();
   }
-  // モード切替：曲名モードの場合はアーティスト入力欄表示と「再検索」ボタン表示
+  // モードに応じた表示切替
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
     document.getElementById("songName").placeholder = "アーティスト名を入力してください";
@@ -57,6 +57,7 @@ function setSearchMode(mode) {
     document.getElementById("modeArtist").style.color = "white";
     document.getElementById("modeSong").style.backgroundColor = "";
     document.getElementById("modeSong").style.color = "";
+    // アーティストモードでは再検索ボタンを表示
     document.getElementById("reSearchSongMode").style.display = "none";
     document.getElementById("reSearchArtistMode").style.display = "block";
   } else {
@@ -66,6 +67,7 @@ function setSearchMode(mode) {
     document.getElementById("modeSong").style.color = "white";
     document.getElementById("modeArtist").style.backgroundColor = "";
     document.getElementById("modeArtist").style.color = "";
+    // 曲名モードでは再検索ボタンを表示
     document.getElementById("reSearchSongMode").style.display = "block";
     document.getElementById("reSearchArtistMode").style.display = "none";
   }
@@ -236,16 +238,11 @@ function selectSong(song) {
       }
     }
     previewAudio.src = song.previewUrl;
-    // 追加：明示的に load() を呼んでから再生開始
     previewAudio.load();
     previewAudio.onloadedmetadata = function() {
       previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
       previewAudio.play().catch(err => { console.error("Playback error:", err); });
     };
-    if (previewAudio.readyState >= 2) {
-      previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
-      previewAudio.play().catch(err => { console.error("Playback error:", err); });
-    }
     if (audioContext && gainNode) {
       gainNode.gain.value = 0.5;
     } else if (audioContext && !gainNode) {
@@ -285,31 +282,31 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
-  // ミュート時：従来のスピーカー＋×
   if (isMuted || vol <= 0.01) {
+    // ミュート時のアイコン（従来のスピーカー＋×）
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
       <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
-    // 低音量：1つの波形、細く、上下中央揃え、間隔広め
+    // 低音量：1つの波形、縦長に調整
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C15.5,10 15.5,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,12 C15.5,8 15.5,16 15,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
     // 中音量：2つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C15.5,10 15.5,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12 C18.5,8 18.5,16 18,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,12 C15.5,8 15.5,16 15,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 C18.5,7 18.5,17 18,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else {
     // 高音量：3つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C15.5,10 15.5,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12 C18.5,8 18.5,16 18,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,12 C15.5,8 15.5,16 15,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 C18.5,7 18.5,17 18,12" stroke="#888" stroke-width="2" fill="none"/>
       <path d="M21,12 C21.5,6 21.5,18 21,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
