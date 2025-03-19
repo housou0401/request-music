@@ -227,7 +227,7 @@ button:hover {
   background-color: #e0e0e0;
 }
 
-/* 再検索ボタン（初回から必ず1つ表示） */
+/* 再検索ボタン */
 #reSearchSongMode, #reSearchArtistMode {
   margin: 10px 0;
   display: block;
