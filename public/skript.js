@@ -13,7 +13,7 @@ let playerControlsEnabled = true;
 window.onload = async function() {
   // 初期状態は曲名モード
   setSearchMode('song');
-  // 初回タップで AudioContext 再開（iOS/Chrome対策）
+  // 初回タップで AudioContext 再開（iOS Safari/Chrome対策）
   document.addEventListener("click", () => {
     if (audioContext && audioContext.state === "suspended") {
       audioContext.resume();
@@ -49,6 +49,7 @@ function setSearchMode(mode) {
     isPlaying = false;
     updatePlayPauseIcon();
   }
+  // モードに応じた表示切替
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
     document.getElementById("songName").placeholder = "アーティスト名を入力してください";
@@ -226,6 +227,7 @@ function selectSong(song) {
       previewAudio = document.createElement("audio");
       previewAudio.id = "previewAudio";
       previewAudio.style.display = "none";
+      previewAudio.autoplay = true;
       document.body.appendChild(previewAudio);
       if (!window.AudioContext && !window.webkitAudioContext) {
         console.warn("Web Audio API がサポートされていません");
@@ -234,23 +236,22 @@ function selectSong(song) {
       }
     }
     previewAudio.src = song.previewUrl;
-    // 修正: onloadedmetadata イベントで再生開始位置を設定し、再生を確実に開始
     previewAudio.onloadedmetadata = function() {
       previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
-      previewAudio.play().catch(err => console.error("再生エラー:", err));
+      previewAudio.play().catch(err => { console.error("Playback error:", err); });
     };
-    // 万が一既にメタデータが読み込まれている場合
+    // 既にメタデータ読み込み済みの場合
     if (previewAudio.readyState >= 2) {
       previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
-      previewAudio.play().catch(err => console.error("再生エラー:", err));
+      previewAudio.play().catch(err => { console.error("Playback error:", err); });
     }
-    if (audioContext) {
-      if (!gainNode) {
-        const source = audioContext.createMediaElementSource(previewAudio);
-        gainNode = audioContext.createGain();
-        source.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-      }
+    if (audioContext && gainNode) {
+      gainNode.gain.value = 0.5;
+    } else if (audioContext && !gainNode) {
+      const source = audioContext.createMediaElementSource(previewAudio);
+      gainNode = audioContext.createGain();
+      source.connect(gainNode);
+      gainNode.connect(audioContext.destination);
       gainNode.gain.value = 0.5;
     } else {
       previewAudio.volume = 0.5;
@@ -283,13 +284,14 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
+  // ミュート時は元のスピーカー＋×アイコン
   if (isMuted || vol <= 0.01) {
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,8 8,8 13,4 13,20 8,16 4,16" fill="#888"/>
-      <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="2"/>
+      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
+      <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="3"/>
     </svg>`;
   } else if (vol < 0.35) {
-    // 低音量：1つの波形（波形を縦に伸ばし厚みを増加）
+    // 低音量：1つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
       <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
@@ -323,7 +325,7 @@ function togglePlay(e) {
     if (audioContext && audioContext.state === "suspended") {
       audioContext.resume();
     }
-    previewAudio.play();
+    previewAudio.play().catch(err => { console.error("Playback error:", err); });
     isPlaying = true;
   }
   updatePlayPauseIcon();
