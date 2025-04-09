@@ -280,7 +280,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8B%E3%81%8C%E3%81%BF/1787372751?i=1787372752&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bb/a3/6f/bba36f31-b624-8caf-0967-1054b47d875b/4580789685392.png/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/f6/4c/00f64c60-2903-1e39-d9c7-721293632698/mzaf_8805154899213091422.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "Vta3uNYbzV_rgN5pgj8zh",
@@ -353,6 +353,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1b/7a/5e/1b7a5e77-b0c4-6e32-f3ee-c09c70f8378e/jacket_SRCL09571B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/36/fd/8d/36fd8ddc-98ee-257d-b2c1-06225f3fe145/mzaf_5432552510333652753.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "Ete9Z8E-BJYN2Omz19h7q",
+      "text": "ハピチョコ",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8F%E3%83%94%E3%83%81%E3%83%A7%E3%82%B3/1665563394?i=1665563395&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/d7/dc/89/d7dc8934-4bf1-24b5-453f-8867ed5d299d/4582467903002.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/bb/7c/7d/bb7c7d3f-c8c8-a95c-3c7d-155bafb1c515/mzaf_15034223179521885516.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "kRDadfZqTPXxSYr1KYJ44",
+      "text": "最上級にかわいいの! (feat. コレサワ)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%80%E4%B8%8A%E7%B4%9A%E3%81%AB%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84%E3%81%AE-feat-%E3%82%B3%E3%83%AC%E3%82%B5%E3%83%AF/1746279341?i=1746279346&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/50/78/4f/50784f04-0535-4e99-b952-aff815fe7149/ANTCD-A0000013538.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6c/ce/91/6cce91e0-e9c5-83c6-ef68-0ff356903c1c/mzaf_4728712436442266056.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -405,7 +423,7 @@
     "ドント・ワナ・ノウ (feat. ケンドリック・ラマー)|マルーン5": 1,
     "not like us|ケンドリック・ラマー": 1,
     "#1090 (thousand dreams)|松本孝弘": 1,
-    "かがみ|アーティスト不明": 1,
+    "かがみ|アーティスト不明": 2,
     "ダーリン|アーティスト不明": 1,
     "あられやこんこん|アーティスト不明": 1,
     "3時12分|アーティスト不明": 1,
@@ -413,7 +431,9 @@
     "my way|def tech": 1,
     "ハイパーベンチレイション|radwimps": 1,
     "クスシキ|アーティスト不明": 1,
-    "春雷|アーティスト不明": 1
+    "春雷|アーティスト不明": 1,
+    "ハピチョコ|アーティスト不明": 1,
+    "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
