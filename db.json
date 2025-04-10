@@ -25,14 +25,6 @@
       "count": 1
     },
     {
-      "id": "Zd6GFL6DMWXbuGQGsMRLr",
-      "text": "君からの贈り物",
-      "artist": "ちゃんみな",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%8B%E3%82%89%E3%81%AE%E8%B4%88%E3%82%8A%E7%89%A9/1585848047?i=1585848050&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/bd/c0/80/bdc08023-823d-b74c-0b58-e161fe8ae68b/190296458705.jpg/100x100bb.jpg",
-      "count": 1
-    },
-    {
       "id": "OMBw6doMfOWHh2YaNQ1jC",
       "text": "成れの果てのグリフ",
       "artist": "まふまふ",
@@ -62,14 +54,6 @@
       "artist": "imase",
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%A6%E3%83%88%E3%83%A9%E3%82%A4%E3%83%B3/1773929941?i=1773929942&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/0d/36/b3/0d36b3af-36ad-ca6b-d92a-48f134ccbfc2/24UM1IM08293.rgb.jpg/100x100bb.jpg",
-      "count": 1
-    },
-    {
-      "id": "Cac5g7atM1wUi8nlziS75",
-      "text": "YEPPI YEPPI",
-      "artist": "aespa",
-      "appleMusicUrl": "https://music.apple.com/jp/album/yeppi-yeppi/1587844523?i=1587844527&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/51/f7/85/51f7852b-7602-136b-ac15-8b3878260c64/4000aespa_M01_Savage_DC.jpg/100x100bb.jpg",
       "count": 1
     },
     {
@@ -283,15 +267,6 @@
       "count": 2
     },
     {
-      "id": "Vta3uNYbzV_rgN5pgj8zh",
-      "text": "ダーリン",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%80%E3%83%BC%E3%83%AA%E3%83%B3/1790599503?i=1790599512&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/7b/b9/27/7bb92776-1f4a-06c6-e36e-de889f2b8620/25UMGIM01757.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ee/73/0f/ee730fb0-6513-464c-57c7-bdfee7ef39b0/mzaf_5366734301357780316.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "YpsjfhMnLfhIlMzyAXGIa",
       "text": "あられやこんこん",
       "artist": "アーティスト不明",
@@ -378,7 +353,6 @@
     "1%の革命前夜|losstime life": 1,
     "ナルバキスン (look at me, gwisun) [jp version]|d-lite": 1,
     "欲望に満ちた青年団|one ok rock": 1,
-    "君からの贈り物|ちゃんみな": 1,
     "成れの果てのグリフ|まふまふ": 1,
     "恋|アーティスト不明": 1,
     "朧月|まふまふ": 1,
@@ -387,7 +361,6 @@
     "shadow|seventeen": 1,
     "アウトライン|アーティスト不明": 1,
     "アウトライン|imase": 1,
-    "yeppi yeppi|aespa": 1,
     "のだ|大漠波新": 1,
     "campus mode!!|初星学園": 1,
     "キス・ミー・パティシエ|candy tune": 1,
@@ -424,7 +397,6 @@
     "not like us|ケンドリック・ラマー": 1,
     "#1090 (thousand dreams)|松本孝弘": 1,
     "かがみ|アーティスト不明": 2,
-    "ダーリン|アーティスト不明": 1,
     "あられやこんこん|アーティスト不明": 1,
     "3時12分|アーティスト不明": 1,
     "ナルバキスン(look at me, gwisun)|d": 1,
