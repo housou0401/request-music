@@ -1,44 +1,44 @@
-const Preview = {
-  audio: null,
-  ctx: null,
-  gain: null,
+// Web Audio API（iOS Safari/Chrome対応）
+let audioContext = null;
+let gainNode = null;
+let previewAudio = null;
 
-  init() {
-    this.audio = document.createElement("audio");
-    this.audio.style.display = "none";
-    document.body.appendChild(this.audio);
+function initPreview() {
+  if (!previewAudio) {
+    previewAudio = document.createElement("audio");
+    previewAudio.style.display = "none";
+    previewAudio.muted = true;
+    document.body.appendChild(previewAudio);
     if (window.AudioContext || window.webkitAudioContext) {
-      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const src = this.ctx.createMediaElementSource(this.audio);
-      this.gain = this.ctx.createGain();
-      src.connect(this.gain).connect(this.ctx.destination);
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const src = audioContext.createMediaElementSource(previewAudio);
+      gainNode = audioContext.createGain();
+      src.connect(gainNode).connect(audioContext.destination);
     }
-  },
-
-  play(url) {
-    if (!this.audio) this.init();
-    this.audio.src = url;
-    this.audio.muted = true;
-    this.audio.load();
-    this.audio.onloadedmetadata = () => {
-      this.audio.currentTime = this.audio.duration > 15 ? 15 : 0;
-      this.audio.play().then(() => this.audio.muted = false)
-        .catch(console.error);
-    };
-    this.audio.loop = true;
-  },
-
-  setVolume(pct) {
-    const v = pct / 100;
-    if (this.gain) this.gain.gain.value = v;
-    else this.audio.volume = v;
-  },
-
-  pause() {
-    this.audio?.pause();
-  },
-
-  mute(flag) {
-    this.audio.muted = flag;
   }
-};
+}
+
+function playPreview(url) {
+  initPreview();
+  previewAudio.src = url;
+  previewAudio.load();
+  previewAudio.onloadedmetadata = () => {
+    previewAudio.currentTime = previewAudio.duration > 15 ? 15 : 0;
+    previewAudio.play().then(() => { previewAudio.muted = false; }).catch(console.error);
+  };
+  previewAudio.loop = true;
+}
+
+function setPreviewVolume(pct) {
+  const v = pct / 100;
+  if (gainNode) gainNode.gain.value = v;
+  else previewAudio.volume = v;
+}
+
+function pausePreview() {
+  previewAudio?.pause();
+}
+
+function mutePreview(flag) {
+  previewAudio.muted = flag;
+}
