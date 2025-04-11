@@ -6,25 +6,32 @@
   <title>♬曲をリクエストする</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body onload="App.init()">
+<body>
   <button class="admin-button" onclick="App.showAdminLogin()">管理者用</button>
 
   <div class="container" id="mainContainer">
     <h1 id="pageTitle">♬曲をリクエストする</h1>
 
     <div class="button-container">
-      <button id="modeSong" onclick="App.setMode('song')">曲名(アーティスト)で検索</button>
-      <button id="modeArtist" onclick="App.setMode('artist')">アーティストから検索</button>
+      <button id="modeSong" onclick="App.setSearchMode('song')">曲名(アーティスト)で検索</button>
+      <button id="modeArtist" onclick="App.setSearchMode('artist')">アーティストから検索</button>
     </div>
 
     <form id="requestForm" onsubmit="App.handleSubmit(event)">
       <div class="input-container" id="songInputContainer">
-        <input type="text" id="songName" placeholder="曲名を入力してください" oninput="Search.onInput()">
+        <input type="text" id="songName" placeholder="曲名を入力してください" oninput="App.searchSongs()">
         <button type="button" class="input-clear-btn" onclick="App.clearInput('songName')">×</button>
       </div>
       <div class="input-container" id="artistInputContainer">
-        <input type="text" id="artistName" placeholder="アーティスト名を入力してください" oninput="Search.onInput()">
+        <input type="text" id="artistName" placeholder="アーティスト名を入力してください" oninput="App.searchSongs()">
         <button type="button" class="input-clear-btn" onclick="App.clearInput('artistName')">×</button>
+      </div>
+
+      <div id="reSearchSongMode" style="display:none; margin-bottom:10px;">
+        <button type="button" onclick="App.reSearch()">再検索</button>
+      </div>
+      <div id="reSearchArtistMode" style="display:none; margin-bottom:10px;">
+        <button type="button" onclick="App.reSearch()">再検索</button>
       </div>
 
       <div id="loadingIndicator">
