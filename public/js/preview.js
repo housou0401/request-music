@@ -1,4 +1,3 @@
-// Web Audio API（iOS Safari/Chrome対応）
 let audioContext = null;
 let gainNode = null;
 let previewAudio = null;
