@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>♬曲をリクエストする</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="App.init()">
+  <button class="admin-button" onclick="App.showAdminLogin()">管理者用</button>
+
+  <div class="container" id="mainContainer">
+    <h1 id="pageTitle">♬曲をリクエストする</h1>
+
+    <div class="button-container">
+      <button id="modeSong" onclick="App.setMode('song')">曲名(アーティスト)で検索</button>
+      <button id="modeArtist" onclick="App.setMode('artist')">アーティストから検索</button>
+    </div>
+
+    <form id="requestForm" onsubmit="App.handleSubmit(event)">
+      <div class="input-container" id="songInputContainer">
+        <input type="text" id="songName" placeholder="曲名を入力してください" oninput="Search.onInput()">
+        <button type="button" class="input-clear-btn" onclick="App.clearInput('songName')">×</button>
+      </div>
+      <div class="input-container" id="artistInputContainer">
+        <input type="text" id="artistName" placeholder="アーティスト名を入力してください" oninput="Search.onInput()">
+        <button type="button" class="input-clear-btn" onclick="App.clearInput('artistName')">×</button>
+      </div>
+
+      <div id="loadingIndicator">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">読み込み中</div>
+      </div>
+
+      <div id="suggestions"></div>
+
+      <div id="selectedLabel"></div>
+      <div id="selectedSong"></div>
+      <div id="selectedArtist"></div>
+
+      <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
+      <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
+      <input type="hidden" id="previewUrlHidden" name="previewUrl">
+
+      <button type="submit">送信</button>
+    </form>
+  </div>
+
+  <p class="privacy-note">個人情報は収集されません。</p>
+
+  <script src="js/ui.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/preview.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
