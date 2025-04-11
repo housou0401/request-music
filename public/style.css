@@ -284,7 +284,7 @@ button:hover {
   font-size: 14px;
 }
 
-/* 再検索ボタンのスタイル（モード選択ボタンと同じサイズ） */
+/* 再検索ボタンのスタイル */
 #reSearchSongMode button,
 #reSearchArtistMode button {
   font-size: 14px;
