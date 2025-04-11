@@ -22,80 +22,50 @@ body {
   position: relative;
 }
 
-h1 {
-  margin-bottom: 10px;
-}
+h1 { margin-bottom: 10px; }
 
 /* 入力欄コンテナ */
-.input-container {
-  position: relative;
-  margin-bottom: 10px;
-}
-
+.input-container { position: relative; margin-bottom: 10px; }
 .input-container input[type="text"] {
-  width: 100%;
-  padding: 10px;
-  padding-right: 40px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
+  width: 100%; padding: 10px; padding-right: 40px;
+  border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
 }
-
 .input-clear-btn {
-  position: absolute;
-  top: 50%;
-  right: 8px;
+  position: absolute; top: 50%; right: 8px;
   transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
-  font-size: 20px;
-  line-height: 28px;
-  border-radius: 50%;
-  background: transparent;
-  border: none;
-  color: #888;
-  cursor: pointer;
+  width: 28px; height: 28px; font-size: 20px; line-height:28px;
+  border-radius: 50%; background:transparent; border:none;
+  color:#888; cursor:pointer;
 }
-.input-clear-btn:hover {
-  background-color: lightgray;
-}
+.input-clear-btn:hover { background-color: lightgray; }
 
 button {
-  padding: 12px;
-  width: 100%;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
+  padding: 12px; width: 100%;
+  background-color: #007bff; color:white;
+  border:none; border-radius:6px; cursor:pointer;
+  font-size:16px;
 }
-button:hover {
-  background-color: #0056b3;
-}
+button:hover { background-color: #0056b3; }
+
+#modeSong, #modeArtist { /* width:auto overridden inline */ }
 
 .admin-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   background-color: #d3d3d3;
+  margin-bottom: 10px;
   padding: 10px 20px;
   border-radius: 20px;
   border: none;
   cursor: pointer;
+  display: inline-block;
+  width: auto;
+  text-align: center;
   font-size: 14px;
 }
-.admin-button:hover {
-  background-color: #555;
-}
+.admin-button:hover { background-color: #555; }
 
 .privacy-note {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  color: #888;
-  font-size: 12px;
-  font-weight: bold;
+  position: fixed; bottom: 10px; right: 10px;
+  font-size: 12px; color: #aaa;
 }
 
 #suggestions {
@@ -285,19 +255,9 @@ button:hover {
 }
 
 /* ページネーション */
-.pagination {
-  margin: 10px 0;
-  text-align: left;
-}
-.pagination a {
-  margin-right: 6px;
-  text-decoration: none;
-  color: #007bff;
-}
-.pagination span {
-  margin-right: 6px;
-  color: #555;
-}
+.pagination { margin: 10px 0; text-align: left; }
+.pagination a { margin-right: 6px; text-decoration: none; color: #007bff; }
+.pagination span { margin-right: 6px; color: #555; }
 
 @media (max-width: 600px) {
   .container, form, textarea, input[type="text"] {
