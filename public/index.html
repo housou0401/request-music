@@ -5,53 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ユーザーフォーム-放送委員会</title>
   <link rel="stylesheet" href="style.css">
-  <script src="js/app.js" defer></script>
-  <style>
-    /* ページ独自のスタイル（index用） */
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
-      position: relative;
-    }
-    .admin-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: #d3d3d3;
-      padding: 10px 20px;
-      border-radius: 20px;
-      border: none;
-      cursor: pointer;
-      display: inline-block;
-      width: auto;
-      text-align: center;
-      font-size: 14px;
-    }
-    .admin-button:hover {
-      background-color: #b3b3b3;
-    }
-    .container {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-    }
-    .privacy-note {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      font-size: 12px;
-      color: #aaa;
-    }
-  </style>
+  <script src="skript.js" defer></script>
 </head>
 <body onload="checkRecruitingStatus(); updateFrontendTitle();">
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
@@ -59,9 +13,9 @@
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
     
     <!-- 検索モード切替ボタン -->
-    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-      <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px; width:auto;">曲名(アーティスト)で検索</button>
-      <button id="modeArtist" onclick="setSearchMode('artist');" style="width:auto;">アーティストから検索</button>
+    <div class="button-container">
+      <button id="modeSong" onclick="setSearchMode('song');">曲名(アーティスト)で検索</button>
+      <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
     </div>
     
     <!-- 送信フォーム -->
@@ -76,17 +30,12 @@
       </div>
       
       <div id="reSearchSongMode" style="display:none; margin-bottom:10px;">
-        <button type="button" style="width:auto;" onclick="reSearch()">再検索</button>
+        <button type="button" onclick="reSearch()">再検索</button>
       </div>
       <div id="reSearchArtistMode" style="display:none; margin-bottom:10px;">
-        <button type="button" style="width:auto;" onclick="reSearch()">再検索</button>
+        <button type="button" onclick="reSearch()">再検索</button>
       </div>
       
-      <div id="loadingIndicator">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">読み込み中</div>
-      </div>
-
       <div id="suggestions"></div>
       <div id="selectedArtist"></div>
       <div id="selectedLabel"></div>
