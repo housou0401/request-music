@@ -75,15 +75,14 @@ button:hover {
 }
 
 .admin-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   background-color: #d3d3d3;
-  margin-bottom: 10px;
   padding: 10px 20px;
   border-radius: 20px;
   border: none;
   cursor: pointer;
-  display: inline-block;
-  width: auto;
-  text-align: center;
   font-size: 14px;
 }
 .admin-button:hover {
@@ -91,7 +90,11 @@ button:hover {
 }
 
 .privacy-note {
-  margin-top: 10px;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  color: #888;
+  font-size: 12px;
   font-weight: bold;
 }
 
@@ -131,7 +134,7 @@ button:hover {
   padding: 10px;
 }
 
-.clear-btn, .input-clear-btn {
+.clear-btn {
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -145,7 +148,7 @@ button:hover {
   color: #333;
   transition: background-color 0.2s ease;
 }
-.clear-btn:hover, .input-clear-btn:hover {
+.clear-btn:hover {
   background-color: lightgray;
 }
 
@@ -233,30 +236,19 @@ button:hover {
   margin-bottom: 10px;
 }
 
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+.loading-spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #888;
   border-radius: 50%;
   width: 30px;
   height: 30px;
   animation: spin 1s linear infinite;
-  display: none;
-  margin-left: 10px;
+  margin-bottom: 10px;
 }
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
-#selectedLabel {
-  margin-top: 16px;
-  margin-bottom: 16px;
-  text-align: center;
-  font-size: 16px;
-  color: #555;
-}
-
-/* ロード中UI */
 #loadingIndicator {
   display: none;
   position: absolute;
@@ -270,21 +262,12 @@ button:hover {
   border-radius: 10px;
   padding: 20px;
 }
-.loading-spinner {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #888;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
-}
 .loading-text {
   color: #888;
   font-size: 14px;
 }
 
-/* 再検索ボタンのスタイル */
+/* 再検索ボタン */
 #reSearchSongMode button,
 #reSearchArtistMode button {
   font-size: 14px;
