@@ -2,51 +2,181 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title id="pageTitle">♬曲をリクエストする</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ユーザーフォーム-放送委員会</title>
   <link rel="stylesheet" href="style.css">
   <script src="skript.js" defer></script>
+  <style>
+    /* ページ独自のスタイル（index用） */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      position: relative;
+    }
+    .admin-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #d3d3d3;
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      display: inline-block;
+      width: auto;
+      text-align: center;
+      font-size: 14px;
+    }
+    .admin-button:hover {
+      background-color: #b3b3b3;
+    }
+    .container {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+    }
+    .privacy-note {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 12px;
+      color: #aaa;
+    }
+    /* ロード中UI */
+    #loadingIndicator {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255,255,255,0.7);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .loading-spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #888;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      color: #888;
+      font-size: 14px;
+    }
+  </style>
 </head>
-<body onload="checkRecruitingStatus()">
+<body onload="checkRecruitingStatus(); updateFrontendTitle();">
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
   <div class="container" id="mainContainer">
-    <h1 id="frontendTitle">♬曲をリクエストする</h1>
-    <div class="button-container">
-      <button id="modeSong" onclick="setSearchMode('song')">曲名(アーティスト)で検索</button>
-      <button id="modeArtist" onclick="setSearchMode('artist')">アーティストから検索</button>
-    </div>
-    <div id="artistInputContainer" class="input-container">
-      <input type="text" id="artistName" placeholder="アーティスト名を入力">
-      <button class="input-clear-btn" onclick="clearInput('artistName')">×</button>
-    </div>
-    <div class="input-container">
-      <input type="text" id="songName" placeholder="曲名を入力" oninput="searchSongs()">
-      <button class="input-clear-btn" onclick="clearInput('songName')">×</button>
-    </div>
-    <div id="reSearchSongMode"><button onclick="reSearch()">再検索</button></div>
-    <div id="reSearchArtistMode" style="display:none"><button onclick="reSearch()">再検索</button></div>
+    <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
+    
+    <!-- ロード中UI -->
     <div id="loadingIndicator">
       <div class="loading-spinner"></div>
-      <div class="loading-text">読み込み中</div>
+      <div class="loading-text">読み込み中...</div>
     </div>
-    <div id="suggestions"></div>
-    <div id="selectedLabel"></div>
-    <div id="selectedArtist"></div>
-    <div id="selectedSong"></div>
-    <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)"></form>
+    
+    <!-- 検索モード切替ボタン -->
+    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+      <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
+      <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
+    </div>
+    
+    <!-- 送信フォーム -->
+    <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
+      <!-- 曲名入力欄 -->
+      <div class="input-container">
+        <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
+        <button type="button" class="input-clear-btn" onclick="clearInput('songName')">×</button>
+      </div>
+      <!-- アーティスト名入力欄（曲名モードの場合のみ表示） -->
+      <div class="input-container" id="artistInputContainer">
+        <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力してください" oninput="searchSongs()">
+        <button type="button" class="input-clear-btn" onclick="clearInput('artistName')">×</button>
+      </div>
+      
+      <!-- 再検索ボタン（初回は曲名モードの場合は必ず1つ表示） -->
+      <div id="reSearchSongMode" style="margin:10px 0; display:block;">
+        <button type="button" onclick="reSearch()">再検索</button>
+      </div>
+      <div id="reSearchArtistMode" style="margin:10px 0; display:none;">
+        <button type="button" onclick="reSearch()">再検索</button>
+      </div>
+      
+      <!-- 検索結果一覧 -->
+      <div id="suggestions"></div>
+      
+      <!-- 選択中のアーティスト／曲 -->
+      <div id="selectedArtist"></div>
+      <div id="selectedLabel"></div>
+      <div id="selectedSong"></div>
+      
+      <!-- hidden fields -->
+      <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
+      <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
+      <input type="hidden" id="previewUrlHidden" name="previewUrl">
+      
+      <button type="submit">送信</button>
+    </form>
   </div>
   <p class="privacy-note">個人情報は収集されません。</p>
   <script>
     function checkRecruitingStatus() {
       fetch("/settings")
         .then(r => r.json())
-        .then(d => {
-          document.getElementById("frontendTitle").innerText = d.frontendTitle;
-          document.getElementById("pageTitle").innerText = d.frontendTitle;
-          if (!d.recruiting) {
-            document.getElementById("mainContainer").innerHTML = `<p style="color:red;font-size:1.2em;">現在は募集していません</p>`;
+        .then(data => {
+          if (!data.recruiting) {
+            const container = document.getElementById("mainContainer");
+            container.innerHTML = "";
+            const message = document.createElement("div");
+            message.style.textAlign = "center";
+            message.style.color = "red";
+            message.style.fontSize = "1.5em";
+            message.style.margin = "20px 0";
+            message.innerText = "現在は曲を募集していません";
+            container.appendChild(message);
+            if (data.reason && data.reason.trim() !== "") {
+              const reason = document.createElement("div");
+              reason.style.textAlign = "center";
+              reason.style.color = "black";
+              reason.style.fontSize = "1.2em";
+              reason.style.margin = "10px 0";
+              reason.innerText = data.reason;
+              container.appendChild(reason);
+            }
           }
-        });
+        })
+        .catch(err => console.error("設定取得エラー:", err));
+    }
+    function updateFrontendTitle() {
+      fetch("/settings")
+        .then(r => r.json())
+        .then(data => {
+          if (data.frontendTitle) {
+            document.getElementById("frontendTitle").innerText = data.frontendTitle;
+          }
+        })
+        .catch(err => console.error("タイトル取得エラー:", err));
     }
   </script>
 </body>
