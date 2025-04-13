@@ -49,7 +49,7 @@ function setSearchMode(mode) {
     isPlaying = false;
     updatePlayPauseIcon();
   }
-  // モード切替：曲名モードの場合はアーティスト入力欄表示と「再検索」ボタン表示
+  // モードに応じた表示切替
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
     document.getElementById("songName").placeholder = "アーティスト名を入力してください";
@@ -236,12 +236,11 @@ function selectSong(song) {
       }
     }
     previewAudio.src = song.previewUrl;
-    // 追加：明示的に load() を呼んでから再生開始
-    previewAudio.load();
     previewAudio.onloadedmetadata = function() {
       previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
       previewAudio.play().catch(err => { console.error("Playback error:", err); });
     };
+    // 既にメタデータ読み込み済みの場合
     if (previewAudio.readyState >= 2) {
       previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
       previewAudio.play().catch(err => { console.error("Playback error:", err); });
@@ -285,32 +284,32 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
-  // ミュート時：従来のスピーカー＋×
+  // ミュート時は元のスピーカー＋×アイコン
   if (isMuted || vol <= 0.01) {
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="2"/>
+      <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="3"/>
     </svg>`;
   } else if (vol < 0.35) {
-    // 低音量：1つの波形、細く、上下中央揃え、間隔広め
+    // 低音量：1つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C15.5,10 15.5,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
     // 中音量：2つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C15.5,10 15.5,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12 C18.5,8 18.5,16 18,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
+      <path d="M18,12 C19,6 19,18 18,12" stroke="#888" stroke-width="3" fill="none"/>
     </svg>`;
   } else {
     // 高音量：3つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C15.5,10 15.5,14 15,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M18,12 C18.5,8 18.5,16 18,12" stroke="#888" stroke-width="2" fill="none"/>
-      <path d="M21,12 C21.5,6 21.5,18 21,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
+      <path d="M18,12 C19,6 19,18 18,12" stroke="#888" stroke-width="3" fill="none"/>
+      <path d="M21,12 C22,4 22,20 21,12" stroke="#888" stroke-width="3" fill="none"/>
     </svg>`;
   }
   volumeBtn.innerHTML = svg;
