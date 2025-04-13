@@ -1,379 +1,505 @@
-// public/skript.js
+import express from "express";
+import bodyParser from "body-parser";
+import { LowSync, JSONFileSync } from "lowdb";
+import { nanoid } from "nanoid";
+import fetch from "node-fetch";
+import cron from "node-cron";
+import fs from "fs";
+import axios from "axios";
+import dotenv from "dotenv";
 
-// Web Audio API（iOS Safari/Chrome対応）
-let audioContext = null;
-let gainNode = null;
-let searchMode = "song";
-let artistPhase = 0;
-let selectedArtistId = null;
-let previewAudio = null;
-let isPlaying = false;
-let isMuted = false;
-let playerControlsEnabled = true;
+dotenv.config();
 
-window.onload = async function() {
-  // 初期状態は曲名モード
-  setSearchMode('song');
+const app = express();
+const PORT = 3000;
 
-  // 初回タップで AudioContext 再開（iOS Safari/Chrome対策）
-  document.addEventListener("click", () => {
-    if (audioContext && audioContext.state === "suspended") {
-      audioContext.resume();
-    }
-  }, { once: true });
+// Render の Environment Variables（Environment タブで設定）
+const GITHUB_OWNER = process.env.GITHUB_OWNER;
+const REPO_NAME = process.env.REPO_NAME;
+const FILE_PATH = "db.json";
+const BRANCH = process.env.GITHUB_BRANCH || "main";
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-  await loadSettings();
-};
+if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
+  console.error("必要な環境変数(GITHUB_OWNER, REPO_NAME, GITHUB_TOKEN)が設定されていません。");
+  process.exit(1);
+}
 
-async function loadSettings() {
+// LowDB のセットアップ
+const adapter = new JSONFileSync("db.json");
+const db = new LowSync(adapter);
+db.read();
+db.data = db.data || { responses: [], songCounts: {}, settings: {} };
+if (!db.data.songCounts) db.data.songCounts = {};
+if (!db.data.settings) {
+  db.data.settings = {
+    recruiting: true,
+    reason: "",
+    frontendTitle: "♬曲をリクエストする",
+    adminPassword: "housou0401",
+    playerControlsEnabled: true
+  };
+  db.write();
+} else {
+  if (db.data.settings.playerControlsEnabled === undefined) {
+    db.data.settings.playerControlsEnabled = true;
+  }
+  db.write();
+}
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
+/* Apple Music 検索関連 */
+async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
+  let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
+  if (attribute) url += `&attribute=${attribute}`;
+  const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+  if (!response.ok) {
+    console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
+    return { results: [] };
+  }
+  const text = await response.text();
+  if (!text.trim()) return { results: [] };
   try {
-    const res = await fetch("/settings");
-    const data = await res.json();
-    playerControlsEnabled = data.playerControlsEnabled !== false;
+    return JSON.parse(text);
   } catch (e) {
-    console.error("設定読み込みエラー:", e);
-    playerControlsEnabled = true;
+    console.error(`JSON parse error for url=${url}:`, e);
+    return { results: [] };
   }
 }
 
-function setSearchMode(mode) {
-  searchMode = mode;
-  artistPhase = 0;
-  selectedArtistId = null;
-  document.getElementById("songName").value = "";
-  document.getElementById("artistName").value = "";
-  document.getElementById("suggestions").innerHTML = "";
-  document.getElementById("selectedLabel").innerHTML = "";
-  document.getElementById("selectedSong").innerHTML = "";
-  document.getElementById("selectedArtist").innerHTML = "";
-  if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    isPlaying = false;
-    updatePlayPauseIcon();
+async function fetchArtistTracks(artistId) {
+  const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=50`;
+  const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+  if (!response.ok) {
+    console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
+    return [];
   }
-  // モードに応じた表示切替
-  if (mode === "artist") {
-    document.getElementById("artistInputContainer").style.display = "none";
-    document.getElementById("songName").placeholder = "アーティスト名を入力してください";
-    document.getElementById("modeArtist").style.backgroundColor = "#007bff";
-    document.getElementById("modeArtist").style.color = "white";
-    document.getElementById("modeSong").style.backgroundColor = "";
-    document.getElementById("modeSong").style.color = "";
-    document.getElementById("reSearchSongMode").style.display = "none";
-    document.getElementById("reSearchArtistMode").style.display = "block";
-  } else {
-    document.getElementById("artistInputContainer").style.display = "block";
-    document.getElementById("songName").placeholder = "曲名を入力してください";
-    document.getElementById("modeSong").style.backgroundColor = "#007bff";
-    document.getElementById("modeSong").style.color = "white";
-    document.getElementById("modeArtist").style.backgroundColor = "";
-    document.getElementById("modeArtist").style.color = "";
-    document.getElementById("reSearchSongMode").style.display = "block";
-    document.getElementById("reSearchArtistMode").style.display = "none";
+  const text = await response.text();
+  if (!text.trim()) return [];
+  try {
+    const data = JSON.parse(text);
+    if (!data.results || data.results.length <= 1) return [];
+    return data.results.slice(1).map(r => ({
+      trackName: r.trackName,
+      artistName: r.artistName,
+      trackViewUrl: r.trackViewUrl,
+      artworkUrl: r.artworkUrl100,
+      previewUrl: r.previewUrl || ""
+    }));
+  } catch (e) {
+    console.error("JSON parse error (fetchArtistTracks):", e);
+    return [];
   }
 }
 
-function reSearch() {
-  searchSongs();
-}
+async function fetchAppleMusicInfo(songTitle, artistName) {
+  try {
+    const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
+    const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
+    let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
 
-async function searchSongs() {
-  const suggestionsContainer = document.getElementById("suggestions");
-  suggestionsContainer.innerHTML = "";
-  showLoading();
-  if (searchMode === "artist") {
-    if (artistPhase === 0) {
-      const artistQuery = document.getElementById("songName").value.trim();
-      if (artistQuery.length < 1) { hideLoading(); return; }
-      try {
-        const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(artistQuery)}`);
-        const suggestions = await res.json();
-        suggestions.forEach(artist => {
-          const item = document.createElement("div");
-          item.classList.add("suggestion-item");
-          item.innerHTML = `<strong>${artist.trackName}</strong>`;
-          item.onclick = () => selectArtist(artist);
-          suggestionsContainer.appendChild(item);
-        });
-      } catch (e) {
-        console.error("アーティスト検索エラー:", e);
-      }
+    let queries = [];
+    if (artistName && artistName.trim()) {
+      queries.push(`${songTitle} ${artistName}`);
+      queries.push(`${songTitle} official ${artistName}`);
     } else {
-      await fetchArtistTracksAndShow();
+      queries.push(songTitle);
+      queries.push(`${songTitle} official`);
     }
-  } else {
-    const songQuery = document.getElementById("songName").value.trim();
-    const artistQuery = document.getElementById("artistName").value.trim();
-    if (songQuery.length < 1) { hideLoading(); return; }
-    try {
-      const res = await fetch(`/search?query=${encodeURIComponent(songQuery)}&artist=${encodeURIComponent(artistQuery)}`);
-      const suggestions = await res.json();
-      suggestions.forEach(song => {
-        const item = document.createElement("div");
-        item.classList.add("suggestion-item");
-        item.innerHTML = `<strong>${song.trackName}</strong><br>${song.artistName}`;
-        item.onclick = () => selectSong(song);
-        suggestionsContainer.appendChild(item);
-      });
-    } catch (e) {
-      console.error("曲検索エラー:", e);
+
+    for (let query of queries) {
+      let data = await fetchResultsForQuery(query, lang, "song", "songTerm");
+      if (data.results.length === 0 && (lang === "en_us" || lang === "en_gb")) {
+        const altLang = (lang === "en_us") ? "en_gb" : "en_us";
+        data = await fetchResultsForQuery(query, altLang, "song", "songTerm");
+      }
+      if (data && data.results && data.results.length > 0) {
+        const uniqueResults = [];
+        const seen = new Set();
+        for (let track of data.results) {
+          const key = (track.trackName + "|" + track.artistName).toLowerCase();
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniqueResults.push({
+              trackName: track.trackName,
+              artistName: track.artistName,
+              trackViewUrl: track.trackViewUrl,
+              artworkUrl: track.artworkUrl100,
+              previewUrl: track.previewUrl || ""
+            });
+          }
+        }
+        if (uniqueResults.length > 0) return uniqueResults;
+      }
     }
+    return [];
+  } catch (error) {
+    console.error("❌ Apple Music 検索エラー:", error);
+    return [];
   }
-  hideLoading();
 }
 
-function selectArtist(artist) {
-  selectedArtistId = artist.artistId;
-  artistPhase = 1;
-  document.getElementById("selectedArtist").innerHTML = `
-    <div>選択中のアーティスト</div>
-    <div>${artist.trackName}</div>
-    <button onclick="clearArtistSelection()">×</button>
-  `;
-  document.getElementById("suggestions").innerHTML = "";
-  fetchArtistTracksAndShow();
-}
-
-async function fetchArtistTracksAndShow() {
-  const suggestionsContainer = document.getElementById("suggestions");
-  suggestionsContainer.innerHTML = "";
+/* /search エンドポイント */
+app.get("/search", async (req, res) => {
+  const mode = req.query.mode || "song";
   try {
-    const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
-    const tracks = await res.json();
-    tracks.forEach(song => {
-      const item = document.createElement("div");
-      item.classList.add("suggestion-item");
-      item.innerHTML = `<strong>${song.trackName}</strong><br>${song.artistName}`;
-      item.onclick = () => selectSong(song);
-      suggestionsContainer.appendChild(item);
-    });
-  } catch (e) {
-    console.error("アーティストの曲一覧取得エラー:", e);
-  }
-}
-
-function selectSong(song) {
-  document.getElementById("songName").value = song.trackName;
-  if (searchMode === "song" && !document.getElementById("artistName").value.trim()) {
-    document.getElementById("artistName").value = song.artistName;
-  }
-  document.getElementById("selectedLabel").innerHTML = `<div>選択中の曲</div>`;
-  const container = document.getElementById("selectedSong");
-  container.innerHTML = `
-    <div>${song.trackName}</div>
-    <div>${song.artistName}</div>
-    <button onclick="clearSelection()">×</button>
-  `;
-
-  // hidden fields
-  let hiddenApple = document.getElementById("appleMusicUrlHidden") || document.createElement("input");
-  if (!hiddenApple.id) {
-    hiddenApple.type = "hidden"; hiddenApple.id = "appleMusicUrlHidden"; hiddenApple.name = "appleMusicUrl";
-    document.getElementById("requestForm").appendChild(hiddenApple);
-  }
-  hiddenApple.value = song.trackViewUrl;
-
-  let hiddenArtwork = document.getElementById("artworkUrlHidden") || document.createElement("input");
-  if (!hiddenArtwork.id) {
-    hiddenArtwork.type = "hidden"; hiddenArtwork.id = "artworkUrlHidden"; hiddenArtwork.name = "artworkUrl";
-    document.getElementById("requestForm").appendChild(hiddenArtwork);
-  }
-  hiddenArtwork.value = song.artworkUrl;
-
-  let hiddenPreview = document.getElementById("previewUrlHidden") || document.createElement("input");
-  if (!hiddenPreview.id) {
-    hiddenPreview.type = "hidden"; hiddenPreview.id = "previewUrlHidden"; hiddenPreview.name = "previewUrl";
-    document.getElementById("requestForm").appendChild(hiddenPreview);
-  }
-  hiddenPreview.value = song.previewUrl;
-
-  // プレビュー再生
-  if (playerControlsEnabled && song.previewUrl) {
-    if (!previewAudio) {
-      previewAudio = document.createElement("audio");
-      previewAudio.id = "previewAudio";
-      // 動作確認用にネイティブコントロールを有効化
-      previewAudio.controls = true;
-      previewAudio.style.display = "block";
-      document.body.appendChild(previewAudio);
-
-      if (!window.AudioContext && !window.webkitAudioContext) {
-        console.warn("Web Audio API がサポートされていません");
+    if (mode === "artist") {
+      if (req.query.artistId) {
+        const tracks = await fetchArtistTracks(req.query.artistId.trim());
+        return res.json(tracks);
       } else {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const query = req.query.query?.trim();
+        if (!query) return res.json([]);
+        const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
+        const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(query);
+        let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
+        const data = await fetchResultsForQuery(query, lang, "album", "artistTerm");
+        if (!data || !data.results) return res.json([]);
+        const artistMap = new Map();
+        for (let album of data.results) {
+          if (album.artistName && album.artistId) {
+            if (!artistMap.has(album.artistId)) {
+              artistMap.set(album.artistId, {
+                trackName: album.artistName,
+                artistName: album.artistName,
+                artworkUrl: album.artworkUrl100 || "",
+                artistId: album.artistId
+              });
+            }
+          }
+        }
+        return res.json(Array.from(artistMap.values()));
+      }
+    } else {
+      const query = req.query.query?.trim();
+      const artist = req.query.artist?.trim() || "";
+      if (!query) return res.json([]);
+      const suggestions = await fetchAppleMusicInfo(query, artist);
+      return res.json(suggestions);
+    }
+  } catch (err) {
+    console.error("❌ /search エラー:", err);
+    return res.json([]);
+  }
+});
+
+/* リクエスト送信 */
+app.post("/submit", (req, res) => {
+  const appleMusicUrl = req.body.appleMusicUrl?.trim();
+  const artworkUrl = req.body.artworkUrl?.trim();
+  const previewUrl = req.body.previewUrl?.trim();
+  if (!appleMusicUrl || !artworkUrl || !previewUrl) {
+    return res.send(`<script>alert("必ず候補一覧から曲を選択してください"); window.location.href="/";</script>`);
+  }
+  const responseText = req.body.response?.trim();
+  const artistText = req.body.artist?.trim() || "アーティスト不明";
+  if (!responseText) {
+    return res.send(`<script>alert("⚠️入力欄が空です。"); window.location.href="/";</script>`);
+  }
+  const key = `${responseText.toLowerCase()}|${artistText.toLowerCase()}`;
+  db.data.songCounts[key] = (db.data.songCounts[key] || 0) + 1;
+  const existing = db.data.responses.find(r =>
+    r.text.toLowerCase() === responseText.toLowerCase() &&
+    r.artist.toLowerCase() === artistText.toLowerCase()
+  );
+  if (existing) {
+    existing.count = db.data.songCounts[key];
+  } else {
+    db.data.responses.push({
+      id: nanoid(),
+      text: responseText,
+      artist: artistText,
+      appleMusicUrl,
+      artworkUrl,
+      previewUrl,
+      count: db.data.songCounts[key]
+    });
+  }
+  db.write();
+  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+  res.send(`<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>`);
+});
+
+/* リクエスト削除（リクエスト回数もリセット） */
+app.get("/delete/:id", (req, res) => {
+  const id = req.params.id;
+  const toDelete = db.data.responses.find(entry => entry.id === id);
+  if (toDelete) {
+    const key = `${toDelete.text.toLowerCase()}|${toDelete.artist.toLowerCase()}`;
+    delete db.data.songCounts[key];
+  }
+  db.data.responses = db.data.responses.filter(entry => entry.id !== id);
+  db.write();
+  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+  res.set("Content-Type", "text/html");
+  res.send(`<script>alert("🗑️削除しました！"); window.location.href="/admin";</script>`);
+});
+
+/* GitHub 同期/取得 */
+async function syncRequestsToGitHub() {
+  const localContent = JSON.stringify(db.data, null, 2);
+  let sha = null;
+  try {
+    const getResponse = await axios.get(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
+      {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    );
+    sha = getResponse.data.sha;
+  } catch (err) {
+    if (err.response && err.response.status === 404) {
+      sha = null;
+    } else {
+      throw err;
+    }
+  }
+  const contentEncoded = Buffer.from(localContent).toString("base64");
+  const putData = {
+    message: "Sync db.json",
+    content: contentEncoded,
+    branch: BRANCH,
+  };
+  if (sha) putData.sha = sha;
+  const putResponse = await axios.put(
+    `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
+    putData,
+    {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    }
+  );
+  return putResponse.data;
+}
+
+app.get("/sync-requests", async (req, res) => {
+  try {
+    await syncRequestsToGitHub();
+    res.set("Content-Type", "text/html");
+    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
+  } catch (e) {
+    res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
+  }
+});
+
+app.get("/fetch-requests", async (req, res) => {
+  try {
+    const getResponse = await axios.get(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
+      {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    );
+    const contentBase64 = getResponse.data.content;
+    const content = Buffer.from(contentBase64, "base64").toString("utf8");
+    db.data = JSON.parse(content);
+    db.write();
+    fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+    res.set("Content-Type", "text/html");
+    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
+  } catch (error) {
+    res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
+  }
+});
+
+app.get("/admin", (req, res) => {
+  const page = parseInt(req.query.page || "1", 10);
+  const perPage = 10;
+  const total = db.data.responses.length;
+  const totalPages = Math.ceil(total / perPage);
+  const startIndex = (page - 1) * perPage;
+  const pageItems = db.data.responses.slice(startIndex, startIndex + perPage);
+
+  function createPaginationLinks(currentPage, totalPages) {
+    let html = `<div style="text-align:left; margin-bottom:10px;">`;
+    html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
+    const prevPage = Math.max(1, currentPage - 1);
+    html += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
+    for (let p = 1; p <= totalPages; p++) {
+      if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
+        if (p === currentPage) {
+          html += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
+        } else {
+          html += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
+        }
+      } else if (Math.abs(p - currentPage) === 3) {
+        html += `...`;
       }
     }
+    const nextPage = Math.min(totalPages, currentPage + 1);
+    html += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
+    html += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
+    html += `</div>`;
+    return html;
+  }
 
-    previewAudio.src = song.previewUrl;
-    previewAudio.loop = true;
-
-    // 音量制御用ノードの初期化
-    if (audioContext && !gainNode) {
-      const source = audioContext.createMediaElementSource(previewAudio);
-      gainNode = audioContext.createGain();
-      source.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+  let html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>管理者ページ</title>
+  <style>
+    li { margin-bottom: 10px; }
+    .entry-container { position: relative; display: inline-block; margin-bottom:10px; }
+    .entry { display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; width: fit-content; }
+    .entry:hover { background-color: rgba(0,0,0,0.05); }
+    .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
+    .delete { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: red; text-decoration: none; }
+    .count-badge { background-color: #ff6b6b; color: white; font-weight: bold; padding: 4px 8px; border-radius: 5px; margin-right: 10px; }
+    h1 { font-size: 1.5em; margin-bottom: 20px; }
+    form { margin: 20px 0; text-align: left; }
+    textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }
+    .setting-field { margin-bottom: 10px; }
+    .sync-btn, .fetch-btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
     }
-
-    // デフォルト音量
-    if (audioContext && gainNode) {
-      gainNode.gain.value = 0.5;
-    } else {
-      previewAudio.volume = 0.5;
+    .sync-btn { background-color: #28a745; color: white; }
+    .sync-btn:hover { background-color: #218838; }
+    .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
+    .fetch-btn:hover { background-color: #138496; }
+    .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      display: none;
+      margin-left: 10px;
     }
-
-    // ユーザー操作と同一のハンドラ内で再生を呼び出す
-    previewAudio.play().catch(err => {
-      console.error("Playback error:", err);
-      alert("プレビューの再生がブラウザの制限によりブロックされました。画面上の再生ボタンを押してください。");
-    });
-
-    isPlaying = true;
-    isMuted = false;
-    updatePlayPauseIcon();
-    updateVolumeIcon();
-  }
-}
-
-function changeVolume(val) {
-  if (!previewAudio) return;
-  const volumeValue = parseInt(val, 10) / 100;
-  if (isMuted) {
-    isMuted = false;
-    previewAudio.muted = false;
-  }
-  if (audioContext && gainNode) {
-    gainNode.gain.value = volumeValue;
-  } else {
-    previewAudio.volume = volumeValue;
-  }
-  updateVolumeIcon();
-}
-
-function updateVolumeIcon() {
-  const volumeBtn = document.getElementById("volumeBtn");
-  if (!volumeBtn || !previewAudio) return;
-  let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
-  let svg = "";
-  if (isMuted || vol <= 0.01) {
-    svg = `<svg><!-- ミュートアイコン --></svg>`;
-  } else if (vol < 0.35) {
-    svg = `<svg><!-- 低音量アイコン --></svg>`;
-  } else if (vol < 0.65) {
-    svg = `<svg><!-- 中音量アイコン --></svg>`;
-  } else {
-    svg = `<svg><!-- 高音量アイコン --></svg>`;
-  }
-  volumeBtn.innerHTML = svg;
-}
-
-function togglePlay(e) {
-  e.stopPropagation();
-  if (!previewAudio) return;
-  if (isPlaying) {
-    previewAudio.pause();
-    isPlaying = false;
-  } else {
-    if (audioContext && audioContext.state === "suspended") {
-      audioContext.resume();
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+  </head><body><h1>✉アンケート回答一覧</h1>`;
+  html += createPaginationLinks(page, totalPages);
+  html += `<ul style="list-style:none; padding:0;">`;
+  pageItems.forEach(entry => {
+    html += `<li>
+      <div class="entry-container">
+        <a href="${entry.appleMusicUrl || "#"}" target="_blank" class="entry">
+          <div class="count-badge">${entry.count}</div>
+          <img src="${entry.artworkUrl}" alt="Cover">
+          <div>
+            <strong>${entry.text}</strong><br>
+            <small>${entry.artist}</small>
+          </div>
+        </a>
+        <a href="/delete/${entry.id}" class="delete">🗑️</a>
+      </div>
+    </li>`;
+  });
+  html += `</ul>`;
+  html += createPaginationLinks(page, totalPages);
+  html += `<form action="/update-settings" method="post">
+    <div class="setting-field">
+      <label>
+        <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        募集を終了する
+      </label>
+    </div>
+    <div class="setting-field">
+      <label>理由:</label><br>
+      <textarea name="reason" placeholder="理由（任意）">${db.data.settings.reason || ""}</textarea>
+    </div>
+    <div class="setting-field">
+      <label>フロントエンドタイトル:</label><br>
+      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
+    </div>
+    <div class="setting-field">
+      <label>管理者パスワード:</label><br>
+      <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;">
+    </div>
+    <div class="setting-field">
+      <label>
+        <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
+        ユーザーページの再生・音量ボタンを表示する
+      </label>
+    </div>
+    <br>
+    <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
+  </form>`;
+  html += `<div class="button-container">
+    <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
+    <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
+    <div class="spinner" id="loadingSpinner"></div>
+  </div>
+  <br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
+  html += `<script>
+    function syncToGitHub() {
+      document.getElementById("syncBtn").disabled = true;
+      document.getElementById("fetchBtn").disabled = true;
+      document.getElementById("loadingSpinner").style.display = "block";
+      fetch("/sync-requests")
+        .then(r => r.text())
+        .then(d => { document.body.innerHTML = d; })
+        .catch(e => {
+          alert("エラー: " + e);
+          document.getElementById("loadingSpinner").style.display = "none";
+          document.getElementById("syncBtn").disabled = false;
+          document.getElementById("fetchBtn").disabled = false;
+        });
     }
-    previewAudio.play().catch(err => {
-      console.error("Playback error:", err);
-      alert("再生できませんでした。");
-    });
-    isPlaying = true;
+    function fetchFromGitHub() {
+      document.getElementById("syncBtn").disabled = true;
+      document.getElementById("fetchBtn").disabled = true;
+      document.getElementById("loadingSpinner").style.display = "block";
+      fetch("/fetch-requests")
+        .then(r => r.text())
+        .then(d => { document.body.innerHTML = d; })
+        .catch(e => {
+          alert("エラー: " + e);
+          document.getElementById("loadingSpinner").style.display = "none";
+          document.getElementById("syncBtn").disabled = false;
+          document.getElementById("fetchBtn").disabled = false;
+        });
+    }
+  </script>`;
+  html += `</body></html>`;
+  res.send(html);
+});
+
+app.get("/admin-login", (req, res) => {
+  const { password } = req.query;
+  res.json({ success: password === db.data.settings.adminPassword });
+});
+
+app.post("/update-settings", (req, res) => {
+  db.data.settings.recruiting = req.body.recruiting ? false : true;
+  db.data.settings.reason = req.body.reason || "";
+  db.data.settings.frontendTitle = req.body.frontendTitle || "♬曲をリクエストする";
+  if (req.body.adminPassword && req.body.adminPassword.trim()) {
+    db.data.settings.adminPassword = req.body.adminPassword.trim();
   }
-  updatePlayPauseIcon();
-}
+  db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
+  db.write();
+  res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
+});
 
-function updatePlayPauseIcon() {
-  const btn = document.getElementById("playPauseBtn");
-  if (!btn) return;
-  let svg = "";
-  if (isPlaying) {
-    svg = `<svg><!-- 一時停止アイコン --></svg>`;
-  } else {
-    svg = `<svg><!-- 再生アイコン --></svg>`;
+app.get("/settings", (req, res) => {
+  res.json(db.data.settings);
+});
+
+// 20分ごと自動同期
+cron.schedule("*/20 * * * *", async () => {
+  console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
+  try {
+    await syncRequestsToGitHub();
+    console.log("自動更新完了");
+  } catch (e) {
+    console.error("自動更新エラー:", e);
   }
-  btn.innerHTML = svg;
-}
+});
 
-function toggleMute(e) {
-  e.stopPropagation();
-  if (!previewAudio) return;
-  isMuted = !isMuted;
-  previewAudio.muted = isMuted;
-  updateVolumeIcon();
-}
-
-function clearSelection() {
-  document.getElementById("selectedLabel").innerHTML = "";
-  document.getElementById("selectedSong").innerHTML = "";
-  if (document.getElementById("appleMusicUrlHidden")) document.getElementById("appleMusicUrlHidden").value = "";
-  if (document.getElementById("artworkUrlHidden")) document.getElementById("artworkUrlHidden").value = "";
-  if (document.getElementById("previewUrlHidden")) document.getElementById("previewUrlHidden").value = "";
-  if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    isPlaying = false;
-    updatePlayPauseIcon();
-  }
-  clearArtistSelection();
-  searchSongs();
-}
-
-function clearArtistSelection() {
-  selectedArtistId = null;
-  artistPhase = 0;
-  document.getElementById("selectedArtist").innerHTML = "";
-  document.getElementById("selectedLabel").innerHTML = "";
-  document.getElementById("selectedSong").innerHTML = "";
-  if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    isPlaying = false;
-    updatePlayPauseIcon();
-  }
-  document.getElementById("suggestions").innerHTML = "";
-  searchSongs();
-}
-
-function clearInput(id) {
-  document.getElementById(id).value = "";
-  searchSongs();
-}
-
-function handleSubmit(e) {
-  e.preventDefault();
-  const appleUrl = document.getElementById("appleMusicUrlHidden")?.value.trim();
-  if (!appleUrl) {
-    alert("必ず候補一覧から曲を選択してください");
-    return;
-  }
-  document.getElementById("requestForm").submit();
-}
-
-function showAdminLogin() {
-  const password = prompt("⚠️管理者パスワードを入力してください:");
-  if (password) {
-    fetch(`/admin-login?password=${encodeURIComponent(password)}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) window.location.href = "/admin";
-        else alert("⚠️パスワードが間違っています。");
-      })
-      .catch(err => console.error("管理者ログインエラー:", err));
-  }
-}
-
-/* ロード中UI */
-function showLoading() {
-  const loader = document.getElementById("loadingIndicator");
-  if (loader) loader.style.display = "flex";
-}
-
-function hideLoading() {
-  const loader = document.getElementById("loadingIndicator");
-  if (loader) loader.style.display = "none";
-}
+app.listen(PORT, () => {
+  console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
+});
