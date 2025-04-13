@@ -57,6 +57,7 @@ function setSearchMode(mode) {
     document.getElementById("modeArtist").style.color = "white";
     document.getElementById("modeSong").style.backgroundColor = "";
     document.getElementById("modeSong").style.color = "";
+    // アーティストモードでは再検索ボタンを表示
     document.getElementById("reSearchSongMode").style.display = "none";
     document.getElementById("reSearchArtistMode").style.display = "block";
   } else {
@@ -66,6 +67,7 @@ function setSearchMode(mode) {
     document.getElementById("modeSong").style.color = "white";
     document.getElementById("modeArtist").style.backgroundColor = "";
     document.getElementById("modeArtist").style.color = "";
+    // 曲名モードでは再検索ボタンを表示
     document.getElementById("reSearchSongMode").style.display = "block";
     document.getElementById("reSearchArtistMode").style.display = "none";
   }
@@ -187,41 +189,46 @@ function selectSong(song) {
         </div>
       </div>
       <div style="display:flex; align-items:center;">
-        <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)"></button>
-        <button type="button" class="control-btn" id="volumeBtn" onclick="toggleMute(event)"></button>
-        <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
+        ${ playerControlsEnabled ? `
+          <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)"></button>
+          <button type="button" class="control-btn" id="volumeBtn" onclick="toggleMute(event)"></button>
+          <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
+        ` : "" }
         <button type="button" class="clear-btn" onclick="clearSelection()">×</button>
       </div>
     </div>
   `;
   // hidden fields
-  let hiddenApple = document.getElementById("appleMusicUrlHidden") || document.createElement("input");
-  if (!document.getElementById("appleMusicUrlHidden")) {
+  let hiddenApple = document.getElementById("appleMusicUrlHidden");
+  if (!hiddenApple) {
+    hiddenApple = document.createElement("input");
     hiddenApple.type = "hidden";
     hiddenApple.id = "appleMusicUrlHidden";
     hiddenApple.name = "appleMusicUrl";
     document.getElementById("requestForm").appendChild(hiddenApple);
   }
   hiddenApple.value = song.trackViewUrl;
-
-  let hiddenArtwork = document.getElementById("artworkUrlHidden") || document.createElement("input");
-  if (!document.getElementById("artworkUrlHidden")) {
+  
+  let hiddenArtwork = document.getElementById("artworkUrlHidden");
+  if (!hiddenArtwork) {
+    hiddenArtwork = document.createElement("input");
     hiddenArtwork.type = "hidden";
     hiddenArtwork.id = "artworkUrlHidden";
     hiddenArtwork.name = "artworkUrl";
     document.getElementById("requestForm").appendChild(hiddenArtwork);
   }
   hiddenArtwork.value = song.artworkUrl;
-
-  let hiddenPreview = document.getElementById("previewUrlHidden") || document.createElement("input");
-  if (!document.getElementById("previewUrlHidden")) {
+  
+  let hiddenPreview = document.getElementById("previewUrlHidden");
+  if (!hiddenPreview) {
+    hiddenPreview = document.createElement("input");
     hiddenPreview.type = "hidden";
     hiddenPreview.id = "previewUrlHidden";
     hiddenPreview.name = "previewUrl";
     document.getElementById("requestForm").appendChild(hiddenPreview);
   }
   hiddenPreview.value = song.previewUrl;
-
+  
   if (playerControlsEnabled && song.previewUrl) {
     if (!previewAudio) {
       previewAudio = document.createElement("audio");
@@ -236,15 +243,17 @@ function selectSong(song) {
       }
     }
     previewAudio.src = song.previewUrl;
+    previewAudio.load();
     previewAudio.onloadedmetadata = function() {
       previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
       previewAudio.play().catch(err => { console.error("Playback error:", err); });
     };
-    // 既にメタデータ読み込み済みの場合
-    if (previewAudio.readyState >= 2) {
-      previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
-      previewAudio.play().catch(err => { console.error("Playback error:", err); });
-    }
+    previewAudio.oncanplay = function() {
+      // 念のため oncanplay 時にも再生
+      if (previewAudio.paused) {
+        previewAudio.play().catch(err => { console.error("Playback error:", err); });
+      }
+    };
     if (audioContext && gainNode) {
       gainNode.gain.value = 0.5;
     } else if (audioContext && !gainNode) {
@@ -284,32 +293,33 @@ function updateVolumeIcon() {
   if (!volumeBtn || !previewAudio) return;
   let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
   let svg = "";
-  // ミュート時は元のスピーカー＋×アイコン
   if (isMuted || vol <= 0.01) {
+    // ミュート時：従来のスピーカー＋×アイコン
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="3"/>
+      <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="2"/>
+      <line x1="21" y1="4" x2="15" y2="20" stroke="#888" stroke-width="2"/>
     </svg>`;
   } else if (vol < 0.35) {
-    // 低音量：1つの波形
+    // 低音量：1つの波形、縦に長く、細めに
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
+      <path d="M15,12 C15.5,8 15.5,16 15,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else if (vol < 0.65) {
     // 中音量：2つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
-      <path d="M18,12 C19,6 19,18 18,12" stroke="#888" stroke-width="3" fill="none"/>
+      <path d="M15,12 C15.5,8 15.5,16 15,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 C18.5,7 18.5,17 18,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   } else {
     // 高音量：3つの波形
     svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
       <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
-      <path d="M18,12 C19,6 19,18 18,12" stroke="#888" stroke-width="3" fill="none"/>
-      <path d="M21,12 C22,4 22,20 21,12" stroke="#888" stroke-width="3" fill="none"/>
+      <path d="M15,12 C15.5,8 15.5,16 15,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M18,12 C18.5,7 18.5,17 18,12" stroke="#888" stroke-width="2" fill="none"/>
+      <path d="M21,12 C21.5,6 21.5,18 21,12" stroke="#888" stroke-width="2" fill="none"/>
     </svg>`;
   }
   volumeBtn.innerHTML = svg;
