@@ -332,6 +332,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f2/c1/39/f2c139e1-bee3-ee5e-e39c-e7d4070c190d/859757815340_cover.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4e/df/77/4edf776e-cefb-903d-948b-26a7a2d319b0/mzaf_8233260743080221887.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "4Th_Tjw5wHuUzJsrOsNuK",
+      "text": "FEELINGS",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/feelings/1580221880?i=1580221885&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/ec/71/b4/ec71b4d6-063d-89be-b9e1-434728c24547/859757192557_cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/39/fe/79/39fe79ee-3772-7cd4-9767-d7446f804574/mzaf_6819982149487086351.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "MXBxNoDo6Hceb4pfwWvuW",
+      "text": "アウトフォーカス",
+      "artist": "This is LAST",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%A6%E3%83%88%E3%83%95%E3%82%A9%E3%83%BC%E3%82%AB%E3%82%B9/1731789932?i=1731789933&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/d7/cf/b3/d7cfb38c-8f36-853d-cb35-7df2acc13f77/4580789622212.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/4b/48/d1/4b48d171-a7e4-d91b-d2de-82f7c90c19c4/mzaf_11454993624475410940.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -389,7 +407,9 @@
     "ハピチョコ|アーティスト不明": 1,
     "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 1,
     "繋いだ手から|back number": 1,
-    "13月1日|高瀬統也": 1
+    "13月1日|高瀬統也": 1,
+    "feelings|アーティスト不明": 1,
+    "アウトフォーカス|this is last": 1
   },
   "settings": {
     "recruiting": true,
