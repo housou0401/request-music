@@ -350,6 +350,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/d7/cf/b3/d7cfb38c-8f36-853d-cb35-7df2acc13f77/4580789622212.png/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/4b/48/d1/4b48d171-a7e4-d91b-d2de-82f7c90c19c4/mzaf_11454993624475410940.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "vOyTfWoehr8fCHWo16ZPF",
+      "text": "BLUE",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/blue/510287735?i=510287746&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a4/80/6a/a4806a9f-897c-7e0e-a700-4a66a257a147/AVCY-58043.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0b/24/e9/0b24e9dc-d9da-5064-c0aa-765754315a24/mzaf_8219061350896832199.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -409,7 +418,8 @@
     "繋いだ手から|back number": 1,
     "13月1日|高瀬統也": 1,
     "feelings|アーティスト不明": 1,
-    "アウトフォーカス|this is last": 1
+    "アウトフォーカス|this is last": 1,
+    "blue|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
