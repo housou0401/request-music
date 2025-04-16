@@ -105,14 +105,6 @@
       "count": 1
     },
     {
-      "id": "Cs96I0EXB5qw2yzZajwkr",
-      "text": "サクラキミワタシ",
-      "artist": "tuki.",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%B5%E3%82%AF%E3%83%A9%E3%82%AD%E3%83%9F%E3%83%AF%E3%82%BF%E3%82%B7/1781833057?i=1781833066&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f3/c0/47/f3c04781-71d4-1a2c-5a50-81e68bddcc5d/4582649401234.jpg/100x100bb.jpg",
-      "count": 1
-    },
-    {
       "id": "cEXu03TCvCX7T9TNs2JL9",
       "text": "BRIGHTEN UP",
       "artist": "GLAY",
@@ -361,15 +353,6 @@
       "count": 1
     },
     {
-      "id": "BzwSZxN2iPvPYWQw39dBM",
-      "text": "ガーデン",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%AC%E3%83%BC%E3%83%87%E3%83%B3/1611482396?i=1611482698&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/85/2e/2b/852e2b6c-93ec-806a-95b2-8f5eda2f775c/22UMGIM18886.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/a4/5d/8d/a45d8d04-30e0-a87b-30d7-d191be25ac37/mzaf_2189983480722130861.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "pGjuPQtgXYylOado6pSug",
       "text": "The Lazy Song (MinionVoice Remix)",
       "artist": "ブルーノ・マーズ",
@@ -414,7 +397,6 @@
     "start|ミセスグリーンアップル": 1,
     "エイトビート|シンガーズハイ": 1,
     "home|bts": 1,
-    "サクラキミワタシ|tuki.": 1,
     "brighten up|glay": 1,
     "チョコスプレー♡|いぎなり東北産": 1,
     "eek!!|hey! say! jump": 1,
@@ -447,7 +429,6 @@
     "feelings|アーティスト不明": 1,
     "アウトフォーカス|this is last": 1,
     "blue|アーティスト不明": 1,
-    "ガーデン|アーティスト不明": 1,
     "the lazy song (minionvoice remix)|ブルーノ・マーズ": 1,
     "ピリオド|マルシィ": 1
   },
