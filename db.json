@@ -224,7 +224,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8B%E3%81%8C%E3%81%BF/1787372751?i=1787372752&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bb/a3/6f/bba36f31-b624-8caf-0967-1054b47d875b/4580789685392.png/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/f6/4c/00f64c60-2903-1e39-d9c7-721293632698/mzaf_8805154899213091422.plus.aac.p.m4a",
-      "count": 2
+      "count": 4
     },
     {
       "id": "YpsjfhMnLfhIlMzyAXGIa",
@@ -305,7 +305,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%80%E4%B8%8A%E7%B4%9A%E3%81%AB%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84%E3%81%AE-feat-%E3%82%B3%E3%83%AC%E3%82%B5%E3%83%AF/1746279341?i=1746279346&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/50/78/4f/50784f04-0535-4e99-b952-aff815fe7149/ANTCD-A0000013538.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6c/ce/91/6cce91e0-e9c5-83c6-ef68-0ff356903c1c/mzaf_4728712436442266056.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "ixwaaRFYZrHQ4eRRPS5fp",
@@ -369,6 +369,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/ae/93/23/ae932363-26c8-721b-140f-efc4a9e94742/22UMGIM36963.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/f8/84/98f88482-15d7-739c-7662-2c53b6f4edfe/mzaf_10985824356004147736.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "pouD5EBd1aBgJW9VjXWkv",
+      "text": "KawaiiってMagic",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/kawaii%E3%81%A3%E3%81%A6magic/1801103226?i=1801103228&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e1/92/0c/e1920c80-608c-8751-7906-ae7a6131a6c4/199350035067.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/6d/37/786d3717-b689-abf6-676e-8557f697542a/mzaf_12542134108092518124.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "3Sox3Sw-uQ83Y9e4nQ0vW",
+      "text": "ONE BIG FAMILY",
+      "artist": "がーどまん",
+      "appleMusicUrl": "https://music.apple.com/jp/album/one-big-family/1704526895?i=1704527142&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/3c/5d/c8/3c5dc8e1-a398-fbac-841e-a832d463b153/3617221773711_cover.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/92/bd/6c/92bd6cee-4cfd-d8e5-20d2-93ee1dcae65e/mzaf_3079836623442096448.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "_hyqV5WWtBT2cJ3bZAME6",
+      "text": "長く短い祭",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%95%B7%E3%81%8F%E7%9F%AD%E3%81%84%E7%A5%AD/1384347006?i=1384347075&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/e3/f9/ca/e3f9caba-aa62-c6ee-4552-60246d2bf442/00602567661559.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/55/84/5b/55845bba-84ab-4a81-7383-d4b2fb5149af/mzaf_7838743335904969213.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -414,7 +441,7 @@
     "ドント・ワナ・ノウ (feat. ケンドリック・ラマー)|マルーン5": 1,
     "not like us|ケンドリック・ラマー": 1,
     "#1090 (thousand dreams)|松本孝弘": 1,
-    "かがみ|アーティスト不明": 2,
+    "かがみ|アーティスト不明": 4,
     "あられやこんこん|アーティスト不明": 1,
     "3時12分|アーティスト不明": 1,
     "ナルバキスン(look at me, gwisun)|d": 1,
@@ -423,14 +450,17 @@
     "クスシキ|アーティスト不明": 1,
     "春雷|アーティスト不明": 1,
     "ハピチョコ|アーティスト不明": 1,
-    "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 1,
+    "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 2,
     "繋いだ手から|back number": 1,
     "13月1日|高瀬統也": 1,
     "feelings|アーティスト不明": 1,
     "アウトフォーカス|this is last": 1,
     "blue|アーティスト不明": 1,
     "the lazy song (minionvoice remix)|ブルーノ・マーズ": 1,
-    "ピリオド|マルシィ": 1
+    "ピリオド|マルシィ": 1,
+    "kawaiiってmagic|アーティスト不明": 1,
+    "one big family|がーどまん": 1,
+    "長く短い祭|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
