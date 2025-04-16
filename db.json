@@ -396,6 +396,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/e3/f9/ca/e3f9caba-aa62-c6ee-4552-60246d2bf442/00602567661559.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/55/84/5b/55845bba-84ab-4a81-7383-d4b2fb5149af/mzaf_7838743335904969213.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "u9yoEc3mnA9aTZjkP6KVZ",
+      "text": "Summer Ride",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/summer-ride/1797439330?i=1797440035&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ad/81/23/ad81236b-400f-fbbc-5538-efc069cc9ce1/25UMGIM17821.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3c/86/5e/3c865eed-e177-d0ce-41d6-b73d5014e8e0/mzaf_16331193136509260385.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "y4B0SoPPH1-P9lsGpwT7h",
+      "text": "run away",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/run-away/1535635353?i=1535635479&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/cd/08/49/cd0849b0-8c00-e934-38c8-a6502e4fed0a/jacket_AIXX02020B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/40/15/a9/4015a9a5-7a1a-e80e-0ef2-b788d5a892b7/mzaf_7202826231932298279.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "DWYGB6pM5x0lgNUA1JHMo",
+      "text": "さよならの向う側",
+      "artist": "山口百恵",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%95%E3%82%88%E3%81%AA%E3%82%89%E3%81%AE%E5%90%91%E3%81%86%E5%81%B4/1536726044?i=1536726138&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/12/cc/00/12cc00a0-f45b-15e8-eee2-91b0e7ed92cf/jacket_MHCL01569B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/87/35/06/873506d1-f383-c257-f983-e29780490be1/mzaf_15685867356277543483.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -460,7 +487,10 @@
     "ピリオド|マルシィ": 1,
     "kawaiiってmagic|アーティスト不明": 1,
     "one big family|がーどまん": 1,
-    "長く短い祭|アーティスト不明": 1
+    "長く短い祭|アーティスト不明": 1,
+    "summer ride|アーティスト不明": 1,
+    "run away|アーティスト不明": 1,
+    "さよならの向う側|山口百恵": 1
   },
   "settings": {
     "recruiting": true,
