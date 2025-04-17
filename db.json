@@ -477,6 +477,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5f/3e/2c/5f3e2c06-8e17-eace-1469-ecfed1c82bef/4582649083348.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/62/3e/8e/623e8e70-e7a2-7c01-b61e-5ed022d2070f/mzaf_7561076600120853630.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "q8Q54JnQPmKM6U_GlMUWZ",
+      "text": "YAJU&U",
+      "artist": "ライララ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/yaju-u/1804573154?i=1804573159&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d1/c2/f5/d1c2f5d7-5a9b-d4f8-3b82-1e489aaa3ac3/4550707073082_cover.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/01/b2/7801b2d0-0a21-0d98-b891-be1991cb3ab7/mzaf_643335663570830509.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "rQzWGBEzvRNqWxkz9HPHZ",
+      "text": "リンジュー・ラヴ",
+      "artist": "マカロニえんぴつ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%AA%E3%83%B3%E3%82%B8%E3%83%A5%E3%83%BC-%E3%83%A9%E3%83%B4/1660847078?i=1660847079&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/70/c9/3d/70c93dc5-bd8f-b769-4b59-a853b671197d/4517331075363.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/cf/98/c0/cf98c03d-1a74-46a2-f4ee-34e15537138d/mzaf_14955086849877822224.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -550,7 +568,9 @@
     "アップルパイ|backnumber": 1,
     "snowman|アーティスト不明": 1,
     "sby|snow man": 1,
-    "粛聖!! ロリ神レクイエム☆ +1key(原曲歌手:しぐれうい)|しぐれうい": 1
+    "粛聖!! ロリ神レクイエム☆ +1key(原曲歌手:しぐれうい)|しぐれうい": 1,
+    "yaju&u|ライララ": 1,
+    "リンジュー・ラヴ|マカロニえんぴつ": 1
   },
   "settings": {
     "recruiting": true,
