@@ -513,6 +513,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6b/54/bc/6b54bc75-1878-ae18-3269-e896d64cc08b/ANTCD-A0000013306.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/25/55/95/25559508-8491-c0ed-14cd-ac050da96684/mzaf_6977639271996659073.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "p1S-uBVTHRGKTo0Bk5Tbp",
+      "text": "ブラザービート",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%96%E3%83%A9%E3%82%B6%E3%83%BC%E3%83%93%E3%83%BC%E3%83%88/1804833044?i=1804833231&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a7/35/d1/a735d155-d316-d9ea-19d2-d18c9aa2fb8b/ANTCD-A0000016546.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b1/50/56/b15056e4-a706-a677-6d58-2cf7196a69b1/mzaf_17423760166230688609.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -590,7 +599,8 @@
     "yaju&u|ライララ": 1,
     "リンジュー・ラヴ|マカロニえんぴつ": 1,
     "is this love|アーティスト不明": 1,
-    "woke up|アーティスト不明": 1
+    "woke up|アーティスト不明": 1,
+    "ブラザービート|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
