@@ -495,6 +495,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/70/c9/3d/70c93dc5-bd8f-b769-4b59-a853b671197d/4517331075363.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/cf/98/c0/cf98c03d-1a74-46a2-f4ee-34e15537138d/mzaf_14955086849877822224.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "J9nWaPgvknFfjTDPsiDjm",
+      "text": "IS THIS LOVE",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/is-this-love/1775445626?i=1775445637&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ae/69/ce/ae69ce7b-6007-c83a-f692-93ebfca55449/ANTCD-A0000014930.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4a/3a/00/4a3a00ec-2c19-b773-bcc4-a9196a2ce589/mzaf_17969675163401278976.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "QFXA6T6YKXbJ7tMCGvbH-",
+      "text": "WOKE UP",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/woke-up/1742262122?i=1742262123&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6b/54/bc/6b54bc75-1878-ae18-3269-e896d64cc08b/ANTCD-A0000013306.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/25/55/95/25559508-8491-c0ed-14cd-ac050da96684/mzaf_6977639271996659073.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -570,7 +588,9 @@
     "sby|snow man": 1,
     "粛聖!! ロリ神レクイエム☆ +1key(原曲歌手:しぐれうい)|しぐれうい": 1,
     "yaju&u|ライララ": 1,
-    "リンジュー・ラヴ|マカロニえんぴつ": 1
+    "リンジュー・ラヴ|マカロニえんぴつ": 1,
+    "is this love|アーティスト不明": 1,
+    "woke up|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
