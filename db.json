@@ -531,6 +531,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a7/35/d1/a735d155-d316-d9ea-19d2-d18c9aa2fb8b/ANTCD-A0000016546.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f0/0c/b8/f00cb838-966e-cadd-1f37-0e50080933f7/mzaf_12558597582820300029.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "VLY0iR864T35C6X8FQGMT",
+      "text": "全力少年",
+      "artist": "スキマスイッチ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%85%A8%E5%8A%9B%E5%B0%91%E5%B9%B4/1445058251?i=1445058253&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ea/c7/e0/eac7e03d-c6e5-eb29-a749-d4721cd284d5/17UMGIM81734.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2f/59/a4/2f59a4f4-16bd-4fd4-24ad-3116d3858a0a/mzaf_16424529517994616723.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -610,7 +619,8 @@
     "is this love|アーティスト不明": 1,
     "woke up|アーティスト不明": 1,
     "ブラザービート|アーティスト不明": 1,
-    "sby    (もう一回お願いします。)|snow man": 1
+    "sby    (もう一回お願いします。)|snow man": 1,
+    "全力少年|スキマスイッチ": 1
   },
   "settings": {
     "recruiting": true,
