@@ -540,6 +540,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ea/c7/e0/eac7e03d-c6e5-eb29-a749-d4721cd284d5/17UMGIM81734.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2f/59/a4/2f59a4f4-16bd-4fd4-24ad-3116d3858a0a/mzaf_16424529517994616723.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "29dJ-HlFTZ0CHpRYAWftU",
+      "text": "二度寝 - Nidone",
+      "artist": "Creepy Nuts",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E4%BA%8C%E5%BA%A6%E5%AF%9D-nidone/1725258864?i=1725258865&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/bc/51/4f/bc514f4b-c0b9-f3e1-2ac0-81dfd36c95fc/4547366665147.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/ec/9f/88/ec9f8824-9a4b-8b38-ab2f-7ae761f60867/mzaf_15950235088307998223.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -620,7 +629,8 @@
     "woke up|アーティスト不明": 1,
     "ブラザービート|アーティスト不明": 1,
     "sby    (もう一回お願いします。)|snow man": 1,
-    "全力少年|スキマスイッチ": 1
+    "全力少年|スキマスイッチ": 1,
+    "二度寝 - nidone|creepy nuts": 1
   },
   "settings": {
     "recruiting": true,
