@@ -549,6 +549,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/bc/51/4f/bc514f4b-c0b9-f3e1-2ac0-81dfd36c95fc/4547366665147.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/ec/9f/88/ec9f8824-9a4b-8b38-ab2f-7ae761f60867/mzaf_15950235088307998223.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "V9jbM4PhNvtYABPXDwGfH",
+      "text": "TWILIGHT!!!",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/twilight/1806277322?i=1806277323&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/85/4e/1f/854e1f65-0eea-3a01-6170-22743180d72a/4547366743814.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/38/ea/fc/38eafc64-2af5-814a-f66d-3cee3f640f42/mzaf_12529787402890802208.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -630,7 +639,8 @@
     "ブラザービート|アーティスト不明": 1,
     "sby    (もう一回お願いします。)|snow man": 1,
     "全力少年|スキマスイッチ": 1,
-    "二度寝 - nidone|creepy nuts": 1
+    "二度寝 - nidone|creepy nuts": 1,
+    "twilight!!!|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
