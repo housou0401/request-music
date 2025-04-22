@@ -487,6 +487,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/0b/35/3a/0b353aeb-db33-a263-889d-1a8a7bfdbcec/00600406599247.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/1e/26/a5/1e26a5ad-73e4-5226-deae-cd64689a1872/mzaf_8078583972430995193.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "_cXs1iJYux9J7wMkfDJ4b",
+      "text": "全人類 兎化計画!",
+      "artist": "兎田ぺこら",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%85%A8%E4%BA%BA%E9%A1%9E-%E5%85%8E%E5%8C%96%E8%A8%88%E7%94%BB/1661750408?i=1661750409&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/ea/34/b4/ea34b475-9dbb-e0e3-69be-c83087a7e9e7/Zenjinrui_Usagika_Keikaku_Jacket.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/7e/3c/d4/7e3cd476-a97c-4886-d6b6-26bba88074a0/mzaf_18349309017613154753.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -560,7 +569,8 @@
     "二度寝 - nidone|creepy nuts": 1,
     "twilight!!!|アーティスト不明": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
-    "start|アーティスト不明": 1
+    "start|アーティスト不明": 1,
+    "全人類 兎化計画!|兎田ぺこら": 1
   },
   "settings": {
     "recruiting": true,
