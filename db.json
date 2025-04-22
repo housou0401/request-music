@@ -1,14 +1,6 @@
 {
   "responses": [
     {
-      "id": "rfnauyuqThz6RuhBT2qWR",
-      "text": "1%の革命前夜",
-      "artist": "Losstime Life",
-      "appleMusicUrl": "https://music.apple.com/jp/album/1-%E3%81%AE%E9%9D%A9%E5%91%BD%E5%89%8D%E5%A4%9C/1538942014?i=1538942947&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ee/75/84/ee7584ef-80dd-bad5-7db6-7523532ad13b/859756298991_cover.png/100x100bb.jpg",
-      "count": 1
-    },
-    {
       "id": "jzcTE_FGlEn61mdBH7NKG",
       "text": "ナルバキスン (Look at me, Gwisun) [JP version]",
       "artist": "D-LITE",
@@ -547,7 +539,6 @@
   ],
   "lastSubmissions": {},
   "songCounts": {
-    "1%の革命前夜|losstime life": 1,
     "ナルバキスン (look at me, gwisun) [jp version]|d-lite": 1,
     "欲望に満ちた青年団|one ok rock": 1,
     "成れの果てのグリフ|まふまふ": 1,
@@ -630,6 +621,6 @@
     "reason": "🔧調整中🔧",
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
-    "playerControlsEnabled": true
+    "playerControlsEnabled": false
   }
 }
