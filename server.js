@@ -490,7 +490,7 @@ app.get("/settings", (req, res) => {
 });
 
 // 20分ごと自動同期
-cron.schedule("*/20 * * * *", async () => {
+cron.schedule("*/10 * * * *", async () => {
   console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
   try {
     await syncRequestsToGitHub();
