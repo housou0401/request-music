@@ -216,7 +216,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8F%E3%83%94%E3%83%81%E3%83%A7%E3%82%B3/1665563394?i=1665563395&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/d7/dc/89/d7dc8934-4bf1-24b5-453f-8867ed5d299d/4582467903002.png/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/bb/7c/7d/bb7c7d3f-c8c8-a95c-3c7d-155bafb1c515/mzaf_15034223179521885516.plus.aac.p.m4a",
-      "count": 1
+      "count": 3
     },
     {
       "id": "kRDadfZqTPXxSYr1KYJ44",
@@ -225,7 +225,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%80%E4%B8%8A%E7%B4%9A%E3%81%AB%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84%E3%81%AE-feat-%E3%82%B3%E3%83%AC%E3%82%B5%E3%83%AF/1746279341?i=1746279346&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/50/78/4f/50784f04-0535-4e99-b952-aff815fe7149/ANTCD-A0000013538.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6c/ce/91/6cce91e0-e9c5-83c6-ef68-0ff356903c1c/mzaf_4728712436442266056.plus.aac.p.m4a",
-      "count": 2
+      "count": 3
     },
     {
       "id": "cvT_l5twyi9Jykbv1PVZs",
@@ -496,6 +496,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/d8/f9/05/mzi.ggdrxfyf.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/ee/1d/31/ee1d31ec-9036-c0f4-1299-94ecc458faaf/mzaf_17219661456720023267.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "ihhtkIDP9gBIZUVTL2SVp",
+      "text": "NEW KAWAII",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/new-kawaii/1734146998?i=1734147009&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/5c/1c/50/5c1c5006-d32f-d304-a801-bc17fe63ab4e/4580789624261.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/69/a2/19/69a219d0-4921-8aab-b9fe-b4c73182b01e/mzaf_1401586222655412037.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "nBB0Ycd0l7GNnRhGXNJSc",
+      "text": "フルーツバスケット",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%95%E3%83%AB%E3%83%BC%E3%83%84%E3%83%90%E3%82%B9%E3%82%B1%E3%83%83%E3%83%88/1764478446?i=1764478448&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a2/5d/5b/a25d5bf8-ad69-181b-f15a-02ac772ec496/4580789661303.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/cf/33/db/cf33db3a-fe3f-55a5-1d8b-0af6ae7040e0/mzaf_16238484828549380556.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -539,8 +557,8 @@
     "ハイパーベンチレイション|radwimps": 1,
     "クスシキ|アーティスト不明": 1,
     "春雷|アーティスト不明": 1,
-    "ハピチョコ|アーティスト不明": 1,
-    "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 2,
+    "ハピチョコ|アーティスト不明": 3,
+    "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 3,
     "13月1日|高瀬統也": 1,
     "feelings|アーティスト不明": 1,
     "アウトフォーカス|this is last": 1,
@@ -570,7 +588,9 @@
     "start|アーティスト不明": 1,
     "全人類 兎化計画!|兎田ぺこら": 1,
     "nao|hy": 1,
-    "赤い糸|コブクロ": 1
+    "赤い糸|コブクロ": 1,
+    "new kawaii|アーティスト不明": 1,
+    "フルーツバスケット|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
