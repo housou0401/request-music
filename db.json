@@ -478,6 +478,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/ea/34/b4/ea34b475-9dbb-e0e3-69be-c83087a7e9e7/Zenjinrui_Usagika_Keikaku_Jacket.png/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/7e/3c/d4/7e3cd476-a97c-4886-d6b6-26bba88074a0/mzaf_18349309017613154753.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "V6ZZuj6Qi3ubFTNsRrhZR",
+      "text": "NAO",
+      "artist": "HY",
+      "appleMusicUrl": "https://music.apple.com/jp/album/nao/297297958?i=297298046&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/15/db/81/mzi.jkevkwsf.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/98/9a/4e/989a4eac-5450-4ed7-1fdd-eeeb5fd79a58/mzaf_11600795445016198716.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "wu89xlgTkqXl0_Z4hMTwG",
+      "text": "赤い糸",
+      "artist": "コブクロ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%B5%A4%E3%81%84%E7%B3%B8/305785866?i=305785884&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/d8/f9/05/mzi.ggdrxfyf.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/ee/1d/31/ee1d31ec-9036-c0f4-1299-94ecc458faaf/mzaf_17219661456720023267.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -550,7 +568,9 @@
     "twilight!!!|アーティスト不明": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
     "start|アーティスト不明": 1,
-    "全人類 兎化計画!|兎田ぺこら": 1
+    "全人類 兎化計画!|兎田ぺこら": 1,
+    "nao|hy": 1,
+    "赤い糸|コブクロ": 1
   },
   "settings": {
     "recruiting": true,
