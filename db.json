@@ -246,15 +246,6 @@
       "count": 1
     },
     {
-      "id": "MXBxNoDo6Hceb4pfwWvuW",
-      "text": "アウトフォーカス",
-      "artist": "This is LAST",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%A6%E3%83%88%E3%83%95%E3%82%A9%E3%83%BC%E3%82%AB%E3%82%B9/1731789932?i=1731789933&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/d7/cf/b3/d7cfb38c-8f36-853d-cb35-7df2acc13f77/4580789622212.png/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/4b/48/d1/4b48d171-a7e4-d91b-d2de-82f7c90c19c4/mzaf_11454993624475410940.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "vOyTfWoehr8fCHWo16ZPF",
       "text": "BLUE",
       "artist": "アーティスト不明",
@@ -507,12 +498,39 @@
       "count": 1
     },
     {
-      "id": "nBB0Ycd0l7GNnRhGXNJSc",
-      "text": "フルーツバスケット",
+      "id": "FXKUJIixy7MP2qE3cbtaq",
+      "text": "Love the warz",
       "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%95%E3%83%AB%E3%83%BC%E3%83%84%E3%83%90%E3%82%B9%E3%82%B1%E3%83%83%E3%83%88/1764478446?i=1764478448&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a2/5d/5b/a25d5bf8-ad69-181b-f15a-02ac772ec496/4580789661303.png/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/cf/33/db/cf33db3a-fe3f-55a5-1d8b-0af6ae7040e0/mzaf_16238484828549380556.plus.aac.p.m4a",
+      "appleMusicUrl": "https://music.apple.com/jp/album/love-the-warz/984426527?i=984426759&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/7e/b4/76/7eb47679-4c56-9275-1a39-77ad820edb7f/TFCC-86389.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/0e/04/ba/0e04ba6f-08f5-4a24-2c92-d713bb2b93e4/mzaf_12985707101793469432.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "_Gi_a4Sjuj1j00mO7nTMZ",
+      "text": "ボーイフレンド",
+      "artist": "aiko",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%9C%E3%83%BC%E3%82%A4%E3%83%95%E3%83%AC%E3%83%B3%E3%83%89/1109988316?i=1109988319&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/ca/10/81/ca108149-3b8d-9bb2-d7ab-55da82c54c0c/dj.dwvixtuv.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/1a/d1/52/1ad1524b-9406-2e15-6323-065711694cfe/mzaf_11973729503581615887.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "lKKIItFwN2cdzMhjYPSiW",
+      "text": "YAJU&U",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/yaju-u/1804573154?i=1804573159&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d1/c2/f5/d1c2f5d7-5a9b-d4f8-3b82-1e489aaa3ac3/4550707073082_cover.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/01/b2/7801b2d0-0a21-0d98-b891-be1991cb3ab7/mzaf_643335663570830509.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "cuKx1VoxrmxBK4oWYRHRl",
+      "text": "ブルーアンビエンス (feat. asmi)",
+      "artist": "Mrs. GREEN APPLE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%96%E3%83%AB%E3%83%BC%E3%82%A2%E3%83%B3%E3%83%93%E3%82%A8%E3%83%B3%E3%82%B9-feat-asmi/1627629613?i=1627629624&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/45/11/66/45116621-c965-642d-43ef-b8cf33711bde/22UMGIM58754.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/08/95/24/08952451-2fc6-df67-8460-b72daf7485da/mzaf_14862229205287311097.plus.aac.p.m4a",
       "count": 1
     }
   ],
@@ -561,7 +579,6 @@
     "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 3,
     "13月1日|高瀬統也": 1,
     "feelings|アーティスト不明": 1,
-    "アウトフォーカス|this is last": 1,
     "blue|アーティスト不明": 1,
     "the lazy song (minionvoice remix)|ブルーノ・マーズ": 1,
     "ピリオド|マルシィ": 1,
@@ -590,7 +607,10 @@
     "nao|hy": 1,
     "赤い糸|コブクロ": 1,
     "new kawaii|アーティスト不明": 1,
-    "フルーツバスケット|アーティスト不明": 1
+    "love the warz|アーティスト不明": 1,
+    "ボーイフレンド|aiko": 1,
+    "yaju&u|アーティスト不明": 1,
+    "ブルーアンビエンス (feat. asmi)|mrs. green apple": 1
   },
   "settings": {
     "recruiting": true,
