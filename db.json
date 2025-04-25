@@ -515,6 +515,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/45/11/66/45116621-c965-642d-43ef-b8cf33711bde/22UMGIM58754.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/08/95/24/08952451-2fc6-df67-8460-b72daf7485da/mzaf_14862229205287311097.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "2iGUaMFvmNt1PLG9GKQKS",
+      "text": "HELP!!",
+      "artist": "Kobo Kanaeru",
+      "appleMusicUrl": "https://music.apple.com/jp/album/help/1734962390?i=1734962392&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ba/dd/a1/badda12a-2fb5-30fc-6877-9edacefcb639/24UMGIM21868.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/f0/16/c9/f016c990-b58e-7fe8-09e5-e91ad83e0d20/mzaf_3576793663712741339.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -591,7 +600,8 @@
     "love the warz|アーティスト不明": 1,
     "ボーイフレンド|aiko": 1,
     "yaju&u|アーティスト不明": 1,
-    "ブルーアンビエンス (feat. asmi)|mrs. green apple": 1
+    "ブルーアンビエンス (feat. asmi)|mrs. green apple": 1,
+    "help!!|kobo kanaeru": 1
   },
   "settings": {
     "recruiting": true,
