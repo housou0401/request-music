@@ -524,6 +524,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ba/dd/a1/badda12a-2fb5-30fc-6877-9edacefcb639/24UMGIM21868.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/f0/16/c9/f016c990-b58e-7fe8-09e5-e91ad83e0d20/mzaf_3576793663712741339.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "fktkx7Hic8S8edt5NWNot",
+      "text": "さよならエレジー",
+      "artist": "菅田 将暉",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%95%E3%82%88%E3%81%AA%E3%82%89%E3%82%A8%E3%83%AC%E3%82%B8%E3%83%BC/1536317385?i=1536317386&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/14/23/77/14237701-f1c6-eee0-13d7-a89e9afe34da/jacket_ESXX01773B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/09/70/58/097058bc-8ca2-2ebb-6983-ff4f7b155ee8/mzaf_2041743672339512030.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -601,7 +610,8 @@
     "ボーイフレンド|aiko": 1,
     "yaju&u|アーティスト不明": 1,
     "ブルーアンビエンス (feat. asmi)|mrs. green apple": 1,
-    "help!!|kobo kanaeru": 1
+    "help!!|kobo kanaeru": 1,
+    "さよならエレジー|菅田 将暉": 1
   },
   "settings": {
     "recruiting": true,
