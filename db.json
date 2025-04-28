@@ -472,6 +472,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/10/db/0c/10db0cfa-6a28-c456-d220-9d7b62fa2189/jacket_ESXX01578B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c8/e5/56/c8e55674-d7ed-7450-1fff-82aa233d3843/mzaf_12402055554099687226.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "f5vMOM3LsWfO0JUojoMGj",
+      "text": "不思議",
+      "artist": "星野源",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E4%B8%8D%E6%80%9D%E8%AD%B0/1564408392?i=1564408393&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/17/a8/c4/17a8c4dc-5042-a62e-503c-437e672649a8/VEATP-38717.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c7/6e/ae/c76eae13-8daf-279d-2cea-ac0408c1ba02/mzaf_9150765621570642938.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "Fxj2vXzXw1uQdJEHOEE8e",
+      "text": "相思相愛",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%9B%B8%E6%80%9D%E7%9B%B8%E6%84%9B/1737707212?i=1737707213&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d6/b4/80/d6b48067-2c98-e937-0ca4-589e25655a12/PCSP_05714_A.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/28/eb/de/28ebde34-aa2b-40e5-a38c-42eb7bf8436a/mzaf_9388967582886306735.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "BJKdGSy4r8W3kqHQnlgcr",
+      "text": "虹色の戦争",
+      "artist": "SEKAI NO OWARI",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%99%B9%E8%89%B2%E3%81%AE%E6%88%A6%E4%BA%89/1550926052?i=1550926054&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/70/62/fa/7062fa33-45c3-2ee4-d381-b9f5b89b421c/TFCC-86713WW.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/5f/da/c6/5fdac64f-a8bc-fd2b-8157-ae90b1f40c7c/mzaf_16996339638339577352.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -543,7 +570,10 @@
     "help!!|kobo kanaeru": 1,
     "ラッキーカラー|あいみょん": 1,
     "hikari|アーティスト不明": 1,
-    "声|アーティスト不明": 1
+    "声|アーティスト不明": 1,
+    "不思議|星野源": 1,
+    "相思相愛|アーティスト不明": 1,
+    "虹色の戦争|sekai no owari": 1
   },
   "settings": {
     "recruiting": true,
