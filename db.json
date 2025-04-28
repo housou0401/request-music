@@ -1,22 +1,6 @@
 {
   "responses": [
     {
-      "id": "jzcTE_FGlEn61mdBH7NKG",
-      "text": "ナルバキスン (Look at me, Gwisun) [JP version]",
-      "artist": "D-LITE",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8A%E3%83%AB%E3%83%90%E3%82%AD%E3%82%B9%E3%83%B3-look-at-me-gwisun-jp-version/1333424771?i=1333424794&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/54/16/38/54163875-8caf-9d08-1041-2730436b7cda/ANTCD-26273.jpg/100x100bb.jpg",
-      "count": 1
-    },
-    {
-      "id": "lLh8EDz8BkCpOw_5LF7NT",
-      "text": "Campus mode!!",
-      "artist": "初星学園",
-      "appleMusicUrl": "https://music.apple.com/jp/album/campus-mode/1749006685?i=1749006701&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/43/37/02/4337024f-e5fd-79ca-87ec-5dc1c7523e4d/PA00155503_0_193627_jacket.jpg/100x100bb.jpg",
-      "count": 1
-    },
-    {
       "id": "onCuNihKd3VE8S-iToykJ",
       "text": "CBZ (Prime time)",
       "artist": "BSS",
@@ -137,24 +121,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bb/a3/6f/bba36f31-b624-8caf-0967-1054b47d875b/4580789685392.png/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/f6/4c/00f64c60-2903-1e39-d9c7-721293632698/mzaf_8805154899213091422.plus.aac.p.m4a",
       "count": 4
-    },
-    {
-      "id": "YpsjfhMnLfhIlMzyAXGIa",
-      "text": "あられやこんこん",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%82%E3%82%89%E3%82%8C%E3%82%84%E3%81%93%E3%82%93%E3%81%93%E3%82%93/1783446992?i=1783446993&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/7e/09/1f/7e091fb1-a9d0-369c-09b3-435b9845ee6e/4988021044882.png/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/18/9e/df/189edf18-965c-7205-b878-9c207525e5a7/mzaf_9386696440723237089.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "LBsFFbaOHfavNI-HB6yy1",
-      "text": "3時12分",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/3%E6%99%8212%E5%88%86/1572825831?i=1572825834&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/18/ae/5e/18ae5ed3-20e7-6371-1565-c2666833a2ed/4988061913926.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/57/b0/13/57b013b1-61ed-f5ba-4b2e-71a4e89be94e/mzaf_16681105837227943958.plus.aac.p.m4a",
-      "count": 1
     },
     {
       "id": "siteTvS5Nyqh5XZulb4b2",
@@ -355,15 +321,6 @@
       "count": 1
     },
     {
-      "id": "q8Q54JnQPmKM6U_GlMUWZ",
-      "text": "YAJU&U",
-      "artist": "ライララ",
-      "appleMusicUrl": "https://music.apple.com/jp/album/yaju-u/1804573154?i=1804573159&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d1/c2/f5/d1c2f5d7-5a9b-d4f8-3b82-1e489aaa3ac3/4550707073082_cover.png/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/01/b2/7801b2d0-0a21-0d98-b891-be1991cb3ab7/mzaf_643335663570830509.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "rQzWGBEzvRNqWxkz9HPHZ",
       "text": "リンジュー・ラヴ",
       "artist": "マカロニえんぴつ",
@@ -454,24 +411,6 @@
       "count": 1
     },
     {
-      "id": "V6ZZuj6Qi3ubFTNsRrhZR",
-      "text": "NAO",
-      "artist": "HY",
-      "appleMusicUrl": "https://music.apple.com/jp/album/nao/297297958?i=297298046&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/15/db/81/mzi.jkevkwsf.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/98/9a/4e/989a4eac-5450-4ed7-1fdd-eeeb5fd79a58/mzaf_11600795445016198716.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "wu89xlgTkqXl0_Z4hMTwG",
-      "text": "赤い糸",
-      "artist": "コブクロ",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%B5%A4%E3%81%84%E7%B3%B8/305785866?i=305785884&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/d8/f9/05/mzi.ggdrxfyf.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/ee/1d/31/ee1d31ec-9036-c0f4-1299-94ecc458faaf/mzaf_17219661456720023267.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "ihhtkIDP9gBIZUVTL2SVp",
       "text": "NEW KAWAII",
       "artist": "アーティスト不明",
@@ -519,12 +458,10 @@
   ],
   "lastSubmissions": {},
   "songCounts": {
-    "ナルバキスン (look at me, gwisun) [jp version]|d-lite": 1,
     "恋|アーティスト不明": 1,
     "リヴ|b'z": 1,
     "shadow|アーティスト不明": 1,
     "アウトライン|アーティスト不明": 1,
-    "campus mode!!|初星学園": 1,
     "cbz (prime time)|bss": 1,
     "hold my hand|stray kids": 1,
     "チョコスプレー|アーティスト不明": 1,
@@ -550,8 +487,6 @@
     "not like us|ケンドリック・ラマー": 1,
     "#1090 (thousand dreams)|松本孝弘": 1,
     "かがみ|アーティスト不明": 4,
-    "あられやこんこん|アーティスト不明": 1,
-    "3時12分|アーティスト不明": 1,
     "ナルバキスン(look at me, gwisun)|d": 1,
     "my way|def tech": 1,
     "ハイパーベンチレイション|radwimps": 1,
@@ -574,7 +509,6 @@
     "アップルパイ|backnumber": 1,
     "sby|snow man": 1,
     "粛聖!! ロリ神レクイエム☆ +1key(原曲歌手:しぐれうい)|しぐれうい": 1,
-    "yaju&u|ライララ": 1,
     "リンジュー・ラヴ|マカロニえんぴつ": 1,
     "is this love|アーティスト不明": 1,
     "woke up|アーティスト不明": 1,
@@ -585,8 +519,6 @@
     "かわいいだけじゃだめですか?|cutie street": 1,
     "start|アーティスト不明": 1,
     "全人類 兎化計画!|兎田ぺこら": 1,
-    "nao|hy": 1,
-    "赤い糸|コブクロ": 1,
     "new kawaii|アーティスト不明": 1,
     "love the warz|アーティスト不明": 1,
     "yaju&u|アーティスト不明": 1,
