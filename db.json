@@ -454,6 +454,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a3/6e/09/a36e0990-66d0-6509-2fb7-e9e9082379f1/5021732417251.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d0/56/66/d05666a9-c9ea-64b1-37bc-c5761ecb0750/mzaf_7168885378090276220.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "uWl4TRG3Rt0i_uCdXKScD",
+      "text": "Hikari",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/hikari/1419396886?i=1419396893&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/f7/1f/ef/f71fef40-c8ce-e87f-debf-ce5e38b738eb/00602567860099.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/64/c3/2e/64c32e0c-0a26-824a-52d5-14ac082a7a47/mzaf_14145029208070626687.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "z8xfPqmjQ43OtItciXA6-",
+      "text": "声",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A3%B0/1538147033?i=1538147034&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/10/db/0c/10db0cfa-6a28-c456-d220-9d7b62fa2189/jacket_ESXX01578B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c8/e5/56/c8e55674-d7ed-7450-1fff-82aa233d3843/mzaf_12402055554099687226.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -523,7 +541,9 @@
     "love the warz|アーティスト不明": 1,
     "yaju&u|アーティスト不明": 1,
     "help!!|kobo kanaeru": 1,
-    "ラッキーカラー|あいみょん": 1
+    "ラッキーカラー|あいみょん": 1,
+    "hikari|アーティスト不明": 1,
+    "声|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
