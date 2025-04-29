@@ -508,6 +508,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c4/80/7f/c4807f05-fa68-a123-c077-bf8041ff3319/054391940995.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/9c/16/61/9c1661fd-ec64-f5e5-39b4-782398d56508/mzaf_18438317548939967601.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "HEdKbS8VfB6NnBWwvAs3l",
+      "text": "Wanna Be (My Baby)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/wanna-be-my-baby/1569282309?i=1569282318&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/ee/45/55/ee455550-9368-fc09-82ff-7f506a240a70/8809534466557_Cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/3b/5b/46/3b5b462a-298a-ac08-5aaf-695701b737e8/mzaf_12036896063798609389.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -583,7 +592,8 @@
     "不思議|星野源": 1,
     "相思相愛|アーティスト不明": 1,
     "虹色の戦争|sekai no owari": 1,
-    "10,000 hours|dan + shay & ジャスティン・ビーバー": 1
+    "10,000 hours|dan + shay & ジャスティン・ビーバー": 1,
+    "wanna be (my baby)|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
