@@ -336,7 +336,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/is-this-love/1775445626?i=1775445637&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ae/69/ce/ae69ce7b-6007-c83a-f692-93ebfca55449/ANTCD-A0000014930.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4a/3a/00/4a3a00ec-2c19-b773-bcc4-a9196a2ce589/mzaf_17969675163401278976.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "QFXA6T6YKXbJ7tMCGvbH-",
@@ -508,6 +508,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c4/80/7f/c4807f05-fa68-a123-c077-bf8041ff3319/054391940995.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/9c/16/61/9c1661fd-ec64-f5e5-39b4-782398d56508/mzaf_18438317548939967601.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "52uhIULdkSHBJlvVOi1O3",
+      "text": "奏(かなで) [re: produced by スキマスイッチ]",
+      "artist": "スキマスイッチ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A5%8F-%E3%81%8B%E3%81%AA%E3%81%A7-re-produced-by-%E3%82%B9%E3%82%AD%E3%83%9E%E3%82%B9%E3%82%A4%E3%83%83%E3%83%81/1691654206?i=1691654226&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/23/69/27/23692758-41e3-a98f-5a72-5bcfcbc6846e/23UMGIM64531.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/ad/ef/9d/adef9d51-bd67-2ff7-2506-9cbb4ea323f3/mzaf_4374884006902205396.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "nJrcGmKkTTvkOhc1nkg-t",
+      "text": "PUZZLE",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/puzzle/1771992610?i=1771992611&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/32/ac/8c/32ac8caa-454b-8812-a03c-6702be1a4c79/4547366712025.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/cc/55/1e/cc551e1f-1ceb-5ffd-8bc5-be99008401e2/mzaf_6307302632740194271.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -564,7 +582,7 @@
     "sby|snow man": 1,
     "粛聖!! ロリ神レクイエム☆ +1key(原曲歌手:しぐれうい)|しぐれうい": 1,
     "リンジュー・ラヴ|マカロニえんぴつ": 1,
-    "is this love|アーティスト不明": 1,
+    "is this love|アーティスト不明": 2,
     "woke up|アーティスト不明": 1,
     "ブラザービート|アーティスト不明": 1,
     "sby    (もう一回お願いします。)|snow man": 1,
@@ -583,7 +601,9 @@
     "不思議|星野源": 1,
     "相思相愛|アーティスト不明": 1,
     "虹色の戦争|sekai no owari": 1,
-    "10,000 hours|dan + shay & ジャスティン・ビーバー": 1
+    "10,000 hours|dan + shay & ジャスティン・ビーバー": 1,
+    "奏(かなで) [re: produced by スキマスイッチ]|スキマスイッチ": 1,
+    "puzzle|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
