@@ -13,7 +13,6 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// GitHub 同期用環境変数
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME    = process.env.REPO_NAME;
 const FILE_PATH    = "db.json";
@@ -21,16 +20,15 @@ const BRANCH       = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
-  console.error("必要な環境変数が不足しています。");
+  console.error("必要な環境変数が設定されていません。");
   process.exit(1);
 }
 
-// LowDB 初期化
+// LowDB セットアップ
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
 db.data = db.data || { responses: [], songCounts: {}, settings: {} };
-if (!db.data.songCounts) db.data.songCounts = {};
 if (!db.data.settings) {
   db.data.settings = {
     recruiting: true,
@@ -40,114 +38,168 @@ if (!db.data.settings) {
     playerControlsEnabled: true
   };
   db.write();
-} else if (db.data.settings.playerControlsEnabled === undefined) {
-  db.data.settings.playerControlsEnabled = true;
-  db.write();
 }
 
+// ミドルウェア
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-async function fetchResultsForQuery(query, entity) {
-  const url = `https://itunes.apple.com/search`
-    + `?term=${encodeURIComponent(query)}`
-    + `&country=JP&media=music&entity=${entity}`
-    + `&limit=100&explicit=no`;
-  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+//――――――――――――――――――――――
+// iTunes Search API ヘルパー
+//――――――――――――――――――――――
+
+// レートリミット対策：呼び出し間隔を 500ms 開ける
+let lastFetchTime = 0;
+async function rateLimitedFetch(url, options) {
+  const now = Date.now();
+  const delta = now - lastFetchTime;
+  if (delta < 500) {
+    await new Promise(r => setTimeout(r, 500 - delta));
+  }
+  lastFetchTime = Date.now();
+  return fetch(url, options);
+}
+
+/**
+ * iTunes Search API 呼び出し
+ * @param {string} query   検索語
+ * @param {string} entity  musicTrack, musicArtist, album など
+ * @param {number} limit   最大取得件数
+ */
+async function fetchResultsForQuery(query, entity, limit = 100) {
+  const url = [
+    `https://itunes.apple.com/search`,
+    `?term=${encodeURIComponent(query)}`,
+    `&country=JP&media=music`,
+    `&entity=${entity}`,
+    `&limit=${limit}`,
+    `&explicit=no`
+  ].join("");
+
+  const res = await rateLimitedFetch(url, {
+    headers: {
+      "User-Agent": "MyApp/1.0",
+      "Accept":      "application/json"
+    }
+  });
+
   if (!res.ok) {
     console.error(`HTTPエラー: ${res.status} URL: ${url}`);
     return { results: [] };
   }
   const text = await res.text();
   if (!text.trim()) return { results: [] };
+
   try {
     return JSON.parse(text);
   } catch (e) {
-    console.error(`JSON parse error (${url}):`, e);
+    console.error(`JSONパースエラー: ${e.message}`);
     return { results: [] };
   }
 }
 
-async function fetchAppleMusicInfo(songTitle, artistName) {
-  try {
-    // 完全一致→部分一致の２ステップ
-    const queries = artistName?.trim()
-      ? [`"${songTitle}" ${artistName}`, songTitle]
-      : [`"${songTitle}"`, songTitle];
+// アーティストの曲一覧取得
+async function fetchArtistTracks(artistId) {
+  const url = [
+    `https://itunes.apple.com/lookup`,
+    `?id=${encodeURIComponent(artistId)}`,
+    `&entity=musicTrack&country=JP&limit=100`
+  ].join("");
 
-    for (let q of queries) {
-      const data = await fetchResultsForQuery(q, "musicTrack");
-      if (data.results.length) {
-        const uniq = [], seen = new Set();
-        for (let t of data.results) {
-          const key = (t.trackName + "|" + t.artistName).toLowerCase();
-          if (!seen.has(key)) {
-            seen.add(key);
-            uniq.push({
-              trackName:   t.trackName,
-              artistName:  t.artistName,
-              trackViewUrl:t.trackViewUrl,
-              artworkUrl:  t.artworkUrl100,
-              previewUrl:  t.previewUrl || ""
-            });
-          }
-        }
-        if (uniq.length) return uniq;
-      }
-    }
+  const res = await rateLimitedFetch(url, {
+    headers: { "User-Agent": "MyApp/1.0", "Accept": "application/json" }
+  });
+  if (!res.ok) {
+    console.error(`HTTPエラー: ${res.status} URL: ${url}`);
     return [];
+  }
+  const text = await res.text();
+  if (!text.trim()) return [];
+
+  try {
+    const data = JSON.parse(text);
+    return (data.results || []).slice(1).map(r => ({
+      trackName:    r.trackName,
+      artistName:   r.artistName,
+      trackViewUrl: r.trackViewUrl,
+      artworkUrl:   r.artworkUrl100,
+      previewUrl:   r.previewUrl || ""
+    }));
   } catch (e) {
-    console.error("❌ Apple Music 検索エラー:", e);
+    console.error(`JSONパースエラー(fetchArtistTracks): ${e.message}`);
     return [];
   }
 }
 
-/** /search エンドポイント **/
+// 曲検索
+async function fetchAppleMusicInfo(songTitle, artistName) {
+  try {
+    let queries = [];
+    if (artistName) {
+      queries.push(`${songTitle} ${artistName}`);
+    }
+    queries.push(songTitle);
+
+    for (let q of queries) {
+      const data = await fetchResultsForQuery(q, "musicTrack", 100);
+      if (data.results && data.results.length) {
+        const seen = new Set();
+        const unique = data.results.map(track => ({
+          trackName:    track.trackName,
+          artistName:   track.artistName,
+          trackViewUrl: track.trackViewUrl,
+          artworkUrl:   track.artworkUrl100,
+          previewUrl:   track.previewUrl || ""
+        })).filter(t => {
+          const key = (t.trackName + "|" + t.artistName).toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        if (unique.length) return unique;
+      }
+    }
+    return [];
+  } catch (err) {
+    console.error("検索エラー(fetchAppleMusicInfo):", err);
+    return [];
+  }
+}
+
+//――――――――――――――――――――――
+// エンドポイント定義
+//――――――――――――――――――――――
+
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
-  try {
-    if (mode === "artist") {
-      if (req.query.artistId) {
-        // アーティストID指定で楽曲取得
-        return res.json(await fetchArtistTracks(req.query.artistId.trim()));
-      }
-      const q = req.query.query?.trim();
-      if (!q) return res.json([]);
-      // artistTerm でのアーティスト一覧はそのまま残します
-      const url = `https://itunes.apple.com/search`
-        + `?term=${encodeURIComponent(q)}`
-        + `&country=JP&media=music&entity=musicArtist`
-        + `&limit=100`;
-      const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-      const txt = await r.text();
-      const data = txt.trim() ? JSON.parse(txt) : { results: [] };
-      const map = new Map();
-      for (let a of data.results) {
-        if (a.artistId && a.artistName) {
-          map.set(a.artistId, {
-            trackName:  a.artistName,
-            artistName: a.artistName,
-            artworkUrl: a.artworkUrl100 || "",
-            artistId:   a.artistId
-          });
-        }
-      }
-      return res.json(Array.from(map.values()));
-    } else {
-      // 曲検索モード
-      const q  = req.query.query?.trim();
-      const ar = req.query.artist?.trim() || "";
-      if (!q) return res.json([]);
-      const suggestions = await fetchAppleMusicInfo(q, ar);
-      return res.json(suggestions);
+  if (mode === "artist") {
+    // アーティスト一覧取得
+    if (req.query.artistId) {
+      return res.json(await fetchArtistTracks(req.query.artistId));
     }
-  } catch (e) {
-    console.error("/search エラー:", e);
-    return res.json([]);
+    const q = (req.query.query || "").trim();
+    if (!q) return res.json([]);
+    const data = await fetchResultsForQuery(q, "musicArtist", 100);
+    // Map で重複除去
+    const map = new Map();
+    (data.results || []).forEach(a => {
+      if (a.artistId && !map.has(a.artistId)) {
+        map.set(a.artistId, {
+          trackName:  a.artistName,
+          artworkUrl: a.artworkUrl100,
+          artistId:   a.artistId
+        });
+      }
+    });
+    return res.json(Array.from(map.values()));
+  } else {
+    // 曲検索
+    const q      = (req.query.query || "").trim();
+    const artist = (req.query.artist||"").trim();
+    if (!q) return res.json([]);
+    return res.json(await fetchAppleMusicInfo(q, artist));
   }
 });
-
-
 
 /* リクエスト送信 */
 app.post("/submit", (req, res) => {
@@ -438,15 +490,16 @@ app.get("/admin-login", (req, res) => {
 });
 
 app.post("/update-settings", (req, res) => {
-  db.data.settings.recruiting = req.body.recruiting ? false : true;
-  db.data.settings.reason = req.body.reason || "";
-  db.data.settings.frontendTitle = req.body.frontendTitle || "♬曲をリクエストする";
-  if (req.body.adminPassword && req.body.adminPassword.trim()) {
-    db.data.settings.adminPassword = req.body.adminPassword.trim();
-  }
+  db.read(); // 最新の読み込み
+  db.data.settings.recruiting        = !req.body.recruiting;
+  db.data.settings.reason           = req.body.reason || "";
+  db.data.settings.frontendTitle    = req.body.frontendTitle || db.data.settings.frontendTitle;
+  db.data.settings.adminPassword    = req.body.adminPassword?.trim() || db.data.settings.adminPassword;
   db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
   db.write();
-  res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
+  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+  // ユーザーページへ即時反映させるため、リダイレクトではなく 200 を返す
+  res.json({ success: true, settings: db.data.settings });
 });
 
 app.get("/settings", (req, res) => {
