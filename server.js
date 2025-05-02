@@ -13,6 +13,7 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
+// GitHub 同期用環境変数
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME    = process.env.REPO_NAME;
 const FILE_PATH    = "db.json";
@@ -103,7 +104,7 @@ async function fetchArtistTracks(artistId) {
   const url = [
     `https://itunes.apple.com/lookup`,
     `?id=${encodeURIComponent(artistId)}`,
-    `&entity=musicTrack&country=JP&limit=100`
+    `&entity=musicTrack&country=JP&limit=100&explicit=no`
   ].join("");
 
   const res = await rateLimitedFetch(url, {
@@ -118,6 +119,7 @@ async function fetchArtistTracks(artistId) {
 
   try {
     const data = JSON.parse(text);
+    // 最初の１件はアーティスト情報なので除去
     return (data.results || []).slice(1).map(r => ({
       trackName:    r.trackName,
       artistName:   r.artistName,
@@ -166,31 +168,6 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
   }
 }
 
-async function fetchArtistTracks(artistId) {
-  const url = `https://itunes.apple.com/lookup`
-    + `?id=${encodeURIComponent(artistId)}`
-    + `&entity=musicTrack&country=JP&limit=100&explicit=no`;
-  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-  if (!res.ok) {
-    console.error(`HTTPエラー(${res.status}) for URL: ${url}`);
-    return [];
-  }
-  const text = await res.text();
-  try {
-    const data = JSON.parse(text);
-    // 最初の１件はアーティスト情報なので除去
-    return (data.results||[]).slice(1).map(t => ({
-      trackName:    t.trackName,
-      artistName:   t.artistName,
-      trackViewUrl: t.trackViewUrl,
-      artworkUrl:   t.artworkUrl100,
-      previewUrl:   t.previewUrl || ""
-    }));
-  } catch (e) {
-    console.error(`JSON parse error (fetchArtistTracks):`, e);
-    return [];
-  }
-
 //――――――――――――――――――――――
 // エンドポイント定義
 //――――――――――――――――――――――
@@ -205,7 +182,6 @@ app.get("/search", async (req, res) => {
     const q = (req.query.query || "").trim();
     if (!q) return res.json([]);
     const data = await fetchResultsForQuery(q, "musicArtist", 100);
-    // Map で重複除去
     const map = new Map();
     (data.results || []).forEach(a => {
       if (a.artistId && !map.has(a.artistId)) {
@@ -220,7 +196,7 @@ app.get("/search", async (req, res) => {
   } else {
     // 曲検索
     const q      = (req.query.query || "").trim();
-    const artist = (req.query.artist||"").trim();
+    const artist = (req.query.artist || "").trim();
     if (!q) return res.json([]);
     return res.json(await fetchAppleMusicInfo(q, artist));
   }
@@ -229,18 +205,22 @@ app.get("/search", async (req, res) => {
 /* リクエスト送信 */
 app.post("/submit", (req, res) => {
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
-  const artworkUrl = req.body.artworkUrl?.trim();
-  const previewUrl = req.body.previewUrl?.trim();
+  const artworkUrl    = req.body.artworkUrl?.trim();
+  const previewUrl    = req.body.previewUrl?.trim();
   if (!appleMusicUrl || !artworkUrl || !previewUrl) {
     return res.send(`<script>alert("必ず候補一覧から曲を選択してください"); window.location.href="/";</script>`);
   }
   const responseText = req.body.response?.trim();
-  const artistText = req.body.artist?.trim() || "アーティスト不明";
+  const artistText   = req.body.artist?.trim() || "アーティスト不明";
   if (!responseText) {
     return res.send(`<script>alert("⚠️入力欄が空です。"); window.location.href="/";</script>`);
   }
+
+  // 件数管理
   const key = `${responseText.toLowerCase()}|${artistText.toLowerCase()}`;
   db.data.songCounts[key] = (db.data.songCounts[key] || 0) + 1;
+
+  // 重複チェック＆登録
   const existing = db.data.responses.find(r =>
     r.text.toLowerCase() === responseText.toLowerCase() &&
     r.artist.toLowerCase() === artistText.toLowerCase()
@@ -249,82 +229,62 @@ app.post("/submit", (req, res) => {
     existing.count = db.data.songCounts[key];
   } else {
     db.data.responses.push({
-      id: nanoid(),
-      text: responseText,
-      artist: artistText,
+      id:           nanoid(),
+      text:         responseText,
+      artist:       artistText,
       appleMusicUrl,
       artworkUrl,
       previewUrl,
-      count: db.data.songCounts[key]
+      count:        db.data.songCounts[key]
     });
   }
   db.write();
   fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+
   res.send(`<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>`);
 });
 
-/* リクエスト削除（リクエスト回数もリセット） */
+/* リクエスト削除（回数リセット含む） */
 app.get("/delete/:id", (req, res) => {
   const id = req.params.id;
-  const toDelete = db.data.responses.find(entry => entry.id === id);
+  const toDelete = db.data.responses.find(e => e.id === id);
   if (toDelete) {
     const key = `${toDelete.text.toLowerCase()}|${toDelete.artist.toLowerCase()}`;
     delete db.data.songCounts[key];
   }
-  db.data.responses = db.data.responses.filter(entry => entry.id !== id);
+  db.data.responses = db.data.responses.filter(e => e.id !== id);
   db.write();
   fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
-  res.set("Content-Type", "text/html");
   res.send(`<script>alert("🗑️削除しました！"); window.location.href="/admin";</script>`);
 });
 
-/* GitHub 同期/取得 */
+/* GitHub 同期/取得 ヘルパー */
 async function syncRequestsToGitHub() {
   const localContent = JSON.stringify(db.data, null, 2);
   let sha = null;
   try {
-    const getResponse = await axios.get(
+    const getRes = await axios.get(
       `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
-      {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
+      { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
     );
-    sha = getResponse.data.sha;
+    sha = getRes.data.sha;
   } catch (err) {
-    if (err.response && err.response.status === 404) {
-      sha = null;
-    } else {
-      throw err;
-    }
+    if (err.response?.status !== 404) throw err;
   }
   const contentEncoded = Buffer.from(localContent).toString("base64");
-  const putData = {
-    message: "Sync db.json",
-    content: contentEncoded,
-    branch: BRANCH,
-  };
+  const putData = { message: "Sync db.json", content: contentEncoded, branch: BRANCH };
   if (sha) putData.sha = sha;
-  const putResponse = await axios.put(
+  return axios.put(
     `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
     putData,
-    {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github.v3+json",
-      },
-    }
+    { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
   );
-  return putResponse.data;
 }
 
 app.get("/sync-requests", async (req, res) => {
   try {
     await syncRequestsToGitHub();
-    res.set("Content-Type", "text/html");
-    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
+    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="color:green;font-size:18px;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p></body></html>`);
   } catch (e) {
     res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
   }
@@ -332,198 +292,96 @@ app.get("/sync-requests", async (req, res) => {
 
 app.get("/fetch-requests", async (req, res) => {
   try {
-    const getResponse = await axios.get(
+    const getRes = await axios.get(
       `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
-      {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
+      { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
     );
-    const contentBase64 = getResponse.data.content;
-    const content = Buffer.from(contentBase64, "base64").toString("utf8");
+    const content = Buffer.from(getRes.data.content, "base64").toString("utf8");
     db.data = JSON.parse(content);
     db.write();
     fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
-    res.set("Content-Type", "text/html");
-    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
-  } catch (error) {
-    res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
+    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="color:green;font-size:18px;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p></body></html>`);
+  } catch (err) {
+    res.send("Fetch エラー: " + (err.response ? JSON.stringify(err.response.data) : err.message));
   }
-});
-
-app.get("/admin", (req, res) => {
-  const page = parseInt(req.query.page || "1", 10);
-  const perPage = 10;
-  const total = db.data.responses.length;
-  const totalPages = Math.ceil(total / perPage);
-  const startIndex = (page - 1) * perPage;
-  const pageItems = db.data.responses.slice(startIndex, startIndex + perPage);
-
-  function createPaginationLinks(currentPage, totalPages) {
-    let html = `<div style="text-align:left; margin-bottom:10px;">`;
-    html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
-    const prevPage = Math.max(1, currentPage - 1);
-    html += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
-    for (let p = 1; p <= totalPages; p++) {
-      if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
-        if (p === currentPage) {
-          html += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
-        } else {
-          html += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
-        }
-      } else if (Math.abs(p - currentPage) === 3) {
-        html += `...`;
-      }
-    }
-    const nextPage = Math.min(totalPages, currentPage + 1);
-    html += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
-    html += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
-    html += `</div>`;
-    return html;
-  }
-
-  let html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>管理者ページ</title>
-  <style>
-    li { margin-bottom: 10px; }
-    .entry-container { position: relative; display: inline-block; margin-bottom:10px; }
-    .entry { display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; width: fit-content; }
-    .entry:hover { background-color: rgba(0,0,0,0.05); }
-    .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
-    .delete { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: red; text-decoration: none; }
-    .count-badge { background-color: #ff6b6b; color: white; font-weight: bold; padding: 4px 8px; border-radius: 5px; margin-right: 10px; }
-    h1 { font-size: 1.5em; margin-bottom: 20px; }
-    form { margin: 20px 0; text-align: left; }
-    textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }
-    .setting-field { margin-bottom: 10px; }
-    .sync-btn, .fetch-btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .sync-btn { background-color: #28a745; color: white; }
-    .sync-btn:hover { background-color: #218838; }
-    .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
-    .fetch-btn:hover { background-color: #138496; }
-    .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      display: none;
-      margin-left: 10px;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  </style>
-  </head><body><h1>✉アンケート回答一覧</h1>`;
-  html += createPaginationLinks(page, totalPages);
-  html += `<ul style="list-style:none; padding:0;">`;
-  pageItems.forEach(entry => {
-    html += `<li>
-      <div class="entry-container">
-        <a href="${entry.appleMusicUrl || "#"}" target="_blank" class="entry">
-          <div class="count-badge">${entry.count}</div>
-          <img src="${entry.artworkUrl}" alt="Cover">
-          <div>
-            <strong>${entry.text}</strong><br>
-            <small>${entry.artist}</small>
-          </div>
-        </a>
-        <a href="/delete/${entry.id}" class="delete">🗑️</a>
-      </div>
-    </li>`;
-  });
-  html += `</ul>`;
-  html += createPaginationLinks(page, totalPages);
-  html += `<form action="/update-settings" method="post">
-    <div class="setting-field">
-      <label>
-        <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
-        募集を終了する
-      </label>
-    </div>
-    <div class="setting-field">
-      <label>理由:</label><br>
-      <textarea name="reason" placeholder="理由（任意）">${db.data.settings.reason || ""}</textarea>
-    </div>
-    <div class="setting-field">
-      <label>フロントエンドタイトル:</label><br>
-      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
-    </div>
-    <div class="setting-field">
-      <label>管理者パスワード:</label><br>
-      <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;">
-    </div>
-    <div class="setting-field">
-      <label>
-        <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
-        ユーザーページの再生・音量ボタンを表示する
-      </label>
-    </div>
-    <br>
-    <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
-  </form>`;
-  html += `<div class="button-container">
-    <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
-    <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
-    <div class="spinner" id="loadingSpinner"></div>
-  </div>
-  <br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
-  html += `<script>
-    function syncToGitHub() {
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("fetchBtn").disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/sync-requests")
-        .then(r => r.text())
-        .then(d => { document.body.innerHTML = d; })
-        .catch(e => {
-          alert("エラー: " + e);
-          document.getElementById("loadingSpinner").style.display = "none";
-          document.getElementById("syncBtn").disabled = false;
-          document.getElementById("fetchBtn").disabled = false;
-        });
-    }
-    function fetchFromGitHub() {
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("fetchBtn").disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/fetch-requests")
-        .then(r => r.text())
-        .then(d => { document.body.innerHTML = d; })
-        .catch(e => {
-          alert("エラー: " + e);
-          document.getElementById("loadingSpinner").style.display = "none";
-          document.getElementById("syncBtn").disabled = false;
-          document.getElementById("fetchBtn").disabled = false;
-        });
-    }
-  </script>`;
-  html += `</body></html>`;
-  res.send(html);
 });
 
 app.get("/admin-login", (req, res) => {
-  const { password } = req.query;
-  res.json({ success: password === db.data.settings.adminPassword });
+  res.json({ success: req.query.password === db.data.settings.adminPassword });
+});
+
+app.get("/admin", (req, res) => {
+  const page     = parseInt(req.query.page || "1", 10);
+  const perPage  = 10;
+  const total    = db.data.responses.length;
+  const totalPgs = Math.ceil(total / perPage);
+  const start    = (page - 1) * perPage;
+  const items    = db.data.responses.slice(start, start + perPage);
+
+  // ページャー作成
+  function pager(cur) {
+    let h = `<div style="text-align:left;margin-bottom:10px;">`;
+    h += `<a href="?page=1">|< 最初</a> `;
+    h += `<a href="?page=${Math.max(1,cur-1)}">&lt;</a> `;
+    for (let i=1;i<=totalPgs;i++){
+      if (i===cur) h += `<strong>${i}</strong> `;
+      else if (Math.abs(i-cur)<=2||i===1||i===totalPgs) h += `<a href="?page=${i}">${i}</a> `;
+      else if (Math.abs(i-cur)===3) h += `... `;
+    }
+    h += `<a href="?page=${Math.min(totalPgs,cur+1)}">&gt;</a> `;
+    h += `<a href="?page=${totalPgs}">最後 >|</a>`;
+    h += `</div>`;
+    return h;
+  }
+
+  let html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>管理者ページ</title><style>
+    /* （スタイル省略）同上のものをご利用ください */
+  </style></head><body>`;
+  html += `<h1>✉ アンケート回答一覧</h1>`;
+  html += pager(page);
+  html += `<ul style="list-style:none;padding:0;">`;
+  items.forEach(e => {
+    html += `<li><div style="display:inline-block;position:relative;margin:5px;">
+      <a href="${e.appleMusicUrl||"#"}" target="_blank" style="display:flex;align-items:center;border:1px solid #ddd;padding:10px;border-radius:10px;">
+        <span style="background:#f66;color:#fff;padding:4px 8px;border-radius:5px;margin-right:10px;">${e.count}</span>
+        <img src="${e.artworkUrl}" width="50" height="50" style="border-radius:5px;margin-right:10px;">
+        <div><strong>${e.text}</strong><br><small>${e.artist}</small></div>
+      </a>
+      <a href="/delete/${e.id}" style="position:absolute;left:100%;top:50%;transform:translateY(-50%);color:red;">🗑️</a>
+    </div></li>`;
+  });
+  html += `</ul>`;
+  html += pager(page);
+  // 設定フォーム
+  html += `<form action="/update-settings" method="post" style="margin-top:20px;">`;
+  html += `<label><input type="checkbox" name="recruiting" value="off"${db.data.settings.recruiting?"":" checked"}> 募集を終了する</label><br>`;
+  html += `理由:<br><textarea name="reason" style="width:300px;height:80px;">${db.data.settings.reason}</textarea><br>`;
+  html += `フロントエンドタイトル:<br><textarea name="frontendTitle" style="width:300px;height:50px;">${db.data.settings.frontendTitle}</textarea><br>`;
+  html += `管理者パスワード:<br><input type="text" name="adminPassword" style="width:300px;"><br>`;
+  html += `<label><input type="checkbox" name="playerControlsEnabled"${db.data.settings.playerControlsEnabled?" checked":""}> 再生・音量ボタンを表示</label><br><br>`;
+  html += `<button style="font-size:18px;padding:12px;">設定を更新</button>`;
+  html += `</form>`;
+  // Sync/Fetch
+  html += `<div style="margin-top:20px;"><button onclick="location.href='/sync-requests'">GitHubに同期</button> `;
+  html += `<button onclick="location.href='/fetch-requests'">GitHubから取得</button></div>`;
+  html += `<br><a href="/">↵ 戻る</a>`;
+  html += `</body></html>`;
+
+  res.send(html);
 });
 
 app.post("/update-settings", (req, res) => {
-  db.read(); // 最新の読み込み
-  db.data.settings.recruiting        = !req.body.recruiting;
-  db.data.settings.reason           = req.body.reason || "";
-  db.data.settings.frontendTitle    = req.body.frontendTitle || db.data.settings.frontendTitle;
-  db.data.settings.adminPassword    = req.body.adminPassword?.trim() || db.data.settings.adminPassword;
-  db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
+  db.read();
+  db.data.settings.recruiting             = !req.body.recruiting;
+  db.data.settings.reason                = req.body.reason || "";
+  db.data.settings.frontendTitle         = req.body.frontendTitle || db.data.settings.frontendTitle;
+  if (req.body.adminPassword?.trim()) {
+    db.data.settings.adminPassword       = req.body.adminPassword.trim();
+  }
+  db.data.settings.playerControlsEnabled  = !!req.body.playerControlsEnabled;
   db.write();
   fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
-  // ユーザーページへ即時反映させるため、リダイレクトではなく 200 を返す
+  // 即時反映に json 返却
   res.json({ success: true, settings: db.data.settings });
 });
 
@@ -533,15 +391,11 @@ app.get("/settings", (req, res) => {
 
 // 20分ごと自動同期
 cron.schedule("*/10 * * * *", async () => {
-  console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
-  try {
-    await syncRequestsToGitHub();
-    console.log("自動更新完了");
-  } catch (e) {
-    console.error("自動更新エラー:", e);
-  }
+  console.log("自動更新ジョブ: GitHubへアップロード");
+  try { await syncRequestsToGitHub(); console.log("完了"); }
+  catch (e) { console.error("エラー:", e); }
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
+  console.log(`🚀 サーバ起動 http://localhost:${PORT}`);  
 });
