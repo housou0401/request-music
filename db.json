@@ -525,7 +525,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%AF%E3%82%B9%E3%82%B7%E3%82%AD/1804230382?i=1804230388&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f2/13/a2/f213a26f-355f-95da-c119-a0571d28cdd1/25UMGIM46524.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/bf/77/ec/bf77ecec-6e64-f0bb-37dd-c7ed51e3bc2e/mzaf_11256532349323950179.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "YoxLYP7qgNSWzYXhPAkko",
@@ -570,7 +570,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%AD%E3%83%9E%E3%83%B3%E3%83%81%E3%82%B7%E3%82%BA%E3%83%A0/1454643208?i=1454643219&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/39/10/40/39104035-3ebf-1cec-9294-cce6ccff7086/19UMGIM12455.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/b2/f3/ff/b2f3ff27-b026-ba9a-347e-9e6d801236c5/mzaf_15595485502985895543.plus.aac.p.m4a",
-      "count": 2
+      "count": 3
     },
     {
       "id": "SFiSuxjMN372uKXwIoTp2",
@@ -652,6 +652,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/56/d4/1e/56d41e84-b659-a170-6712-cfc8d47691a0/00602567503408.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/36/29/f8/3629f80e-1fda-cf92-f731-51d3d93d36d8/mzaf_12181569189314885875.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "DaeR8c5rxt1yr-3zDod4O",
+      "text": "Love me, Love you",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/love-me-love-you/1441018133?i=1441018140&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c3/c7/d7/c3c7d7b8-64b8-036a-b47f-21b24d280210/00602567350484.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c3/2a/ba/c32aba0b-d761-ac87-4950-7814a05ce15a/mzaf_9211534742691145491.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -729,12 +738,12 @@
     "bite you|muque": 1,
     "バレる!|creepy nuts": 1,
     "fe!n (feat. playboi carti)|トラヴィス・スコット": 1,
-    "クスシキ|mrs. green apple": 1,
+    "クスシキ|mrs. green apple": 2,
     "hug|アーティスト不明": 1,
     "ツキマシテハ|アーティスト不明": 2,
     "ア・プリオリ|アーティスト不明": 2,
     "コロンブス|アーティスト不明": 1,
-    "ロマンチシズム|アーティスト不明": 2,
+    "ロマンチシズム|アーティスト不明": 3,
     "ビターバカンス|アーティスト不明": 1,
     "アイデア|星野源": 1,
     "wanted! wanted!|アーティスト不明": 2,
@@ -743,7 +752,8 @@
     "heartache|one ok rock": 1,
     "cheers|アーティスト不明": 1,
     "ナハトムジーク|アーティスト不明": 1,
-    "party|アーティスト不明": 1
+    "party|アーティスト不明": 1,
+    "love me, love you|アーティスト不明": 1
   },
   "settings": {
     "recruiting": true,
