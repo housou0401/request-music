@@ -48,12 +48,11 @@ if (!db.data.settings) {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-/** 共通：iTunes API コール (limit=100) **/
-async function fetchResultsForQuery(query, lang, entity) {
+async function fetchResultsForQuery(query, entity) {
   const url = `https://itunes.apple.com/search`
     + `?term=${encodeURIComponent(query)}`
     + `&country=JP&media=music&entity=${entity}`
-    + `&limit=100&explicit=no&lang=${lang}`;
+    + `&limit=100&explicit=no`;
   const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!res.ok) {
     console.error(`HTTPエラー: ${res.status} URL: ${url}`);
@@ -69,50 +68,15 @@ async function fetchResultsForQuery(query, lang, entity) {
   }
 }
 
-async function fetchArtistTracks(artistId) {
-  const url = `https://itunes.apple.com/lookup`
-    + `?id=${artistId}&entity=song&country=JP&limit=100`;
-  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-  if (!res.ok) {
-    console.error(`HTTPエラー: ${res.status} URL: ${url}`);
-    return [];
-  }
-  const text = await res.text();
-  if (!text.trim()) return [];
-  try {
-    const data = JSON.parse(text);
-    return (data.results || []).slice(1).map(r => ({
-      trackName:   r.trackName,
-      artistName:  r.artistName,
-      trackViewUrl:r.trackViewUrl,
-      artworkUrl:  r.artworkUrl100,
-      previewUrl:  r.previewUrl || ""
-    }));
-  } catch (e) {
-    console.error("JSON parse error (fetchArtistTracks):", e);
-    return [];
-  }
-}
-
-// ─── 曲検索ロジック (完全一致→部分一致) ─────────────────────────
 async function fetchAppleMusicInfo(songTitle, artistName) {
   try {
-    const hasKorean   = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
-    const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
-    let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
-
-    // 引用符付き完全一致 → 部分一致
+    // 完全一致→部分一致の２ステップ
     const queries = artistName?.trim()
       ? [`"${songTitle}" ${artistName}`, songTitle]
       : [`"${songTitle}"`, songTitle];
 
     for (let q of queries) {
-      let data = await fetchResultsForQuery(q, lang, "song");
-      // 英語圏なら en_us⇔en_gb を補完
-      if (!data.results.length && (lang === "en_us" || lang === "en_gb")) {
-        const alt = lang === "en_us" ? "en_gb" : "en_us";
-        data = await fetchResultsForQuery(q, alt, "song");
-      }
+      const data = await fetchResultsForQuery(q, "musicTrack");
       if (data.results.length) {
         const uniq = [], seen = new Set();
         for (let t of data.results) {
@@ -137,25 +101,28 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
     return [];
   }
 }
-// ───────────────────────────────────────────────────────────
 
 /** /search エンドポイント **/
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
     if (mode === "artist") {
-      // アーティスト一覧モード
       if (req.query.artistId) {
+        // アーティストID指定で楽曲取得
         return res.json(await fetchArtistTracks(req.query.artistId.trim()));
       }
       const q = req.query.query?.trim();
       if (!q) return res.json([]);
-      const hasKorean   = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(q);
-      const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(q);
-      const lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
-      const data = await fetchResultsForQuery(q, lang, "musicArtist");
+      // artistTerm でのアーティスト一覧はそのまま残します
+      const url = `https://itunes.apple.com/search`
+        + `?term=${encodeURIComponent(q)}`
+        + `&country=JP&media=music&entity=musicArtist`
+        + `&limit=100`;
+      const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+      const txt = await r.text();
+      const data = txt.trim() ? JSON.parse(txt) : { results: [] };
       const map = new Map();
-      for (let a of data.results || []) {
+      for (let a of data.results) {
         if (a.artistId && a.artistName) {
           map.set(a.artistId, {
             trackName:  a.artistName,
@@ -179,6 +146,8 @@ app.get("/search", async (req, res) => {
     return res.json([]);
   }
 });
+
+
 
 /* リクエスト送信 */
 app.post("/submit", (req, res) => {
