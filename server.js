@@ -166,6 +166,31 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
   }
 }
 
+async function fetchArtistTracks(artistId) {
+  const url = `https://itunes.apple.com/lookup`
+    + `?id=${encodeURIComponent(artistId)}`
+    + `&entity=musicTrack&country=JP&limit=100&explicit=no`;
+  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+  if (!res.ok) {
+    console.error(`HTTPエラー(${res.status}) for URL: ${url}`);
+    return [];
+  }
+  const text = await res.text();
+  try {
+    const data = JSON.parse(text);
+    // 最初の１件はアーティスト情報なので除去
+    return (data.results||[]).slice(1).map(t => ({
+      trackName:    t.trackName,
+      artistName:   t.artistName,
+      trackViewUrl: t.trackViewUrl,
+      artworkUrl:   t.artworkUrl100,
+      previewUrl:   t.previewUrl || ""
+    }));
+  } catch (e) {
+    console.error(`JSON parse error (fetchArtistTracks):`, e);
+    return [];
+  }
+
 //――――――――――――――――――――――
 // エンドポイント定義
 //――――――――――――――――――――――
