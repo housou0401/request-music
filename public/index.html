@@ -142,33 +142,36 @@
   </div>
   <p class="privacy-note">個人情報は収集されません。</p>
   <script>
-    function checkRecruitingStatus() {
-      fetch("/settings")
-        .then(r => r.json())
-        .then(data => {
-          if (!data.recruiting) {
-            const container = document.getElementById("mainContainer");
-            container.innerHTML = "";
-            const message = document.createElement("div");
-            message.style.textAlign = "center";
-            message.style.color = "red";
-            message.style.fontSize = "1.5em";
-            message.style.margin = "20px 0";
-            message.innerText = "現在は曲を募集していません";
-            container.appendChild(message);
-            if (data.reason && data.reason.trim() !== "") {
-              const reason = document.createElement("div");
-              reason.style.textAlign = "center";
-              reason.style.color = "black";
-              reason.style.fontSize = "1.2em";
-              reason.style.margin = "10px 0";
-              reason.innerText = data.reason;
-              container.appendChild(reason);
+      function checkRecruitingStatus() {
+        fetch("/settings")
+          .then(r => r.json())
+          .then(data => {
+            if (!data.recruiting) {
+              // １）タイトルを赤文字に
+              const title = document.getElementById("frontendTitle");
+              title.innerText = "現在は曲を募集していません";
+              title.style.color = "red";
+              
+              // ２）フォーム、モード切替、ロードUI を隠す
+              document.getElementById("modeToggle").style.display = "none";
+              document.getElementById("requestForm").style.display = "none";
+              document.getElementById("loadingIndicator").style.display = "none";
+              
+              // ３）理由を表示
+              if (data.reason && data.reason.trim() !== "") {
+                const reason = document.createElement("div");
+                reason.style.textAlign = "center";
+                reason.style.color = "black";
+                reason.style.fontSize = "1.2em";
+                reason.style.margin = "10px 0";
+                reason.innerText = data.reason;
+                document.getElementById("mainContainer").appendChild(reason);
+              }
             }
-          }
-        })
-        .catch(err => console.error("設定取得エラー:", err));
-    }
+          })
+          .catch(err => console.error("設定取得エラー:", err));
+      }
+    
     function updateFrontendTitle() {
       fetch("/settings")
         .then(r => r.json())
