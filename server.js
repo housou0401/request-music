@@ -12,25 +12,22 @@ dotenv.config();
 
 const app = express();
 const PORT = 3000;
-
-// Render の Environment Variables
-const GITHUB_OWNER   = process.env.GITHUB_OWNER;
-const REPO_NAME      = process.env.REPO_NAME;
-const FILE_PATH      = "db.json";
-const BRANCH         = process.env.GITHUB_BRANCH || "main";
-const GITHUB_TOKEN   = process.env.GITHUB_TOKEN;
+const GITHUB_OWNER = process.env.GITHUB_OWNER;
+const REPO_NAME    = process.env.REPO_NAME;
+const FILE_PATH    = "db.json";
+const BRANCH       = process.env.GITHUB_BRANCH || "main";
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
-  console.error("必要な環境変数(GITHUB_OWNER, REPO_NAME, GITHUB_TOKEN)が設定されていません。");
+  console.error("必要な環境変数が設定されていません。");
   process.exit(1);
 }
 
-// LowDB
+// LowDB 初期化
 const adapter = new JSONFileSync("db.json");
 const db = new LowSync(adapter);
 db.read();
 db.data = db.data || { responses: [], songCounts: {}, settings: {} };
-if (!db.data.songCounts) db.data.songCounts = {};
 if (!db.data.settings) {
   db.data.settings = {
     recruiting: true,
@@ -48,39 +45,36 @@ if (!db.data.settings) {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-/** iTunes Search API 共通 **/
-async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
-  let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
-  if (attribute) url += `&attribute=${attribute}`;
+/** 共通：iTunes API 呼び出し **/
+async function fetchResultsForQuery(query, lang, entity) {
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
   const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!res.ok) {
-    console.error(`HTTPエラー: ${res.status} for URL: ${url}`);
+    console.error(`HTTPエラー: ${res.status} URL: ${url}`);
     return { results: [] };
   }
   const text = await res.text();
   if (!text.trim()) return { results: [] };
-  try {
-    return JSON.parse(text);
-  } catch (e) {
+  try { return JSON.parse(text); }
+  catch (e) {
     console.error(`JSON parse error (${url}):`, e);
     return { results: [] };
   }
 }
 
-// アーティストの曲一覧取得（lookup）
+// アーティスト→曲一覧
 async function fetchArtistTracks(artistId) {
   const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=50`;
   const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!res.ok) {
-    console.error(`HTTPエラー: ${res.status} for URL: ${url}`);
+    console.error(`HTTPエラー: ${res.status} URL: ${url}`);
     return [];
   }
   const text = await res.text();
   if (!text.trim()) return [];
   try {
     const data = JSON.parse(text);
-    if (!data.results || data.results.length <= 1) return [];
-    return data.results.slice(1).map(r => ({
+    return (data.results || []).slice(1).map(r => ({
       trackName:   r.trackName,
       artistName:  r.artistName,
       trackViewUrl:r.trackViewUrl,
@@ -93,28 +87,24 @@ async function fetchArtistTracks(artistId) {
   }
 }
 
-// 曲検索メイン
+// 曲検索
 async function fetchAppleMusicInfo(songTitle, artistName) {
   try {
     const hasKorean   = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
     const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
     let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
 
-    let queries = [];
-    if (artistName?.trim()) {
-      queries.push(`${songTitle} ${artistName}`);
-      queries.push(`${songTitle} official ${artistName}`);
-    } else {
-      queries.push(songTitle);
-      queries.push(`${songTitle} official`);
-    }
+    // クエリ候補
+    const queries = artistName?.trim()
+      ? [ `${songTitle} ${artistName}`, `${songTitle} official ${artistName}` ]
+      : [ songTitle, `${songTitle} official` ];
 
     for (let q of queries) {
-      let data = await fetchResultsForQuery(q, lang, "song", "songTerm");
-      // 英語圏で alternate lang
+      let data = await fetchResultsForQuery(q, lang, "song");
+      // 英語圏なら en_us⇔en_gb も試す
       if (!data.results.length && (lang === "en_us" || lang === "en_gb")) {
-        const altLang = lang === "en_us" ? "en_gb" : "en_us";
-        data = await fetchResultsForQuery(q, altLang, "song", "songTerm");
+        const alt = lang === "en_us" ? "en_gb" : "en_us";
+        data = await fetchResultsForQuery(q, alt, "song");
       }
       if (data.results.length) {
         const uniq = [], seen = new Set();
@@ -135,8 +125,8 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
       }
     }
     return [];
-  } catch (err) {
-    console.error("❌ Apple Music 検索エラー:", err);
+  } catch (e) {
+    console.error("曲検索エラー:", e);
     return [];
   }
 }
@@ -146,43 +136,36 @@ app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
     if (mode === "artist") {
-      // アーティスト一覧取得
-      if (req.query.artistId) {
-        const tracks = await fetchArtistTracks(req.query.artistId.trim());
-        return res.json(tracks);
-      }
-      // 1文字以上の入力で artist 検索
       const q = req.query.query?.trim();
+      if (req.query.artistId) {
+        return res.json(await fetchArtistTracks(req.query.artistId.trim()));
+      }
       if (!q) return res.json([]);
-      // ★ ここを album→musicArtist に変更
+      // ★ ここを album→musicArtist ではなく、entity=musicArtist で属性なし
       const hasKorean   = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(q);
       const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(q);
-      let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
-      const data = await fetchResultsForQuery(q, lang, "musicArtist", "");
-      if (!data.results) return res.json([]);
-      // マップで重複排除
+      const lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
+      const data = await fetchResultsForQuery(q, lang, "musicArtist");
       const map = new Map();
-      for (let a of data.results) {
+      for (let a of data.results || []) {
         if (a.artistId && a.artistName) {
           map.set(a.artistId, {
             trackName:  a.artistName,
             artistName: a.artistName,
-            artworkUrl: "",       // 必要に応じて別途取得
+            artworkUrl: a.artworkUrl100 || "",
             artistId:   a.artistId
           });
         }
       }
       return res.json(Array.from(map.values()));
     } else {
-      // 曲検索
-      const q = req.query.query?.trim();
+      const q  = req.query.query?.trim();
       const ar = req.query.artist?.trim() || "";
       if (!q) return res.json([]);
-      const list = await fetchAppleMusicInfo(q, ar);
-      return res.json(list);
+      return res.json(await fetchAppleMusicInfo(q, ar));
     }
-  } catch (err) {
-    console.error("❌ /search エラー:", err);
+  } catch (e) {
+    console.error("/search エラー:", e);
     return res.json([]);
   }
 });
