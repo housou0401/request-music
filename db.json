@@ -680,7 +680,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E6%87%90%E3%81%8B%E3%81%97%E3%81%84%E6%9C%AA%E6%9D%A5/1630856215?i=1630856509&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/12/07/8c/12078c08-84da-2afb-6e20-b2a4fb9e3591/22UMGIM67218.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/41/2c/81/412c813f-4b36-a3b7-1499-ef699d5c173e/mzaf_16282409623950695349.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "LfExmUcdizGwHnwMSnR6N",
@@ -924,6 +924,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/a7/04/51/a7045147-f5d0-ae37-6fdf-6e70fdfcf17b/21UMGIM53299.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/c8/f6/48/c8f6480f-179b-9d7d-bb4e-cec061ddc0fb/mzaf_15028297818053814749.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "dC94UZg6DRUy0XTIKLYi5",
+      "text": "Story",
+      "artist": "AI",
+      "appleMusicUrl": "https://music.apple.com/jp/album/story/1446739199?i=1446739203&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/14/34/9b/14349b26-a2d4-8401-2388-a49be71a2422/09UMGIM33578.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2e/e1/82/2ee182d3-1457-f807-1421-15f28be6d2d7/mzaf_7444828842684020630.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1018,7 +1027,7 @@
     "炎と森のカーニバル|sekai no owari": 1,
     "クロノスタシス|bump of chicken": 1,
     "いつかこの涙が|little glee monster": 1,
-    "懐かしい未来|上白石萌音": 1,
+    "懐かしい未来|上白石萌音": 2,
     "沈丁花|dish//": 1,
     "君に捧げる応援歌|hippy": 1,
     "君の花になる|8loom": 1,
@@ -1045,7 +1054,8 @@
     "とくべチュ、して|=love": 1,
     "雨と僕の話|back number": 1,
     "ワンドリンク別|アーティスト不明": 1,
-    "tears|アーティスト不明": 1
+    "tears|アーティスト不明": 1,
+    "story|ai": 1
   },
   "settings": {
     "recruiting": false,
