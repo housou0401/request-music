@@ -951,6 +951,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/96/41/91/96419181-7592-7c43-ebbb-f469583278aa/859755910856_cover.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/67/3d/2a/673d2a10-ce70-f8be-7ce3-5291bdfcc5cb/mzaf_5220525096312210166.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "ENl1jHYQqvfKy8pvGG2OK",
+      "text": "beside you",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/beside-you/1563170155?i=1563170158&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/8c/64/1b/8c641bf4-e3cc-8895-e41a-7b34c03c31b6/21UMGIM32368.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/52/d2/99/52d299b3-1242-bfab-e39d-9e83ab1fef68/mzaf_8952853922213342901.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1075,7 +1084,8 @@
     "tears|アーティスト不明": 1,
     "story|ai": 1,
     "soft spot|ケシ": 1,
-    "君の太陽|山猿": 1
+    "君の太陽|山猿": 1,
+    "beside you|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
