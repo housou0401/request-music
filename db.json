@@ -969,6 +969,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/bf/b6/73/bfb67322-2863-d722-5aa5-6aac13851684/197187113293.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2a/fd/0b/2afd0b34-bbb3-8e9d-0049-67ba8e851c81/mzaf_5982284101157033633.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "cylWNEO9rdY-ejSyaLoTP",
+      "text": "Kiss Me Right",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/kiss-me-right/1768090623?i=1768091128&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1095,7 +1104,8 @@
     "soft spot|ケシ": 1,
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
-    "ウエディング|音田雅則": 1
+    "ウエディング|音田雅則": 1,
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
