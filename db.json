@@ -978,6 +978,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "jVEzgQ0R4VlI2q6_SUzhe",
+      "text": "おやすみ泣き声、さよなら歌姫",
+      "artist": "クリープハイプ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8A%E3%82%84%E3%81%99%E3%81%BF%E6%B3%A3%E3%81%8D%E5%A3%B0-%E3%81%95%E3%82%88%E3%81%AA%E3%82%89%E6%AD%8C%E5%A7%AB/561857674?i=561857683&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/3b/42/2b/3b422b02-ceee-5dcc-914b-6047f80f0d9e/VEATP-26266.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/23/5c/6f/235c6f61-3508-94f2-9860-ef2b06340d26/mzaf_376121421607890242.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "o4cg3fkNRgAJLWCAyt3kY",
+      "text": "カーテンコール",
+      "artist": "優里",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%AB%E3%83%BC%E3%83%86%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%AB/1754899923?i=1754899924&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/4a/db/34/4adb34dd-5c2a-7fd8-1d48-1c57b066b002/4547366694093.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/4c/c8/114cc819-c07a-1738-9e9e-a49642bfb948/mzaf_7549563927084819577.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1105,7 +1123,9 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "おやすみ泣き声、さよなら歌姫|クリープハイプ": 1,
+    "カーテンコール|優里": 1
   },
   "settings": {
     "recruiting": false,
