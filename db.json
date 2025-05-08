@@ -982,7 +982,7 @@
     {
       "id": "TCkQqAGdqxsSWVCclIsKg",
       "text": "ハロー・グッドバイ",
-      "artist": "アーティスト不明",
+      "artist": "ビートルズ",
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8F%E3%83%AD%E3%83%BC-%E3%82%B0%E3%83%83%E3%83%89%E3%83%90%E3%82%A4/1440833098?i=1440834221&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f2/98/fb/f298fb48-1e0e-6ad4-4cff-fb824b77f02e/15UMGIM59587.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/57/8a/75/578a752e-1f90-35cb-c883-81fa42c66286/mzaf_3022150140116471382.plus.aac.p.m4a",
@@ -1115,7 +1115,7 @@
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
-    "ハロー・グッドバイ|アーティスト不明": 1
+    "ハロー・グッドバイ|ビートルズ": 99
   },
   "settings": {
     "recruiting": false,
