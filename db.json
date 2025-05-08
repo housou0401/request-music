@@ -978,24 +978,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "42BOrZ71ycbWj8DsYcg7J",
-      "text": "SnowMan",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/hirakegoma/1781604620?i=1781604621&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b7/89/73/b7897377-929d-5625-fcc1-e29be692e314/4570199891179.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/24/16/54/2416541f-e26b-6339-c1dc-c8f74e8c15ca/mzaf_9620319606610143540.plus.aac.p.m4a",
-      "count": 2
-    },
-    {
-      "id": "uC024cHvqnItGLkYstkmq",
-      "text": "GOD_i",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/god-i/1787229293?i=1787229294&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ac/db/f2/acdbf213-a053-652a-ebeb-117080000f19/dj.encbfuhl.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/14/fe/b1/14feb1e1-25c7-856e-48ca-cda456749f5a/mzaf_17809752429521423722.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1123,9 +1105,7 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1,
-    "snowman|アーティスト不明": 2,
-    "god_i|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
