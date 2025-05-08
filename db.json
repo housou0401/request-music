@@ -978,33 +978,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "QjikuMsVGf_hL5bq2rei1",
-      "text": "Caramel Pain",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/caramel-pain/1789078173?i=1789078179&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/33/8a/cd/338acd51-fd74-ca01-474c-128f2575b753/4571696527127.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/92/bd/53/92bd5310-6532-a52c-ac4b-275883de3acf/mzaf_9386475268778549343.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "L7HeQJuOdap6LSZO4mXCb",
-      "text": "Summer",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/summer/1498699296?i=1498699298&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/99/bc/a9/99bca93c-16f6-6258-d1dd-7ea99f9a57b5/20UMGIM04154.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/4a/71/a3/4a71a3e0-5bd3-bae8-c396-cdd312d33b25/mzaf_9976887464052856102.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "VOef7r1MlZliUhsM0fuHn",
-      "text": "重ねる時間、残り時間",
-      "artist": "RADWIMPS",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%87%8D%E3%81%AD%E3%82%8B%E6%99%82%E9%96%93-%E6%AE%8B%E3%82%8A%E6%99%82%E9%96%93/1611929821?i=1611930490&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/31/d5/84/31d5848e-2975-7aeb-b4ed-0feb428ea1ab/22UMGIM12204.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1e/ae/1c/1eae1c73-4b0a-3635-7e4a-4c088c998161/mzaf_4250917826690535706.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1132,10 +1105,7 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1,
-    "caramel pain|アーティスト不明": 1,
-    "summer|アーティスト不明": 1,
-    "重ねる時間、残り時間|radwimps": 1
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
