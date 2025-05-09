@@ -52,7 +52,7 @@ app.use(express.static("public"));
 
 /* Apple Music 検索関連 */
 async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
-  let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=50&explicit=no&lang=${lang}`;
+  let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=75&explicit=no&lang=${lang}`;
   if (attribute) url += `&attribute=${attribute}`;
   const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!response.ok) {
@@ -70,7 +70,7 @@ async function fetchResultsForQuery(query, lang, entity = "song", attribute = ""
 }
 
 async function fetchArtistTracks(artistId) {
-  const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=50`;
+  const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=75`;
   const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!response.ok) {
     console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
