@@ -854,15 +854,6 @@
       "count": 1
     },
     {
-      "id": "ZWN4M7UXkFecJVA-qfL86",
-      "text": "Love so sweet",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/love-so-sweet/1485857244?i=1485857408&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/8e/10/2a/8e102abd-d981-e370-82db-2ae5c98baac3/194491537920.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/30/58/b4/3058b4b0-e6e3-a1a1-c211-aa8254d1751b/mzaf_4185919129968547381.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "NEny3QiNZ6GsPJ_d8a04b",
       "text": "カーテンコール",
       "artist": "アーティスト不明",
@@ -978,6 +969,51 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "2qTb26xA3fZ-v0ilPh74W",
+      "text": "檸檬の日々",
+      "artist": "WurtS",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%AA%B8%E6%AA%AC%E3%81%AE%E6%97%A5%E3%80%85/1554789536?i=1554789537&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/1a/e9/7c/1ae97cec-5794-ca7a-546f-4dc4b0dcab57/HLT0005.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/ab/fd/81/abfd8113-5899-e6e4-70d4-22464b48b099/mzaf_7972582001410646644.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "THl2impUcluykf7HBmGYK",
+      "text": "青い春",
+      "artist": "back number",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%9D%92%E3%81%84%E6%98%A5/1451577721?i=1451577763&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f6/4c/e7/f64ce745-cb2a-c64c-2a18-6089665897ac/00602577303777.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/5e/2d/e0/5e2de0a3-839f-7103-2ce3-b208f832827b/mzaf_1049131108854747816.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "TBC1V7gimgo3f0rbG14FJ",
+      "text": "スーパースターになったら",
+      "artist": "back number",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%B9%E3%83%BC%E3%83%91%E3%83%BC%E3%82%B9%E3%82%BF%E3%83%BC%E3%81%AB%E3%81%AA%E3%81%A3%E3%81%9F%E3%82%89/1451577721?i=1451578216&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f6/4c/e7/f64ce745-cb2a-c64c-2a18-6089665897ac/00602577303777.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/02/46/8d/02468d44-733e-4c29-7472-4d9ac01e46f6/mzaf_8556283878553504614.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "-z8OKC3uOXnYqsSymRqyx",
+      "text": "ヤングアダルト",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%A4%E3%83%B3%E3%82%B0%E3%82%A2%E3%83%80%E3%83%AB%E3%83%88/1476019335?i=1476019339&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/6a/46/44/6a46441e-3dfb-afea-3449-302c68f9dcb2/bigup13008096.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ea/0b/fd/ea0bfd88-e2c0-eb61-e37e-e80956d9f71f/mzaf_10203971687303170330.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "Wdl9HyjatMOQly-Eqm6vS",
+      "text": "魔法にかけられて",
+      "artist": "Saucy Dog",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%AD%94%E6%B3%95%E3%81%AB%E3%81%8B%E3%81%91%E3%82%89%E3%82%8C%E3%81%A6/1613459301?i=1613459302&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/2a/d1/a3/2ad1a37d-2e04-4a71-0548-d879e58154e5/4582623241566.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/f4/b9/05/f4b905e9-8f0b-596c-1777-366c9ff481b1/mzaf_13747096542440254026.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1092,7 +1128,6 @@
     "no future but go to future|アーティスト不明": 1,
     "嘘じゃないよ|mrs. green apple": 1,
     "祈り花|アーティスト不明": 1,
-    "love so sweet|アーティスト不明": 1,
     "カーテンコール|アーティスト不明": 1,
     "ミセス|アーティスト不明": 1,
     "しなこワールド|しなこ": 1,
@@ -1105,7 +1140,12 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "檸檬の日々|wurts": 1,
+    "青い春|back number": 1,
+    "スーパースターになったら|back number": 1,
+    "ヤングアダルト|アーティスト不明": 1,
+    "魔法にかけられて|saucy dog": 1
   },
   "settings": {
     "recruiting": false,
