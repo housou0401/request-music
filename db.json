@@ -978,15 +978,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "1SVu4OPQVdejqqgx9ZYCE",
-      "text": "Cure For Me",
-      "artist": "AURORA",
-      "appleMusicUrl": "https://music.apple.com/jp/album/cure-for-me/1561281646?i=1561281647&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/f2/52/b3/f252b3fe-40c6-2594-a048-c5720e88fb1d/21UMGIM15885.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3f/d7/02/3fd70261-ac0f-9dc9-a7ca-3d7ed359647e/mzaf_18169213793893477859.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1114,8 +1105,7 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1,
-    "cure for me|aurora": 1
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
