@@ -978,6 +978,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "mzpnXdOTii8LWE0aJcHDQ",
+      "text": "夜凪 (feat. にしな)",
+      "artist": "indigo la End",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A4%9C%E5%87%AA-feat-%E3%81%AB%E3%81%97%E3%81%AA/1786313034?i=1786313049&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/8f/0d/e2/8f0de2fa-dcb6-89db-4b35-a08607c8354e/5021732589866.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/63/0c/0f/630c0ff9-770e-acb7-9bf7-710f119d3f21/mzaf_12281811377490946829.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "YK2eJX-TQ7e2CG9ryP5ii",
+      "text": "Cure For Me",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/cure-for-me/1561281646?i=1561281647&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/f2/52/b3/f252b3fe-40c6-2594-a048-c5720e88fb1d/21UMGIM15885.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3f/d7/02/3fd70261-ac0f-9dc9-a7ca-3d7ed359647e/mzaf_18169213793893477859.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1105,7 +1123,9 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "夜凪 (feat. にしな)|indigo la end": 1,
+    "cure for me|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
