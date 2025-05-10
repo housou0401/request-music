@@ -743,7 +743,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/forever-or-never/1655976887?i=1655976893&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/c2/48/3f/c2483fe6-535c-481c-382a-5fcfe80ef945/22UM1IM32697.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/12/74/77/12747794-6947-9a59-854f-ebdf8943f5e8/mzaf_13569556393388205247.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "fhWWof1LcwdQRQNHrQ7th",
@@ -752,7 +752,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/dreamer/1709460884?i=1709461162&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b3/56/7e/b3567eb6-b48d-b7ce-7e96-7a91c3222f78/4547366649574.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/d2/83/ab/d283ab9c-a3a6-940b-64e5-2cb26babebe8/mzaf_203284075357028376.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "sXQ-9-Dd-iQLLZI1V7HMx",
@@ -761,7 +761,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/count-on-me/1804805342?i=1804805343&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/46/5e/39/465e3937-6c0b-74ae-b41b-c9fc7cc7c24a/4547366743562.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b4/b2/41/b4b2416f-f654-e817-cc9a-22efffc7d64b/mzaf_1461863700018892704.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "sJpK8Ejt3hGvlmHYFzUNS",
@@ -996,6 +996,69 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/23/b9/fb/23b9fb18-e43f-b321-a915-966431e869a1/21UMGIM61764.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/f9/71/e6/f971e63b-fa60-92c8-0105-67cfce55997d/mzaf_4245501235818546650.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "SLWay9YW2q3hjdSO4BJpA",
+      "text": "君の花になる",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%AE%E8%8A%B1%E3%81%AB%E3%81%AA%E3%82%8B/1648400551?i=1648400560&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/20/c7/84/20c784bb-3095-88ec-0527-df0749578101/22UM1IM08588.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/51/5f/8e/515f8ebb-16b5-5dc3-1dc2-73815be16fa0/mzaf_8268986754277594908.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "GnQanxr9PWTiO1Fijn9VC",
+      "text": "Time Capsule (feat. KABE) [with EAST SOUTH]",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/time-capsule-feat-kabe-with-east-south/1709460884?i=1709461409&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b3/56/7e/b3567eb6-b48d-b7ce-7e96-7a91c3222f78/4547366649574.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/fb/89/27/fb892722-a227-7806-458a-9963e850488f/mzaf_13871929861124890204.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "yCczhrdiz9n5_3U-mWZsS",
+      "text": "特別なんて (アコースティックver.)",
+      "artist": "五十嵐 悠 starring 綱 啓永",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%89%B9%E5%88%A5%E3%81%AA%E3%82%93%E3%81%A6-%E3%82%A2%E3%82%B3%E3%83%BC%E3%82%B9%E3%83%86%E3%82%A3%E3%83%83%E3%82%AFver/1800440514?i=1800440521&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5b/44/ba/5b44ba81-9b28-0fb5-0ef3-cd6162628832/4547366738070.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c5/59/4c/c5594c18-1812-30b0-7450-7c3bf675635e/mzaf_17100176612329801408.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "DeT83ey3lk-_BdMspV2kr",
+      "text": "特別なんて",
+      "artist": "五十嵐 悠 starring 綱 啓永",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%89%B9%E5%88%A5%E3%81%AA%E3%82%93%E3%81%A6/1800440514?i=1800440518&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5b/44/ba/5b44ba81-9b28-0fb5-0ef3-cd6162628832/4547366738070.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/04/c6/6b/04c66b89-6439-cbcd-3cb4-7fd61909aa05/mzaf_10762022600464499409.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "nJQHQsxNP6SgDevyN2Lj4",
+      "text": "宝者",
+      "artist": "アイナ・ジ・エンド",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%AE%9D%E8%80%85/1725933881?i=1725933882&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/6a/33/07/6a3307e6-46e0-506b-ab8b-7ab3fc87a4e3/ANTCD-A0000012501.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/50/a1/19/50a119f8-ed45-65b3-150d-779fc74d3d39/mzaf_6521091412441186701.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "GxSYDMuVSRItcusJL-diS",
+      "text": "宝物",
+      "artist": "wacci",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%AE%9D%E7%89%A9/1538132673?i=1538132954&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/59/02/d8/5902d8f7-f0ef-4790-9249-2bc98682d22e/jacket_ESCL04886B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/6b/b8/f2/6bb8f2ae-6166-9ba3-f6fd-edf96f6381a3/mzaf_1628566761884953619.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "cQf26qG0krHe8_pYR3Cco",
+      "text": "大丈夫",
+      "artist": "wacci",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A4%A7%E4%B8%88%E5%A4%AB/1536312348?i=1536312349&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/61/36/fe/6136fec1-0deb-8900-3d42-811957239568/4988010070427.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/0b/14/5a/0b145a33-1ef5-18ee-106b-cc53dc480d1a/mzaf_8265268718895244175.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1097,9 +1160,9 @@
     "hikari|8loom": 2,
     "come again|8loom": 2,
     "melody|アーティスト不明": 2,
-    "forever or never|アーティスト不明": 1,
-    "dreamer|アーティスト不明": 1,
-    "count on me|アーティスト不明": 1,
+    "forever or never|アーティスト不明": 2,
+    "dreamer|アーティスト不明": 2,
+    "count on me|アーティスト不明": 2,
     "sing along!!! (feat. 幾田りら)|アーティスト不明": 1,
     "time capsule|アーティスト不明": 1,
     "真夜中のドア～stay with me|アーティスト不明": 1,
@@ -1125,7 +1188,14 @@
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
     "どんな小さな|wacci": 1,
-    "アカリ|greeeen": 1
+    "アカリ|greeeen": 1,
+    "君の花になる|アーティスト不明": 1,
+    "time capsule (feat. kabe) [with east south]|アーティスト不明": 1,
+    "特別なんて (アコースティックver.)|五十嵐 悠 starring 綱 啓永": 1,
+    "特別なんて|五十嵐 悠 starring 綱 啓永": 1,
+    "宝者|アイナ・ジ・エンド": 1,
+    "宝物|wacci": 1,
+    "大丈夫|wacci": 1
   },
   "settings": {
     "recruiting": false,
