@@ -980,21 +980,12 @@
       "count": 1
     },
     {
-      "id": "8ZpppUFp4UVZQOLKaDpWd",
-      "text": "猫がいびきで",
+      "id": "LesfJayzeLQOuhbrJWU5q",
+      "text": "Supernatural",
       "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%8C%AB%E3%81%8C%E3%81%84%E3%81%B3%E3%81%8D%E3%81%A7/1795882648?i=1795882650&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/57/26/3b/57263b97-3537-8d3b-6511-0d9d1ed76afe/4547366734263.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/dd/d3/0dddd378-c865-4370-71c8-a11f2d367c00/mzaf_14748267323256208361.plus.aac.p.m4a",
-      "count": 2
-    },
-    {
-      "id": "gzzdGGXq56rWgWJxriVGp",
-      "text": "猫がいびきで",
-      "artist": "宮世琉弥",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%8C%AB%E3%81%8C%E3%81%84%E3%81%B3%E3%81%8D%E3%81%A7/1795882648?i=1795882650&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/57/26/3b/57263b97-3537-8d3b-6511-0d9d1ed76afe/4547366734263.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/dd/d3/0dddd378-c865-4370-71c8-a11f2d367c00/mzaf_14748267323256208361.plus.aac.p.m4a",
+      "appleMusicUrl": "https://music.apple.com/jp/album/supernatural/1752131587?i=1752131592&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c6/f3/d4/c6f3d49a-c291-4522-a8ba-3a10290d5a7d/24UMGIM62203.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/94/54/ba/9454ba9a-9374-e946-d9d3-ab1a2a1e5e54/mzaf_2180610833411056695.plus.aac.p.m4a",
       "count": 1
     }
   ],
@@ -1124,8 +1115,7 @@
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
-    "猫がいびきで|アーティスト不明": 2,
-    "猫がいびきで|宮世琉弥": 1
+    "supernatural|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
