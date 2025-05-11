@@ -978,6 +978,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "vQdWR8pmk3Nd34YP_e_xe",
+      "text": "キリキリマイ",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%AD%E3%83%AA%E3%82%AD%E3%83%AA%E3%83%9E%E3%82%A4/1537418560?i=1537418561&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/6b/50/9c/6b509c4b-6550-40f7-2086-008eaed86c5f/jacket_SRCL07315B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/82/8f/03/828f0311-1b0e-b31d-6d47-0b171acb0c72/mzaf_9855732802431745683.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1105,7 +1114,8 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "キリキリマイ|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
