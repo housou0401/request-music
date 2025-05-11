@@ -978,6 +978,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "8ZpppUFp4UVZQOLKaDpWd",
+      "text": "猫がいびきで",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%8C%AB%E3%81%8C%E3%81%84%E3%81%B3%E3%81%8D%E3%81%A7/1795882648?i=1795882650&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/57/26/3b/57263b97-3537-8d3b-6511-0d9d1ed76afe/4547366734263.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/dd/d3/0dddd378-c865-4370-71c8-a11f2d367c00/mzaf_14748267323256208361.plus.aac.p.m4a",
+      "count": 2
+    },
+    {
+      "id": "gzzdGGXq56rWgWJxriVGp",
+      "text": "猫がいびきで",
+      "artist": "宮世琉弥",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%8C%AB%E3%81%8C%E3%81%84%E3%81%B3%E3%81%8D%E3%81%A7/1795882648?i=1795882650&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/57/26/3b/57263b97-3537-8d3b-6511-0d9d1ed76afe/4547366734263.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/dd/d3/0dddd378-c865-4370-71c8-a11f2d367c00/mzaf_14748267323256208361.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1105,7 +1123,9 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "猫がいびきで|アーティスト不明": 2,
+    "猫がいびきで|宮世琉弥": 1
   },
   "settings": {
     "recruiting": false,
