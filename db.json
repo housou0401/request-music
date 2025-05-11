@@ -70,7 +70,7 @@
       "artist": "斉藤和義",
       "appleMusicUrl": "https://music.apple.com/jp/album/%E6%AD%8C%E3%81%86%E3%81%9F%E3%81%84%E3%81%AE%E3%83%90%E3%83%A9%E3%83%83%E3%83%89/1281425801?i=1281425806&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/d2/0e/85/d20e854b-865c-6c54-f4ac-a0500dbcef6a/VEATP-34575.jpg/100x100bb.jpg",
-      "count": 1
+      "count": 2
     },
     {
       "id": "UAjeMjubnOO5DORXml2uB",
@@ -978,15 +978,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "LesfJayzeLQOuhbrJWU5q",
-      "text": "Supernatural",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/supernatural/1752131587?i=1752131592&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c6/f3/d4/c6f3d49a-c291-4522-a8ba-3a10290d5a7d/24UMGIM62203.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/94/54/ba/9454ba9a-9374-e946-d9d3-ab1a2a1e5e54/mzaf_2180610833411056695.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1013,7 +1004,7 @@
     "シャルル|神田沙也加": 1,
     "shine|アーティスト不明": 1,
     "onion boy|アーティスト不明": 1,
-    "歌うたいのバラッド|斉藤和義": 1,
+    "歌うたいのバラッド|斉藤和義": 2,
     "ドント・ワナ・ノウ (feat. ケンドリック・ラマー)|マルーン5": 1,
     "not like us|ケンドリック・ラマー": 1,
     "#1090 (thousand dreams)|松本孝弘": 1,
@@ -1114,8 +1105,7 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1,
-    "supernatural|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
