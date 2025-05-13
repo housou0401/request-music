@@ -987,6 +987,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0c/76/f7/0c76f7dd-13e1-0829-8d89-66ac4b606f68/13073600.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/70/c7/e9/70c7e97a-8fea-8c54-33b5-d8800b6a0823/mzaf_7837088370602828551.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "8mTrYLOAzu38fPMTI7iel",
+      "text": "生きろ",
+      "artist": "Mr.Children",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%94%9F%E3%81%8D%E3%82%8D/1632170931?i=1632171559&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/eb/ae/fd/ebaefd26-c95f-936d-a038-6c58e1dbb745/4517331074113.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/50/a3/d4/50a3d49a-f9c8-3bd1-b3f8-f7b1bd599cb5/mzaf_14530260031515855421.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1115,7 +1124,8 @@
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
-    "クロノスタシス 劇場版 名探偵コナン ハロウィンの花嫁 オリジナルカバー|ばん": 1
+    "クロノスタシス 劇場版 名探偵コナン ハロウィンの花嫁 オリジナルカバー|ばん": 1,
+    "生きろ|mr.children": 1
   },
   "settings": {
     "recruiting": false,
