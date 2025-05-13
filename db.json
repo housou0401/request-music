@@ -987,6 +987,51 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c1/cb/84/c1cb848f-b7db-50d8-392e-540430d95ffa/198704191824_Cover.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/94/b0/ba/94b0badf-0fcd-4d19-2d7e-3ad079942c9f/mzaf_16207917655937486074.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "SGhlu4vOkUsTwFJdGkQBs",
+      "text": "立ち上がリーヨ",
+      "artist": "T-Pistonz",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%AB%8B%E3%81%A1%E4%B8%8A%E3%81%8C%E3%83%AA%E3%83%BC%E3%83%A8/296846263?i=296846275&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/0a/55/33/mzi.yllpream.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/Music2/v4/ab/96/7d/ab967dd5-c0eb-5c14-d3e6-bc14500504ce/mzaf_5190407847214551965.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "yNAV1YGVAFgij59w-yzjy",
+      "text": "夜明けの空",
+      "artist": "陸奥守吉行(CV:濱 健人)/肥前忠広(CV:小松昌平)/南海太郎朝尊(CV:野島健児)",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A4%9C%E6%98%8E%E3%81%91%E3%81%AE%E7%A9%BA/1617933997?i=1617934006&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/15/4d/1b/154d1bb9-e530-69ec-e9ca-9e4eb92de023/PA00098328_1_148704_jacket.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/77/fd/52/77fd52ab-e144-5d46-d280-0264fc6e99de/mzaf_2185008727714678072.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "UKWekEYNppHD7LjNU10r-",
+      "text": "時ぞとも無し兼備の華よ",
+      "artist": "堀川国広(CV:榎木淳弥)/和泉守兼定(CV:木村良平)/刀剣乱舞-花丸-",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%99%82%E3%81%9E%E3%81%A8%E3%82%82%E7%84%A1%E3%81%97%E5%85%BC%E5%82%99%E3%81%AE%E8%8F%AF%E3%82%88/1169967271?i=1169968041&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/08/2d/6e/082d6ed8-389d-b354-2564-625e4979f265/ED.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/8a/cf/7e/8acf7e38-50da-d9a3-c80e-3d4c3ac67474/mzaf_2914153476699878856.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "uDV50xzw4Nw2n8vxXYmdD",
+      "text": "愉快痛快 That's alright!",
+      "artist": "MaM & あんさんぶるスターズ!!",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%84%89%E5%BF%AB%E7%97%9B%E5%BF%AB-thats-alright/1778155058?i=1778155062&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/3d/b4/e8/3db4e8ba-68a4-54a8-ce89-31b0bade18d0/4589644720544_Cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4c/c3/c6/4cc3c6c4-7d1e-53db-2481-f40e119794e9/mzaf_8309175544752051798.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "KsFlzXL5IkkYPlGSjbygm",
+      "text": "夏鳥の詩 -サマーバード-",
+      "artist": "紅月",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A4%8F%E9%B3%A5%E3%81%AE%E8%A9%A9-%E3%82%B5%E3%83%9E%E3%83%BC%E3%83%90%E3%83%BC%E3%83%89/1773031627?i=1773032001&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e4/89/62/e48962b2-9e6a-d82a-9995-151c1169011b/198704191800_Cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cb/26/ff/cb26fffe-f80b-cdec-2f1c-f457059f8b23/mzaf_2035309991268439529.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1115,7 +1160,12 @@
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
-    "heart heat beat|アーティスト不明": 1
+    "heart heat beat|アーティスト不明": 1,
+    "立ち上がリーヨ|t-pistonz": 1,
+    "夜明けの空|陸奥守吉行(cv:濱 健人)/肥前忠広(cv:小松昌平)/南海太郎朝尊(cv:野島健児)": 1,
+    "時ぞとも無し兼備の華よ|堀川国広(cv:榎木淳弥)/和泉守兼定(cv:木村良平)/刀剣乱舞-花丸-": 1,
+    "愉快痛快 that's alright!|mam & あんさんぶるスターズ!!": 1,
+    "夏鳥の詩 -サマーバード-|紅月": 1
   },
   "settings": {
     "recruiting": false,
