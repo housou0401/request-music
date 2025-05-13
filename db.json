@@ -980,39 +980,12 @@
       "count": 1
     },
     {
-      "id": "_B-nPPoR4AvDtBI5UWdfw",
-      "text": "すーぱーぬこになれんかった",
+      "id": "_9DPAEupvvABk4Jnj3wlP",
+      "text": "Heart Heat Beat",
       "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%99%E3%83%BC%E3%81%B1%E3%83%BC%E3%81%AC%E3%81%93%E3%81%AB%E3%81%AA%E3%82%8C%E3%82%93%E3%81%8B%E3%81%A3%E3%81%9F/1482222513?i=1482222520&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/a7/6b/f4/a76bf4d9-5643-9c20-c3be-d4dd3b2f6b81/4580684120264.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/91/b5/8f/91b58f22-f886-1efa-ed51-506f370a211e/mzaf_1006697254714775589.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "i8dzmmyjfSnHcGtpLesK9",
-      "text": "脱獄",
-      "artist": "まふまふ",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%84%B1%E7%8D%84/1807707160?i=1807707168&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d8/2e/f4/d82ef4cf-9564-d323-ee65-3bef599e707f/4570192936709.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f7/98/b6/f798b604-355a-7b8e-8e93-f72c93446377/mzaf_16290169853549051234.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "5km29_65GAfzQWZgsqLEw",
-      "text": "ばかまじめ",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%B0%E3%81%8B%E3%81%BE%E3%81%98%E3%82%81/1612832644?i=1612832645&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/64/f4/7c/64f47c67-8968-7b63-ac65-e8edf7a96282/4547366557121.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/91/dc/be/91dcbe93-611a-ce1d-267c-88c8a19d377d/mzaf_7100121362674720469.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "0ieFepWEDS45lm7dpQHRx",
-      "text": "バレる!",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%90%E3%83%AC%E3%82%8B/1554431040?i=1554431041&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/91/a1/18/91a118bc-5e17-88d8-7358-3ebfd803acf3/4547366501407.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a4/83/c5/a483c534-d9fe-e0e6-7b7f-36e61b01555b/mzaf_5525942359138650305.plus.aac.p.m4a",
+      "appleMusicUrl": "https://music.apple.com/jp/album/heart-heat-beat/1773068020?i=1773068208&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c1/cb/84/c1cb848f-b7db-50d8-392e-540430d95ffa/198704191824_Cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/94/b0/ba/94b0badf-0fcd-4d19-2d7e-3ad079942c9f/mzaf_16207917655937486074.plus.aac.p.m4a",
       "count": 1
     }
   ],
@@ -1142,10 +1115,7 @@
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
-    "すーぱーぬこになれんかった|アーティスト不明": 1,
-    "脱獄|まふまふ": 1,
-    "ばかまじめ|アーティスト不明": 1,
-    "バレる!|アーティスト不明": 1
+    "heart heat beat|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
