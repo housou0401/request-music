@@ -978,6 +978,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "buSvpR-PWXIggiuSFjArB",
+      "text": "愛℃",
+      "artist": "高瀬統也",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%84%9B/1719147690?i=1719148429&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/78/de/41/78de41db-2039-6163-4a40-f83ce075d6b6/3617222193792_cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/ef/e6/01/efe601b2-9c05-5034-6318-acc97395b985/mzaf_2354269653049591257.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "HpBu1I5MfScDSddL6VS_K",
+      "text": "君がくれた夏",
+      "artist": "家入",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%8C%E3%81%8F%E3%82%8C%E3%81%9F%E5%A4%8F/1026711108?i=1026711118&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music7/v4/86/43/10/86431044-4a46-aa59-220f-4de553001bf1/VEATP-32800.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b1/96/2e/b1962e18-5b6a-77a9-2e6b-270d546c7eeb/mzaf_17311274825307395172.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1105,7 +1123,9 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "愛℃|高瀬統也": 1,
+    "君がくれた夏|家入": 1
   },
   "settings": {
     "recruiting": false,
