@@ -978,6 +978,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "YGWMv5UNpcqLim3JK7ocO",
+      "text": "愛のけだもの",
+      "artist": "キタニタツヤ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%84%9B%E3%81%AE%E3%81%91%E3%81%A0%E3%82%82%E3%81%AE/1610443842?i=1610443939&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/72/cf/b4/72cfb428-a552-afff-0da3-1dc66962fc48/22UMGIM13206.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/73/04/4f/73044f99-3596-dc64-7253-b611fd05ff0a/mzaf_16002383983343113582.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "3cFOgX-BST0Ug779bh0X9",
+      "text": "メロウ",
+      "artist": "須田景凪",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%A1%E3%83%AD%E3%82%A6/1678746630?i=1678746632&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/1b/30/ce/1b30cea9-7f8e-bfe5-3ed7-b1c66e2905cf/5054197622090.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/9a/75/2e/9a752e6f-0107-029c-1730-ad24af5712c5/mzaf_11623857019364558440.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1105,7 +1123,9 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "愛のけだもの|キタニタツヤ": 1,
+    "メロウ|須田景凪": 1
   },
   "settings": {
     "recruiting": false,
