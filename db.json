@@ -554,7 +554,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%AD%E3%83%9E%E3%83%B3%E3%83%81%E3%82%B7%E3%82%BA%E3%83%A0/1454643208?i=1454643219&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/39/10/40/39104035-3ebf-1cec-9294-cce6ccff7086/19UMGIM12455.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/b2/f3/ff/b2f3ff27-b026-ba9a-347e-9e6d801236c5/mzaf_15595485502985895543.plus.aac.p.m4a",
-      "count": 3
+      "count": 4
     },
     {
       "id": "SFiSuxjMN372uKXwIoTp2",
@@ -978,6 +978,51 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "0W3x3QbMN6-pb_vGePznf",
+      "text": "青と夏",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%9D%92%E3%81%A8%E5%A4%8F/1408505088?i=1408505264&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/34/27/08/3427087f-2d39-4847-9b19-052dd3589014/18UMGIM36633.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/50/75/5d/50755dcf-c9b6-9ade-b99b-d31be614718f/mzaf_5834233942342141017.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "X__Iur-Xx88VVpoXHAQGB",
+      "text": "lovin'",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/lovin/1475232910?i=1475233708&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/e5/ce/f5/e5cef5f0-a5c3-2f52-6c42-b3c2b32db70f/19UMGIM67614.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e7/e5/7e/e7e57ef4-0d9e-abbe-a1c7-717bbadc9356/mzaf_6646733214208207423.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "ZAVg5nEWakltrW3dN8l5g",
+      "text": "FANCY",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/fancy/1460387455?i=1460387516&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/16/79/f5/1679f584-be7e-859a-2fe5-5f2bb9f54a35/190295429072.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/6e/29/38/6e29385d-5f2b-a0c8-2ca3-819f07ce7664/mzaf_2144264428636227248.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "Nh7RAzC6eTbjGx814ZABu",
+      "text": "ニュー・マイ・ノーマル",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8B%E3%83%A5%E3%83%BC-%E3%83%9E%E3%82%A4-%E3%83%8E%E3%83%BC%E3%83%9E%E3%83%AB/1614180830?i=1614180831&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/da/89/c8/da89c8b3-c7ec-c3b0-ea2d-b251433eb9ee/22UMGIM18083.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b2/01/3d/b2013df4-42f3-df51-3a82-7b86d915cc3d/mzaf_6844601414190448297.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "gIitTGJOATXMyoQFAJcHJ",
+      "text": "騙シ愛 - Damashiai",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%A8%99%E3%82%B7%E6%84%9B-damashiai/1803548467?i=1803548528&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/8b/82/2e/8b822e33-ed0e-e16d-9b3f-535d838c0635/4547366738384.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5f/9f/01/5f9f0107-106c-422d-9121-bea07e880aab/mzaf_17700223196214844820.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1058,7 +1103,7 @@
     "ツキマシテハ|アーティスト不明": 2,
     "ア・プリオリ|アーティスト不明": 2,
     "コロンブス|アーティスト不明": 1,
-    "ロマンチシズム|アーティスト不明": 3,
+    "ロマンチシズム|アーティスト不明": 4,
     "ビターバカンス|アーティスト不明": 1,
     "アイデア|星野源": 1,
     "wanted! wanted!|アーティスト不明": 2,
@@ -1105,7 +1150,12 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "青と夏|アーティスト不明": 1,
+    "lovin'|アーティスト不明": 1,
+    "fancy|アーティスト不明": 1,
+    "ニュー・マイ・ノーマル|アーティスト不明": 1,
+    "騙シ愛 - damashiai|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
