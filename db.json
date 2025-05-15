@@ -987,6 +987,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/05/87/25/05872588-2962-ed0f-9eaa-aff9f1197dc5/18UMGIM53261.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/d4/e3/31/d4e33157-c254-015c-b259-4128df7e7a1a/mzaf_7155807001547504815.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "VI7d6hi7EuXoy57T3avve",
+      "text": "UP (KARINA Solo)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/up-karina-solo/1772223474?i=1772223475&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/fd/85/0e/fd850e67-f6e2-c4e9-6ea5-501ca5afccbd/aespa_DS_Synk-PARALLEL_LINE_DC.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4a/ff/3c/4aff3c25-2265-c0f1-7c44-c33b5cdc07e9/mzaf_5994566525694125328.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "7oStJSALPbyDsAthAmu5-",
+      "text": "Rock this Party",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/rock-this-party/1797683710?i=1797683713&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8d/04/be/8d04be3f-3167-6bd1-f0e7-fbb554b91892/25UMGIM17820.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/81/3f/11/813f114f-65ca-c27e-6bc0-27f7ae7a393b/mzaf_2123861372317569538.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "BVoVwplStLGndwiRWo-Jd",
+      "text": "本音と建前",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%AC%E9%9F%B3%E3%81%A8%E5%BB%BA%E5%89%8D/1797439330?i=1797439334&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ad/81/23/ad81236b-400f-fbbc-5538-efc069cc9ce1/25UMGIM17821.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b8/a2/82/b8a28255-0a0e-5784-7d86-c4742813bf86/mzaf_8990124994811336814.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1115,7 +1142,10 @@
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
-    "mic drop|bts": 1
+    "mic drop|bts": 1,
+    "up (karina solo)|アーティスト不明": 1,
+    "rock this party|アーティスト不明": 1,
+    "本音と建前|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
