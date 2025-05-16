@@ -978,15 +978,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "h4B5U9gp5nrNUk6v9InMG",
-      "text": "処女作",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%87%A6%E5%A5%B3%E4%BD%9C/1691558567?i=1691558585&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/4d/ea/96/4dea96b2-1f0c-d968-7899-41ec3dba2033/859759808586_cover.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/f4/d2/2d/f4d22df9-8bef-ef22-ac49-a81a722799ec/mzaf_8355567995259721511.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1114,8 +1105,7 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1,
-    "処女作|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
