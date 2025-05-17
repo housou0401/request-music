@@ -978,6 +978,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "GTCPj7ChAUtHGo1Q-HQu5",
+      "text": "S.I.X",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/s-i-x/1811949223?i=1811949225&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/77/ff/b6/77ffb6df-f673-d362-0516-720ec9fa7535/4547366741841.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a6/5d/01/a65d0104-0b2d-6063-c0b0-f34a6a7e6878/mzaf_4063589249039816931.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "2RqL-R_BCumexljs-l46s",
+      "text": "Boom-Pow-Wow!",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/boom-pow-wow/1811935692?i=1811935696&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/32/25/a2/3225a223-5769-1bba-53aa-6db028d860f1/4547366742060.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f3/df/6f/f3df6fff-7ec8-1108-9dbc-8f9c78203d65/mzaf_17803038249806108329.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1105,7 +1123,9 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "s.i.x|アーティスト不明": 1,
+    "boom-pow-wow!|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
