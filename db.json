@@ -1108,7 +1108,7 @@
     "kiss me right|アーティスト不明": 1
   },
   "settings": {
-    "recruiting": false,
+    "recruiting": true,
     "reason": "🔧調整中🔧",
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
