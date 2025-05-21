@@ -978,6 +978,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "9_rfYYe-FRCOKG8G3mktA",
+      "text": "八月の夜",
+      "artist": "Silent Siren",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%85%AB%E6%9C%88%E3%81%AE%E5%A4%9C/1018113299?i=1018113300&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music1/v4/0f/bf/f9/0fbff976-495a-53ff-41ec-aec034cde80c/mucd5304_T_0707.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/f8/f5/36/f8f53653-5314-cf54-677f-0e5ad6453863/mzaf_11691354163188544592.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1105,10 +1114,11 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "八月の夜|silent siren": 1
   },
   "settings": {
-    "recruiting": true,
+    "recruiting": false,
     "reason": "🔧調整中🔧",
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
