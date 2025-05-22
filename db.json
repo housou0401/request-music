@@ -980,12 +980,12 @@
       "count": 1
     },
     {
-      "id": "9_rfYYe-FRCOKG8G3mktA",
-      "text": "八月の夜",
-      "artist": "Silent Siren",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%85%AB%E6%9C%88%E3%81%AE%E5%A4%9C/1018113299?i=1018113300&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music1/v4/0f/bf/f9/0fbff976-495a-53ff-41ec-aec034cde80c/mucd5304_T_0707.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/f8/f5/36/f8f53653-5314-cf54-677f-0e5ad6453863/mzaf_11691354163188544592.plus.aac.p.m4a",
+      "id": "X6M0to9nb8BSvr7dIBumB",
+      "text": "SIGN",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/sign/1804084459?i=1804084730&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a6/39/ae/a639ae8e-e34a-db7f-19b2-2293343ef184/4547366743289.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d0/28/f2/d028f28a-3e14-a3b0-2e09-45626846a62e/mzaf_13198511698073708064.plus.aac.p.m4a",
       "count": 1
     }
   ],
@@ -1115,7 +1115,7 @@
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
-    "八月の夜|silent siren": 1
+    "sign|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
