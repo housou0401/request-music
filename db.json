@@ -978,24 +978,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "zp1vfHfubZoQs7EbPBjBF",
-      "text": "ウィーキャン!",
-      "artist": "氣志團ときただにひろし",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A6%E3%82%A3%E3%83%BC%E3%82%AD%E3%83%A3%E3%83%B3/1134405599?i=1134405773&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/22/e5/b8/22e5b842-99a2-848e-dbe1-5d42194f6c44/ANTCD-18281.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/d2/74/6c/d2746cdd-d2aa-a137-9e54-8c6c34a75ee8/mzaf_14265123389115754896.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "I7zIeGmTZGnDiYly4jSbe",
-      "text": "ウィーゴー!",
-      "artist": "きただにひろし",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A6%E3%82%A3%E3%83%BC%E3%82%B4%E3%83%BC/477654421?i=477654422&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/35/93/cc/3593cc87-ba0c-1dee-02b8-8f69b3ccb5c5/mzi.oypvoipq.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/1a/2f/a2/1a2fa277-aadf-64a0-096a-a34407613844/mzaf_4880169426304000329.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1123,9 +1105,7 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1,
-    "ウィーキャン!|氣志團ときただにひろし": 1,
-    "ウィーゴー!|きただにひろし": 1
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
