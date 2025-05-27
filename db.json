@@ -978,6 +978,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "if5ku0Mlmy_jw9jMirR1p",
+      "text": "愛℃",
+      "artist": "高瀬統也",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%84%9B/1719147690?i=1719148429&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/78/de/41/78de41db-2039-6163-4a40-f83ce075d6b6/3617222193792_cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/ef/e6/01/efe601b2-9c05-5034-6318-acc97395b985/mzaf_2354269653049591257.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "UoTPBqTLEC58qxlESDC0b",
+      "text": "Loneliness",
+      "artist": "Mrs",
+      "appleMusicUrl": "https://music.apple.com/jp/album/loneliness/1691229798?i=1691229816&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/a4/ad/58/a4ad5816-0612-60d0-3ea2-917bea2e9c8e/23UMGIM61979.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/2b/89/12/2b8912d9-8b9b-45e8-e9dc-c8636a0850d9/mzaf_6852126671741873228.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1105,7 +1123,9 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "愛℃|高瀬統也": 1,
+    "loneliness|mrs": 1
   },
   "settings": {
     "recruiting": false,
