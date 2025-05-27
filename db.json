@@ -350,15 +350,6 @@
       "count": 1
     },
     {
-      "id": "V9jbM4PhNvtYABPXDwGfH",
-      "text": "TWILIGHT!!!",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/twilight/1806277322?i=1806277323&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/85/4e/1f/854e1f65-0eea-3a01-6170-22743180d72a/4547366743814.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/38/ea/fc/38eafc64-2af5-814a-f66d-3cee3f640f42/mzaf_12529787402890802208.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "i_F_pr9aBNrH95qbIrilH",
       "text": "かわいいだけじゃだめですか?",
       "artist": "CUTIE STREET",
@@ -419,15 +410,6 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/help/1734962390?i=1734962392&l=en&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ba/dd/a1/badda12a-2fb5-30fc-6877-9edacefcb639/24UMGIM21868.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/f0/16/c9/f016c990-b58e-7fe8-09e5-e91ad83e0d20/mzaf_3576793663712741339.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "x2f19DUUNnSwyWfpK__hu",
-      "text": "ラッキーカラー",
-      "artist": "あいみょん",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%A9%E3%83%83%E3%82%AD%E3%83%BC%E3%82%AB%E3%83%A9%E3%83%BC/1753269545?i=1753269920&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a3/6e/09/a36e0990-66d0-6509-2fb7-e9e9082379f1/5021732417251.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d0/56/66/d05666a9-c9ea-64b1-37bc-c5761ecb0750/mzaf_7168885378090276220.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -1054,7 +1036,6 @@
     "woke up|アーティスト不明": 1,
     "ブラザービート|アーティスト不明": 1,
     "全力少年|スキマスイッチ": 1,
-    "twilight!!!|アーティスト不明": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
     "start|アーティスト不明": 1,
     "全人類 兎化計画!|兎田ぺこら": 1,
@@ -1062,7 +1043,6 @@
     "love the warz|アーティスト不明": 1,
     "yaju&u|アーティスト不明": 1,
     "help!!|kobo kanaeru": 1,
-    "ラッキーカラー|あいみょん": 1,
     "hikari|アーティスト不明": 1,
     "声|アーティスト不明": 1,
     "不思議|星野源": 1,
