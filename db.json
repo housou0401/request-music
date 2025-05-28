@@ -266,7 +266,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E5%AB%8C%E3%80%85/1725925673?i=1725925679&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/48/b8/f4/48b8f4c8-726b-b8c7-e5a1-8c53a057d38c/4547366665369.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/da/d7/8f/dad78f6e-294b-2d70-538c-a6a075923a8c/mzaf_15028274592487768727.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "cYe23CnAb2hYnOvMPxeFK",
@@ -978,6 +978,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "cNIsPani3FNB406oKnb6Q",
+      "text": "ウワサのあの子",
+      "artist": "紫 今",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A6%E3%83%AF%E3%82%B5%E3%81%AE%E3%81%82%E3%81%AE%E5%AD%90/1807477061?i=1807477063&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/32/99/b6/3299b62d-3e4e-1176-e3e7-0ff4116dac4c/4547366744590.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/28/9e/7d/289e7d8a-d651-a6d4-341d-0d1d9193d55c/mzaf_9412100310795538055.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "j0mmGyK3SxOpGggs-sFqG",
+      "text": "逢瀬のままにあなたのもとへ",
+      "artist": "にんじん",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%80%A2%E7%80%AC%E3%81%AE%E3%81%BE%E3%81%BE%E3%81%AB%E3%81%82%E3%81%AA%E3%81%9F%E3%81%AE%E3%82%82%E3%81%A8%E3%81%B8/1720675415?i=1720675419&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/01/2f/c5/012fc535-9e16-ab13-f5a3-1bd468c44799/VEATP-42283.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a4/5d/8e/a45d8ead-21ff-c3bc-0f2a-837e4201ccb4/mzaf_5991285317256489378.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1026,7 +1044,7 @@
     "summer ride|アーティスト不明": 1,
     "run away|アーティスト不明": 1,
     "さよならの向う側|山口百恵": 1,
-    "嫌々|halves": 1,
+    "嫌々|halves": 2,
     "恋愛後遺症|7co": 1,
     "アップルパイ|backnumber": 1,
     "sby|snow man": 1,
@@ -1105,7 +1123,9 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "ウワサのあの子|紫 今": 1,
+    "逢瀬のままにあなたのもとへ|にんじん": 1
   },
   "settings": {
     "recruiting": false,
