@@ -978,15 +978,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "VFITUR6DROQdUzjt0Kup-",
-      "text": "道",
-      "artist": "宇多田ヒカル",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%81%93/1736076981?i=1736077893&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/0a/e9/a2/0ae9a2d9-3276-825b-cc16-ca494011531c/24UMGIM13711.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/34/fc/7a/34fc7a2d-a047-fa9f-2fce-4948c7fc68d7/mzaf_190486501828148120.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1114,8 +1105,7 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1,
-    "道|宇多田ヒカル": 1
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
