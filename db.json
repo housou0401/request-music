@@ -978,15 +978,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "L0qcVd5U7aF3DzvEK4yiN",
-      "text": "しなこワールド",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%97%E3%81%AA%E3%81%93%E3%83%AF%E3%83%BC%E3%83%AB%E3%83%89/1732216230?i=1732216232&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/c6/d2/5b/c6d25b8b-df7b-0579-3e23-8bcf56d9f95c/bigup13775605.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/fb/78/45/fb7845d1-c6f3-52a4-ac24-a8822054bd99/mzaf_1859228661720658462.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1114,8 +1105,7 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1,
-    "しなこワールド|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
