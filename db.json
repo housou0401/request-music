@@ -980,21 +980,12 @@
       "count": 1
     },
     {
-      "id": "4_JNxRPuayymfUT0_GtcX",
-      "text": "IS THIS LOVE",
-      "artist": "XG",
-      "appleMusicUrl": "https://music.apple.com/jp/album/is-this-love/1775445626?i=1775445637&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ae/69/ce/ae69ce7b-6007-c83a-f692-93ebfca55449/ANTCD-A0000014930.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4a/3a/00/4a3a00ec-2c19-b773-bcc4-a9196a2ce589/mzaf_17969675163401278976.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "UPoH6Y1AgFaXsfXaXeWOa",
-      "text": "FOREVER",
+      "id": "x19zoEQtelKx-YX3Y8Xci",
+      "text": "iLife！",
       "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/forever/1754275200?i=1754275201&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/07/58/db/0758dbf3-434e-3454-6dd9-a7814dcf71f6/4547366694109.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/75/0b/20/750b206d-5122-2363-6501-3f9e832e6798/mzaf_2455456833290602907.plus.aac.p.m4a",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A8%E3%81%8F%E3%81%B9%E3%83%81%E3%83%A5-%E3%81%97%E3%81%A6/1795913983?i=1795913985&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/18/ad/58/18ad587b-7047-693e-c453-04a7fe473576/4547366734492.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0d/af/75/0daf75b4-0ae9-a55a-7066-f91e3e7ff87d/mzaf_6898412795505092696.plus.aac.p.m4a",
       "count": 1
     }
   ],
@@ -1124,8 +1115,7 @@
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
-    "is this love|xg": 1,
-    "forever|アーティスト不明": 1
+    "ilife！|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
