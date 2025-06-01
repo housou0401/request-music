@@ -978,15 +978,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "x19zoEQtelKx-YX3Y8Xci",
-      "text": "iLife！",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A8%E3%81%8F%E3%81%B9%E3%83%81%E3%83%A5-%E3%81%97%E3%81%A6/1795913983?i=1795913985&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/18/ad/58/18ad587b-7047-693e-c453-04a7fe473576/4547366734492.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0d/af/75/0daf75b4-0ae9-a55a-7066-f91e3e7ff87d/mzaf_6898412795505092696.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1114,8 +1105,7 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1,
-    "ilife！|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
