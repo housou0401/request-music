@@ -960,6 +960,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/9c/c2/08/9cc20898-5ef8-a57a-fbcb-37c5ba473976/22UMGIM04335.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e2/d4/32/e2d432c6-4641-091a-ca02-4006b3d65b37/mzaf_3801462987264520215.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "yjBbAujGuQKbrEtq7gppx",
+      "text": "Bussin’ (feat. ¥ellow Bucks)",
+      "artist": "AK-69",
+      "appleMusicUrl": "https://music.apple.com/jp/album/bussin-feat-%C2%A5ellow-bucks/1522439594?i=1522439606&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/31/5d/88/315d8847-f010-3344-b8bb-746230da2d0f/20UMGIM50347.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/dd/d5/62/ddd56238-1f24-6b2f-17e4-a0f7ff599305/mzaf_477276186354681386.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "KvPnB_n6D9-W4mf8yfbwD",
+      "text": "Ocean Eyes (Originally Performed by Billie Eilish) [Karaoke No Guide Melody Version]",
+      "artist": "Billie Eilish",
+      "appleMusicUrl": "https://music.apple.com/jp/album/ocean-eyes-originally-performed-by-billie-eilish-karaoke/1495606593?i=1495606806&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/8a/72/64/8a726455-bb59-9513-75ae-4b43c0e37f16/Ocean_Eyes_Originally_Performed_by_Billie_Eilish_Karaoke_No_Guide_Melody_Version.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/a5/de/5a/a5de5ac7-b052-1e29-60d9-290a4620d1a9/mzaf_4266264380215359126.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "PkuuwhrJz8zm7I0b7ivpr",
+      "text": "Rapport",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/rapport/1594292557?i=1594292560&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/12/2b/f9/122bf923-e577-b069-998b-27e1a42a5ac0/4547366538946.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5f/66/ea/5f66eae0-d03f-42d9-62cf-c40d7eb798be/mzaf_4158688651119354384.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1085,7 +1112,10 @@
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
     "月の逆襲|アーティスト不明": 1,
-    "狙うは君のど真ん中|shishamo": 1
+    "狙うは君のど真ん中|shishamo": 1,
+    "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
+    "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
+    "rapport|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
