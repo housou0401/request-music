@@ -942,6 +942,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/d6/40/0cd64031-9d03-7bfd-2029-fedb0f4dbd17/24UMGIM70300.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/69/3d/48693ddd-cd33-ffb8-2557-67fbea737cd0/mzaf_8527311183153762808.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "W_hROBtBeNVGCtx3NcZf7",
+      "text": "月の逆襲",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%88%E3%81%AE%E9%80%86%E8%A5%B2/1444446180?i=1444446185&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/a2/d7/13/a2d7136a-f2f8-fdff-1c22-d6d7d20207bb/00602557565553.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/d7/2c/58/d72c5847-feeb-5879-3290-9659eb4e8937/mzaf_9276949459209065634.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "rxdlzOYtu0xilYMoxwIHz",
+      "text": "狙うは君のど真ん中",
+      "artist": "SHISHAMO",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%8B%99%E3%81%86%E3%81%AF%E5%90%9B%E3%81%AE%E3%81%A9%E7%9C%9F%E3%82%93%E4%B8%AD/1605865255?i=1605865628&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/9c/c2/08/9cc20898-5ef8-a57a-fbcb-37c5ba473976/22UMGIM04335.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e2/d4/32/e2d432c6-4641-091a-ca02-4006b3d65b37/mzaf_3801462987264520215.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1065,7 +1083,9 @@
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
-    "kiss me right|アーティスト不明": 1
+    "kiss me right|アーティスト不明": 1,
+    "月の逆襲|アーティスト不明": 1,
+    "狙うは君のど真ん中|shishamo": 1
   },
   "settings": {
     "recruiting": false,
