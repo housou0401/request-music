@@ -987,6 +987,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/12/2b/f9/122bf923-e577-b069-998b-27e1a42a5ac0/4547366538946.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5f/66/ea/5f66eae0-d03f-42d9-62cf-c40d7eb798be/mzaf_4158688651119354384.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "Khbe8jv0sJjx-RmFQmgZq",
+      "text": "処女作",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%87%A6%E5%A5%B3%E4%BD%9C/1758591914?i=1758592222&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/70/71/8a/70718a79-43b4-fb50-6372-9debe464b4c5/0198448710299_cover.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/87/ee/08/87ee0863-2ed0-c46c-6217-57ce0e07ae2e/mzaf_11804936962186464833.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1115,7 +1124,8 @@
     "狙うは君のど真ん中|shishamo": 1,
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
-    "rapport|アーティスト不明": 1
+    "rapport|アーティスト不明": 1,
+    "処女作|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
