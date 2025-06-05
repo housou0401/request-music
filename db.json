@@ -987,42 +987,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/12/2b/f9/122bf923-e577-b069-998b-27e1a42a5ac0/4547366538946.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5f/66/ea/5f66eae0-d03f-42d9-62cf-c40d7eb798be/mzaf_4158688651119354384.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "kjt3jPGKb-51TjI0YC3m1",
-      "text": "ギラギラサマー",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%AE%E3%83%A9%E3%82%AE%E3%83%A9%E3%82%B5%E3%83%9E%E3%83%BC/1814275928?i=1814275959&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/90/0a/e7900aec-e683-1a07-b54d-963266039a83/199350615726.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a0/ea/eb/a0eaebbb-05d2-a81a-468a-0265c304c4f1/mzaf_9840137634399456738.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "h17gB_cjX6OnutJ-P8u5u",
-      "text": "ちゅきちゅきハリケーン",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A1%E3%82%85%E3%81%8D%E3%81%A1%E3%82%85%E3%81%8D%E3%83%8F%E3%83%AA%E3%82%B1%E3%83%BC%E3%83%B3/1777046913?i=1777047566&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/05/df/54/05df54b3-941e-e796-6a79-60ecef842a64/198846718378.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/65/d4/4f/65d44fa1-e55d-2cb6-8c23-9cb3e651004a/mzaf_12851080353364281177.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "tSCDcRZQqRK8Br213gYvf",
-      "text": "BREAKOUT",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/breakout/1804833044?i=1804833238&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a7/35/d1/a735d155-d316-d9ea-19d2-d18c9aa2fb8b/ANTCD-A0000016546.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/18/e5/22/18e522e9-031a-aa0a-a139-2ab00d53a878/mzaf_14492309948762646821.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "uh2IGTAgcxev6qwIlNbKT",
-      "text": "LOVE TRIGGER",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/love-trigger/1804833044?i=1804833236&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a7/35/d1/a735d155-d316-d9ea-19d2-d18c9aa2fb8b/ANTCD-A0000016546.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/dd/75/a1/dd75a1e7-c852-3e50-8e7c-d1a13cf93e80/mzaf_11969713619694835858.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1151,11 +1115,7 @@
     "狙うは君のど真ん中|shishamo": 1,
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
-    "rapport|アーティスト不明": 1,
-    "ギラギラサマー|アーティスト不明": 1,
-    "ちゅきちゅきハリケーン|アーティスト不明": 1,
-    "breakout|アーティスト不明": 1,
-    "love trigger|アーティスト不明": 1
+    "rapport|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
