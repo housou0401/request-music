@@ -996,6 +996,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/2d/d4/11/2dd411d7-faab-2f02-564a-3b8ac40062b9/25UMGIM55302.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/19/bd/28/19bd2818-05de-aaff-f54f-9ab2962286fd/mzaf_212277126273797967.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "p6if_DoJIYoLUls-Z_sD5",
+      "text": "Kid",
+      "artist": "シンガーズハイ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/kid/1714561402?i=1714561659&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/26/62/59/26625904-23c1-4534-7750-d5cda6ef0a1f/PA00128327_0_174317_jacket.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/19/b6/b2/19b6b2a9-8429-f49f-bb78-a560a2e53c54/mzaf_2157488101181219571.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "GkiVqefBkK9XAbvndn9Bh",
+      "text": "不革命前夜",
+      "artist": "NEE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E4%B8%8D%E9%9D%A9%E5%91%BD%E5%89%8D%E5%A4%9C/1526803610?i=1526803623&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/bd/22/2f/bd222f6f-d6e1-679a-f8e2-43c877622b6c/859756048022_cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/fc/35/1e/fc351e9f-305c-3728-af4f-063c60923671/mzaf_3262821751728407177.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1125,7 +1143,9 @@
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
-    "天国|アーティスト不明": 1
+    "天国|アーティスト不明": 1,
+    "kid|シンガーズハイ": 1,
+    "不革命前夜|nee": 1
   },
   "settings": {
     "recruiting": false,
