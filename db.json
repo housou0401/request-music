@@ -1014,6 +1014,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/bd/22/2f/bd222f6f-d6e1-679a-f8e2-43c877622b6c/859756048022_cover.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/fc/35/1e/fc351e9f-305c-3728-af4f-063c60923671/mzaf_3262821751728407177.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "eaLsAdHF31ShfHrveyFXw",
+      "text": "Blast",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/blast/1571385053?i=1571385327&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/9c/25/cd/9c25cd71-1c5c-7e37-cf98-12996bd58158/859756975618_cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/9c/9f/87/9c9f8738-cd5b-60e9-d23b-09e998a02503/mzaf_4211342865454038972.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1145,7 +1154,8 @@
     "rapport|アーティスト不明": 1,
     "天国|アーティスト不明": 1,
     "kid|シンガーズハイ": 1,
-    "不革命前夜|nee": 1
+    "不革命前夜|nee": 1,
+    "blast|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
