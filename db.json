@@ -989,30 +989,12 @@
       "count": 1
     },
     {
-      "id": "DUYSxSXK9ApuwDqjAEznN",
-      "text": "ドラマのあとで - retake",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%89%E3%83%A9%E3%83%9E%E3%81%AE%E3%81%82%E3%81%A8%E3%81%A7-retake/1739364299?i=1739364302&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e1/d8/bf/e1d8bfc7-73f6-ccad-a3c1-36c14cefdf83/4547366680966.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6e/4a/ae/6e4aaecd-3701-4cad-bd3d-8db9920ac1c3/mzaf_7554193685010870751.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "dvJizpfPZi6r7PjVN5IvW",
-      "text": "ブルーベリーハニー",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%96%E3%83%AB%E3%83%BC%E3%83%99%E3%83%AA%E3%83%BC%E3%83%8F%E3%83%8B%E3%83%BC/1590089850?i=1590089980&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/73/f5/5e/73f55e63-cab1-ff56-0205-8b1019e140c0/WS0001.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/06/e8/2d/06e82de2-64e2-08f5-6b5a-d05c73089bf8/mzaf_6000636797478050379.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "eI5Bul8q6_cQOAOKo0UsT",
-      "text": "内緒",
-      "artist": "UNFAIR RULE",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%86%85%E7%B7%92/1767292177?i=1767292371&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5f/11/76/5f117667-1a4a-bf41-0934-1c6268d49717/VICL-65905.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f9/c7/7e/f9c77e6a-1276-4584-96a0-a37eddd89073/mzaf_7672891440097702034.plus.aac.p.m4a",
+      "id": "JKwnTQi60LMekIRa9FmY3",
+      "text": "電車の窓から",
+      "artist": "back number",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%9B%BB%E8%BB%8A%E3%81%AE%E7%AA%93%E3%81%8B%E3%82%89/1451577721?i=1451577946&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f6/4c/e7/f64ce745-cb2a-c64c-2a18-6089665897ac/00602577303777.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a3/c9/ca/a3c9cab7-2214-ca21-a954-7b0ec6c4c86d/mzaf_4859816951376078585.plus.aac.p.m4a",
       "count": 1
     }
   ],
@@ -1143,9 +1125,7 @@
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
-    "ドラマのあとで - retake|アーティスト不明": 1,
-    "ブルーベリーハニー|アーティスト不明": 1,
-    "内緒|unfair rule": 1
+    "電車の窓から|back number": 1
   },
   "settings": {
     "recruiting": false,
