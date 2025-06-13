@@ -987,24 +987,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/12/2b/f9/122bf923-e577-b069-998b-27e1a42a5ac0/4547366538946.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5f/66/ea/5f66eae0-d03f-42d9-62cf-c40d7eb798be/mzaf_4158688651119354384.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "svKOVvYTLJSgVwB4RyRa5",
-      "text": "プラネタリウム",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%97%E3%83%A9%E3%83%8D%E3%82%BF%E3%83%AA%E3%82%A6%E3%83%A0/250610534?i=250610812&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/68/3f/b9/683fb922-8df7-99a9-e9b9-ee60a8e57ef4/mzi.tiiutkky.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/da/76/d9/da76d9de-fd32-a6ab-e493-6a691cbf35e4/mzaf_18405489014001546608.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "QpJ2JX2T2q_lqJ4_E6tZF",
-      "text": "恋風",
-      "artist": "幾田りら",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%81%8B%E9%A2%A8/1805325620?i=1805325622&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/da/24/fa/da24fa87-a196-7c42-26cd-de90ef113cfc/199350193477.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/39/99/9a/39999a82-dbfb-a0a2-1eae-3dfa887c7308/mzaf_11726435724542512803.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1133,9 +1115,7 @@
     "狙うは君のど真ん中|shishamo": 1,
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
-    "rapport|アーティスト不明": 1,
-    "プラネタリウム|アーティスト不明": 1,
-    "恋風|幾田りら": 1
+    "rapport|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
