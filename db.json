@@ -924,6 +924,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music1/v4/96/e3/13/96e3135b-7069-5257-20b5-1c52dec2993f/VEATP-31045.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/41/fd/34/41fd34b8-dc2f-83bc-b25a-967003f2df95/mzaf_16661209696126049783.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "RJWP1tqMt3zAvHmHHmE9p",
+      "text": "The Answer",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/the-answer/1777046913?i=1777047771&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/05/df/54/05df54b3-941e-e796-6a79-60ecef842a64/198846718378.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0d/98/44/0d9844e0-9259-5b46-c7ce-5b99310727ea/mzaf_8035218456550910145.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "vy0yyWK036JsCMjUXfRs0",
+      "text": "BREAKOUT",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/breakout/1804833044?i=1804833238&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a7/35/d1/a735d155-d316-d9ea-19d2-d18c9aa2fb8b/ANTCD-A0000016546.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/18/e5/22/18e522e9-031a-aa0a-a139-2ab00d53a878/mzaf_14492309948762646821.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1045,7 +1063,9 @@
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
-    "星空のビリー・ホリデイ|the alfee": 1
+    "星空のビリー・ホリデイ|the alfee": 1,
+    "the answer|アーティスト不明": 1,
+    "breakout|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
