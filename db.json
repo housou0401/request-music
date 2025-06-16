@@ -248,7 +248,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/run-away/1535635353?i=1535635479&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/cd/08/49/cd0849b0-8c00-e934-38c8-a6502e4fed0a/jacket_AIXX02020B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/40/15/a9/4015a9a5-7a1a-e80e-0ef2-b788d5a892b7/mzaf_7202826231932298279.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "DWYGB6pM5x0lgNUA1JHMo",
@@ -626,7 +626,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E7%82%8E%E3%81%A8%E6%A3%AE%E3%81%AE%E3%82%AB%E3%83%BC%E3%83%8B%E3%83%90%E3%83%AB/955796371?i=955796389&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music3/v4/07/46/dd/0746dd80-255e-7c83-5247-d9592d25ba9d/TFCC-86501.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/3a/79/6d/3a796dab-e63b-5156-dc7e-e2ebcac1fdb2/mzaf_8661914914213945453.plus.aac.p.m4a",
-      "count": 1
+      "count": 2
     },
     {
       "id": "nM-Mfox9Xn9AUy98LBI7T",
@@ -987,6 +987,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/12/2b/f9/122bf923-e577-b069-998b-27e1a42a5ac0/4547366538946.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5f/66/ea/5f66eae0-d03f-42d9-62cf-c40d7eb798be/mzaf_4158688651119354384.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "nNDOkzbFU1ThyTOUdXYD5",
+      "text": "EGO",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/ego/510287735?i=510287757&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a4/80/6a/a4806a9f-897c-7e0e-a700-4a66a257a147/AVCY-58043.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0c/ef/24/0cef2460-6fd6-51a6-9111-8629ad73897f/mzaf_4659188138496504616.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "fK05FIzZ_3Op311TJmUjp",
+      "text": "Miree BAY ver.",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/miree-bay-ver/1006497430?i=1006497454&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/70/56/91/70569108-0cc1-8714-b5bd-f4d22f329dd7/dj.npreumhe.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/f4/f0/a2/f4f0a296-5559-9778-2875-3cdd9ac8c708/mzaf_12815478982277471840.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "3n2lp_nfeVWeB1G3J_8UU",
+      "text": "fish",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/fish/1451577721?i=1451577759&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f6/4c/e7/f64ce745-cb2a-c64c-2a18-6089665897ac/00602577303777.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/65/2f/bb/652fbb8f-0c15-36ae-b384-f837ef3d6175/mzaf_8916715522736868176.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1033,7 +1060,7 @@
     "one big family|がーどまん": 1,
     "長く短い祭|アーティスト不明": 1,
     "summer ride|アーティスト不明": 1,
-    "run away|アーティスト不明": 1,
+    "run away|アーティスト不明": 2,
     "さよならの向う側|山口百恵": 1,
     "嫌々|halves": 1,
     "恋愛後遺症|7co": 1,
@@ -1075,7 +1102,7 @@
     "ナハトムジーク|アーティスト不明": 1,
     "party|アーティスト不明": 1,
     "love me, love you|アーティスト不明": 1,
-    "炎と森のカーニバル|sekai no owari": 1,
+    "炎と森のカーニバル|sekai no owari": 2,
     "クロノスタシス|bump of chicken": 1,
     "いつかこの涙が|little glee monster": 1,
     "懐かしい未来|上白石萌音": 2,
@@ -1115,7 +1142,10 @@
     "狙うは君のど真ん中|shishamo": 1,
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
-    "rapport|アーティスト不明": 1
+    "rapport|アーティスト不明": 1,
+    "ego|アーティスト不明": 1,
+    "miree bay ver.|アーティスト不明": 1,
+    "fish|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
