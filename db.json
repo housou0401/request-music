@@ -1014,6 +1014,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f6/4c/e7/f64ce745-cb2a-c64c-2a18-6089665897ac/00602577303777.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/65/2f/bb/652fbb8f-0c15-36ae-b384-f837ef3d6175/mzaf_8916715522736868176.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "nSi0525l6EbjVclKapaQC",
+      "text": "DAISUKI FULL POWER",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/daisuki-full-power/1769353965?i=1769353966&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ef/98/a1/ef98a147-41d5-a93e-fb56-d7b8cb8ca673/4540774246519.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/de/fb/97/defb9795-024d-aaad-86bd-c19d17ff907a/mzaf_12839933730883876780.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1145,7 +1154,8 @@
     "rapport|アーティスト不明": 1,
     "ego|アーティスト不明": 1,
     "miree bay ver.|アーティスト不明": 1,
-    "fish|アーティスト不明": 1
+    "fish|アーティスト不明": 1,
+    "daisuki full power|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
