@@ -915,6 +915,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/12/2b/f9/122bf923-e577-b069-998b-27e1a42a5ac0/4547366538946.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5f/66/ea/5f66eae0-d03f-42d9-62cf-c40d7eb798be/mzaf_4158688651119354384.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "33w9AwPuxJp0tCOMSst0v",
+      "text": "星空のビリー・ホリデイ",
+      "artist": "THE ALFEE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%98%9F%E7%A9%BA%E3%81%AE%E3%83%93%E3%83%AA%E3%83%BC-%E3%83%9B%E3%83%AA%E3%83%87%E3%82%A4/949252192?i=949252218&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music1/v4/96/e3/13/96e3135b-7069-5257-20b5-1c52dec2993f/VEATP-31045.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/41/fd/34/41fd34b8-dc2f-83bc-b25a-967003f2df95/mzaf_16661209696126049783.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1035,7 +1044,8 @@
     "狙うは君のど真ん中|shishamo": 1,
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
-    "rapport|アーティスト不明": 1
+    "rapport|アーティスト不明": 1,
+    "星空のビリー・ホリデイ|the alfee": 1
   },
   "settings": {
     "recruiting": false,
