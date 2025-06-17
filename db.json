@@ -987,6 +987,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/12/2b/f9/122bf923-e577-b069-998b-27e1a42a5ac0/4547366538946.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5f/66/ea/5f66eae0-d03f-42d9-62cf-c40d7eb798be/mzaf_4158688651119354384.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "qqs71N5wSPH6s61LNstvK",
+      "text": "あなたは煙草 私はシャボン",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%82%E3%81%AA%E3%81%9F%E3%81%AF%E7%85%99%E8%8D%89-%E7%A7%81%E3%81%AF%E3%82%B7%E3%83%A3%E3%83%9C%E3%83%B3/1413646778?i=1413647201&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/9f/3c/58/9f3c5892-4269-6de9-b840-6f0b7ae0aa77/VICL-64617.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/6d/24/fe/6d24fe8a-c7b1-4093-5564-dad48620ff8b/mzaf_17722281022944294740.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1115,7 +1124,8 @@
     "狙うは君のど真ん中|shishamo": 1,
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
-    "rapport|アーティスト不明": 1
+    "rapport|アーティスト不明": 1,
+    "あなたは煙草 私はシャボン|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
