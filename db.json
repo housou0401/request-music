@@ -527,7 +527,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%AD%E3%83%9E%E3%83%B3%E3%83%81%E3%82%B7%E3%82%BA%E3%83%A0/1454643208?i=1454643219&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/39/10/40/39104035-3ebf-1cec-9294-cce6ccff7086/19UMGIM12455.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/b2/f3/ff/b2f3ff27-b026-ba9a-347e-9e6d801236c5/mzaf_15595485502985895543.plus.aac.p.m4a",
-      "count": 4
+      "count": 3
     },
     {
       "id": "SFiSuxjMN372uKXwIoTp2",
@@ -987,24 +987,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/12/2b/f9/122bf923-e577-b069-998b-27e1a42a5ac0/4547366538946.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5f/66/ea/5f66eae0-d03f-42d9-62cf-c40d7eb798be/mzaf_4158688651119354384.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "qA7QLjjcDAx9Tgt6jsLK9",
-      "text": "BORDER",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/border/1689004529?i=1689004535&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/4d/77/9e/4d779ed1-5f3d-56c9-ea6b-238d06ada8ff/23UMGIM49891.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/39/cb/f1/39cbf19c-2f13-2fd0-7de4-40d5ac79379e/mzaf_14514300757100320909.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "qBAtYrzAJsZOI5QepM875",
-      "text": "白昼夢",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%99%BD%E6%98%BC%E5%A4%A2/1599441409?i=1599441410&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/e0/66/d7/e066d7a0-a2f5-0301-f7be-44ae5624dcd3/COKM-43696.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/e9/f6/34/e9f634e8-0e3d-db09-2e34-b7f8a29aeac3/mzaf_13299274796279562640.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1082,7 +1064,7 @@
     "ツキマシテハ|アーティスト不明": 2,
     "ア・プリオリ|アーティスト不明": 2,
     "コロンブス|アーティスト不明": 1,
-    "ロマンチシズム|アーティスト不明": 4,
+    "ロマンチシズム|アーティスト不明": 3,
     "ビターバカンス|アーティスト不明": 1,
     "アイデア|星野源": 1,
     "wanted! wanted!|アーティスト不明": 2,
@@ -1133,9 +1115,7 @@
     "狙うは君のど真ん中|shishamo": 1,
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
-    "rapport|アーティスト不明": 1,
-    "border|アーティスト不明": 1,
-    "白昼夢|アーティスト不明": 1
+    "rapport|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
