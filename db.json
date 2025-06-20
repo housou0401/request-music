@@ -987,6 +987,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/12/2b/f9/122bf923-e577-b069-998b-27e1a42a5ac0/4547366538946.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5f/66/ea/5f66eae0-d03f-42d9-62cf-c40d7eb798be/mzaf_4158688651119354384.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "ijhC37K7MGSokLLpSw6y7",
+      "text": "イイじゃん",
+      "artist": "M!LK",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A4%E3%82%A4%E3%81%98%E3%82%83%E3%82%93/1794499542?i=1794499543&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/54/fd/a4/54fda41c-2ff0-f132-9955-6c6e41a5c882/VEATP-43744.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/eb/11/60/eb11603b-be3c-f0f0-58ed-8f0a971d8fe2/mzaf_14129721751014517254.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1115,7 +1124,8 @@
     "狙うは君のど真ん中|shishamo": 1,
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
-    "rapport|アーティスト不明": 1
+    "rapport|アーティスト不明": 1,
+    "イイじゃん|m!lk": 1
   },
   "settings": {
     "recruiting": false,
