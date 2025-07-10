@@ -1005,6 +1005,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3d/74/e1/3d74e128-f2dd-4f87-51a1-19adf2958112/jacket_SRCL08200B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0e/39/54/0e395406-d18f-bd1f-e585-ac55fcc33b10/mzaf_12452911427487307956.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "BpKIk1WBXpRqIBQ1U9ypB",
+      "text": "夏疾風",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A4%8F%E7%96%BE%E9%A2%A8/1485848858?i=1485848864&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/71/cf/55/71cf5586-9c82-11eb-a4a6-d11e5d613adf/194491545468.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/95/fd/54/95fd5427-9308-d63d-1c9d-9b8151220a19/mzaf_1376621379562490862.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "KfUDWS2HRmn58tQJmwc6H",
+      "text": "SUMMER SONG",
+      "artist": "YUI",
+      "appleMusicUrl": "https://music.apple.com/jp/album/summer-song-yui-acoustic-version/1537403799?i=1537403802&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/6c/18/c3/6c18c385-5fe4-3906-d312-da8122d78870/jacket_SRCL07039B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/43/e5/b0/43e5b045-5dd7-d551-c270-779025fbd4dc/mzaf_18349332619377920385.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "JQFqbSLkVimNTi2pPSLuw",
+      "text": "Miracle",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/miracle/1738373169?i=1738373570&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/24/ae/c3/24aec347-88d3-6ac1-0852-8273fa41286a/24UMGIM34872.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/25/0e/e9/250ee9c3-bca2-9b4f-e381-ccf7b78d2c4e/mzaf_2902533049933988929.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1135,7 +1162,10 @@
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
     "last party never end (feat. tiji jojo, yzerr, vingo & yellow pato)|アーティスト不明": 1,
-    "summer song|アーティスト不明": 1
+    "summer song|アーティスト不明": 1,
+    "夏疾風|アーティスト不明": 1,
+    "summer song|yui": 1,
+    "miracle|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
