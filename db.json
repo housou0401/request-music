@@ -996,6 +996,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3d/74/e1/3d74e128-f2dd-4f87-51a1-19adf2958112/jacket_SRCL08200B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0e/39/54/0e395406-d18f-bd1f-e585-ac55fcc33b10/mzaf_12452911427487307956.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "7yBFnwbL5_eRABq_VKQnH",
+      "text": "愛℃",
+      "artist": "高瀬統也",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%84%9B/1719147690?i=1719148429&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/78/de/41/78de41db-2039-6163-4a40-f83ce075d6b6/3617222193792_cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/ef/e6/01/efe601b2-9c05-5034-6318-acc97395b985/mzaf_2354269653049591257.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "B0leYnmezQHJJtMpmz7qH",
+      "text": "君がくれた夏",
+      "artist": "家入レオ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%8C%E3%81%8F%E3%82%8C%E3%81%9F%E5%A4%8F/1026711108?i=1026711118&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music7/v4/86/43/10/86431044-4a46-aa59-220f-4de553001bf1/VEATP-32800.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b1/96/2e/b1962e18-5b6a-77a9-2e6b-270d546c7eeb/mzaf_17311274825307395172.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1125,7 +1143,9 @@
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
     "last party never end (feat. tiji jojo, yzerr, vingo & yellow pato)|アーティスト不明": 1,
-    "summer song|アーティスト不明": 1
+    "summer song|アーティスト不明": 1,
+    "愛℃|高瀬統也": 1,
+    "君がくれた夏|家入レオ": 1
   },
   "settings": {
     "recruiting": false,
