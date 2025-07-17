@@ -1005,24 +1005,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3d/74/e1/3d74e128-f2dd-4f87-51a1-19adf2958112/jacket_SRCL08200B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0e/39/54/0e395406-d18f-bd1f-e585-ac55fcc33b10/mzaf_12452911427487307956.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "qo83Wo7Zo9r7haf2xXCLM",
-      "text": "オリオンをなぞる",
-      "artist": "UNISON SQUARE GARDEN",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%AA%E3%83%AA%E3%82%AA%E3%83%B3%E3%82%92%E3%81%AA%E3%81%9E%E3%82%8B/432476549?i=432476550&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/74/ae/34/mzi.nbytaeky.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/Music/v4/c2/ec/b8/c2ecb822-bb2f-12f6-13e0-cb6077b1cc6f/mzaf_1259841737185197729.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "VYdqzIzMeij1JJUXE_9in",
-      "text": "Share The World",
-      "artist": "東方神起",
-      "appleMusicUrl": "https://music.apple.com/jp/album/share-the-world/311618202?i=311618211&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/c9/46/7e/mzi.tsnmabhr.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/Music2/v4/6a/bc/5e/6abc5e4b-deed-4005-60f0-50855177e822/mzaf_942303041186615065.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1153,9 +1135,7 @@
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
     "last party never end (feat. tiji jojo, yzerr, vingo & yellow pato)|アーティスト不明": 1,
-    "summer song|アーティスト不明": 1,
-    "オリオンをなぞる|unison square garden": 1,
-    "share the world|東方神起": 1
+    "summer song|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
