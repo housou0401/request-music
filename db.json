@@ -1005,6 +1005,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3d/74/e1/3d74e128-f2dd-4f87-51a1-19adf2958112/jacket_SRCL08200B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0e/39/54/0e395406-d18f-bd1f-e585-ac55fcc33b10/mzaf_12452911427487307956.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "kOTOhGtaaOyT_WkgwUGuc",
+      "text": "Mascara (Originally Performed by XG) [Instrumental Version]",
+      "artist": "XG",
+      "appleMusicUrl": "https://music.apple.com/jp/album/mascara-originally-performed-by-xg-instrumental-version/1635705908?i=1635706477&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/35/da/04/35da045c-71a7-f4f0-7862-1dc6b29c44aa/MM19081.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/5a/b1/d1/5ab1d14d-4995-b254-1c6f-59f70c257ac4/mzaf_481030906482382334.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1135,7 +1144,8 @@
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
     "last party never end (feat. tiji jojo, yzerr, vingo & yellow pato)|アーティスト不明": 1,
-    "summer song|アーティスト不明": 1
+    "summer song|アーティスト不明": 1,
+    "mascara (originally performed by xg) [instrumental version]|xg": 1
   },
   "settings": {
     "recruiting": false,
