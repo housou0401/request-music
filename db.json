@@ -1,6 +1,14 @@
 {
   "responses": [
     {
+      "id": "onCuNihKd3VE8S-iToykJ",
+      "text": "CBZ (Prime time)",
+      "artist": "BSS",
+      "appleMusicUrl": "https://music.apple.com/jp/album/cbz-prime-time/1786535486?i=1786535487&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b4/30/94/b43094fa-78cc-bebf-9bea-9012528aa9e0/24UM1IM40912.rgb.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
       "id": "780OL2QlekYUuiexMhTF6",
       "text": "エイトビート",
       "artist": "シンガーズハイ",
@@ -1005,6 +1013,7 @@
     "リヴ|b'z": 1,
     "shadow|アーティスト不明": 1,
     "アウトライン|アーティスト不明": 1,
+    "cbz (prime time)|bss": 1,
     "hold my hand|stray kids": 1,
     "チョコスプレー|アーティスト不明": 1,
     "shine|jagwar twin": 1,
