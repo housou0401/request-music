@@ -73,6 +73,14 @@
       "count": 1
     },
     {
+      "id": "UAjeMjubnOO5DORXml2uB",
+      "text": "ドント・ワナ・ノウ (feat. ケンドリック・ラマー)",
+      "artist": "マルーン5",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%89%E3%83%B3%E3%83%88-%E3%83%AF%E3%83%8A-%E3%83%8E%E3%82%A6-feat-%E3%82%B1%E3%83%B3%E3%83%89%E3%83%AA%E3%83%83%E3%82%AF-%E3%83%A9%E3%83%9E%E3%83%BC/1396383479?i=1396384699&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/1e/cf/97/1ecf9739-cd02-8e8f-77d8-165b2d560f95/17UM1IM32471.rgb.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
       "id": "U0abN4lt04eQ0vhBdT6DD",
       "text": "Not Like Us",
       "artist": "ケンドリック・ラマー",
@@ -882,6 +890,15 @@
       "count": 1
     },
     {
+      "id": "dC94UZg6DRUy0XTIKLYi5",
+      "text": "Story",
+      "artist": "AI",
+      "appleMusicUrl": "https://music.apple.com/jp/album/story/1446739199?i=1446739203&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/14/34/9b/14349b26-a2d4-8401-2388-a49be71a2422/09UMGIM33578.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2e/e1/82/2ee182d3-1457-f807-1421-15f28be6d2d7/mzaf_7444828842684020630.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "14b4Q1KDpkAt75gJmM2l9",
       "text": "Soft Spot",
       "artist": "ケシ",
@@ -933,15 +950,6 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%88%E3%81%AE%E9%80%86%E8%A5%B2/1444446180?i=1444446185&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/a2/d7/13/a2d7136a-f2f8-fdff-1c22-d6d7d20207bb/00602557565553.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/d7/2c/58/d72c5847-feeb-5879-3290-9659eb4e8937/mzaf_9276949459209065634.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "rxdlzOYtu0xilYMoxwIHz",
-      "text": "狙うは君のど真ん中",
-      "artist": "SHISHAMO",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%8B%99%E3%81%86%E3%81%AF%E5%90%9B%E3%81%AE%E3%81%A9%E7%9C%9F%E3%82%93%E4%B8%AD/1605865255?i=1605865628&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/9c/c2/08/9cc20898-5ef8-a57a-fbcb-37c5ba473976/22UMGIM04335.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e2/d4/32/e2d432c6-4641-091a-ca02-4006b3d65b37/mzaf_3801462987264520215.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -1015,6 +1023,7 @@
     "shine|アーティスト不明": 1,
     "onion boy|アーティスト不明": 1,
     "歌うたいのバラッド|斉藤和義": 1,
+    "ドント・ワナ・ノウ (feat. ケンドリック・ラマー)|マルーン5": 1,
     "not like us|ケンドリック・ラマー": 1,
     "#1090 (thousand dreams)|松本孝弘": 1,
     "かがみ|アーティスト不明": 4,
@@ -1105,13 +1114,13 @@
     "雨と僕の話|back number": 1,
     "ワンドリンク別|アーティスト不明": 1,
     "tears|アーティスト不明": 1,
+    "story|ai": 1,
     "soft spot|ケシ": 1,
     "君の太陽|山猿": 1,
     "beside you|アーティスト不明": 1,
     "ウエディング|音田雅則": 1,
     "kiss me right|アーティスト不明": 1,
     "月の逆襲|アーティスト不明": 1,
-    "狙うは君のど真ん中|shishamo": 1,
     "bussin’ (feat. ¥ellow bucks)|ak-69": 1,
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
