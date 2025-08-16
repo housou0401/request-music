@@ -253,6 +253,15 @@
       "count": 1
     },
     {
+      "id": "cYe23CnAb2hYnOvMPxeFK",
+      "text": "恋愛後遺症",
+      "artist": "7co",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%81%8B%E6%84%9B%E5%BE%8C%E9%81%BA%E7%97%87/1797302198?i=1797302199&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b9/8d/e7/b98de787-4725-8035-047b-a02c6643748c/4547366735963.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a8/ad/3e/a8ad3ee2-e1d4-d265-3af9-975a41eae0e6/mzaf_13891113193402906592.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "qgxxrQkSAWvIGSSHVB5iP",
       "text": "アップルパイ",
       "artist": "backnumber",
@@ -514,6 +523,15 @@
       "count": 1
     },
     {
+      "id": "DEPsbkIlF0Tk9-JBICkOn",
+      "text": "アイデア",
+      "artist": "星野源",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%A4%E3%83%87%E3%82%A2/1417065821?i=1417065830&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/3d/41/2c/3d412cbd-fdb1-5484-cc88-13dd867bbc23/VEATP-35678.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/1c/c4/8e/1cc48eca-0067-1e09-826f-02c0577aec62/mzaf_8577175356375638504.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "FW1PpkFE4ff4YmDOCng8l",
       "text": "WanteD! WanteD!",
       "artist": "アーティスト不明",
@@ -565,15 +583,6 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8A%E3%83%8F%E3%83%88%E3%83%A0%E3%82%B8%E3%83%BC%E3%82%AF/1724293061?i=1724293062&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5b/8f/e1/5b8fe1a0-ea29-07f3-af25-a1a6892254ff/23UM1IM65481.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/7f/ee/28/7fee2888-bade-7385-b072-c4664d9ee326/mzaf_16857545987726814531.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "oIBAnRinN0plp4icja3W2",
-      "text": "PARTY",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/party/1360523851?i=1360524254&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/56/d4/1e/56d41e84-b659-a170-6712-cfc8d47691a0/00602567503408.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/36/29/f8/3629f80e-1fda-cf92-f731-51d3d93d36d8/mzaf_12181569189314885875.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -1018,6 +1027,7 @@
     "run away|アーティスト不明": 1,
     "さよならの向う側|山口百恵": 1,
     "嫌々|halves": 1,
+    "恋愛後遺症|7co": 1,
     "アップルパイ|backnumber": 1,
     "sby|snow man": 1,
     "粛聖!! ロリ神レクイエム☆ +1key(原曲歌手:しぐれうい)|しぐれうい": 1,
@@ -1047,13 +1057,13 @@
     "コロンブス|アーティスト不明": 1,
     "ロマンチシズム|アーティスト不明": 3,
     "ビターバカンス|アーティスト不明": 1,
+    "アイデア|星野源": 1,
     "wanted! wanted!|アーティスト不明": 2,
     "アイネクライネ|米津玄師": 1,
     "ケセラセラ|アーティスト不明": 1,
     "heartache|one ok rock": 1,
     "cheers|アーティスト不明": 1,
     "ナハトムジーク|アーティスト不明": 1,
-    "party|アーティスト不明": 1,
     "love me, love you|アーティスト不明": 1,
     "炎と森のカーニバル|sekai no owari": 1,
     "クロノスタシス|bump of chicken": 1,
