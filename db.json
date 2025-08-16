@@ -127,6 +127,15 @@
       "count": 4
     },
     {
+      "id": "ffuGJKVe5AIk8XxkBwzv5",
+      "text": "春雷",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%98%A5%E9%9B%B7/1538275115?i=1538275665&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1b/7a/5e/1b7a5e77-b0c4-6e32-f3ee-c09c70f8378e/jacket_SRCL09571B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/36/fd/8d/36fd8ddc-98ee-257d-b2c1-06225f3fe145/mzaf_5432552510333652753.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "Ete9Z8E-BJYN2Omz19h7q",
       "text": "ハピチョコ",
       "artist": "アーティスト不明",
@@ -226,12 +235,12 @@
       "count": 1
     },
     {
-      "id": "DWYGB6pM5x0lgNUA1JHMo",
-      "text": "さよならの向う側",
-      "artist": "山口百恵",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%95%E3%82%88%E3%81%AA%E3%82%89%E3%81%AE%E5%90%91%E3%81%86%E5%81%B4/1536726044?i=1536726138&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/12/cc/00/12cc00a0-f45b-15e8-eee2-91b0e7ed92cf/jacket_MHCL01569B00Z_550.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/87/35/06/873506d1-f383-c257-f983-e29780490be1/mzaf_15685867356277543483.plus.aac.p.m4a",
+      "id": "NSf7B9b5Tghcfmp6PrM0j",
+      "text": "嫌々",
+      "artist": "HALVES",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%AB%8C%E3%80%85/1725925673?i=1725925679&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/48/b8/f4/48b8f4c8-726b-b8c7-e5a1-8c53a057d38c/4547366665369.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/da/d7/8f/dad78f6e-294b-2d70-538c-a6a075923a8c/mzaf_15028274592487768727.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -514,6 +523,15 @@
       "count": 1
     },
     {
+      "id": "FW1PpkFE4ff4YmDOCng8l",
+      "text": "WanteD! WanteD!",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/wanted-wanted/1440885551?i=1440885553&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/17/50/1d/17501d9c-dd50-1bf3-f33c-97761acbf473/00602557808063.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/d5/79/2e/d5792e7f-83dd-b5d5-c6e9-c9004ae69c71/mzaf_11741492126315051210.plus.aac.p.m4a",
+      "count": 2
+    },
+    {
       "id": "K5ncDVsBvS8e6y1iBfZhk",
       "text": "アイネクライネ",
       "artist": "米津玄師",
@@ -556,6 +574,15 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8A%E3%83%8F%E3%83%88%E3%83%A0%E3%82%B8%E3%83%BC%E3%82%AF/1724293061?i=1724293062&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5b/8f/e1/5b8fe1a0-ea29-07f3-af25-a1a6892254ff/23UM1IM65481.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/7f/ee/28/7fee2888-bade-7385-b072-c4664d9ee326/mzaf_16857545987726814531.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "oIBAnRinN0plp4icja3W2",
+      "text": "PARTY",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/party/1360523851?i=1360524254&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/56/d4/1e/56d41e84-b659-a170-6712-cfc8d47691a0/00602567503408.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/36/29/f8/3629f80e-1fda-cf92-f731-51d3d93d36d8/mzaf_12181569189314885875.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -953,24 +980,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3d/74/e1/3d74e128-f2dd-4f87-51a1-19adf2958112/jacket_SRCL08200B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0e/39/54/0e395406-d18f-bd1f-e585-ac55fcc33b10/mzaf_12452911427487307956.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "XDcRUwJ25VnQmzkHcoaZt",
-      "text": "マシュマリー",
-      "artist": "MIMI",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%9E%E3%82%B7%E3%83%A5%E3%83%9E%E3%83%AA%E3%83%BC/1485959786?i=1485959788&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/9d/1c/04/9d1c04d1-d627-9af4-90b5-6078fdc842fb/859755215838_cover.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/76/e8/f2/76e8f2eb-6eea-0e1b-d8d0-7cb7839a8ac2/mzaf_8953975720714234674.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "9R87s_lMN8Z0fIhCWKg4X",
-      "text": "我逢人 (Instrumental)",
-      "artist": "Mrs. GREEN APPLE",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%88%91%E9%80%A2%E4%BA%BA-instrumental/1541307876?i=1541307899&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/d6/ea/b1/d6eab107-5a4d-4b71-3bd9-8ce6350b912f/20UM1IM01408.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/4e/f9/06/4ef90645-2c9c-058e-0eb3-d4264148a7f8/mzaf_200252404784324738.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1004,6 +1013,7 @@
     "my way|def tech": 1,
     "ハイパーベンチレイション|radwimps": 1,
     "クスシキ|アーティスト不明": 4,
+    "春雷|アーティスト不明": 1,
     "ハピチョコ|アーティスト不明": 3,
     "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 3,
     "feelings|アーティスト不明": 1,
@@ -1015,7 +1025,7 @@
     "長く短い祭|アーティスト不明": 1,
     "summer ride|アーティスト不明": 1,
     "run away|アーティスト不明": 1,
-    "さよならの向う側|山口百恵": 1,
+    "嫌々|halves": 1,
     "恋愛後遺症|7co": 1,
     "アップルパイ|backnumber": 1,
     "sby|snow man": 1,
@@ -1047,11 +1057,13 @@
     "ロマンチシズム|アーティスト不明": 3,
     "ビターバカンス|アーティスト不明": 1,
     "アイデア|星野源": 1,
+    "wanted! wanted!|アーティスト不明": 2,
     "アイネクライネ|米津玄師": 1,
     "ケセラセラ|アーティスト不明": 1,
     "heartache|one ok rock": 1,
     "cheers|アーティスト不明": 1,
     "ナハトムジーク|アーティスト不明": 1,
+    "party|アーティスト不明": 1,
     "love me, love you|アーティスト不明": 1,
     "炎と森のカーニバル|sekai no owari": 1,
     "クロノスタシス|bump of chicken": 1,
@@ -1095,9 +1107,7 @@
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
     "last party never end (feat. tiji jojo, yzerr, vingo & yellow pato)|アーティスト不明": 1,
-    "summer song|アーティスト不明": 1,
-    "マシュマリー|mimi": 1,
-    "我逢人 (instrumental)|mrs. green apple": 1
+    "summer song|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
