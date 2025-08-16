@@ -343,6 +343,15 @@
       "count": 1
     },
     {
+      "id": "ihhtkIDP9gBIZUVTL2SVp",
+      "text": "NEW KAWAII",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/new-kawaii/1734146998?i=1734147009&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/5c/1c/50/5c1c5006-d32f-d304-a801-bc17fe63ab4e/4580789624261.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/69/a2/19/69a219d0-4921-8aab-b9fe-b4c73182b01e/mzaf_1401586222655412037.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "FXKUJIixy7MP2qE3cbtaq",
       "text": "Love the warz",
       "artist": "アーティスト不明",
@@ -550,6 +559,15 @@
       "count": 1
     },
     {
+      "id": "Tmi5BOR66qbpwFBsDvhj-",
+      "text": "Heartache",
+      "artist": "ONE OK ROCK",
+      "appleMusicUrl": "https://music.apple.com/jp/album/heartache/953420397?i=953420436&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/69/15/2c/69152cd1-7112-3b20-7de4-98474b318407/OOR_1217_12_00_35xxxv_syo_tsu_kyotsu.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/8d/7e/db/8d7edb45-a1ca-4159-c6a2-acbb53546aec/mzaf_2997605983650354644.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "cUL2PFl7ptHFqNGBQVhER",
       "text": "CHEERS",
       "artist": "アーティスト不明",
@@ -574,15 +592,6 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/party/1360523851?i=1360524254&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/56/d4/1e/56d41e84-b659-a170-6712-cfc8d47691a0/00602567503408.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/36/29/f8/3629f80e-1fda-cf92-f731-51d3d93d36d8/mzaf_12181569189314885875.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "DaeR8c5rxt1yr-3zDod4O",
-      "text": "Love me, Love you",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/love-me-love-you/1441018133?i=1441018140&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c3/c7/d7/c3c7d7b8-64b8-036a-b47f-21b24d280210/00602567350484.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c3/2a/ba/c32aba0b-d761-ac87-4950-7814a05ce15a/mzaf_9211534742691145491.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -718,6 +727,15 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E7%9C%9F%E5%A4%9C%E4%B8%AD%E3%81%AE%E3%83%89%E3%82%A2-stay-with-me/1709460884?i=1709461230&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b3/56/7e/b3567eb6-b48d-b7ce-7e96-7a91c3222f78/4547366649574.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/d5/09/79/d509794a-5579-d291-0ab1-887e2979fbeb/mzaf_4193098507478152930.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "LRtVwTKwVSWFNQ6khgokF",
+      "text": "I'm still alive today (with NANAMI)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/im-still-alive-today-with-nanami/1709460884?i=1709461243&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b3/56/7e/b3567eb6-b48d-b7ce-7e96-7a91c3222f78/4547366649574.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/70/25/6e/70256e48-c806-2c73-647b-c1d08c15e87a/mzaf_9430143688481051951.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -1019,6 +1037,7 @@
     "全力少年|スキマスイッチ": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
     "全人類 兎化計画!|兎田ぺこら": 1,
+    "new kawaii|アーティスト不明": 1,
     "love the warz|アーティスト不明": 1,
     "yaju&u|アーティスト不明": 1,
     "help!!|kobo kanaeru": 1,
@@ -1042,10 +1061,10 @@
     "wanted! wanted!|アーティスト不明": 2,
     "アイネクライネ|米津玄師": 1,
     "ケセラセラ|アーティスト不明": 1,
+    "heartache|one ok rock": 1,
     "cheers|アーティスト不明": 1,
     "ナハトムジーク|アーティスト不明": 1,
     "party|アーティスト不明": 1,
-    "love me, love you|アーティスト不明": 1,
     "炎と森のカーニバル|sekai no owari": 1,
     "クロノスタシス|bump of chicken": 1,
     "いつかこの涙が|little glee monster": 1,
@@ -1061,6 +1080,7 @@
     "sing along!!! (feat. 幾田りら)|アーティスト不明": 1,
     "time capsule|アーティスト不明": 1,
     "真夜中のドア～stay with me|アーティスト不明": 1,
+    "i'm still alive today (with nanami)|アーティスト不明": 1,
     "堕天|アーティスト不明": 1,
     "タイム・トラベル|アーティスト不明": 1,
     "count on me duet ver.|アーティスト不明": 1,
