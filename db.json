@@ -65,6 +65,14 @@
       "count": 1
     },
     {
+      "id": "U0abN4lt04eQ0vhBdT6DD",
+      "text": "Not Like Us",
+      "artist": "ケンドリック・ラマー",
+      "appleMusicUrl": "https://music.apple.com/jp/album/not-like-us/1781353928?i=1781353929&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/31/3a/3f/313a3fbc-bb8f-80c7-b5a2-e226869a38cd/24UMGIM51924.rgb.jpg/100x100bb.jpg",
+      "count": 1
+    },
+    {
       "id": "1Y8GC28bX4vbCBYnMhSYP",
       "text": "#1090 (Thousand Dreams)",
       "artist": "松本孝弘",
@@ -126,15 +134,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1b/7a/5e/1b7a5e77-b0c4-6e32-f3ee-c09c70f8378e/jacket_SRCL09571B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/36/fd/8d/36fd8ddc-98ee-257d-b2c1-06225f3fe145/mzaf_5432552510333652753.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "Ete9Z8E-BJYN2Omz19h7q",
-      "text": "ハピチョコ",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8F%E3%83%94%E3%83%81%E3%83%A7%E3%82%B3/1665563394?i=1665563395&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/d7/dc/89/d7dc8934-4bf1-24b5-453f-8867ed5d299d/4582467903002.png/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/bb/7c/7d/bb7c7d3f-c8c8-a95c-3c7d-155bafb1c515/mzaf_15034223179521885516.plus.aac.p.m4a",
-      "count": 3
     },
     {
       "id": "kRDadfZqTPXxSYr1KYJ44",
@@ -569,6 +568,15 @@
       "count": 1
     },
     {
+      "id": "Yyd9RKcIneB-JsEl1ZP2d",
+      "text": "ナハトムジーク",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8A%E3%83%8F%E3%83%88%E3%83%A0%E3%82%B8%E3%83%BC%E3%82%AF/1724293061?i=1724293062&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5b/8f/e1/5b8fe1a0-ea29-07f3-af25-a1a6892254ff/23UM1IM65481.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/7f/ee/28/7fee2888-bade-7385-b072-c4664d9ee326/mzaf_16857545987726814531.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "oIBAnRinN0plp4icja3W2",
       "text": "PARTY",
       "artist": "アーティスト不明",
@@ -704,6 +712,15 @@
       "count": 1
     },
     {
+      "id": "UR7w1UNStyo-HdMa036Mi",
+      "text": "Time Capsule",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/time-capsule/1709460884?i=1709461219&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b3/56/7e/b3567eb6-b48d-b7ce-7e96-7a91c3222f78/4547366649574.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/d3/f5/09/d3f5091b-c59e-8a61-3935-9c83f0bfb6eb/mzaf_17122646665196077347.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "wkzS3hOEZ8Po9nZw4uRw-",
       "text": "真夜中のドア～Stay with me",
       "artist": "アーティスト不明",
@@ -764,6 +781,15 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E5%98%98%E3%81%98%E3%82%83%E3%81%AA%E3%81%84%E3%82%88/1475232910?i=1475233724&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/e5/ce/f5/e5cef5f0-a5c3-2f52-6c42-b3c2b32db70f/19UMGIM67614.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/34/b2/a3/34b2a35f-dd27-b514-2391-20056e4a6eb0/mzaf_15654770103738653535.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "dH0vOrxWO3tXiFm8udNeH",
+      "text": "祈り花",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%A5%88%E3%82%8A%E8%8A%B1/1444992020?i=1444992022&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/cf/85/67/cf8567ed-fd3f-31a3-1019-6d72805830df/oribana.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview118/v4/be/2a/c3/be2ac3c0-0c69-b4f3-6ffc-1fb09963d48b/mzaf_2802890618593323939.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -980,6 +1006,7 @@
     "onion boy|アーティスト不明": 1,
     "歌うたいのバラッド|斉藤和義": 1,
     "ドント・ワナ・ノウ (feat. ケンドリック・ラマー)|マルーン5": 1,
+    "not like us|ケンドリック・ラマー": 1,
     "#1090 (thousand dreams)|松本孝弘": 1,
     "かがみ|アーティスト不明": 4,
     "ナルバキスン(look at me, gwisun)|d": 1,
@@ -987,7 +1014,6 @@
     "ハイパーベンチレイション|radwimps": 1,
     "クスシキ|アーティスト不明": 4,
     "春雷|アーティスト不明": 1,
-    "ハピチョコ|アーティスト不明": 3,
     "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 3,
     "feelings|アーティスト不明": 1,
     "blue|アーティスト不明": 1,
@@ -1036,6 +1062,7 @@
     "ケセラセラ|アーティスト不明": 1,
     "heartache|one ok rock": 1,
     "cheers|アーティスト不明": 1,
+    "ナハトムジーク|アーティスト不明": 1,
     "party|アーティスト不明": 1,
     "love me, love you|アーティスト不明": 1,
     "炎と森のカーニバル|sekai no owari": 1,
@@ -1051,6 +1078,7 @@
     "dreamer|アーティスト不明": 1,
     "count on me|アーティスト不明": 1,
     "sing along!!! (feat. 幾田りら)|アーティスト不明": 1,
+    "time capsule|アーティスト不明": 1,
     "真夜中のドア～stay with me|アーティスト不明": 1,
     "i'm still alive today (with nanami)|アーティスト不明": 1,
     "堕天|アーティスト不明": 1,
@@ -1058,6 +1086,7 @@
     "count on me duet ver.|アーティスト不明": 1,
     "no future but go to future|アーティスト不明": 1,
     "嘘じゃないよ|mrs. green apple": 1,
+    "祈り花|アーティスト不明": 1,
     "love so sweet|アーティスト不明": 1,
     "カーテンコール|アーティスト不明": 1,
     "ミセス|アーティスト不明": 1,
