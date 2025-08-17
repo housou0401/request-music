@@ -316,15 +316,6 @@
       "count": 1
     },
     {
-      "id": "VLY0iR864T35C6X8FQGMT",
-      "text": "全力少年",
-      "artist": "スキマスイッチ",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%85%A8%E5%8A%9B%E5%B0%91%E5%B9%B4/1445058251?i=1445058253&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ea/c7/e0/eac7e03d-c6e5-eb29-a749-d4721cd284d5/17UMGIM81734.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2f/59/a4/2f59a4f4-16bd-4fd4-24ad-3116d3858a0a/mzaf_16424529517994616723.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "i_F_pr9aBNrH95qbIrilH",
       "text": "かわいいだけじゃだめですか?",
       "artist": "CUTIE STREET",
@@ -592,6 +583,15 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/party/1360523851?i=1360524254&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/56/d4/1e/56d41e84-b659-a170-6712-cfc8d47691a0/00602567503408.rgb.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/36/29/f8/3629f80e-1fda-cf92-f731-51d3d93d36d8/mzaf_12181569189314885875.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "DaeR8c5rxt1yr-3zDod4O",
+      "text": "Love me, Love you",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/love-me-love-you/1441018133?i=1441018140&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c3/c7/d7/c3c7d7b8-64b8-036a-b47f-21b24d280210/00602567350484.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c3/2a/ba/c32aba0b-d761-ac87-4950-7814a05ce15a/mzaf_9211534742691145491.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -1034,7 +1034,6 @@
     "is this love|アーティスト不明": 1,
     "woke up|アーティスト不明": 1,
     "ブラザービート|アーティスト不明": 1,
-    "全力少年|スキマスイッチ": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
     "全人類 兎化計画!|兎田ぺこら": 1,
     "new kawaii|アーティスト不明": 1,
@@ -1065,6 +1064,7 @@
     "cheers|アーティスト不明": 1,
     "ナハトムジーク|アーティスト不明": 1,
     "party|アーティスト不明": 1,
+    "love me, love you|アーティスト不明": 1,
     "炎と森のカーニバル|sekai no owari": 1,
     "クロノスタシス|bump of chicken": 1,
     "いつかこの涙が|little glee monster": 1,
