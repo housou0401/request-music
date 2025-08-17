@@ -316,6 +316,15 @@
       "count": 1
     },
     {
+      "id": "VLY0iR864T35C6X8FQGMT",
+      "text": "全力少年",
+      "artist": "スキマスイッチ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%85%A8%E5%8A%9B%E5%B0%91%E5%B9%B4/1445058251?i=1445058253&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ea/c7/e0/eac7e03d-c6e5-eb29-a749-d4721cd284d5/17UMGIM81734.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2f/59/a4/2f59a4f4-16bd-4fd4-24ad-3116d3858a0a/mzaf_16424529517994616723.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "i_F_pr9aBNrH95qbIrilH",
       "text": "かわいいだけじゃだめですか?",
       "artist": "CUTIE STREET",
@@ -379,15 +388,6 @@
       "count": 1
     },
     {
-      "id": "uWl4TRG3Rt0i_uCdXKScD",
-      "text": "Hikari",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/hikari/1419396886?i=1419396893&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/f7/1f/ef/f71fef40-c8ce-e87f-debf-ce5e38b738eb/00602567860099.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/64/c3/2e/64c32e0c-0a26-824a-52d5-14ac082a7a47/mzaf_14145029208070626687.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "z8xfPqmjQ43OtItciXA6-",
       "text": "声",
       "artist": "アーティスト不明",
@@ -412,6 +412,15 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E8%99%B9%E8%89%B2%E3%81%AE%E6%88%A6%E4%BA%89/1550926052?i=1550926054&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/70/62/fa/7062fa33-45c3-2ee4-d381-b9f5b89b421c/TFCC-86713WW.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/5f/da/c6/5fdac64f-a8bc-fd2b-8157-ae90b1f40c7c/mzaf_16996339638339577352.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "go3WCDLrfyzBEVl-9Ou6n",
+      "text": "10,000 Hours",
+      "artist": "Dan + Shay & ジャスティン・ビーバー",
+      "appleMusicUrl": "https://music.apple.com/jp/album/10-000-hours/1481229016?i=1481229017&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/c4/80/7f/c4807f05-fa68-a123-c077-bf8041ff3319/054391940995.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/9c/16/61/9c1661fd-ec64-f5e5-39b4-782398d56508/mzaf_18438317548939967601.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -1025,6 +1034,7 @@
     "is this love|アーティスト不明": 1,
     "woke up|アーティスト不明": 1,
     "ブラザービート|アーティスト不明": 1,
+    "全力少年|スキマスイッチ": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
     "全人類 兎化計画!|兎田ぺこら": 1,
     "new kawaii|アーティスト不明": 1,
@@ -1032,10 +1042,10 @@
     "yaju&u|アーティスト不明": 1,
     "help!!|kobo kanaeru": 1,
     "ラッキーカラー|あいみょん": 1,
-    "hikari|アーティスト不明": 1,
     "声|アーティスト不明": 1,
     "不思議|星野源": 1,
     "虹色の戦争|sekai no owari": 1,
+    "10,000 hours|dan + shay & ジャスティン・ビーバー": 1,
     "bite you|muque": 1,
     "バレる!|creepy nuts": 1,
     "fe!n (feat. playboi carti)|トラヴィス・スコット": 1,
