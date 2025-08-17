@@ -65,14 +65,6 @@
       "count": 1
     },
     {
-      "id": "U0abN4lt04eQ0vhBdT6DD",
-      "text": "Not Like Us",
-      "artist": "ケンドリック・ラマー",
-      "appleMusicUrl": "https://music.apple.com/jp/album/not-like-us/1781353928?i=1781353929&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/31/3a/3f/313a3fbc-bb8f-80c7-b5a2-e226869a38cd/24UMGIM51924.rgb.jpg/100x100bb.jpg",
-      "count": 1
-    },
-    {
       "id": "1Y8GC28bX4vbCBYnMhSYP",
       "text": "#1090 (Thousand Dreams)",
       "artist": "松本孝弘",
@@ -82,12 +74,30 @@
       "count": 1
     },
     {
+      "id": "4cQrGQ-gNo15-52w3dG0G",
+      "text": "かがみ",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8B%E3%81%8C%E3%81%BF/1787372751?i=1787372752&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bb/a3/6f/bba36f31-b624-8caf-0967-1054b47d875b/4580789685392.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/f6/4c/00f64c60-2903-1e39-d9c7-721293632698/mzaf_8805154899213091422.plus.aac.p.m4a",
+      "count": 4
+    },
+    {
       "id": "siteTvS5Nyqh5XZulb4b2",
       "text": "ナルバキスン(Look at me, Gwisun)",
       "artist": "D",
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8A%E3%83%AB%E3%83%90%E3%82%AD%E3%82%B9%E3%83%B3-look-at-me-gwisun/926683029?i=926683035&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/71/df/ca/71dfca49-257f-dfe8-5c6d-33b8a17e8cd9/AVCY-58248.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0a/27/9a/0a279a14-caff-a4f4-d037-c2fdc81eb71c/mzaf_18287964168840328516.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "OI3yPD9GgAiiy30Gbgi4x",
+      "text": "My Way",
+      "artist": "Def Tech",
+      "appleMusicUrl": "https://music.apple.com/jp/album/my-way/252792077?i=252792238&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/8b/2a/67/8b2a679f-349a-bf71-d9eb-e296130966a0/dj.ihhewbzh.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/62/60/40/6260405f-24af-5c51-9a1e-d97c874b66f5/mzaf_3480530877446207699.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -385,6 +395,15 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A3%B0/1538147033?i=1538147034&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/10/db/0c/10db0cfa-6a28-c456-d220-9d7b62fa2189/jacket_ESXX01578B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c8/e5/56/c8e55674-d7ed-7450-1fff-82aa233d3843/mzaf_12402055554099687226.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "f5vMOM3LsWfO0JUojoMGj",
+      "text": "不思議",
+      "artist": "星野源",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E4%B8%8D%E6%80%9D%E8%AD%B0/1564408392?i=1564408393&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/17/a8/c4/17a8c4dc-5042-a62e-503c-437e672649a8/VEATP-38717.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c7/6e/ae/c76eae13-8daf-279d-2cea-ac0408c1ba02/mzaf_9150765621570642938.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -694,15 +713,6 @@
       "count": 1
     },
     {
-      "id": "UR7w1UNStyo-HdMa036Mi",
-      "text": "Time Capsule",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/time-capsule/1709460884?i=1709461219&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b3/56/7e/b3567eb6-b48d-b7ce-7e96-7a91c3222f78/4547366649574.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/d3/f5/09/d3f5091b-c59e-8a61-3935-9c83f0bfb6eb/mzaf_17122646665196077347.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "wkzS3hOEZ8Po9nZw4uRw-",
       "text": "真夜中のドア～Stay with me",
       "artist": "アーティスト不明",
@@ -988,9 +998,10 @@
     "onion boy|アーティスト不明": 1,
     "歌うたいのバラッド|斉藤和義": 1,
     "ドント・ワナ・ノウ (feat. ケンドリック・ラマー)|マルーン5": 1,
-    "not like us|ケンドリック・ラマー": 1,
     "#1090 (thousand dreams)|松本孝弘": 1,
+    "かがみ|アーティスト不明": 4,
     "ナルバキスン(look at me, gwisun)|d": 1,
+    "my way|def tech": 1,
     "ハイパーベンチレイション|radwimps": 1,
     "クスシキ|アーティスト不明": 4,
     "春雷|アーティスト不明": 1,
@@ -1024,6 +1035,7 @@
     "ラッキーカラー|あいみょん": 1,
     "hikari|アーティスト不明": 1,
     "声|アーティスト不明": 1,
+    "不思議|星野源": 1,
     "虹色の戦争|sekai no owari": 1,
     "10,000 hours|dan + shay & ジャスティン・ビーバー": 1,
     "bite you|muque": 1,
@@ -1058,7 +1070,6 @@
     "dreamer|アーティスト不明": 1,
     "count on me|アーティスト不明": 1,
     "sing along!!! (feat. 幾田りら)|アーティスト不明": 1,
-    "time capsule|アーティスト不明": 1,
     "真夜中のドア～stay with me|アーティスト不明": 1,
     "i'm still alive today (with nanami)|アーティスト不明": 1,
     "堕天|アーティスト不明": 1,
