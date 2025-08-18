@@ -217,6 +217,15 @@
       "count": 1
     },
     {
+      "id": "u9yoEc3mnA9aTZjkP6KVZ",
+      "text": "Summer Ride",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/summer-ride/1797439330?i=1797440035&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ad/81/23/ad81236b-400f-fbbc-5538-efc069cc9ce1/25UMGIM17821.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3c/86/5e/3c865eed-e177-d0ce-41d6-b73d5014e8e0/mzaf_16331193136509260385.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "y4B0SoPPH1-P9lsGpwT7h",
       "text": "run away",
       "artist": "アーティスト不明",
@@ -1023,6 +1032,7 @@
     "kawaiiってmagic|アーティスト不明": 1,
     "one big family|がーどまん": 1,
     "長く短い祭|アーティスト不明": 1,
+    "summer ride|アーティスト不明": 1,
     "run away|アーティスト不明": 1,
     "さよならの向う側|山口百恵": 1,
     "嫌々|halves": 1,
