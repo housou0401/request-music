@@ -145,15 +145,6 @@
       "count": 3
     },
     {
-      "id": "kRDadfZqTPXxSYr1KYJ44",
-      "text": "最上級にかわいいの! (feat. コレサワ)",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%80%E4%B8%8A%E7%B4%9A%E3%81%AB%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84%E3%81%AE-feat-%E3%82%B3%E3%83%AC%E3%82%B5%E3%83%AF/1746279341?i=1746279346&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/50/78/4f/50784f04-0535-4e99-b952-aff815fe7149/ANTCD-A0000013538.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6c/ce/91/6cce91e0-e9c5-83c6-ef68-0ff356903c1c/mzaf_4728712436442266056.plus.aac.p.m4a",
-      "count": 3
-    },
-    {
       "id": "4Th_Tjw5wHuUzJsrOsNuK",
       "text": "FEELINGS",
       "artist": "アーティスト不明",
@@ -865,6 +856,15 @@
       "count": 1
     },
     {
+      "id": "4Bi-sXVWFYZZfuOZOWAWa",
+      "text": "tears",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/tears/1573525103?i=1573525212&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/a7/04/51/a7045147-f5d0-ae37-6fdf-6e70fdfcf17b/21UMGIM53299.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/c8/f6/48/c8f6480f-179b-9d7d-bb4e-cec061ddc0fb/mzaf_15028297818053814749.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "dC94UZg6DRUy0XTIKLYi5",
       "text": "Story",
       "artist": "AI",
@@ -1015,7 +1015,6 @@
     "クスシキ|アーティスト不明": 4,
     "春雷|アーティスト不明": 1,
     "ハピチョコ|アーティスト不明": 3,
-    "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 3,
     "feelings|アーティスト不明": 1,
     "blue|アーティスト不明": 1,
     "the lazy song (minionvoice remix)|ブルーノ・マーズ": 1,
@@ -1095,6 +1094,7 @@
     "とくべチュ、して|=love": 1,
     "雨と僕の話|back number": 1,
     "ワンドリンク別|アーティスト不明": 1,
+    "tears|アーティスト不明": 1,
     "story|ai": 1,
     "soft spot|ケシ": 1,
     "君の太陽|山猿": 1,
