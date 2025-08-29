@@ -989,6 +989,42 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/3d/74/e1/3d74e128-f2dd-4f87-51a1-19adf2958112/jacket_SRCL08200B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0e/39/54/0e395406-d18f-bd1f-e585-ac55fcc33b10/mzaf_12452911427487307956.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "9g7bAZGoSstkvrCozXp1R",
+      "text": "若者のすべて [suis from ヨルシカ]",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%8B%A5%E8%80%85%E3%81%AE%E3%81%99%E3%81%B9%E3%81%A6-%E3%82%AB%E3%83%A9%E3%82%AA%E3%82%B1-suis-from-%E3%83%A8%E3%83%AB%E3%82%B7%E3%82%AB/1814751405?i=1814751411&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8f/cd/62/8fcd6285-1d9b-0f2e-51e7-9dbaf2b91200/PA00186193_0_222448_jacket.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/86/05/b7/8605b773-bec0-3bcf-59e2-da0b135087d8/mzaf_990813135872377697.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "bceHZqEjWAo5OOe7xmRut",
+      "text": "若者のすべて",
+      "artist": "suis from ヨルシカ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%8B%A5%E8%80%85%E3%81%AE%E3%81%99%E3%81%B9%E3%81%A6/1749947647?i=1749947648&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/30/ec/6c/30ec6c28-cc9f-0fcb-f40d-f4a1216619d6/24UMGIM53280.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1b/78/ee/1b78eec1-1eeb-1b43-1161-1a592412c320/mzaf_2554721578459090577.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "wdH6JJGfo9Zt0waBPSGCv",
+      "text": "若者のすべて",
+      "artist": "フジファブリック",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%8B%A5%E8%80%85%E3%81%AE%E3%81%99%E3%81%B9%E3%81%A6/1445122840?i=1445123113&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9c/9a/71/9c9a7162-ced4-73fe-fd49-0ff49adfe6f8/16UMGIM24346.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3a/74/0a/3a740a44-a565-4d3d-898b-6dc49ae729fe/mzaf_15195176898028706518.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "D5eMnPBz2ceeARxXAXOUj",
+      "text": "ツナミ",
+      "artist": "LiSA",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%82%8E/1531847478?i=1531847485&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/88/ce/67/88ce6774-3358-e238-5244-1b0788adea50/4547366475562.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/97/b4/d8/97b4d8da-c602-e20f-8610-3723d0462228/mzaf_7955202439623877924.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1117,7 +1153,11 @@
     "ocean eyes (originally performed by billie eilish) [karaoke no guide melody version]|billie eilish": 1,
     "rapport|アーティスト不明": 1,
     "last party never end (feat. tiji jojo, yzerr, vingo & yellow pato)|アーティスト不明": 1,
-    "summer song|アーティスト不明": 1
+    "summer song|アーティスト不明": 1,
+    "若者のすべて [suis from ヨルシカ]|アーティスト不明": 1,
+    "若者のすべて|suis from ヨルシカ": 1,
+    "若者のすべて|フジファブリック": 1,
+    "ツナミ|lisa": 1
   },
   "settings": {
     "recruiting": false,
