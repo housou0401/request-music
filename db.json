@@ -1025,6 +1025,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/88/ce/67/88ce6774-3358-e238-5244-1b0788adea50/4547366475562.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/97/b4/d8/97b4d8da-c602-e20f-8610-3723d0462228/mzaf_7955202439623877924.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "SSIVEOLjzL1zL2NLpRKBN",
+      "text": "眠れ - Nemure (ED Theme to Call of the Night Season 2)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%9C%A0%E3%82%8C-nemure-ed-theme-to-call-of-the-night-season-2/1824077734?i=1824077739&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/cb/44/98/cb449828-a780-baf0-656d-bc00fcb5f145/4547366758993.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/13/aa/b1/13aab141-f18a-7193-7da6-4f737d4949e3/mzaf_3426733610559158375.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "ikvZpDfIFwC_RapkikiKA",
+      "text": "Mirage (OP Theme to Call of the Night Season 2)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/mirage-op-theme-to-call-of-the-night-season-2/1824084888?i=1824084891&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f9/6f/88/f96f88af-193b-b096-6670-b91ab76d82e2/4547366759419.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/39/ca/b9/39cab9ff-feb0-cd8a-345c-bb9526aba44a/mzaf_8038184844608624463.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "iw1b6vTo7qDXy4fEEwrFg",
+      "text": "TSUNAMI",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/tsunami/949250891?i=949250892&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/79/e7/70/79e7709a-96a4-9029-e22c-f9252575a6ec/VEATP-30872.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/71/48/c6/7148c619-eb85-5222-2865-e1993966b5ae/mzaf_1713246746130766559.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1157,7 +1184,10 @@
     "若者のすべて [suis from ヨルシカ]|アーティスト不明": 1,
     "若者のすべて|suis from ヨルシカ": 1,
     "若者のすべて|フジファブリック": 1,
-    "ツナミ|lisa": 1
+    "ツナミ|lisa": 1,
+    "眠れ - nemure (ed theme to call of the night season 2)|アーティスト不明": 1,
+    "mirage (op theme to call of the night season 2)|アーティスト不明": 1,
+    "tsunami|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
