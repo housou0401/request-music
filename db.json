@@ -998,6 +998,42 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a3/3d/b9/a33db9e9-1d2a-1d9c-38e5-327e6f6b7146/ANTCD-A0000017755.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1b/0d/f3/1b0df3f4-1386-28d6-e9bc-33bfbe9d8e7d/mzaf_1520191702380209910.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "6Kjh5fHqZaMUYdTcMdUsO",
+      "text": "Brand New Day (東京ディズニーリゾート35周年 \"Happiest Celebration!\" テーマソング)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/brand-new-day-%E6%9D%B1%E4%BA%AC%E3%83%87%E3%82%A3%E3%82%BA%E3%83%8B%E3%83%BC%E3%83%AA%E3%82%BE%E3%83%BC%E3%83%8835%E5%91%A8%E5%B9%B4-happiest-celebration/1688309063?i=1688309263&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/4a/ad/1f/4aad1fde-53ab-fa3b-ad56-b61e87fde961/23UMGIM51705.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/26/9c/5b/269c5b86-0f5d-740d-42b8-4d6eb6d0bf5a/mzaf_14427329489261196537.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "IBh7XR1wB8kBpvnsk5PkO",
+      "text": "Can′t Stop",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/can-t-stop/1779234332?i=1779234333&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/03/08/ed/0308ed5e-0aa5-caed-54cf-0e2d1a5acaf2/888272143508.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a9/16/de/a916de4f-901d-0255-6ff8-92e0ccf28c89/mzaf_303684006937411409.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "BzH5iYSctVsGm4AQXPuCT",
+      "text": "Topping",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/topping/1831161459?i=1831161463&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/6f/8a/6a/6f8a6a91-fa22-00b0-9195-84b215cca29f/25UM1IM01077.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f7/d1/c0/f7d1c0c8-cca2-e4d2-fa81-aacdbba27c1b/mzaf_13250041209914240795.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "1QjWu8Ov2XmQ68SZPFZFF",
+      "text": "Stories",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/stories/1804833044?i=1804833047&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a7/35/d1/a735d155-d316-d9ea-19d2-d18c9aa2fb8b/ANTCD-A0000016546.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bd/b3/c1/bdb3c153-f0e8-a18c-908d-f45cdd2e7ce8/mzaf_11524262578410324093.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1127,7 +1163,11 @@
     "rapport|アーティスト不明": 1,
     "last party never end (feat. tiji jojo, yzerr, vingo & yellow pato)|アーティスト不明": 1,
     "summer song|アーティスト不明": 1,
-    "カリスマックス|アーティスト不明": 1
+    "カリスマックス|アーティスト不明": 1,
+    "brand new day (東京ディズニーリゾート35周年 \"happiest celebration!\" テーマソング)|アーティスト不明": 1,
+    "can′t stop|アーティスト不明": 1,
+    "topping|アーティスト不明": 1,
+    "stories|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
