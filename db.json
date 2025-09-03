@@ -1034,6 +1034,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a7/35/d1/a735d155-d316-d9ea-19d2-d18c9aa2fb8b/ANTCD-A0000016546.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bd/b3/c1/bdb3c153-f0e8-a18c-908d-f45cdd2e7ce8/mzaf_11524262578410324093.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "6OaS7hDkIpWqNj1aWJ-2d",
+      "text": "ウィ・キャント・ストップ",
+      "artist": "マイリー・サイラス",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A6%E3%82%A3-%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%88-%E3%82%B9%E3%83%88%E3%83%83%E3%83%97/867389505?i=867389510&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/3d/5a/6a/3d5a6a85-970a-b2e2-55df-f9f398f1d6b8/886444568210.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/34/10/17/34101702-3e35-4f5b-98cc-4d79d7d5d9ad/mzaf_8700086644500844783.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1167,7 +1176,8 @@
     "brand new day (東京ディズニーリゾート35周年 \"happiest celebration!\" テーマソング)|アーティスト不明": 1,
     "can′t stop|アーティスト不明": 1,
     "topping|アーティスト不明": 1,
-    "stories|アーティスト不明": 1
+    "stories|アーティスト不明": 1,
+    "ウィ・キャント・ストップ|マイリー・サイラス": 1
   },
   "settings": {
     "recruiting": false,
