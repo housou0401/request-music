@@ -1043,6 +1043,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/3d/5a/6a/3d5a6a85-970a-b2e2-55df-f9f398f1d6b8/886444568210.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/34/10/17/34101702-3e35-4f5b-98cc-4d79d7d5d9ad/mzaf_8700086644500844783.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "2xJ-O0trSVhcYML0JKIWV",
+      "text": "vivi",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/vivi/1238071672?i=1238071683&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music117/v4/60/bf/34/60bf34af-a381-79f9-936a-2ac7d64013db/4571192983229.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/56/15/17/56151711-d1c8-1312-d27e-64bc7433d910/mzaf_4333166816710942261.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1177,7 +1186,8 @@
     "can′t stop|アーティスト不明": 1,
     "topping|アーティスト不明": 1,
     "stories|アーティスト不明": 1,
-    "ウィ・キャント・ストップ|マイリー・サイラス": 1
+    "ウィ・キャント・ストップ|マイリー・サイラス": 1,
+    "vivi|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
