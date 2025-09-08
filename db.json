@@ -1061,6 +1061,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b5/36/50/b53650b0-7e4f-3df8-6a8c-9e306f948cdc/jacket_SRXX03118B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5f/31/94/5f3194a4-5435-2e8b-e325-a53eff3eacb9/mzaf_11738967862081344550.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "XO6jE18ZQY2f-8ezuNeZ4",
+      "text": "ファイナルボーイフレンド",
+      "artist": "ハンブレッダーズ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%95%E3%82%A1%E3%82%A4%E3%83%8A%E3%83%AB%E3%83%9C%E3%83%BC%E3%82%A4%E3%83%95%E3%83%AC%E3%83%B3%E3%83%89/1538287798?i=1538287805&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/27/28/e9/2728e9bc-351d-25b5-5be1-b17a95d08737/jacket_XSXX00395B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/9b/f8/be/9bf8be71-ff61-388c-c2f4-13118d2424fb/mzaf_976441054841016417.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "ChnXJcvcRBpcWBfOfdrwI",
+      "text": "マイベストラブ!",
+      "artist": "サバシスター",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%9E%E3%82%A4%E3%83%99%E3%82%B9%E3%83%88%E3%83%A9%E3%83%96/1708231361?i=1708231608&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/56/fb/f4/56fbf467-4064-fecd-2867-934c329aa657/3617221895512_cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/aa/96/d2/aa96d201-95b1-42fb-31d4-33caf2bb3a13/mzaf_9439266148706790196.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1197,7 +1215,9 @@
     "stories|アーティスト不明": 1,
     "ウィ・キャント・ストップ|マイリー・サイラス": 1,
     "vivi|アーティスト不明": 1,
-    "remember me|アーティスト不明": 1
+    "remember me|アーティスト不明": 1,
+    "ファイナルボーイフレンド|ハンブレッダーズ": 1,
+    "マイベストラブ!|サバシスター": 1
   },
   "settings": {
     "recruiting": false,
