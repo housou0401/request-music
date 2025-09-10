@@ -1061,6 +1061,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b5/36/50/b53650b0-7e4f-3df8-6a8c-9e306f948cdc/jacket_SRXX03118B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5f/31/94/5f3194a4-5435-2e8b-e325-a53eff3eacb9/mzaf_11738967862081344550.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "fHKhAUJlc8RPmTUkIDc2u",
+      "text": "ENHYPEN (엔하이픈) 'Bite Me",
+      "artist": "Who's There",
+      "appleMusicUrl": "https://music.apple.com/jp/album/enhypen-%EC%97%94%ED%95%98%EC%9D%B4%ED%94%88-bite-me/1693425043?i=1693425044&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/fb/d0/ab/fbd0ab0c-9669-e03d-e0b0-78f21d8a1633/artwork.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/22/30/77/22307736-fedc-a3d7-cbd9-0c0d5dca84f6/mzaf_18257053961658495358.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1197,7 +1206,8 @@
     "stories|アーティスト不明": 1,
     "ウィ・キャント・ストップ|マイリー・サイラス": 1,
     "vivi|アーティスト不明": 1,
-    "remember me|アーティスト不明": 1
+    "remember me|アーティスト不明": 1,
+    "enhypen (엔하이픈) 'bite me|who's there": 1
   },
   "settings": {
     "recruiting": false,
