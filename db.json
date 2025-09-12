@@ -1063,12 +1063,30 @@
       "count": 1
     },
     {
-      "id": "Hm5kgWzChQPjx3qxC3PWc",
-      "text": "Will you marry me ?",
+      "id": "alsPiELlfNIItdU_fV9l2",
+      "text": "私の方を向いてよ",
       "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/will-you-marry-me/1749464357?i=1749464603&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/29/2b/34/292b34f6-bce9-f7bc-ba1f-dbfdc2e2bb04/4547366689709.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/75/ce/cf/75cecf42-9f35-4a2a-7789-0132997c2120/mzaf_11536607642435823944.plus.aac.p.m4a",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%A7%81%E3%81%AE%E6%96%B9%E3%82%92%E5%90%91%E3%81%84%E3%81%A6%E3%82%88/1820266780?i=1820266784&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/4f/4f/ca/4f4fcad4-8a4f-a9b4-8683-aa4aa15d8947/4547366757552.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c9/1c/6a/c91c6ade-2a39-97c8-1904-8b841a11b25b/mzaf_13668818969676534919.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "3V-M2AcAM3gABInO8G6W1",
+      "text": "超最強",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%B6%85%E6%9C%80%E5%BC%B7/1780265099?i=1780265107&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b6/4e/b7/b64eb7d7-a18c-7833-e735-275d0916ddca/ANTCD-A0000015277.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9b/5c/c6/9b5cc6e6-3e5a-498d-a1ce-fa7f1028c30f/mzaf_1176858108380454694.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "EYN_0C5YzPM2zChdl2EsK",
+      "text": "服を着て、恋したい",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%8D%E3%82%92%E7%9D%80%E3%81%A6-%E6%81%8B%E3%81%97%E3%81%9F%E3%81%84/1634558774?i=1634558775&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/1c/81/52/1c815231-06d1-d833-c992-871a8650d488/4580789486586.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/12/b2/e2/12b2e22e-8b13-ccad-8be0-8dc9aa254efc/mzaf_11203063133198993343.plus.aac.p.m4a",
       "count": 1
     }
   ],
@@ -1207,7 +1225,9 @@
     "ウィ・キャント・ストップ|マイリー・サイラス": 1,
     "vivi|アーティスト不明": 1,
     "remember me|アーティスト不明": 1,
-    "will you marry me ?|アーティスト不明": 1
+    "私の方を向いてよ|アーティスト不明": 1,
+    "超最強|アーティスト不明": 1,
+    "服を着て、恋したい|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
