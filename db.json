@@ -1061,6 +1061,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b5/36/50/b53650b0-7e4f-3df8-6a8c-9e306f948cdc/jacket_SRXX03118B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5f/31/94/5f3194a4-5435-2e8b-e325-a53eff3eacb9/mzaf_11738967862081344550.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "PEYGsZ9Bw817NoB6xlvYs",
+      "text": "GO-GO たまごっち!",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/go-go-%E3%81%9F%E3%81%BE%E3%81%94%E3%81%A3%E3%81%A1/1802823990?i=1802823991&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/00/76/02/00760256-6444-0a09-98b7-445830db180b/COCC-16316.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c0/cb/ff/c0cbffed-a38c-feaf-8f58-dd23240b759a/mzaf_2330538654563369958.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1197,7 +1206,8 @@
     "stories|アーティスト不明": 1,
     "ウィ・キャント・ストップ|マイリー・サイラス": 1,
     "vivi|アーティスト不明": 1,
-    "remember me|アーティスト不明": 1
+    "remember me|アーティスト不明": 1,
+    "go-go たまごっち!|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
