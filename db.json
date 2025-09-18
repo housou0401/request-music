@@ -1061,6 +1061,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b5/36/50/b53650b0-7e4f-3df8-6a8c-9e306f948cdc/jacket_SRXX03118B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5f/31/94/5f3194a4-5435-2e8b-e325-a53eff3eacb9/mzaf_11738967862081344550.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "7WgWGJPOh-EH6_hNPktqk",
+      "text": "心絵",
+      "artist": "ロードオブメジャー",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%BF%83%E7%B5%B5/164807623?i=164807625&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/8d/7c/ad/mzi.plciqnyx.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/53/23/64/53236482-ad0f-347a-e777-5e9d8dcbae28/mzaf_18188624428181531481.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1197,7 +1206,8 @@
     "stories|アーティスト不明": 1,
     "ウィ・キャント・ストップ|マイリー・サイラス": 1,
     "vivi|アーティスト不明": 1,
-    "remember me|アーティスト不明": 1
+    "remember me|アーティスト不明": 1,
+    "心絵|ロードオブメジャー": 1
   },
   "settings": {
     "recruiting": false,
