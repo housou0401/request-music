@@ -1063,21 +1063,12 @@
       "count": 1
     },
     {
-      "id": "sgapIkiRAjGl6pKsOrjzn",
-      "text": "Booo!",
-      "artist": "TOKOTOKO(西沢さんP)",
-      "appleMusicUrl": "https://music.apple.com/jp/album/booo/1672218163?i=1672218609&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/da/2f/aa/da2faa7f-5df1-8374-4c2e-c7a54263a11c/PA00088055_0_137679_jacket.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/d9/5b/e2/d95be297-458c-27a8-aa5e-cafbd4ad930f/mzaf_11971834087649529849.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "ORsuaGpsnnwnNdmOXqLSM",
-      "text": "星見る頃を過ぎても",
-      "artist": "H△G",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%98%9F%E8%A6%8B%E3%82%8B%E9%A0%83%E3%82%92%E9%81%8E%E3%81%8E%E3%81%A6%E3%82%82/1060172011?i=1060172250&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f3/eb/83/f3eb839b-587f-29f0-ffe3-390225863a48/mzm.wcwxxgpj.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/19/61/09/19610979-67f5-908f-7c02-8e990e4cd329/mzaf_46250106769597309.plus.aac.p.m4a",
+      "id": "h5Qipq4EMX9ExG1OAQ9rC",
+      "text": "貴方解剖純愛歌〜死ね〜",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%B2%B4%E6%96%B9%E8%A7%A3%E5%89%96%E7%B4%94%E6%84%9B%E6%AD%8C-%E6%AD%BB%E3%81%AD/1438498572?i=1438498573&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/9d/d8/71/9dd871a1-ed85-4e26-2c3b-c329bde1cfd2/LACD-0255_jkt_WEB.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview128/v4/91/9e/1c/919e1ccb-50ff-be4f-dd52-ac0792221ba6/mzaf_3638989492861948802.plus.aac.p.m4a",
       "count": 1
     }
   ],
@@ -1216,8 +1207,7 @@
     "ウィ・キャント・ストップ|マイリー・サイラス": 1,
     "vivi|アーティスト不明": 1,
     "remember me|アーティスト不明": 1,
-    "booo!|tokotoko(西沢さんp)": 1,
-    "星見る頃を過ぎても|h△g": 1
+    "貴方解剖純愛歌〜死ね〜|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
