@@ -1106,6 +1106,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/21/8c/77/218c77bf-ba00-ba9b-91f4-883b69f141cf/4582648919884.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/c2/f7/23/c2f72393-56f7-14ca-f18d-4419bf84b43d/mzaf_16898874344727058866.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "wUL-I1Q63XTkV3Ka-PHh4",
+      "text": "Mirage (OP Theme to Call of the Night Season 2)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/mirage-op-theme-to-call-of-the-night-season-2/1824084888?i=1824084891&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f9/6f/88/f96f88af-193b-b096-6670-b91ab76d82e2/4547366759419.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/39/ca/b9/39cab9ff-feb0-cd8a-345c-bb9526aba44a/mzaf_8038184844608624463.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "FxEdF3weJFiF4CZyAOivq",
+      "text": "ちゅだい - Chxxai",
+      "artist": "creepy",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A1%E3%82%85%E3%81%A0%E3%81%84-chxxai/1793489135?i=1793489142&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f4/74/85/f47485b0-28e1-8439-9577-e19b41c43fd2/4547366731958.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1f/84/11/1f841128-92b8-f063-45d9-78fb6b6bc79c/mzaf_18083014784512198564.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1247,7 +1265,9 @@
     "超最強|超ときめき♡宣伝部": 1,
     "海賊戦隊ゴーカイジャー|松原剛志": 1,
     "会いにkite!(2025ver.)|ilife!": 1,
-    "アイドルライフスターターパック|ilife!": 1
+    "アイドルライフスターターパック|ilife!": 1,
+    "mirage (op theme to call of the night season 2)|アーティスト不明": 1,
+    "ちゅだい - chxxai|creepy": 1
   },
   "settings": {
     "recruiting": false,
