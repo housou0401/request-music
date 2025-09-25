@@ -1061,6 +1061,51 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b5/36/50/b53650b0-7e4f-3df8-6a8c-9e306f948cdc/jacket_SRXX03118B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5f/31/94/5f3194a4-5435-2e8b-e325-a53eff3eacb9/mzaf_11738967862081344550.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "OyXyAeNLR0f2_Vpw0Odcn",
+      "text": "HERO 〜希望の歌〜",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/hero-%E5%B8%8C%E6%9C%9B%E3%81%AE%E6%AD%8C/1536484333?i=1536484335&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/86/67/fe/8667feef-4334-5f25-0994-7b1de5072bfd/jacket_KSXX00591B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/65/8a/32/658a32c2-a663-4a98-276f-c7b6cfab4c5f/mzaf_8696515029460085348.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "kuVYNqn-qi_Fw-dupSjSQ",
+      "text": "超最強",
+      "artist": "超ときめき♡宣伝部",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E8%B6%85%E6%9C%80%E5%BC%B7/1780265099?i=1780265107&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b6/4e/b7/b64eb7d7-a18c-7833-e735-275d0916ddca/ANTCD-A0000015277.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9b/5c/c6/9b5cc6e6-3e5a-498d-a1ce-fa7f1028c30f/mzaf_1176858108380454694.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "aOj9YwH4UdK4UnZUv17KD",
+      "text": "海賊戦隊ゴーカイジャー",
+      "artist": "松原剛志",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%B5%B7%E8%B3%8A%E6%88%A6%E9%9A%8A%E3%82%B4%E3%83%BC%E3%82%AB%E3%82%A4%E3%82%B8%E3%83%A3%E3%83%BC/422015103?i=422015122&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/b1/8e/7a/mzi.yqphatfm.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/Music2/v4/c6/4b/46/c64b4683-edda-fcee-931f-005b9b900cb4/mzaf_8973647851302906122.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "fSUU54Xe5ObB-G6h25Gbm",
+      "text": "会いにKiTE!(2025ver.)",
+      "artist": "iLiFE!",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E4%BC%9A%E3%81%84%E3%81%ABkite-2025ver/1809726968?i=1809726973&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/69/80/7b/69807b68-4a24-a099-07a4-d0627b67cb88/4573694650951.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/64/1e/7e/641e7e21-527c-dee4-2586-bab37b22b594/mzaf_516633640425515687.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "SwuxcgyNbPfQ5r3a38EAJ",
+      "text": "アイドルライフスターターパック",
+      "artist": "iLiFE!",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%A4%E3%83%89%E3%83%AB%E3%83%A9%E3%82%A4%E3%83%95%E3%82%B9%E3%82%BF%E3%83%BC%E3%82%BF%E3%83%BC%E3%83%91%E3%83%83%E3%82%AF/1641836365?i=1641836366&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/21/8c/77/218c77bf-ba00-ba9b-91f4-883b69f141cf/4582648919884.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/c2/f7/23/c2f72393-56f7-14ca-f18d-4419bf84b43d/mzaf_16898874344727058866.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1197,7 +1242,12 @@
     "stories|アーティスト不明": 1,
     "ウィ・キャント・ストップ|マイリー・サイラス": 1,
     "vivi|アーティスト不明": 1,
-    "remember me|アーティスト不明": 1
+    "remember me|アーティスト不明": 1,
+    "hero 〜希望の歌〜|アーティスト不明": 1,
+    "超最強|超ときめき♡宣伝部": 1,
+    "海賊戦隊ゴーカイジャー|松原剛志": 1,
+    "会いにkite!(2025ver.)|ilife!": 1,
+    "アイドルライフスターターパック|ilife!": 1
   },
   "settings": {
     "recruiting": false,
