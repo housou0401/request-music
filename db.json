@@ -1061,6 +1061,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/b5/36/50/b53650b0-7e4f-3df8-6a8c-9e306f948cdc/jacket_SRXX03118B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5f/31/94/5f3194a4-5435-2e8b-e325-a53eff3eacb9/mzaf_11738967862081344550.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "A7KRGBZakc81-HycioEkK",
+      "text": "Slow Motion",
+      "artist": "Marshmello & ジョナス・ブラザーズ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/slow-motion/1789879368?i=1789879640&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/35/6c/cc/356ccceb-c850-e128-ae98-41850e056ddf/25UMGIM02040.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/77/e7/9877e730-d70a-7e01-6b37-eabd3469454f/mzaf_3420850431495239329.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1197,7 +1206,8 @@
     "stories|アーティスト不明": 1,
     "ウィ・キャント・ストップ|マイリー・サイラス": 1,
     "vivi|アーティスト不明": 1,
-    "remember me|アーティスト不明": 1
+    "remember me|アーティスト不明": 1,
+    "slow motion|marshmello & ジョナス・ブラザーズ": 1
   },
   "settings": {
     "recruiting": false,
