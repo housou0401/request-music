@@ -1070,6 +1070,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0c/6b/a7/0c6ba7d6-81ac-480d-c259-7dc68fa89c51/4573694676555.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/53/76/92/53769270-91fb-2d14-4993-ae635ec49e87/mzaf_13843469180151977368.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "nqOYS4ImUHWs5LAV1pfTu",
+      "text": "STAY TUNE",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/stay-tune/1069826564?i=1069826578&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/2f/b1/4f/2fb14f9b-3a26-a46c-d6fd-e9b158ac6aff/4538182601471_cov.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/16/92/be/1692bead-d21b-38a6-d227-f01cdeaf4240/mzaf_16841343378442696980.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1207,7 +1216,8 @@
     "ウィ・キャント・ストップ|マイリー・サイラス": 1,
     "vivi|アーティスト不明": 1,
     "remember me|アーティスト不明": 1,
-    "くりてぃかる♡ぷりちー|ilife!": 1
+    "くりてぃかる♡ぷりちー|ilife!": 1,
+    "stay tune|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
