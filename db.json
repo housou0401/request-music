@@ -1079,6 +1079,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/2f/b1/4f/2fb14f9b-3a26-a46c-d6fd-e9b158ac6aff/4538182601471_cov.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/16/92/be/1692bead-d21b-38a6-d227-f01cdeaf4240/mzaf_16841343378442696980.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "NglpI_TYyiwJ2gJSpF4iN",
+      "text": "ACTION",
+      "artist": "eill",
+      "appleMusicUrl": "https://music.apple.com/jp/album/action/1839152365?i=1839152366&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d9/c3/89/d9c389df-8f20-217e-b1e7-5b22837d9838/PCSP_06834_A.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5c/34/65/5c34651d-3d00-1084-b610-65f04c10827e/mzaf_18327940549337154838.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "YNpFkF9OCEdXNb--IRhOQ",
+      "text": "IRIS OUT",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/iris-out/1837658528?i=1837658529&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e0/f9/f1/e0f9f1f3-a088-b28d-6760-a28accabc705/4547366775181.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/63/d4/d3/63d4d309-d2af-e1cf-f5c8-52566e36bfc1/mzaf_17216505190548647784.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "IA0Oh6XlVlI3tlJashDBu",
+      "text": "JANE DOE",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/jane-doe/1840081735?i=1840081736&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/73/91/aa/7391aabc-81d8-2bcb-3b0f-8e24bc855745/4547366775211.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fc/73/f7/fc73f745-266e-fc55-57e6-c3a9fe55adca/mzaf_5338479851369996476.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1217,7 +1244,10 @@
     "vivi|アーティスト不明": 1,
     "remember me|アーティスト不明": 1,
     "くりてぃかる♡ぷりちー|ilife!": 1,
-    "stay tune|アーティスト不明": 1
+    "stay tune|アーティスト不明": 1,
+    "action|eill": 1,
+    "iris out|アーティスト不明": 1,
+    "jane doe|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
