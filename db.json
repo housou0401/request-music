@@ -1088,6 +1088,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/c5/f3/d7/c5f3d740-05d8-21f7-b883-f6e5cff2fc14/ANTCD-A0000018086.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/89/5d/f9/895df908-972d-2f8e-29d9-eebf4b34ae8a/mzaf_9886709936632827599.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "ehnxF0RaQeH3p6wlvfjB_",
+      "text": "いつか",
+      "artist": "saucy dog",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%84%E3%81%A4%E3%81%8B/1229933632?i=1229933643&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/93/66/b1/9366b1ea-c4dd-1313-bcc4-ed0276ca5742/4522197126142.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/35/5c/8c/355c8c49-927f-633d-3d2a-3263bbb7cdde/mzaf_3465816341899036071.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1227,7 +1236,8 @@
     "remember me|アーティスト不明": 1,
     "くりてぃかる♡ぷりちー|ilife!": 1,
     "stay tune|アーティスト不明": 1,
-    "like a flower|lana": 1
+    "like a flower|lana": 1,
+    "いつか|saucy dog": 1
   },
   "settings": {
     "recruiting": false,
