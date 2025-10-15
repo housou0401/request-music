@@ -1115,6 +1115,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0e/86/8c/0e868c3f-bb14-31c8-feea-c94690b517d4/4525853670898.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/34/ac/cb/34accbb5-4300-2cd3-ec66-9d4f543cf378/mzaf_14412031626850726689.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "dqtP6vMWV5RSNyj4FIc_Z",
+      "text": "青春時代",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%9D%92%E6%98%A5%E6%99%82%E4%BB%A3/160102314?i=160102492&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b9/b7/23/b9b723f9-68e9-2e6b-82c0-32b601b25b25/mzi.lcpokiqh.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/6c/89/12/6c891242-a9ab-cff1-993a-69ab50181d61/mzaf_16033232962131339689.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1257,7 +1266,8 @@
     "センチメンタル・キス|汐れいら": 1,
     "he is mine|く": 1,
     "ピース|アーティスト不明": 1,
-    "ウルトラマリン (2025 mix)|アーティスト不明": 1
+    "ウルトラマリン (2025 mix)|アーティスト不明": 1,
+    "青春時代|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
