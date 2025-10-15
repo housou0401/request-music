@@ -1088,6 +1088,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/dd/26/d9/dd26d946-85e5-37f8-ae80-5b98887313b1/859758170899_cover.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/53/08/ed/5308ed92-e220-d506-f463-4e7c0b29d22a/mzaf_4611351903379322753.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "epp_88KByo93tEvNNNmb-",
+      "text": "HE IS MINE",
+      "artist": "く",
+      "appleMusicUrl": "https://music.apple.com/jp/album/he-is-mine/1568033402?i=1568033625&l=en&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/a4/9d/2b/a49d2b16-cdee-ddb1-5027-db9aa87db7f2/602508019814_cover.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0f/9e/fe/0f9efe52-4dfa-9acd-634c-9a8fd1ab320d/mzaf_637564783026328692.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1227,7 +1236,8 @@
     "remember me|アーティスト不明": 1,
     "くりてぃかる♡ぷりちー|ilife!": 1,
     "stay tune|アーティスト不明": 1,
-    "センチメンタル・キス|汐れいら": 1
+    "センチメンタル・キス|汐れいら": 1,
+    "he is mine|く": 1
   },
   "settings": {
     "recruiting": false,
