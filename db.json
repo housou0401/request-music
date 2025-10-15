@@ -1097,6 +1097,24 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/a4/9d/2b/a49d2b16-cdee-ddb1-5027-db9aa87db7f2/602508019814_cover.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0f/9e/fe/0f9efe52-4dfa-9acd-634c-9a8fd1ab320d/mzaf_637564783026328692.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "ZjWXM8nLmqvymJcIIJ9XV",
+      "text": "ピース",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%94%E3%83%BC%E3%82%B9/1822948725?i=1822948728&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5b/c1/5f/5bc15fbb-ca1d-c57a-b24a-32b9cbb6d08a/4517331095972.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b4/73/10/b473107a-33e8-3d59-084d-6596f83d13ac/mzaf_10093971877857087500.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "0tapKYCmCEUPUVAjqD_Jq",
+      "text": "ウルトラマリン (2025 mix)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A6%E3%83%AB%E3%83%88%E3%83%A9%E3%83%9E%E3%83%AA%E3%83%B3-2025-mix/1803579666?i=1803579667&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0e/86/8c/0e868c3f-bb14-31c8-feea-c94690b517d4/4525853670898.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/34/ac/cb/34accbb5-4300-2cd3-ec66-9d4f543cf378/mzaf_14412031626850726689.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1237,7 +1255,9 @@
     "くりてぃかる♡ぷりちー|ilife!": 1,
     "stay tune|アーティスト不明": 1,
     "センチメンタル・キス|汐れいら": 1,
-    "he is mine|く": 1
+    "he is mine|く": 1,
+    "ピース|アーティスト不明": 1,
+    "ウルトラマリン (2025 mix)|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
