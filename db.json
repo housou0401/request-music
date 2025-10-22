@@ -1079,24 +1079,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/2f/b1/4f/2fb14f9b-3a26-a46c-d6fd-e9b158ac6aff/4538182601471_cov.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/16/92/be/1692bead-d21b-38a6-d227-f01cdeaf4240/mzaf_16841343378442696980.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "xxegJFKq4zicl7woGbYgA",
-      "text": "Can't Stop",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/cant-stop/1844782899?i=1844783004&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/63/a7/a3/63a7a326-4a03-21b8-f1c9-3f298e5168a6/25UM1IM26049.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/84/02/3d/84023dc7-302b-7970-75a2-f69f4fa4f989/mzaf_1288654112410873718.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "AY0FnkSCnqXxr4Qo1QLRA",
-      "text": "Lose My Mind (feat. Doja Cat)",
-      "artist": "ドン・トリヴァー",
-      "appleMusicUrl": "https://music.apple.com/jp/album/lose-my-mind-feat-doja-cat/1810796698?i=1810796700&l=en&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a6/91/da/a691dac7-4cb7-82f5-0eda-e37b96f63f55/075679610720.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e6/93/ac/e693ac77-7b95-fe58-31d9-7e0862d6eddd/mzaf_7498468816318705250.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1235,9 +1217,7 @@
     "vivi|アーティスト不明": 1,
     "remember me|アーティスト不明": 1,
     "くりてぃかる♡ぷりちー|ilife!": 1,
-    "stay tune|アーティスト不明": 1,
-    "can't stop|アーティスト不明": 1,
-    "lose my mind (feat. doja cat)|ドン・トリヴァー": 1
+    "stay tune|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
