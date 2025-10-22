@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ユーザーフォーム-放送委員会</title>
-  <link rel=”icon” href=“favicon.ico”>
+  <link rel="icon" href="favicon.ico">
   <link rel="stylesheet" href="style.css">
   <script src="skript.js" defer></script>
   <style>
@@ -84,9 +84,38 @@
       color: #888;
       font-size: 14px;
     }
+
+    /* 追加: 初回登録モーダル */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.2);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .overlay.show { display: flex; }
+    .modal {
+      background: #fff;
+      padding: 16px;
+      border-radius: 10px;
+      width: min(420px, 92%);
+      box-shadow: 0 8px 24px rgba(0,0,0,.15);
+      text-align: left;
+    }
+    .row { display: flex; gap: 8px; margin-top: 8px; }
+    .modal input[type="text"],
+    .modal input[type="password"] {
+      flex: 1; padding: 8px;
+      border: 1px solid #ccc; border-radius: 6px;
+    }
+    .modal button { padding: 8px 12px; cursor: pointer; }
+    /* 追加: 残トークン表示 */
+    #token-info { margin-top: 6px; font-size: 14px; opacity: .85; }
   </style>
 </head>
-<body onload="checkRecruitingStatus(); updateFrontendTitle();">
+<body onload="checkRecruitingStatus(); updateFrontendTitle(); ensureRegistered();">
   <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
   <div class="container" id="mainContainer">
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
@@ -97,8 +126,8 @@
       <div class="loading-text">読み込み中...</div>
     </div>
     
-    <!-- 検索モード切替ボタン -->
-    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+    <!-- 検索モード切替ボタン（ラッパーIDを追加しておく） -->
+    <div id="modeToggle" style="display: flex; justify-content: center; margin-bottom: 10px;">
       <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
       <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
     </div>
@@ -137,41 +166,65 @@
       <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
       <input type="hidden" id="previewUrlHidden" name="previewUrl">
       
-      <button type="submit">送信</button>
+      <button id="submitButton" type="submit">送信</button>
+      <!-- 追加: 送信ボタンの下に残トークン -->
+      <div id="token-info">残りトークン: -</div>
     </form>
   </div>
+
   <p class="privacy-note">日本語・韓国語・英語に対応しています。</p>
+
+  <!-- 追加: 初回登録モーダル -->
+  <div class="overlay" id="welcomeOverlay" aria-hidden="true">
+    <div class="modal">
+      <h3 style="margin:0 0 6px;">ようこそ！</h3>
+      <p style="margin:0 0 8px;">ユーザネームを入力して初回登録してください（端末ごとに1アカウント）。</p>
+      <div class="row">
+        <input id="usernameInput" type="text" placeholder="ユーザネーム">
+      </div>
+      <details style="margin-top:6px;">
+        <summary>管理者としてログイン（管理者のみ）</summary>
+        <div class="row">
+          <input id="adminPassInput" type="password" placeholder="管理パスワード">
+        </div>
+      </details>
+      <div class="row" style="justify-content:flex-end;">
+        <button id="registerBtn" type="button">登録</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-      function checkRecruitingStatus() {
-        fetch("/settings")
-          .then(r => r.json())
-          .then(data => {
-            if (!data.recruiting) {
-              // １）タイトルを赤文字に
-              const title = document.getElementById("frontendTitle");
-              title.innerText = "現在は曲を募集していません";
-              title.style.color = "red";
-              
-              // ２）フォーム、モード切替、ロードUI を隠す
-              document.getElementById("modeToggle").style.display = "none";
-              document.getElementById("requestForm").style.display = "none";
-              document.getElementById("loadingIndicator").style.display = "none";
-              
-              // ３）理由を表示
-              if (data.reason && data.reason.trim() !== "") {
-                const reason = document.createElement("div");
-                reason.style.textAlign = "center";
-                reason.style.color = "black";
-                reason.style.fontSize = "1.2em";
-                reason.style.margin = "10px 0";
-                reason.innerText = data.reason;
-                document.getElementById("mainContainer").appendChild(reason);
-              }
+    // ===== 既存：募集状態の反映 =====
+    function checkRecruitingStatus() {
+      fetch("/settings")
+        .then(r => r.json())
+        .then(data => {
+          if (!data.recruiting) {
+            // タイトルを赤文字に
+            const title = document.getElementById("frontendTitle");
+            title.innerText = "現在は曲を募集していません";
+            title.style.color = "red";
+            // フォーム、モード切替、ロードUI を隠す
+            const modeToggle = document.getElementById("modeToggle");
+            if (modeToggle) modeToggle.style.display = "none";
+            document.getElementById("requestForm").style.display = "none";
+            document.getElementById("loadingIndicator").style.display = "none";
+            // 理由を表示
+            if (data.reason && data.reason.trim() !== "") {
+              const reason = document.createElement("div");
+              reason.style.textAlign = "center";
+              reason.style.color = "black";
+              reason.style.fontSize = "1.2em";
+              reason.style.margin = "10px 0";
+              reason.innerText = data.reason;
+              document.getElementById("mainContainer").appendChild(reason);
             }
-          })
-          .catch(err => console.error("設定取得エラー:", err));
-      }
-    
+          }
+        })
+        .catch(err => console.error("設定取得エラー:", err));
+    }
+
     function updateFrontendTitle() {
       fetch("/settings")
         .then(r => r.json())
@@ -182,6 +235,75 @@
         })
         .catch(err => console.error("タイトル取得エラー:", err));
     }
+
+    // ===== 追加：ユーザ/トークン関連 =====
+    async function fetchMe() {
+      try {
+        const r = await fetch('/me');
+        return await r.json();
+      } catch (e) {
+        console.error(e);
+        return { loggedIn: false };
+      }
+    }
+
+    function updateTokenInfo(me) {
+      const el = document.getElementById('token-info');
+      if (!el) return;
+      if (!me || !me.loggedIn) {
+        el.textContent = '残りトークン: -（未登録）';
+        return;
+      }
+      if (me.user?.role === 'admin') {
+        el.textContent = '残りトークン: ∞（管理者）';
+      } else {
+        el.textContent = '残りトークン: ' + (me.user?.tokens ?? 0);
+      }
+    }
+
+    async function ensureRegistered() {
+      const me = await fetchMe();
+      if (!me.loggedIn) {
+        // 初回登録モーダル表示
+        document.getElementById('welcomeOverlay').classList.add('show');
+      } else {
+        updateTokenInfo(me);
+        // settings.frontendTitle は既に updateFrontendTitle() で反映
+      }
+    }
+
+    async function registerNow() {
+      const username = document.getElementById('usernameInput').value.trim() || 'Guest';
+      const adminPassword = document.getElementById('adminPassInput').value.trim();
+      try {
+        const res = await fetch('/register', {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ username, adminPassword: adminPassword || undefined })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          document.getElementById('welcomeOverlay').classList.remove('show');
+          const me = await fetchMe();
+          updateTokenInfo(me);
+        } else {
+          alert('登録に失敗しました: ' + (data.error || 'unknown'));
+        }
+      } catch (e) {
+        alert('通信エラー: ' + e.message);
+      }
+    }
+    document.getElementById('registerBtn').addEventListener('click', registerNow);
+
+    // 送信成功後に残量を更新したいが、既存の skript.js の handleSubmit を尊重して
+    // 二重送信を防ぐため、フォームの submit を「監視」して後追いで更新する。
+    document.getElementById('requestForm').addEventListener('submit', function () {
+      // 既存handleSubmitがajax送信でも通常送信でも、少し待ってから /me を取り直す
+      setTimeout(async () => {
+        const me = await fetchMe();
+        updateTokenInfo(me);
+      }, 900);
+    });
   </script>
 </body>
 </html>
