@@ -1224,7 +1224,6 @@
     "reason": "🔧調整中🔧",
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
-    "playerControlsEnabled": true,
-    "monthlyTokens": 5
+    "playerControlsEnabled": true
   }
 }
