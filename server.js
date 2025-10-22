@@ -1,5 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import { LowSync, JSONFileSync } from "lowdb";
 import { nanoid } from "nanoid";
 import fetch from "node-fetch";
@@ -13,10 +14,9 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Render の Environment Variables（Environment タブで設定）
+// ====== Render の Environment Variables（Environment タブで設定） ======
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
-const FILE_PATH = "db.json";
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
@@ -25,32 +25,79 @@ if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
   process.exit(1);
 }
 
-// LowDB のセットアップ
-const adapter = new JSONFileSync("db.json");
-const db = new LowSync(adapter);
+// ====== LowDB のセットアップ（db.json / users.json） ======
+const dbAdapter = new JSONFileSync("db.json");
+const db = new LowSync(dbAdapter);
 db.read();
 db.data = db.data || { responses: [], songCounts: {}, settings: {} };
 if (!db.data.songCounts) db.data.songCounts = {};
-if (!db.data.settings) {
-  db.data.settings = {
-    recruiting: true,
-    reason: "",
-    frontendTitle: "♬曲をリクエストする",
-    adminPassword: "housou0401",
-    playerControlsEnabled: true
-  };
-  db.write();
-} else {
-  if (db.data.settings.playerControlsEnabled === undefined) {
-    db.data.settings.playerControlsEnabled = true;
-  }
-  db.write();
-}
+if (!db.data.settings) db.data.settings = {};
 
+if (db.data.settings.recruiting === undefined) db.data.settings.recruiting = true;
+if (db.data.settings.reason === undefined) db.data.settings.reason = "";
+if (db.data.settings.frontendTitle === undefined) db.data.settings.frontendTitle = "♬曲をリクエストする";
+if (db.data.settings.adminPassword === undefined) db.data.settings.adminPassword = "housou0401";
+if (db.data.settings.playerControlsEnabled === undefined) db.data.settings.playerControlsEnabled = true;
+// ★ 追加: 月次配布トークン数
+if (db.data.settings.monthlyTokens === undefined) db.data.settings.monthlyTokens = 5;
+db.write();
+
+const usersAdapter = new JSONFileSync("users.json");
+const usersDb = new LowSync(usersAdapter);
+usersDb.read();
+usersDb.data = usersDb.data || { users: [] }; // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
+usersDb.write();
+
+// ====== ミドルウェア ======
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json()); // JSONも受ける（/register など）
+app.use(cookieParser());
 app.use(express.static("public"));
 
-/* Apple Music 検索関連 */
+// ====== ユーザー / トークン管理ユーティリティ ======
+function monthKey() {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+function isAdmin(user) {
+  return user && user.role === "admin";
+}
+function getUserById(id) {
+  return usersDb.data.users.find(u => u.id === id);
+}
+function ensureMonthlyRefillSync(user) {
+  if (!user) return;
+  if (isAdmin(user)) return; // 管理者は無制限
+  const m = monthKey();
+  const monthly = Number(db.data.settings.monthlyTokens ?? 5);
+  if (user.lastRefillISO !== m) {
+    user.tokens = monthly;
+    user.lastRefillISO = m;
+    usersDb.write();
+  }
+}
+function deviceInfoFromReq(req) {
+  return {
+    ua: req.get("User-Agent") || "",
+    ip: req.ip || req.connection?.remoteAddress || ""
+  };
+}
+
+// Cookie→req.user 解決
+function resolveUser(req, _res, next) {
+  const deviceId = req.cookies?.deviceId;
+  if (deviceId) {
+    const u = getUserById(deviceId);
+    if (u) {
+      ensureMonthlyRefillSync(u);
+      req.user = u;
+    }
+  }
+  next();
+}
+app.use(resolveUser);
+
+// ====== Apple Music 検索関連（既存） ======
 async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
   let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=75&explicit=no&lang=${lang}`;
   if (attribute) url += `&attribute=${attribute}`;
@@ -141,7 +188,7 @@ async function fetchAppleMusicInfo(songTitle, artistName) {
   }
 }
 
-/* /search エンドポイント */
+// ====== API: 検索（既存のまま） ======
 app.get("/search", async (req, res) => {
   const mode = req.query.mode || "song";
   try {
@@ -185,8 +232,65 @@ app.get("/search", async (req, res) => {
   }
 });
 
-/* リクエスト送信 */
+// ====== API: 初回登録＆Cookie発行 ======
+app.post("/register", (req, res) => {
+  try {
+    const username = (req.body.username || "Guest").toString().trim() || "Guest";
+    const adminPassword = (req.body.adminPassword || "").toString().trim();
+    const deviceId = nanoid(16);
+    const role = adminPassword && adminPassword === db.data.settings.adminPassword ? "admin" : "user";
+    const monthly = Number(db.data.settings.monthlyTokens ?? 5);
+
+    const user = {
+      id: deviceId,
+      username,
+      deviceInfo: deviceInfoFromReq(req),
+      role,
+      tokens: role === "admin" ? null : monthly,
+      lastRefillISO: monthKey()
+    };
+    usersDb.data.users.push(user);
+    usersDb.write();
+
+    // Cookie: 端末＝1ユーザー
+    res.cookie("deviceId", deviceId, {
+      httpOnly: true,
+      sameSite: "Lax",
+      maxAge: 1000 * 60 * 60 * 24 * 365 // 1年
+    });
+
+    res.json({ ok: true, user: { id: user.id, username: user.username, role: user.role, tokens: user.tokens } });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// 自分の状態（残トークンなど）
+app.get("/me", (req, res) => {
+  const s = db.data.settings;
+  if (!req.user) return res.json({ loggedIn: false, settings: { monthlyTokens: s.monthlyTokens } });
+  ensureMonthlyRefillSync(req.user);
+  res.json({
+    loggedIn: true,
+    user: { id: req.user.id, username: req.user.username, role: req.user.role, tokens: req.user.tokens },
+    settings: { monthlyTokens: s.monthlyTokens }
+  });
+});
+
+// ====== API: リクエスト送信（ここでトークン消費） ======
 app.post("/submit", (req, res) => {
+  // Cookieベースのユーザー必須
+  const user = req.user;
+  if (!user) {
+    return res.send(`<script>alert("未登録です。初回登録をしてください。"); window.location.href="/";</script>`);
+  }
+  ensureMonthlyRefillSync(user);
+  if (!isAdmin(user)) {
+    if (typeof user.tokens !== "number" || user.tokens <= 0) {
+      return res.send(`<script>alert("トークンが不足しています。"); window.location.href="/";</script>`);
+    }
+  }
+
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
   const artworkUrl = req.body.artworkUrl?.trim();
   const previewUrl = req.body.previewUrl?.trim();
@@ -198,8 +302,10 @@ app.post("/submit", (req, res) => {
   if (!responseText) {
     return res.send(`<script>alert("⚠️入力欄が空です。"); window.location.href="/";</script>`);
   }
+
   const key = `${responseText.toLowerCase()}|${artistText.toLowerCase()}`;
   db.data.songCounts[key] = (db.data.songCounts[key] || 0) + 1;
+
   const existing = db.data.responses.find(r =>
     r.text.toLowerCase() === responseText.toLowerCase() &&
     r.artist.toLowerCase() === artistText.toLowerCase()
@@ -214,15 +320,24 @@ app.post("/submit", (req, res) => {
       appleMusicUrl,
       artworkUrl,
       previewUrl,
-      count: db.data.songCounts[key]
+      count: db.data.songCounts[key],
+      createdAt: new Date().toISOString(),
+      by: { id: user.id, username: user.username }
     });
   }
+
+  // トークン消費（管理者は無制限）
+  if (!isAdmin(user)) {
+    user.tokens = Math.max(0, (user.tokens ?? 0) - 1);
+    usersDb.write();
+  }
+
   db.write();
   fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
   res.send(`<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>`);
 });
 
-/* リクエスト削除（リクエスト回数もリセット） */
+// ====== API: リクエスト削除（既存。回数リセット） ======
 app.get("/delete/:id", (req, res) => {
   const id = req.params.id;
   const toDelete = db.data.responses.find(entry => entry.id === id);
@@ -237,51 +352,69 @@ app.get("/delete/:id", (req, res) => {
   res.send(`<script>alert("🗑️削除しました！"); window.location.href="/admin";</script>`);
 });
 
-/* GitHub 同期/取得 */
-async function syncRequestsToGitHub() {
-  const localContent = JSON.stringify(db.data, null, 2);
-  let sha = null;
+// ====== GitHub 同期/取得（db.json と users.json の両方） ======
+async function getFileSha(pathname) {
   try {
-    const getResponse = await axios.get(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
-      {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
+    const r = await axios.get(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
+      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } }
     );
-    sha = getResponse.data.sha;
-  } catch (err) {
-    if (err.response && err.response.status === 404) {
-      sha = null;
-    } else {
-      throw err;
-    }
+    return r.data.sha;
+  } catch (e) {
+    if (e.response && e.response.status === 404) return null;
+    throw e;
   }
-  const contentEncoded = Buffer.from(localContent).toString("base64");
-  const putData = {
-    message: "Sync db.json",
-    content: contentEncoded,
-    branch: BRANCH,
-  };
-  if (sha) putData.sha = sha;
-  const putResponse = await axios.put(
-    `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
-    putData,
-    {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github.v3+json",
-      },
-    }
+}
+
+async function putFile(pathname, contentObj, message) {
+  const sha = await getFileSha(pathname);
+  const contentEncoded = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
+  const payload = { message, content: contentEncoded, branch: BRANCH };
+  if (sha) payload.sha = sha;
+  const r = await axios.put(
+    `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`,
+    payload,
+    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } }
   );
-  return putResponse.data;
+  return r.data;
+}
+
+async function getFile(pathname) {
+  const r = await axios.get(
+    `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
+    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } }
+  );
+  const contentBase64 = r.data.content;
+  return JSON.parse(Buffer.from(contentBase64, "base64").toString("utf8"));
+}
+
+async function syncAllToGitHub() {
+  await putFile("db.json", db.data, `Sync db.json at ${new Date().toISOString()}`);
+  await putFile("users.json", usersDb.data, `Sync users.json at ${new Date().toISOString()}`);
+}
+
+async function fetchAllFromGitHub() {
+  try {
+    const dbRemote = await getFile("db.json");
+    db.data = dbRemote;
+    db.write();
+    fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+  } catch (e) {
+    console.warn("fetch db.json failed:", e.message);
+  }
+  try {
+    const usersRemote = await getFile("users.json");
+    usersDb.data = usersRemote;
+    usersDb.write();
+    fs.writeFileSync("users.json", JSON.stringify(usersDb.data, null, 2));
+  } catch (e) {
+    console.warn("fetch users.json failed:", e.message);
+  }
 }
 
 app.get("/sync-requests", async (req, res) => {
   try {
-    await syncRequestsToGitHub();
+    await syncAllToGitHub();
     res.set("Content-Type", "text/html");
     res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
   } catch (e) {
@@ -291,20 +424,7 @@ app.get("/sync-requests", async (req, res) => {
 
 app.get("/fetch-requests", async (req, res) => {
   try {
-    const getResponse = await axios.get(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`,
-      {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
-    );
-    const contentBase64 = getResponse.data.content;
-    const content = Buffer.from(contentBase64, "base64").toString("utf8");
-    db.data = JSON.parse(content);
-    db.write();
-    fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+    await fetchAllFromGitHub();
     res.set("Content-Type", "text/html");
     res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
   } catch (error) {
@@ -312,11 +432,12 @@ app.get("/fetch-requests", async (req, res) => {
   }
 });
 
+// ====== 管理ページ（既存＋ユーザー管理リンク／月次トークン設定） ======
 app.get("/admin", (req, res) => {
   const page = parseInt(req.query.page || "1", 10);
   const perPage = 10;
   const total = db.data.responses.length;
-  const totalPages = Math.ceil(total / perPage);
+  const totalPages = Math.ceil(Math.max(total, 1) / perPage);
   const startIndex = (page - 1) * perPage;
   const pageItems = db.data.responses.slice(startIndex, startIndex + perPage);
 
@@ -357,27 +478,14 @@ app.get("/admin", (req, res) => {
     textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }
     .setting-field { margin-bottom: 10px; }
     .sync-btn, .fetch-btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
+      padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;
     }
     .sync-btn { background-color: #28a745; color: white; }
     .sync-btn:hover { background-color: #218838; }
     .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
     .fetch-btn:hover { background-color: #138496; }
     .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      display: none;
-      margin-left: 10px;
-    }
+    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
   </head><body><h1>✉アンケート回答一覧</h1>`;
@@ -400,6 +508,7 @@ app.get("/admin", (req, res) => {
   });
   html += `</ul>`;
   html += createPaginationLinks(page, totalPages);
+
   html += `<form action="/update-settings" method="post">
     <div class="setting-field">
       <label>
@@ -428,6 +537,15 @@ app.get("/admin", (req, res) => {
     <br>
     <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
   </form>`;
+
+  // 追加: 月次トークン設定＆ユーザー管理リンク
+  html += `<h2>月次トークン</h2>
+  <form method="POST" action="/admin/update-monthly-tokens" style="margin-bottom:16px;">
+    <label>月次配布数: <input type="number" min="0" name="monthlyTokens" value="${db.data.settings.monthlyTokens ?? 5}" style="width:100px;"></label>
+    <button type="submit" style="margin-left:8px;">保存</button>
+  </form>
+  <p><a href="/admin/users" style="font-size:16px;">ユーザー管理へ →</a></p>`;
+
   html += `<div class="button-container">
     <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
     <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
@@ -468,6 +586,74 @@ app.get("/admin", (req, res) => {
   res.send(html);
 });
 
+// 管理: 月次配布数の保存
+app.post("/admin/update-monthly-tokens", (req, res) => {
+  const n = Number(req.body.monthlyTokens);
+  if (!Number.isFinite(n) || n < 0) {
+    return res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:red;">入力が不正です。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
+  }
+  db.data.settings.monthlyTokens = n;
+  db.write();
+  res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="1;url=/admin"></head><body><p style="font-size:18px; color:green;">保存しました。</p><script>setTimeout(()=>{ location.href="/admin"; },1000);</script></body></html>`);
+});
+
+// 管理: ユーザー一覧
+app.get("/admin/users", (_req, res) => {
+  usersDb.read();
+  const rows = usersDb.data.users.map(u => `
+    <tr>
+      <td>${u.username}</td>
+      <td>${u.id}</td>
+      <td>${u.role}</td>
+      <td>${isAdmin(u) ? "∞" : (u.tokens ?? 0)}</td>
+      <td>${u.lastRefillISO || "-"}</td>
+      <td>
+        <form method="POST" action="/admin/update-user" style="display:flex; gap:6px; align-items:center;">
+          <input type="hidden" name="id" value="${u.id}">
+          <label>tokens:<input type="number" min="0" name="tokens" value="${isAdmin(u)?0:(u.tokens??0)}" ${isAdmin(u)?'disabled':''} style="width:90px;"></label>
+          <label>role:
+            <select name="role">
+              <option value="user" ${u.role==='user'?'selected':''}>user</option>
+              <option value="admin" ${u.role==='admin'?'selected':''}>admin</option>
+            </select>
+          </label>
+          <button type="submit">更新</button>
+        </form>
+      </td>
+    </tr>
+  `).join("");
+
+  res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><title>Admin Users</title></head>
+  <body>
+    <h1>Users</h1>
+    <p>Monthly tokens: ${db.data.settings.monthlyTokens}</p>
+    <p><a href="/admin">← Adminへ戻る</a></p>
+    <table border="1" cellpadding="6" cellspacing="0">
+      <thead><tr><th>username</th><th>deviceId</th><th>role</th><th>tokens</th><th>lastRefill</th><th>操作</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </body></html>`);
+});
+
+// 管理: 個別ユーザー更新
+app.post("/admin/update-user", (req, res) => {
+  const { id, tokens, role } = req.body || {};
+  const u = usersDb.data.users.find(x => x.id === id);
+  if (!u) return res.status(404).send("Not found");
+
+  if (role === "admin") {
+    u.role = "admin";
+    u.tokens = null; // 無制限
+  } else {
+    u.role = "user";
+    const n = Number(tokens);
+    u.tokens = Number.isFinite(n) && n >= 0 ? n : 0;
+  }
+  usersDb.write();
+  res.redirect(`/admin/users`);
+});
+
+// ====== 既存: 管理ログイン・設定 ======
 app.get("/admin-login", (req, res) => {
   const { password } = req.query;
   res.json({ success: password === db.data.settings.adminPassword });
@@ -489,11 +675,12 @@ app.get("/settings", (req, res) => {
   res.json(db.data.settings);
 });
 
-// 20分ごと自動同期
+// ====== 8分ごと自動同期（db.json / users.json） ======
 cron.schedule("*/8 * * * *", async () => {
-  console.log("自動更新ジョブ開始: db.json を GitHub にアップロードします。");
+  console.log("自動更新ジョブ開始: db.json / users.json を GitHub にアップロードします。");
   try {
-    await syncRequestsToGitHub();
+    db.write(); usersDb.write();
+    await syncAllToGitHub();
     console.log("自動更新完了");
   } catch (e) {
     console.error("自動更新エラー:", e);
