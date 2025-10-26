@@ -1079,6 +1079,33 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/2f/b1/4f/2fb14f9b-3a26-a46c-d6fd-e9b158ac6aff/4538182601471_cov.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/16/92/be/1692bead-d21b-38a6-d227-f01cdeaf4240/mzaf_16841343378442696980.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "M6LqYRMkGGOGfEZK6Y2pv",
+      "text": "アイラブユー",
+      "artist": "西野カナ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%A4%E3%83%A9%E3%83%96%E3%83%A6%E3%83%BC/1538260449?i=1538260450&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/0f/58/88/0f588826-aa74-8fcc-9aaa-7f9990953872/jacket_SECL02281B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/10/f3/1c/10f31cac-2ca7-8bd4-bd29-11ee7ecada82/mzaf_8215258931939840570.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "NRrZ3alYgoN2Nk3JacP0a",
+      "text": "清水翔太",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/l-only/1435252599?i=1435252995&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1d/61/6c/1d616c4f-5af8-e6f5-b778-8b553198000e/COKM-42162.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/10/70/be/1070be02-46ef-8040-7114-bb2ae696cc21/mzaf_14994398072862976929.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "BDi_9x_mKMmJT-bwQEC83",
+      "text": "君が好き",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%8C%E5%A5%BD%E3%81%8D/1538275179?i=1538275193&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1e/e6/a9/1ee6a95e-43d0-c17c-8458-a750659a4cff/jacket_SRCL08748B00Z_550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/2a/57/0d/2a570dfc-882e-ed6c-0e0b-3627d14e8a8c/mzaf_14246549540764759335.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1217,7 +1244,10 @@
     "vivi|アーティスト不明": 1,
     "remember me|アーティスト不明": 1,
     "くりてぃかる♡ぷりちー|ilife!": 1,
-    "stay tune|アーティスト不明": 1
+    "stay tune|アーティスト不明": 1,
+    "アイラブユー|西野カナ": 1,
+    "清水翔太|アーティスト不明": 1,
+    "君が好き|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
