@@ -1,280 +1,243 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ユーザーフォーム-放送委員会</title>
-  <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="style.css"/>
   <script src="skript.js" defer></script>
+
   <style>
-    /* スタイル（index用） */
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
-      position: relative;
-    }
+    .ux-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.2); display: none; align-items: center; justify-content: center; z-index: 999; }
+    .ux-overlay.show { display: flex; }
+    .ux-modal { background: #fff; padding: 16px; border-radius: 10px; width: min(420px, 92%); box-shadow: 0 8px 24px rgba(0,0,0,.15); text-align: left; }
+    .ux-row { display: flex; gap: 8px; margin-top: 8px; }
+    .ux-modal input[type="text"], .ux-modal input[type="password"] { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+    .ux-modal button { padding: 8px 12px; cursor: pointer; }
+
+    .ux-stop-card { border: 2px solid #f5c2c7; background: #fff; border-radius: 10px; padding: 16px; margin-top: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+    .ux-stop-title { color: #d00000; font-weight: bold; font-size: 18px; margin-bottom: 6px; text-align: center; }
+    .ux-stop-reason { color: #111; font-size: 14px; text-align: center; }
+
+    .ux-maint-overlay { position: fixed; inset: 0; background: rgba(255,255,255,.85); display: none; align-items:center; justify-content:center; z-index: 1000; }
+    .ux-maint-overlay.show { display: flex; }
+    .ux-maint-box { border: 2px dashed #d00000; background:#fff; padding: 20px 24px; border-radius: 12px; text-align:center; }
+    .ux-maint-box h2 { color:#d00000; margin:0 0 4px; }
+    .ux-maint-box p { margin:0; color:#333; }
+
+    .ux-hidden { display: none !important; }
+    #token-info { margin-top: 6px; font-size: 14px; opacity: .85; }
+
+    /* 管理者ボタンを右上固定 */
     .admin-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: #d3d3d3;
-      padding: 10px 20px;
-      border-radius: 20px;
-      border: none;
-      cursor: pointer;
-      display: inline-block;
-      width: auto;
-      text-align: center;
-      font-size: 14px;
-    }
-    .admin-button:hover {
-      background-color: #b3b3b3;
-    }
-    .container {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-      position: relative;
-    }
-    .privacy-note {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      font-size: 12px;
-      color: #aaa;
-    }
-    /* ロード中UI */
-    #loadingIndicator {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background-color: rgba(255,255,255,0.7);
-      border-radius: 10px;
-      padding: 20px;
-    }
-    .loading-spinner {
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #888;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 10px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .loading-text {
-      color: #888;
-      font-size: 14px;
+      position: fixed !important;
+      top: 12px;
+      right: 12px;
+      z-index: 1100;
     }
 
-    /* 追加: 初回登録モーダル */
-    .overlay {
+    /* メインを画面中央に */
+    #mainContainer {
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.2);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(92vw, 520px);
+      max-height: 90vh;
+      overflow: auto;
     }
-    .overlay.show { display: flex; }
-    .modal {
-      background: #fff;
-      padding: 16px;
-      border-radius: 10px;
-      width: min(420px, 92%);
-      box-shadow: 0 8px 24px rgba(0,0,0,.15);
-      text-align: left;
-    }
-    .row { display: flex; gap: 8px; margin-top: 8px; }
-    .modal input[type="text"],
-    .modal input[type="password"] {
-      flex: 1; padding: 8px;
-      border: 1px solid #ccc; border-radius: 6px;
-    }
-    .modal button { padding: 8px 12px; cursor: pointer; }
-    /* 追加: 残トークン表示 */
-    #token-info { margin-top: 6px; font-size: 14px; opacity: .85; }
   </style>
 </head>
-<body onload="checkRecruitingStatus(); updateFrontendTitle(); ensureRegistered();">
-  <button class="admin-button" onclick="showAdminLogin()">管理者用</button>
+
+<body>
+  <!-- 管理者ボタン（右上固定） -->
+  <button class="admin-button" onclick="goAdmin()">管理者用</button>
+
+  <!-- 画面中央に配置されるメインコンテナ -->
   <div class="container" id="mainContainer">
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
-    
-    <!-- ロード中UI -->
-    <div id="loadingIndicator">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">読み込み中...</div>
+
+    <!-- 検索モード切替（既存） + ソート（最小UI追加） -->
+    <div id="modeToggle" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+      <div>
+        <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
+        <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
+      </div>
+      <label style="font-size:14px;">
+        並び替え:
+        <select id="searchSort" style="padding:4px; border-radius:6px;">
+          <option value="relevance">ベストマッチ</option>
+          <option value="release_desc">新しい順</option>
+          <option value="release_asc">古い順</option>
+          <option value="name_asc">曲名 A→Z</option>
+          <option value="artist_asc">アーティスト A→Z</option>
+        </select>
+      </label>
     </div>
-    
-    <!-- 検索モード切替ボタン（ラッパーIDを追加しておく） -->
-    <div id="modeToggle" style="display: flex; justify-content: center; margin-bottom: 10px;">
-      <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
-      <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
-    </div>
-    
-    <!-- 送信フォーム -->
+
+    <!-- 送信フォーム（既存IDをそのまま） -->
     <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
-      <!-- 曲名入力欄 -->
       <div class="input-container">
         <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
         <button type="button" class="input-clear-btn" onclick="clearInput('songName')">×</button>
       </div>
-      <!-- アーティスト名入力欄 -->
+
       <div class="input-container" id="artistInputContainer">
         <input type="text" id="artistName" name="artist" placeholder="アーティスト名を入力してください" oninput="searchSongs()">
         <button type="button" class="input-clear-btn" onclick="clearInput('artistName')">×</button>
       </div>
-      
-      <!-- 再検索ボタン -->
+
       <div id="reSearchSongMode" style="margin:10px 0; display:block;">
         <button type="button" onclick="reSearch()">再検索</button>
       </div>
       <div id="reSearchArtistMode" style="margin:10px 0; display:none;">
         <button type="button" onclick="reSearch()">再検索</button>
       </div>
-      
-      <!-- 検索結果一覧 -->
+
       <div id="suggestions"></div>
-      
-      <!-- 選択中のアーティスト／曲 -->
       <div id="selectedArtist"></div>
       <div id="selectedLabel"></div>
       <div id="selectedSong"></div>
-      
-      <!-- hidden fields -->
+
+      <!-- hidden（選択曲の情報） -->
       <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
       <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
       <input type="hidden" id="previewUrlHidden" name="previewUrl">
-      
+
       <button id="submitButton" type="submit">送信</button>
-      <!-- 追加: 送信ボタンの下に残トークン -->
-      <div id="token-info">残りトークン: -</div>
+      <div id="token-info">-</div>
+
+      <!-- 募集停止カードの挿入先 -->
+      <div id="stopCardHost"></div>
     </form>
   </div>
 
   <p class="privacy-note">日本語・韓国語・英語に対応しています。</p>
 
-  <!-- 追加: 初回登録モーダル -->
-  <div class="overlay" id="welcomeOverlay" aria-hidden="true">
-    <div class="modal">
+  <!-- 初回登録モーダル -->
+  <div class="ux-overlay" id="welcomeOverlay" aria-hidden="true">
+    <div class="ux-modal">
       <h3 style="margin:0 0 6px;">ようこそ！</h3>
-      <p style="margin:0 0 8px;">ユーザネームを入力して初回登録してください。</p>
-      <div class="row">
-        <input id="usernameInput" type="text" placeholder="ユーザネーム">
-      </div>
+      <p style="margin:0 0 8px;">ユーザネームを入力して初回登録してください（端末ごとに1アカウント）。</p>
+      <div class="ux-row"><input id="usernameInput" type="text" placeholder="ユーザネーム"></div>
       <details style="margin-top:6px;">
-        <summary>管理者としてログイン</summary>
-        <div class="row">
-          <input id="adminPassInput" type="password" placeholder="管理パスワード">
-        </div>
+        <summary>管理者としてログイン（管理者のみ）</summary>
+        <div class="ux-row"><input id="adminPassInput" type="password" placeholder="管理パスワード"></div>
+        <div id="adminTryInfo" style="margin-top:6px; font-size:13px; color:#555;">管理者パスワード残り: 3 回</div>
       </details>
-      <div class="row" style="justify-content:flex-end;">
-        <button id="registerBtn" type="button">登録</button>
-      </div>
+      <div class="ux-row" style="justify-content:flex-end;"><button id="registerBtn" type="button">登録</button></div>
     </div>
   </div>
 
+  <!-- メンテ中オーバーレイ -->
+  <div class="ux-maint-overlay" id="maintenanceOverlay">
+    <div class="ux-maint-box">
+      <h2>現在メンテナンス中です</h2>
+      <p>しばらくお待ちください。</p>
+    </div>
+  </div>
+
+  <!-- ▼ 非表示のオーディオ要素（旧UIのボタン/スライダーだけで操作） -->
+  <audio id="amPreviewAudio" preload="none" style="display:none;"></audio>
+  <!-- ▲ -->
+
   <script>
-    // ===== 既存：募集状態の反映 =====
-    function checkRecruitingStatus() {
-      fetch("/settings")
-        .then(r => r.json())
-        .then(data => {
-          if (!data.recruiting) {
-            // タイトルを赤文字に
-            const title = document.getElementById("frontendTitle");
-            title.innerText = "現在は曲を募集していません";
-            title.style.color = "red";
-            // フォーム、モード切替、ロードUI を隠す
-            const modeToggle = document.getElementById("modeToggle");
-            if (modeToggle) modeToggle.style.display = "none";
-            document.getElementById("requestForm").style.display = "none";
-            document.getElementById("loadingIndicator").style.display = "none";
-            // 理由を表示
-            if (data.reason && data.reason.trim() !== "") {
-              const reason = document.createElement("div");
-              reason.style.textAlign = "center";
-              reason.style.color = "black";
-              reason.style.fontSize = "1.2em";
-              reason.style.margin = "10px 0";
-              reason.innerText = data.reason;
-              document.getElementById("mainContainer").appendChild(reason);
-            }
-          }
-        })
-        .catch(err => console.error("設定取得エラー:", err));
-    }
-
-    function updateFrontendTitle() {
-      fetch("/settings")
-        .then(r => r.json())
-        .then(data => {
-          if (data.frontendTitle) {
-            document.getElementById("frontendTitle").innerText = data.frontendTitle;
-          }
-        })
-        .catch(err => console.error("タイトル取得エラー:", err));
-    }
-
-    // ===== 追加：ユーザ/トークン関連 =====
-    async function fetchMe() {
+    // ------- 管理者ボタン（権限があれば即 /admin） -------
+    async function goAdmin() {
       try {
-        const r = await fetch('/me');
-        return await r.json();
-      } catch (e) {
-        console.error(e);
-        return { loggedIn: false };
+        const me = await fetch('/me').then(r=>r.json());
+        if ((me?.loggedIn && me.user?.role === 'admin') || me?.adminSession === true) {
+          location.href = '/admin';
+        } else {
+          alert('管理者権限がありません。');
+        }
+      } catch {
+        alert('状態を確認できませんでした。');
       }
     }
 
+    // ------- 設定反映（メンテ/募集） -------
+    async function applySettingsToUI() {
+      try {
+        const data = await (await fetch("/settings")).json();
+
+        const maint = document.getElementById("maintenanceOverlay");
+        if (maint) { if (data.maintenance) maint.classList.add("show"); else maint.classList.remove("show"); }
+
+        const titleEl = document.getElementById("frontendTitle");
+        const modeToggle = document.getElementById("modeToggle");
+        const form = document.getElementById("requestForm");
+        const stopHost = document.getElementById("stopCardHost");
+
+        if (!data.recruiting) {
+          if (titleEl) { titleEl.textContent = "現在募集を終了しています"; titleEl.style.color = "#d00000"; }
+          if (modeToggle) modeToggle.classList.add("ux-hidden");
+          if (form) Array.from(form.querySelectorAll("input,button,select,textarea")).forEach(el => el.disabled = true);
+          if (stopHost) {
+            stopHost.innerHTML = `
+              <div class="ux-stop-card">
+                <div class="ux-stop-title">現在募集を終了しています</div>
+                <div class="ux-stop-reason">${data.reason ? ("理由: " + String(data.reason)) : ""}</div>
+              </div>`;
+          }
+        } else {
+          titleEl && (titleEl.style.color = "");
+          modeToggle && modeToggle.classList.remove("ux-hidden");
+          if (form) Array.from(form.querySelectorAll("input,button,select,textarea")).forEach(el => el.disabled = false);
+          stopHost && (stopHost.innerHTML = "");
+        }
+
+        if (data.frontendTitle) document.getElementById("frontendTitle").textContent = data.frontendTitle;
+      } catch (e) {
+        console.error("設定反映エラー:", e);
+      }
+    }
+
+    // ------- ユーザ/トークン -------
+    async function fetchMe() {
+      try { const r = await fetch('/me'); return await r.json(); }
+      catch { return { loggedIn:false }; }
+    }
     function updateTokenInfo(me) {
       const el = document.getElementById('token-info');
       if (!el) return;
-      if (!me || !me.loggedIn) {
-        el.textContent = '残りトークン: -（未登録）';
-        return;
-      }
+      if (!me || !me.loggedIn) { el.textContent = '未登録です。'; return; }
+      const name = me.user?.username || 'ユーザー';
       if (me.user?.role === 'admin') {
-        el.textContent = '残りトークン: ∞（管理者）';
+        el.textContent = `${name} さん 今月の残りトークン: ∞（管理者）`;
       } else {
-        el.textContent = '残りトークン: ' + (me.user?.tokens ?? 0);
+        el.textContent = `${name} さん 今月の残りトークン: ${me.user?.tokens ?? 0}`;
       }
     }
-
     async function ensureRegistered() {
       const me = await fetchMe();
-      if (!me.loggedIn) {
-        // 初回登録モーダル表示
-        document.getElementById('welcomeOverlay').classList.add('show');
-      } else {
-        updateTokenInfo(me);
-        // settings.frontendTitle は既に updateFrontendTitle() で反映
+      if (!me.loggedIn) { document.getElementById('welcomeOverlay')?.classList.add('show'); }
+      else { updateTokenInfo(me); }
+    }
+
+    // ------- 管理者パス残回数表示 -------
+    async function refreshAdminTryInfo() {
+      try {
+        const r = await fetch('/auth/status');
+        const s = await r.json();
+        const left = typeof s.adminRegRemaining === 'number' ? s.adminRegRemaining : 3;
+        const el = document.getElementById('adminTryInfo');
+        if (el) el.textContent = `管理者パスワード残り: ${left} 回`;
+        return left;
+      } catch {
+        const el = document.getElementById('adminTryInfo');
+        if (el) el.textContent = `管理者パスワード残り: 3 回`;
+        return 3;
       }
     }
 
+    // ------- 登録（管理者パスが正しければ即 admin / 誤りは登録せず再入力） -------
     async function registerNow() {
-      const username = document.getElementById('usernameInput').value.trim() || 'Guest';
-      const adminPassword = document.getElementById('adminPassInput').value.trim();
+      const uiName = document.getElementById('usernameInput');
+      const uiPass = document.getElementById('adminPassInput');
+      const username = (uiName?.value ?? '').trim() || 'Guest';
+      const adminPassword = (uiPass?.value ?? '').trim();
+
       try {
         const res = await fetch('/register', {
           method: 'POST',
@@ -282,27 +245,173 @@
           body: JSON.stringify({ username, adminPassword: adminPassword || undefined })
         });
         const data = await res.json();
+
         if (data.ok) {
-          document.getElementById('welcomeOverlay').classList.remove('show');
+          const roleJa = data.role === 'admin' ? '管理者' : 'ユーザー';
+          const nameForAlert = data.username || username || 'ユーザー';
+          alert(`✅${roleJa}でログインしました\n${nameForAlert} さんようこそ！`);
+          document.getElementById('welcomeOverlay')?.classList.remove('show');
           const me = await fetchMe();
           updateTokenInfo(me);
-        } else {
-          alert('登録に失敗しました: ' + (data.error || 'unknown'));
+          return;
         }
+
+        if (data.reason === 'bad_admin_password') {
+          const left = (typeof data.remaining === 'number') ? data.remaining : 0;
+          alert(`管理者パスワードが違います。残り ${left} 回`);
+          if (uiPass) { uiPass.value = ''; uiPass.focus(); }
+          await refreshAdminTryInfo();
+          return;
+        }
+        if (data.reason === 'locked') {
+          alert('管理者パスワードの試行上限に達しました。パスワード欄を空にしてユーザーとして登録してください。');
+          if (uiPass) { uiPass.value = ''; uiPass.blur(); }
+          await refreshAdminTryInfo();
+          return;
+        }
+        alert('登録に失敗しました。もう一度お試しください。');
       } catch (e) {
         alert('通信エラー: ' + e.message);
       }
     }
-    document.getElementById('registerBtn').addEventListener('click', registerNow);
 
-    // 送信成功後に残量を更新したいが、既存の skript.js の handleSubmit を尊重して
-    // 二重送信を防ぐため、フォームの submit を「監視」して後追いで更新する。
-    document.getElementById('requestForm').addEventListener('submit', function () {
-      // 既存handleSubmitがajax送信でも通常送信でも、少し待ってから /me を取り直す
-      setTimeout(async () => {
-        const me = await fetchMe();
-        updateTokenInfo(me);
-      }, 900);
+    // ------- 旧UIで新エンジンを使う：バインド処理 -------
+    const audioEl = document.getElementById('amPreviewAudio');
+    let lastVolume = 0.8; audioEl.volume = lastVolume;
+
+    function proxied(url) {
+      return `/preview?url=${encodeURIComponent(url)}`;
+    }
+
+    // 曲選択後に hidden からプレビューURLを取り出して audio に設定
+    function setLegacyPreviewFromHidden() {
+      const pv = document.getElementById('previewUrlHidden')?.value?.trim();
+      if (!pv) { audioEl.pause(); audioEl.removeAttribute('src'); return; }
+      const src = proxied(pv);
+      if (audioEl.src !== location.origin + src && audioEl.src !== src) {
+        audioEl.src = src;
+        try { audioEl.load(); } catch {}
+      }
+    }
+
+    // 旧UIの再生ボタン＆音量スライダーを検出してバインド
+    function wireLegacyPlayerControls() {
+      const host = document.getElementById('selectedSong') || document.getElementById('selectedLabel') || document;
+      if (!host) return;
+
+      // 再生ボタン候補（文字が「再生」を含む、または▶系、またはそれっぽいクラス）
+      const playBtn =
+        host.querySelector('button.play, button.play-btn, button#playButton, button[title*="再生"], button[aria-label*="再生"], button') ||
+        null;
+
+      // 音量スライダー候補（rangeで 0〜1 / step 0.01 っぽいものを優先）
+      let vol = null;
+      const ranges = host.querySelectorAll('input[type="range"]');
+      for (const r of ranges) {
+        const max = (r.getAttribute('max') || '').trim();
+        const step = (r.getAttribute('step') || '').trim();
+        if (max === '1' || step === '0.01' || r.id?.toLowerCase().includes('volume')) { vol = r; break; }
+      }
+      if (!vol && ranges.length === 1) vol = ranges[0];
+
+      // --- イベントを一旦解除してから再バインド（同じDOMに何度も付くのを防止）
+      if (playBtn) {
+        playBtn._bound && playBtn.removeEventListener('click', playBtn._bound);
+        playBtn._bound = () => {
+          if (!audioEl.src) setLegacyPreviewFromHidden();
+          if (audioEl.paused) audioEl.play();
+          else audioEl.pause();
+        };
+        playBtn.addEventListener('click', playBtn._bound);
+      }
+
+      if (vol) {
+        vol._bound && vol.removeEventListener('input', vol._bound);
+        vol._bound = (e) => {
+          const v = Number(e.target.value);
+          if (!Number.isNaN(v)) { lastVolume = Math.min(1, Math.max(0, v)); audioEl.volume = lastVolume; }
+        };
+        vol.addEventListener('input', vol._bound);
+        // 初期反映
+        try { if (typeof vol.value !== 'undefined') vol.value = lastVolume; } catch {}
+      }
+
+      // 再生状態に応じてボタン表示を軽くトグル（デザインを壊さないよう最小限）
+      function syncBtnUI(playing) {
+        if (!playBtn) return;
+        playBtn.dataset.playing = playing ? '1' : '0';
+        // 文字が「再生」「一時停止」の場合だけトグル（アイコン系は触らない）
+        const txt = (playBtn.textContent || '').trim();
+        if (txt === '再生' && playing) playBtn.textContent = '一時停止';
+        else if (txt === '一時停止' && !playing) playBtn.textContent = '再生';
+      }
+      audioEl.onplay = () => syncBtnUI(true);
+      audioEl.onpause = () => syncBtnUI(false);
+      audioEl.onended = () => syncBtnUI(false);
+    }
+
+    // `skript.js` 側の選択関数にフックして、曲選択のたびにURLをセット＆UI再バインド
+    function tryHookSelection(fnName) {
+      if (typeof window[fnName] === 'function') {
+        const orig = window[fnName];
+        window[fnName] = function(...args) {
+          const r = orig.apply(this, args);
+          setTimeout(() => {
+            setLegacyPreviewFromHidden();
+            wireLegacyPlayerControls();
+          }, 0);
+          return r;
+        };
+      }
+    }
+
+    // `#selectedSong` が差し替わるたびに再バインド
+    function observeSelectedSong() {
+      const tgt = document.getElementById('selectedSong') || document.body;
+      const mo = new MutationObserver(() => {
+        setLegacyPreviewFromHidden();
+        wireLegacyPlayerControls();
+      });
+      mo.observe(tgt, { childList: true, subtree: true });
+    }
+
+    // ------- 検索の並び替え（クッキー保存 → サーバ側でソート適用） -------
+    function setSearchSortCookie(val) {
+      const maxAge = 60*60*24*180; // 180日
+      document.cookie = `searchSort=${encodeURIComponent(val)}; path=/; max-age=${maxAge}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applySettingsToUI();
+      ensureRegistered();
+      refreshAdminTryInfo();
+
+      // ソート選択の初期化
+      const sel = document.getElementById('searchSort');
+      if (sel) {
+        const m = document.cookie.match(/(?:^|;\s*)searchSort=([^;]+)/);
+        if (m) { try { sel.value = decodeURIComponent(m[1]); } catch {} }
+        sel.addEventListener('change', () => {
+          setSearchSortCookie(sel.value);
+          if (typeof window.searchSongs === 'function') window.searchSongs();
+        });
+      }
+
+      // 送信後はトークン表示を更新
+      document.getElementById('requestForm')?.addEventListener('submit', () => {
+        setTimeout(async () => { updateTokenInfo(await fetchMe()); }, 900);
+      });
+
+      // 登録
+      document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'registerBtn') registerNow();
+      });
+
+      // 旧UI用フック
+      ["selectSong","chooseSong","onSongSelect","applySelection","selectArtist","onPick"].forEach(tryHookSelection);
+      observeSelectedSong();
+      setLegacyPreviewFromHidden();
+      wireLegacyPlayerControls();
     });
   </script>
 </body>

@@ -1,54 +1,154 @@
-// Web Audio API（iOS Safari/Chrome対応）
-let audioContext = null;
-let gainNode = null;
-let searchMode = "song";
-let artistPhase = 0;
+/* =========================================================
+   AudioManager で単一路線化
+   - <audio id="previewAudio"> は 1 つだけ
+   - /preview?url=... 経由で再生
+   - 音量は GainNode で制御（fallback: audio.volume）
+   - UIは一方向同期（slider -> volume）
+   ========================================================= */
+
+const AudioManager = (() => {
+  let audioEl = null;        // <audio>
+  let ctx = null;            // AudioContext
+  let source = null;         // MediaElementSourceNode
+  let gain = null;           // GainNode
+  let useWA = false;         // WebAudio を使えているか
+  let lastNonZero = 0.5;     // ミュート解除時に戻す音量
+  let vol01 = 0.5;           // 0.0〜1.0
+
+  function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+
+  function ensureNodes() {
+    // <audio> を1つだけ確保
+    if (!audioEl) {
+      audioEl = document.getElementById("previewAudio");
+      if (!audioEl) {
+        audioEl = document.createElement("audio");
+        audioEl.id = "previewAudio";
+        audioEl.preload = "none";
+        audioEl.crossOrigin = "anonymous";
+        audioEl.style.display = "none";
+        document.body.appendChild(audioEl);
+      }
+    }
+
+    // 旧・他の <audio> は強制停止（重複再生の根絶）
+    document.querySelectorAll("audio").forEach(a => {
+      if (a !== audioEl) { try { a.pause(); } catch{} }
+    });
+
+    // WebAudio 構築
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) ctx = new AC();
+    }
+    if (ctx && !gain) {
+      gain = ctx.createGain();
+      gain.gain.value = vol01;
+    }
+    if (ctx && !source) {
+      try {
+        source = ctx.createMediaElementSource(audioEl);
+        source.connect(gain).connect(ctx.destination);
+        useWA = true;
+      } catch (e) {
+        // 既に接続済みのとき
+        useWA = !!gain;
+      }
+    }
+
+    // 出力経路の一本化
+    if (useWA) {
+      // 音量は GainNode のみで制御
+      audioEl.volume = 1.0;
+    } else {
+      // Fallback: 直接 volume を使う
+      audioEl.volume = vol01;
+    }
+    return audioEl;
+  }
+
+  return {
+    load(url) {
+      const el = ensureNodes();
+      try { el.pause(); el.currentTime = 0; } catch {}
+      // 他の audio を止める（念のため）
+      document.querySelectorAll("audio").forEach(a => { if (a !== el) { try{ a.pause(); }catch{} }});
+      el.src = `/preview?url=${encodeURIComponent(url)}`;
+      try { el.load(); } catch {}
+    },
+    async play() {
+      const el = ensureNodes();
+      if (ctx && ctx.state === "suspended") await ctx.resume();
+      return el.play();
+    },
+    pause(reset=false) {
+      const el = ensureNodes();
+      try { el.pause(); if (reset) el.currentTime = 0; } catch {}
+    },
+    setVolume01(v) {
+      vol01 = clamp01(v);
+      if (gain) gain.gain.value = vol01;
+      if (!useWA) audioEl.volume = vol01;
+    },
+    getVolume01() {
+      if (gain) return clamp01(gain.gain.value);
+      return clamp01(audioEl?.volume ?? vol01);
+    },
+    mute() {
+      lastNonZero = this.getVolume01() || lastNonZero || 0.5;
+      this.setVolume01(0);
+    },
+    unmute() {
+      this.setVolume01(Math.max(0.05, lastNonZero || 0.5));
+    },
+    isMuted() { return this.getVolume01() <= 0.001; },
+    element() { return ensureNodes(); }
+  };
+})();
+
+/* ---------------- 検索UI（既存） ---------------- */
+let searchMode = "song";     // "song" | "artist"
+let artistPhase = 0;         // 0=アーティスト候補, 1=楽曲候補
 let selectedArtistId = null;
-let previewAudio = null;
-let isPlaying = false;
-let isMuted = false;
 let playerControlsEnabled = true;
 
-window.onload = async function() {
-  // 初期状態は曲名モード
-  setSearchMode('song');
-  // 初回タップで AudioContext 再開（iOS Safari/Chrome対策）
-  document.addEventListener("click", () => {
-    if (audioContext && audioContext.state === "suspended") {
-      audioContext.resume();
-    }
-  }, { once: true });
+window.onload = async function () {
+  setSearchMode("song");
   await loadSettings();
+
+  const songInput = document.getElementById("songName");
+  const artistInput = document.getElementById("artistName");
+  songInput.addEventListener("input", searchSongs);
+  artistInput.addEventListener("input", searchSongs);
+
+  if (!document.getElementById("loadingIndicator")) {
+    const loader = document.createElement("div");
+    loader.id = "loadingIndicator";
+    loader.style.cssText =
+      "display:none; position:fixed; inset:0; background:rgba(255,255,255,.5); z-index:1200; align-items:center; justify-content:center; font-weight:bold;";
+    loader.innerHTML =
+      '<div style="padding:12px 16px; background:#fff; border:1px solid #ddd; border-radius:8px;">検索中...</div>';
+    document.body.appendChild(loader);
+  }
 };
 
 async function loadSettings() {
   try {
-    const res = await fetch("/settings");
-    const data = await res.json();
-    playerControlsEnabled = data.playerControlsEnabled !== false;
-  } catch (e) {
-    console.error("設定読み込みエラー:", e);
+    const r = await fetch("/settings");
+    const s = await r.json();
+    playerControlsEnabled = s.playerControlsEnabled !== false;
+  } catch {
     playerControlsEnabled = true;
   }
 }
 
+/* ========== 検索 ========== */
 function setSearchMode(mode) {
-  searchMode = mode;
-  artistPhase = 0;
-  selectedArtistId = null;
-  document.getElementById("songName").value = "";
-  document.getElementById("artistName").value = "";
-  document.getElementById("suggestions").innerHTML = "";
-  document.getElementById("selectedLabel").innerHTML = "";
-  document.getElementById("selectedSong").innerHTML = "";
-  document.getElementById("selectedArtist").innerHTML = "";
-  if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    isPlaying = false;
-    updatePlayPauseIcon();
-  }
-  // モードに応じた表示切替
+  searchMode = mode; artistPhase = 0; selectedArtistId = null;
+  ["songName","artistName"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
+  ["suggestions","selectedLabel","selectedSong","selectedArtist"].forEach(id => document.getElementById(id).innerHTML = "");
+  stopPlayback(true);
+
   if (mode === "artist") {
     document.getElementById("artistInputContainer").style.display = "none";
     document.getElementById("songName").placeholder = "アーティスト名を入力してください";
@@ -69,371 +169,200 @@ function setSearchMode(mode) {
     document.getElementById("reSearchArtistMode").style.display = "none";
   }
 }
-
-function reSearch() {
-  searchSongs();
-}
+function reSearch(){ searchSongs(); }
 
 async function searchSongs() {
-  const suggestionsContainer = document.getElementById("suggestions");
-  suggestionsContainer.innerHTML = "";
-  showLoading();
-  if (searchMode === "artist") {
-    if (artistPhase === 0) {
-      const artistQuery = document.getElementById("songName").value.trim();
-      if (artistQuery.length < 1) { hideLoading(); return; }
-      try {
-        const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(artistQuery)}`);
-        const suggestions = await res.json();
-        suggestions.forEach(artist => {
+  const list = document.getElementById("suggestions");
+  list.innerHTML = ""; showLoading();
+  try {
+    if (searchMode === "artist") {
+      const q = document.getElementById("songName").value.trim();
+      if (artistPhase === 0) {
+        if (!q) return;
+        const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
+        const artists = await res.json();
+        artists.forEach(a => {
           const item = document.createElement("div");
-          item.classList.add("suggestion-item");
-          item.innerHTML = `
-            <img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
-            <div><strong>${artist.trackName}</strong></div>
-          `;
-          item.onclick = () => selectArtist(artist);
-          suggestionsContainer.appendChild(item);
+          item.className = "suggestion-item";
+          item.innerHTML = `<img src="${a.artworkUrl}" alt="Artist"><div><strong>${a.trackName}</strong></div>`;
+          item.onclick = () => selectArtist(a);
+          list.appendChild(item);
         });
-      } catch (e) {
-        console.error("アーティスト検索エラー:", e);
+      } else {
+        await fetchArtistTracksAndShow();
       }
     } else {
-      await fetchArtistTracksAndShow();
-    }
-  } else {
-    const songQuery = document.getElementById("songName").value.trim();
-    const artistQuery = document.getElementById("artistName").value.trim();
-    if (songQuery.length < 1) { hideLoading(); return; }
-    try {
-      const res = await fetch(`/search?query=${encodeURIComponent(songQuery)}&artist=${encodeURIComponent(artistQuery)}`);
-      const suggestions = await res.json();
-      suggestions.forEach(song => {
+      const songQ = document.getElementById("songName").value.trim();
+      const artistQ = document.getElementById("artistName").value.trim();
+      if (!songQ) return;
+      const res = await fetch(`/search?query=${encodeURIComponent(songQ)}&artist=${encodeURIComponent(artistQ)}`);
+      const songs = await res.json();
+      songs.forEach(s => {
         const item = document.createElement("div");
-        item.classList.add("suggestion-item");
-        item.innerHTML = `
-          <img src="${song.artworkUrl}" alt="Cover">
-          <div>
-            <strong>${song.trackName}</strong><br>
-            <small>${song.artistName}</small>
-          </div>
-        `;
-        item.onclick = () => selectSong(song);
-        suggestionsContainer.appendChild(item);
+        item.className = "suggestion-item";
+        item.innerHTML = `<img src="${s.artworkUrl}" alt="Cover"><div><strong>${s.trackName}</strong><br><small>${s.artistName}</small></div>`;
+        item.onclick = () => selectSong(s);
+        list.appendChild(item);
       });
-    } catch (e) {
-      console.error("曲検索エラー:", e);
     }
-  }
-  hideLoading();
+  } catch(e){ console.error("検索エラー:", e); }
+  finally { hideLoading(); }
 }
 
-function selectArtist(artist) {
-  selectedArtistId = artist.artistId;
-  artistPhase = 1;
-  document.getElementById("selectedArtist").innerHTML = `
-    <div class="selected-label">選択中のアーティスト</div>
-    <div class="selected-item" style="display:flex; align-items:center; justify-content:space-between; margin-top:10px;">
-      <div style="display:flex; align-items:center;">
-        <img src="${artist.artworkUrl}" alt="Artist Icon" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
-        <div><strong>${artist.trackName}</strong></div>
-      </div>
-      <button type="button" class="clear-btn" onclick="clearArtistSelection()">×</button>
-    </div>
-  `;
-  document.getElementById("suggestions").innerHTML = "";
-  fetchArtistTracksAndShow();
+async function selectArtist(artist) {
+  selectedArtistId = artist.artistId; artistPhase = 1;
+  document.getElementById("selectedArtist").innerHTML =
+    `<div class="selected-artist-card"><img src="${artist.artworkUrl}" alt="Artist"><div>${artist.artistName || artist.trackName}</div></div>`;
+  await fetchArtistTracksAndShow();
 }
 
 async function fetchArtistTracksAndShow() {
-  const suggestionsContainer = document.getElementById("suggestions");
-  suggestionsContainer.innerHTML = "";
+  if (!selectedArtistId) return; showLoading();
   try {
     const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
-    const tracks = await res.json();
-    tracks.forEach(song => {
+    const songs = await res.json();
+    const cont = document.getElementById("suggestions"); cont.innerHTML = "";
+    songs.forEach(s => {
       const item = document.createElement("div");
-      item.classList.add("suggestion-item");
-      item.innerHTML = `
-        <img src="${song.artworkUrl}" alt="Cover">
-        <div>
-          <strong>${song.trackName}</strong><br>
-          <small>${song.artistName}</small>
-        </div>
-      `;
-      item.onclick = () => selectSong(song);
-      suggestionsContainer.appendChild(item);
+      item.className = "suggestion-item";
+      item.innerHTML = `<img src="${s.artworkUrl}" alt="Cover"><div><strong>${s.trackName}</strong><br><small>${s.artistName}</small></div>`;
+      item.onclick = () => selectSong(s);
+      cont.appendChild(item);
     });
-  } catch (e) {
-    console.error("アーティストの曲一覧取得エラー:", e);
-  }
+  } catch(e){ console.error("アーティスト曲取得エラー:", e); }
+  finally { hideLoading(); }
 }
 
+/* ========== 曲を選択 → 旧UIカード描画 & AudioManagerにURLロード ========== */
 function selectSong(song) {
-  document.getElementById("songName").value = song.trackName;
-  if (searchMode === "song" && !document.getElementById("artistName").value.trim()) {
-    document.getElementById("artistName").value = song.artistName;
-  }
-  document.getElementById("selectedLabel").innerHTML = `<div class="selected-label">選択中の曲</div>`;
-  const container = document.getElementById("selectedSong");
-  container.innerHTML = `
-    <div class="selected-item" style="display:flex; align-items:center; justify-content:space-between; border:1px solid rgba(0,0,0,0.2); border-radius:10px; padding:10px; margin-top:10px;">
-      <div style="display:flex; align-items:center;">
-        <img src="${song.artworkUrl}" alt="Cover" style="width:50px; height:50px; border-radius:5px; margin-right:10px;">
-        <div>
-          <strong>${song.trackName}</strong><br>
-          <small>${song.artistName}</small>
-        </div>
+  const wrap = document.getElementById("selectedSong");
+  const label = document.getElementById("selectedLabel");
+  document.getElementById("suggestions").innerHTML = "";
+
+  wrap.innerHTML = `
+    <div class="selected-song-card" style="display:flex;align-items:center;gap:10px;padding:8px;border:1px solid rgba(0,0,0,.1);border-radius:12px;background:#f3f3f3;">
+      <img src="${song.artworkUrl}" alt="Cover" style="width:50px;height:50px;border-radius:6px;object-fit:cover;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${song.trackName}</div>
+        <div style="font-size:12px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${song.artistName}</div>
       </div>
-      <div style="display:flex; align-items:center;">
-        <button type="button" class="control-btn" id="playPauseBtn" onclick="togglePlay(event)"></button>
-        <button type="button" class="control-btn" id="volumeBtn" onclick="toggleMute(event)"></button>
-        <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" oninput="changeVolume(this.value)">
-        <button type="button" class="clear-btn" onclick="clearSelection()">×</button>
-      </div>
+      <button type="button" id="playPauseBtn" style="background:none;border:none;cursor:pointer;padding:6px;color:#666;font-size:18px;">▶</button>
+      <button type="button" id="volumeBtn"    style="background:none;border:none;cursor:pointer;padding:6px;color:#666;font-size:18px;">🔊</button>
+      <input type="range" min="0" max="100" step="1" value="${Math.round(AudioManager.getVolume01()*100)}" id="volumeSlider" style="width:140px;accent-color:#888;">
+      <button type="button" class="clear-btn" onclick="clearSelection()" style="background:none;border:none;cursor:pointer;padding:6px;font-size:16px;color:#666;">×</button>
     </div>
   `;
 
-  // hidden fields
-  let hiddenApple = document.getElementById("appleMusicUrlHidden") || document.createElement("input");
-  if (!document.getElementById("appleMusicUrlHidden")) {
-    hiddenApple.type = "hidden";
-    hiddenApple.id = "appleMusicUrlHidden";
-    hiddenApple.name = "appleMusicUrl";
-    document.getElementById("requestForm").appendChild(hiddenApple);
-  }
-  hiddenApple.value = song.trackViewUrl;
+  // hidden fields（送信用）
+  setHidden("appleMusicUrlHidden","appleMusicUrl", song.trackViewUrl);
+  setHidden("artworkUrlHidden","artworkUrl", song.artworkUrl);
+  setHidden("previewUrlHidden","previewUrl", song.previewUrl);
 
-  let hiddenArtwork = document.getElementById("artworkUrlHidden") || document.createElement("input");
-  if (!document.getElementById("artworkUrlHidden")) {
-    hiddenArtwork.type = "hidden";
-    hiddenArtwork.id = "artworkUrlHidden";
-    hiddenArtwork.name = "artworkUrl";
-    document.getElementById("requestForm").appendChild(hiddenArtwork);
-  }
-  hiddenArtwork.value = song.artworkUrl;
-
-  let hiddenPreview = document.getElementById("previewUrlHidden") || document.createElement("input");
-  if (!document.getElementById("previewUrlHidden")) {
-    hiddenPreview.type = "hidden";
-    hiddenPreview.id = "previewUrlHidden";
-    hiddenPreview.name = "previewUrl";
-    document.getElementById("requestForm").appendChild(hiddenPreview);
-  }
-  hiddenPreview.value = song.previewUrl;
-
+  // 音源ロード（※自動再生はしない）
   if (playerControlsEnabled && song.previewUrl) {
-    if (!previewAudio) {
-      previewAudio = document.createElement("audio");
-      previewAudio.id = "previewAudio";
-      previewAudio.style.display = "none";
-      previewAudio.autoplay = true;
-      document.body.appendChild(previewAudio);
-      if (!window.AudioContext && !window.webkitAudioContext) {
-        console.warn("Web Audio API がサポートされていません");
-      } else {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      }
-    }
+    AudioManager.load(song.previewUrl);
+  }
 
-    previewAudio.src = song.previewUrl;
+  // UIイベント（毎回新規にバインド：積み重ね防止）
+  const playBtn = document.getElementById("playPauseBtn");
+  const volBtn  = document.getElementById("volumeBtn");
+  const slider  = document.getElementById("volumeSlider");
 
-    // AudioContext がサスペンド状態なら再開
-    if (audioContext && audioContext.state === "suspended") {
-      audioContext.resume();
-    }
+  const el = AudioManager.element();
+  el.onplay  = () => updatePlayPauseUI();
+  el.onpause = () => updatePlayPauseUI();
+  el.onended = () => updatePlayPauseUI();
 
-    // ユーザー操作中に即座に再生を開始（自動再生制限回避）
-    previewAudio.play().catch(err => { console.error("Playback error:", err); });
-
-    // メタデータ読み込み後に開始位置をシーク
-    previewAudio.onloadedmetadata = function() {
-      previewAudio.currentTime = (previewAudio.duration > 15) ? 15 : 0;
-      previewAudio.play().catch(err => { console.error("Playback error:", err); });
-    };
-
-    // canplay 時にも念のため再生
-    previewAudio.oncanplay = function() {
-      if (previewAudio.paused) {
-        previewAudio.play().catch(err => { console.error("Playback error:", err); });
-      }
-    };
-
-    if (audioContext && gainNode) {
-      gainNode.gain.value = 0.5;
-    } else if (audioContext && !gainNode) {
-      const source = audioContext.createMediaElementSource(previewAudio);
-      gainNode = audioContext.createGain();
-      source.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      gainNode.gain.value = 0.5;
+  playBtn.onclick = async (e) => {
+    e.preventDefault();
+    if (el.paused || el.ended) {
+      try { await AudioManager.play(); } catch(err){ console.error("play error:", err); }
     } else {
-      previewAudio.volume = 0.5;
+      AudioManager.pause(false);
     }
+    updatePlayPauseUI();
+  };
 
-    previewAudio.loop = true;
-    isPlaying = true;
-    isMuted = false;
-    updatePlayPauseIcon();
+  volBtn.onclick = (e) => {
+    e.preventDefault();
+    if (AudioManager.isMuted()) {
+      AudioManager.unmute();
+    } else {
+      AudioManager.mute();
+    }
+    slider.value = String(Math.round(AudioManager.getVolume01()*100));
     updateVolumeIcon();
-  }
-}
+  };
 
-function changeVolume(val) {
-  if (!previewAudio) return;
-  const volumeValue = parseInt(val, 10) / 100;
-  if (isMuted) {
-    isMuted = false;
-    previewAudio.muted = false;
-  }
-  if (audioContext && gainNode) {
-    gainNode.gain.value = volumeValue;
-  } else {
-    previewAudio.volume = volumeValue;
-  }
+  slider.oninput = (e) => {
+    const v01 = Number(e.target.value) / 100;
+    AudioManager.setVolume01(v01);
+    updateVolumeIcon();
+  };
+  slider.onchange = slider.oninput;
+
+  updatePlayPauseUI();
   updateVolumeIcon();
+  label.innerHTML = `<div class="selected-label">${song.trackName}・${song.artistName}</div>`;
 }
 
-function updateVolumeIcon() {
-  const volumeBtn = document.getElementById("volumeBtn");
-  if (!volumeBtn || !previewAudio) return;
-  let vol = audioContext && gainNode ? gainNode.gain.value : previewAudio.volume;
-  let svg = "";
-  if (isMuted || vol <= 0.01) {
-    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <line x1="15" y1="4" x2="21" y2="20" stroke="#888" stroke-width="3"/>
-    </svg>`;
-  } else if (vol < 0.35) {
-    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
-    </svg>`;
-  } else if (vol < 0.65) {
-    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
-      <path d="M18,12 C19,6 19,18 18,12" stroke="#888" stroke-width="3" fill="none"/>
-    </svg>`;
-  } else {
-    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="4,9 8,9 13,5 13,19 8,15 4,15" fill="#888"/>
-      <path d="M15,12 C16,8 16,16 15,12" stroke="#888" stroke-width="3" fill="none"/>
-      <path d="M18,12 C19,6 19,18 18,12" stroke="#888" stroke-width="3" fill="none"/>
-      <path d="M21,12 C22,4 22,20 21,12" stroke="#888" stroke-width="3" fill="none"/>
-    </svg>`;
-  }
-  volumeBtn.innerHTML = svg;
-}
-
-function togglePlay(e) {
-  e.stopPropagation();
-  if (!previewAudio) return;
-  if (isPlaying) {
-    previewAudio.pause();
-    isPlaying = false;
-  } else {
-    if (audioContext && audioContext.state === "suspended") {
-      audioContext.resume();
-    }
-    previewAudio.play().catch(err => { console.error("Playback error:", err); });
-    isPlaying = true;
-  }
-  updatePlayPauseIcon();
-}
-
-function updatePlayPauseIcon() {
+/* ---- UI更新 ---- */
+function updatePlayPauseUI() {
   const btn = document.getElementById("playPauseBtn");
+  const el = AudioManager.element();
+  if (!btn || !el) return;
+  const playing = !el.paused && !el.ended;
+  btn.textContent = playing ? "Ⅱ" : "▶";
+  btn.style.color = "#666";
+}
+function updateVolumeIcon() {
+  const btn = document.getElementById("volumeBtn");
   if (!btn) return;
-  let svg = "";
-  if (isPlaying) {
-    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <rect x="6" y="5" width="4" height="14" fill="#888"/>
-      <rect x="14" y="5" width="4" height="14" fill="#888"/>
-    </svg>`;
-  } else {
-    svg = `<svg width="24" height="24" viewBox="0 0 24 24" style="pointer-events:none;">
-      <polygon points="7,4 19,12 7,20" fill="#888"/>
-    </svg>`;
+  const v = AudioManager.getVolume01();
+  btn.textContent = v <= 0.001 ? "🔇" : v < 0.35 ? "🔈" : v < 0.7 ? "🔉" : "🔊";
+  btn.style.color = "#666";
+}
+
+/* ---- 共通 ---- */
+function setHidden(id,name,val){
+  let el = document.getElementById(id);
+  if (!el) {
+    el = document.createElement("input");
+    el.type = "hidden";
+    el.id = id;
+    el.name = name;
+    document.getElementById("requestForm").appendChild(el);
   }
-  btn.innerHTML = svg;
+  el.value = val || "";
 }
-
-function toggleMute(e) {
-  e.stopPropagation();
-  if (!previewAudio) return;
-  isMuted = !isMuted;
-  previewAudio.muted = isMuted;
-  updateVolumeIcon();
-}
-
-function clearSelection() {
-  document.getElementById("selectedLabel").innerHTML = "";
+function clearSelection(){
+  stopPlayback(true);
   document.getElementById("selectedSong").innerHTML = "";
-  if (document.getElementById("appleMusicUrlHidden")) document.getElementById("appleMusicUrlHidden").value = "";
-  if (document.getElementById("artworkUrlHidden")) document.getElementById("artworkUrlHidden").value = "";
-  if (document.getElementById("previewUrlHidden")) document.getElementById("previewUrlHidden").value = "";
-  if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    isPlaying = false;
-    updatePlayPauseIcon();
-  }
-  clearArtistSelection();
-  searchSongs();
-}
-
-function clearArtistSelection() {
-  selectedArtistId = null;
-  artistPhase = 0;
-  document.getElementById("selectedArtist").innerHTML = "";
   document.getElementById("selectedLabel").innerHTML = "";
-  document.getElementById("selectedSong").innerHTML = "";
-  if (previewAudio) {
-    previewAudio.pause();
-    previewAudio.currentTime = 0;
-    isPlaying = false;
-    updatePlayPauseIcon();
-  }
-  document.getElementById("suggestions").innerHTML = "";
-  searchSongs();
+  ["previewUrlHidden","appleMusicUrlHidden","artworkUrlHidden"].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = "";
+  });
+}
+function stopPlayback(resetSrc){
+  try { AudioManager.pause(resetSrc); } catch {}
 }
 
-function clearInput(id) {
-  document.getElementById(id).value = "";
-  searchSongs();
-}
+/* ---- ローディング ---- */
+function showLoading(){ const el = document.getElementById("loadingIndicator"); if (el) el.style.display = "flex"; }
+function hideLoading(){ const el = document.getElementById("loadingIndicator"); if (el) el.style.display = "none"; }
 
-function handleSubmit(e) {
-  e.preventDefault();
-  const appleUrl = document.getElementById("appleMusicUrlHidden")?.value.trim();
-  if (!appleUrl) {
-    alert("必ず候補一覧から曲を選択してください");
-    return;
-  }
-  document.getElementById("requestForm").submit();
-}
-
-function showAdminLogin() {
-  const password = prompt("⚠️管理者パスワードを入力してください:");
-  if (password) {
-    fetch(`/admin-login?password=${encodeURIComponent(password)}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) window.location.href = "/admin";
-        else alert("⚠️パスワードが間違っています。");
-      })
-      .catch(err => console.error("管理者ログインエラー:", err));
-  }
-}
-
-/* ロード中UI */
-function showLoading() {
-  const loader = document.getElementById("loadingIndicator");
-  if (loader) loader.style.display = "flex";
-}
-
-function hideLoading() {
-  const loader = document.getElementById("loadingIndicator");
-  if (loader) loader.style.display = "none";
+/* ---- 管理ログイン API（保持） ---- */
+async function adminLogin(password){
+  if (!password) return;
+  try {
+    const res = await fetch("/admin-login", {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ password })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      if (data.reason === "bad_password") alert("管理者パスワードが違います");
+      if (data.reason === "locked") alert("管理者ログイン試行の上限に達しました");
+    }
+  } catch(e){ console.error("管理者ログインエラー:", e); }
 }
