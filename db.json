@@ -82,6 +82,15 @@
       "count": 1
     },
     {
+      "id": "4cQrGQ-gNo15-52w3dG0G",
+      "text": "かがみ",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8B%E3%81%8C%E3%81%BF/1787372751?i=1787372752&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bb/a3/6f/bba36f31-b624-8caf-0967-1054b47d875b/4580789685392.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/f6/4c/00f64c60-2903-1e39-d9c7-721293632698/mzaf_8805154899213091422.plus.aac.p.m4a",
+      "count": 4
+    },
+    {
       "id": "siteTvS5Nyqh5XZulb4b2",
       "text": "ナルバキスン(Look at me, Gwisun)",
       "artist": "D",
@@ -97,15 +106,6 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/my-way/252792077?i=252792238&l=en&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/8b/2a/67/8b2a679f-349a-bf71-d9eb-e296130966a0/dj.ihhewbzh.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/62/60/40/6260405f-24af-5c51-9a1e-d97c874b66f5/mzaf_3480530877446207699.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "Foi03Sc2Qfe4wewD_7jR0",
-      "text": "ハイパーベンチレイション",
-      "artist": "RADWIMPS",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8F%E3%82%A4%E3%83%91%E3%83%BC%E3%83%99%E3%83%B3%E3%83%81%E3%83%AC%E3%82%A4%E3%82%B7%E3%83%A7%E3%83%B3/720569638?i=720569789&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/84/17/92/841792f7-d0dd-debf-1227-0bd7521b81d3/05099964642550.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview71/v4/0f/ec/a7/0feca777-5385-354f-eeb6-17a0da203758/mzaf_6683253490500750279.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -334,15 +334,6 @@
       "count": 1
     },
     {
-      "id": "ihhtkIDP9gBIZUVTL2SVp",
-      "text": "NEW KAWAII",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/new-kawaii/1734146998?i=1734147009&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/5c/1c/50/5c1c5006-d32f-d304-a801-bc17fe63ab4e/4580789624261.png/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/69/a2/19/69a219d0-4921-8aab-b9fe-b4c73182b01e/mzaf_1401586222655412037.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
       "id": "FXKUJIixy7MP2qE3cbtaq",
       "text": "Love the warz",
       "artist": "アーティスト不明",
@@ -394,15 +385,6 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A3%B0/1538147033?i=1538147034&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/10/db/0c/10db0cfa-6a28-c456-d220-9d7b62fa2189/jacket_ESXX01578B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c8/e5/56/c8e55674-d7ed-7450-1fff-82aa233d3843/mzaf_12402055554099687226.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "f5vMOM3LsWfO0JUojoMGj",
-      "text": "不思議",
-      "artist": "星野源",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E4%B8%8D%E6%80%9D%E8%AD%B0/1564408392?i=1564408393&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/17/a8/c4/17a8c4dc-5042-a62e-503c-437e672649a8/VEATP-38717.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c7/6e/ae/c76eae13-8daf-279d-2cea-ac0408c1ba02/mzaf_9150765621570642938.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -718,6 +700,24 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/time-capsule/1709460884?i=1709461219&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b3/56/7e/b3567eb6-b48d-b7ce-7e96-7a91c3222f78/4547366649574.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/d3/f5/09/d3f5091b-c59e-8a61-3935-9c83f0bfb6eb/mzaf_17122646665196077347.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "wkzS3hOEZ8Po9nZw4uRw-",
+      "text": "真夜中のドア～Stay with me",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%9C%9F%E5%A4%9C%E4%B8%AD%E3%81%AE%E3%83%89%E3%82%A2-stay-with-me/1709460884?i=1709461230&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b3/56/7e/b3567eb6-b48d-b7ce-7e96-7a91c3222f78/4547366649574.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/d5/09/79/d509794a-5579-d291-0ab1-887e2979fbeb/mzaf_4193098507478152930.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "LRtVwTKwVSWFNQ6khgokF",
+      "text": "I'm still alive today (with NANAMI)",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/im-still-alive-today-with-nanami/1709460884?i=1709461243&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b3/56/7e/b3567eb6-b48d-b7ce-7e96-7a91c3222f78/4547366649574.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/70/25/6e/70256e48-c806-2c73-647b-c1d08c15e87a/mzaf_9430143688481051951.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -1052,34 +1052,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/2f/b1/4f/2fb14f9b-3a26-a46c-d6fd-e9b158ac6aff/4538182601471_cov.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/16/92/be/1692bead-d21b-38a6-d227-f01cdeaf4240/mzaf_16841343378442696980.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "O7SBrwtHxm2ECI8l99Iv_",
-      "text": "残酷な天使のテーゼ",
-      "artist": "高橋洋子",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%AE%8B%E9%85%B7%E3%81%AA%E5%A4%A9%E4%BD%BF%E3%81%AE%E3%83%86%E3%83%BC%E3%82%BC/258926789?i=258926790&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/c7/68/d7/mzi.anmgzqdl.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/43/ed/a8/43eda8af-a77a-ef05-6102-a45a6d513ce7/mzaf_13221985799223651418.plus.aac.p.m4a",
-      "count": 2,
-      "createdAt": "2025-10-27T15:56:26.721Z",
-      "by": {
-        "id": "fTmfAKDxkV-g9QpJ",
-        "username": "管理者1"
-      }
-    },
-    {
-      "id": "IYHRT5J3GdyF6vDIFVnk0",
-      "text": "心よ原始に戻れ 2020",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%BF%83%E3%82%88%E5%8E%9F%E5%A7%8B%E3%81%AB%E6%88%BB%E3%82%8C-2020/1533023426?i=1533023427&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1b/fe/37/1bfe37ca-94ba-25ef-4d3e-b70dcea25f89/KICA-2583.jpg/300x300bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/44/d2/f5/44d2f567-3fad-dd83-e919-ac995156e2d1/mzaf_15654880631793455303.plus.aac.p.m4a",
-      "count": 1,
-      "createdAt": "2025-10-27T16:35:20.919Z",
-      "by": {
-        "id": "uy0-4JaKNPNuAbJc",
-        "username": "管理者1"
-      }
     }
   ],
   "lastSubmissions": {},
@@ -1108,9 +1080,9 @@
     "ドント・ワナ・ノウ (feat. ケンドリック・ラマー)|マルーン5": 1,
     "not like us|ケンドリック・ラマー": 1,
     "#1090 (thousand dreams)|松本孝弘": 1,
+    "かがみ|アーティスト不明": 4,
     "ナルバキスン(look at me, gwisun)|d": 1,
     "my way|def tech": 1,
-    "ハイパーベンチレイション|radwimps": 1,
     "クスシキ|アーティスト不明": 4,
     "春雷|アーティスト不明": 1,
     "ハピチョコ|アーティスト不明": 3,
@@ -1136,14 +1108,12 @@
     "全力少年|スキマスイッチ": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
     "全人類 兎化計画!|兎田ぺこら": 1,
-    "new kawaii|アーティスト不明": 1,
     "love the warz|アーティスト不明": 1,
     "yaju&u|アーティスト不明": 1,
     "help!!|kobo kanaeru": 1,
     "ラッキーカラー|あいみょん": 1,
     "hikari|アーティスト不明": 1,
     "声|アーティスト不明": 1,
-    "不思議|星野源": 1,
     "虹色の戦争|sekai no owari": 1,
     "10,000 hours|dan + shay & ジャスティン・ビーバー": 1,
     "bite you|muque": 1,
@@ -1179,6 +1149,8 @@
     "count on me|アーティスト不明": 1,
     "sing along!!! (feat. 幾田りら)|アーティスト不明": 1,
     "time capsule|アーティスト不明": 1,
+    "真夜中のドア～stay with me|アーティスト不明": 1,
+    "i'm still alive today (with nanami)|アーティスト不明": 1,
     "堕天|アーティスト不明": 1,
     "タイム・トラベル|アーティスト不明": 1,
     "count on me duet ver.|アーティスト不明": 1,
@@ -1215,19 +1187,13 @@
     "vivi|アーティスト不明": 1,
     "remember me|アーティスト不明": 1,
     "くりてぃかる♡ぷりちー|ilife!": 1,
-    "stay tune|アーティスト不明": 1,
-    "残酷な天使のテーゼ|高橋洋子": 2,
-    "心よ原始に戻れ 2020|アーティスト不明": 1
+    "stay tune|アーティスト不明": 1
   },
   "settings": {
-    "recruiting": true,
+    "recruiting": false,
     "reason": "🔧調整中🔧",
     "frontendTitle": "♬曲をリクエストする",
-    "adminPassword": "1",
-    "playerControlsEnabled": true,
-    "monthlyTokens": 5,
-    "maintenance": false,
-    "rateLimitPerMin": 2,
-    "duplicateCooldownMinutes": 1
+    "adminPassword": "0401",
+    "playerControlsEnabled": true
   }
 }
