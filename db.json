@@ -460,15 +460,6 @@
       "count": 1
     },
     {
-      "id": "PsaQiZfTM5m462qnajSki",
-      "text": "クスシキ",
-      "artist": "Mrs. GREEN APPLE",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%AF%E3%82%B9%E3%82%B7%E3%82%AD/1804230382?i=1804230388&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f2/13/a2/f213a26f-355f-95da-c119-a0571d28cdd1/25UMGIM46524.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/bf/77/ec/bf77ecec-6e64-f0bb-37dd-c7ed51e3bc2e/mzaf_11256532349323950179.plus.aac.p.m4a",
-      "count": 2
-    },
-    {
       "id": "YoxLYP7qgNSWzYXhPAkko",
       "text": "Hug",
       "artist": "アーティスト不明",
@@ -1079,24 +1070,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/2f/b1/4f/2fb14f9b-3a26-a46c-d6fd-e9b158ac6aff/4538182601471_cov.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/16/92/be/1692bead-d21b-38a6-d227-f01cdeaf4240/mzaf_16841343378442696980.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "8yw_-fzn-5cUe4phL0Lg8",
-      "text": "努努-ゆめゆめ-",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%8A%AA%E5%8A%AA-%E3%82%86%E3%82%81%E3%82%86%E3%82%81/1838917530?i=1838917535&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/6b/e4/ca/6be4cade-78d0-7f68-7436-be23a1698add/25UMGIM89652.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/31/15/f1/3115f146-165a-f6fa-133b-909cc0b950ec/mzaf_11284596869160045298.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "7lDK7nQZlNSUYijRDcNse",
-      "text": "努努-ゆめゆめ-",
-      "artist": "ONE OK ROCK",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%8A%AA%E5%8A%AA-%E3%82%86%E3%82%81%E3%82%86%E3%82%81/1838917530?i=1838917535&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/6b/e4/ca/6be4cade-78d0-7f68-7436-be23a1698add/25UMGIM89652.rgb.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/31/15/f1/3115f146-165a-f6fa-133b-909cc0b950ec/mzaf_11284596869160045298.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1167,7 +1140,6 @@
     "bite you|muque": 1,
     "バレる!|creepy nuts": 1,
     "fe!n (feat. playboi carti)|トラヴィス・スコット": 1,
-    "クスシキ|mrs. green apple": 2,
     "hug|アーティスト不明": 1,
     "ツキマシテハ|アーティスト不明": 2,
     "ア・プリオリ|アーティスト不明": 2,
@@ -1235,9 +1207,7 @@
     "vivi|アーティスト不明": 1,
     "remember me|アーティスト不明": 1,
     "くりてぃかる♡ぷりちー|ilife!": 1,
-    "stay tune|アーティスト不明": 1,
-    "努努-ゆめゆめ-|アーティスト不明": 1,
-    "努努-ゆめゆめ-|one ok rock": 1
+    "stay tune|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
