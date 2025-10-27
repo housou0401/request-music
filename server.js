@@ -1,614 +1,661 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import { LowSync, JSONFileSync } from "lowdb";
+import { JSONFilePreset } from "lowdb/node";
 import { nanoid } from "nanoid";
 import fetch from "node-fetch";
 import cron from "node-cron";
-import fs from "fs";
 import axios from "axios";
 import dotenv from "dotenv";
-
+import path from "node:path";
+import url from "node:url";
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// ====== Render の Environment Variables（Environment タブで設定） ======
+// ==== GitHub 同期設定 ====
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) {
-  console.error("必要な環境変数(GITHUB_OWNER, REPO_NAME, GITHUB_TOKEN)が設定されていません。");
-  process.exit(1);
-}
+// ==== LowDB ====
+const db = await JSONFilePreset("db.json", {
+  responses: [],
+  songCounts: {},
+  settings: {
+    recruiting: true,
+    reason: "",
+    frontendTitle: "♬曲をリクエストする",
+    adminPassword: "housou0401",
+    playerControlsEnabled: true,
+    monthlyTokens: 5,
+    maintenance: false,
+    rateLimitPerMin: 5,
+    duplicateCooldownMinutes: 15,
+  },
+});
+const usersDb = await JSONFilePreset("users.json", {
+  users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
+});
 
-// ====== LowDB のセットアップ（db.json / users.json） ======
-const dbAdapter = new JSONFileSync("db.json");
-const db = new LowSync(dbAdapter);
-db.read();
-db.data = db.data || { responses: [], songCounts: {}, settings: {} };
-if (!db.data.songCounts) db.data.songCounts = {};
-if (!db.data.settings) db.data.settings = {};
-
-if (db.data.settings.recruiting === undefined) db.data.settings.recruiting = true;
-if (db.data.settings.reason === undefined) db.data.settings.reason = "";
-if (db.data.settings.frontendTitle === undefined) db.data.settings.frontendTitle = "♬曲をリクエストする";
-if (db.data.settings.adminPassword === undefined) db.data.settings.adminPassword = "housou0401";
-if (db.data.settings.playerControlsEnabled === undefined) db.data.settings.playerControlsEnabled = true;
-// ★ 追加: 月次配布トークン数
-if (db.data.settings.monthlyTokens === undefined) db.data.settings.monthlyTokens = 5;
-db.write();
-
-const usersAdapter = new JSONFileSync("users.json");
-const usersDb = new LowSync(usersAdapter);
-usersDb.read();
-usersDb.data = usersDb.data || { users: [] }; // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
-usersDb.write();
-
-// ====== ミドルウェア ======
+// ==== Middleware ====
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json()); // JSONも受ける（/register など）
+app.use(express.json());
 app.use(cookieParser());
-app.use(express.static("public"));
 
-// ====== ユーザー / トークン管理ユーティリティ ======
-function monthKey() {
+// 静的配信 & ルート
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+app.use(express.static("public"));
+app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
+
+// ==== Helpers ====
+const monthKey = () => {
   const d = new Date();
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+};
+const isAdmin = (u) => u && u.role === "admin";
+const getUserById = (id) => usersDb.data.users.find((u) => u.id === id);
+const deviceInfoFromReq = (req) => ({
+  ua: req.get("User-Agent") || "",
+  ip: req.ip || req.connection?.remoteAddress || "",
+});
+
+const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 365 };
+const getInt = (v) => (Number.isFinite(parseInt(v, 10)) ? parseInt(v, 10) : 0);
+const getRegFails = (req) => Math.max(0, getInt(req.cookies?.areg));
+const setRegFails = (res, n) => res.cookie("areg", Math.max(0, n), COOKIE_OPTS);
+const getLoginFails = (req) => Math.max(0, getInt(req.cookies?.alog));
+const setLoginFails = (res, n) => res.cookie("alog", Math.max(0, n), COOKIE_OPTS);
+const MAX_TRIES = 3;
+
+// ---- レート制限（メモリ） ----
+const rateMap = new Map(); // key: userId, value: number[] timestamps(ms)
+function hitRate(userId, limitPerMin) {
+  const now = Date.now();
+  const windowMs = 60 * 1000;
+  const arr = rateMap.get(userId) || [];
+  const pruned = arr.filter(ts => now - ts < windowMs);
+  pruned.push(now);
+  rateMap.set(userId, pruned);
+  return pruned.length <= limitPerMin;
 }
-function isAdmin(user) {
-  return user && user.role === "admin";
-}
-function getUserById(id) {
-  return usersDb.data.users.find(u => u.id === id);
-}
-function ensureMonthlyRefillSync(user) {
-  if (!user) return;
-  if (isAdmin(user)) return; // 管理者は無制限
+
+// 月次トークン配布
+async function ensureMonthlyRefill(user) {
+  if (!user || isAdmin(user)) return;
   const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
   if (user.lastRefillISO !== m) {
     user.tokens = monthly;
     user.lastRefillISO = m;
-    usersDb.write();
+    await usersDb.write();
   }
 }
-function deviceInfoFromReq(req) {
-  return {
-    ua: req.get("User-Agent") || "",
-    ip: req.ip || req.connection?.remoteAddress || ""
-  };
-}
-
-// Cookie→req.user 解決
-function resolveUser(req, _res, next) {
-  const deviceId = req.cookies?.deviceId;
-  if (deviceId) {
-    const u = getUserById(deviceId);
-    if (u) {
-      ensureMonthlyRefillSync(u);
-      req.user = u;
+async function refillAllIfMonthChanged() {
+  const m = monthKey();
+  const monthly = Number(db.data.settings.monthlyTokens ?? 5);
+  let touched = false;
+  for (const u of usersDb.data.users) {
+    if (!isAdmin(u) && u.lastRefillISO !== m) {
+      u.tokens = monthly;
+      u.lastRefillISO = m;
+      touched = true;
     }
   }
+  if (touched) await usersDb.write();
+}
+
+// Cookie → user / adminSession / impersonation
+app.use(async (req, _res, next) => {
+  const baseDeviceId = req.cookies?.deviceId || null;
+  const baseUser = baseDeviceId ? getUserById(baseDeviceId) : null;
+
+  // admin セッションは「adminユーザー」または「adminAuthクッキー」で判定
+  const adminSession = (baseUser && isAdmin(baseUser)) || (req.cookies?.adminAuth === "1");
+
+  // なりすまし
+  let effectiveUser = baseUser;
+  let impersonating = false;
+  const impId = req.cookies?.impersonateId;
+  if (impId && adminSession) {
+    const target = getUserById(impId);
+    if (target) { effectiveUser = target; impersonating = true; }
+  }
+
+  if (effectiveUser) await ensureMonthlyRefill(effectiveUser);
+
+  req.user = effectiveUser || null;
+  req.adminSession = !!adminSession;
+  req.impersonating = impersonating;
   next();
-}
-app.use(resolveUser);
+});
 
-// ====== Apple Music 検索関連（既存） ======
-async function fetchResultsForQuery(query, lang, entity = "song", attribute = "") {
-  let url = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&country=JP&media=music&entity=${entity}&limit=75&explicit=no&lang=${lang}`;
-  if (attribute) url += `&attribute=${attribute}`;
-  const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-  if (!response.ok) {
-    console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
-    return { results: [] };
-  }
-  const text = await response.text();
+// 管理者保護
+function requireAdmin(req, res, next) {
+  if (req.adminSession) return next();
+  return res
+    .status(403)
+    .send(`<!doctype html><meta charset="utf-8"><title>403</title><p>管理者のみアクセスできます。</p><p><a href="/">トップへ</a></p>`);
+}
+
+// ==========================
+// Apple Music 検索（再編成）
+// ==========================
+
+// 共通：iTunes Search API 呼び出し（言語判定は廃止）
+async function itunesSearch(params) {
+  const qs = new URLSearchParams({ country: "JP", media: "music", limit: "75", ...params });
+  const urlStr = `https://itunes.apple.com/search?${qs.toString()}`;
+  const resp = await fetch(urlStr, { headers: { "User-Agent": "Mozilla/5.0" } });
+  if (!resp.ok) return { results: [] };
+  const text = await resp.text();
   if (!text.trim()) return { results: [] };
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error(`JSON parse error for url=${url}:`, e);
-    return { results: [] };
-  }
+  try { return JSON.parse(text); } catch { return { results: [] }; }
 }
 
-async function fetchArtistTracks(artistId) {
-  const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=75`;
-  const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-  if (!response.ok) {
-    console.error(`HTTPエラー: ${response.status} for URL: ${url}`);
-    return [];
-  }
-  const text = await response.text();
+// アーティストの楽曲一覧（lookup）
+async function itunesLookupSongsByArtist(artistId) {
+  const urlStr = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=100`;
+  const r = await fetch(urlStr, { headers: { "User-Agent": "Mozilla/5.0" } });
+  if (!r.ok) return [];
+  const text = await r.text();
   if (!text.trim()) return [];
   try {
     const data = JSON.parse(text);
     if (!data.results || data.results.length <= 1) return [];
-    return data.results.slice(1).map(r => ({
-      trackName: r.trackName,
-      artistName: r.artistName,
-      trackViewUrl: r.trackViewUrl,
-      artworkUrl: r.artworkUrl100,
-      previewUrl: r.previewUrl || ""
-    }));
-  } catch (e) {
-    console.error("JSON parse error (fetchArtistTracks):", e);
-    return [];
-  }
+    return data.results.slice(1).map(normalizeSong);
+  } catch { return []; }
 }
 
-async function fetchAppleMusicInfo(songTitle, artistName) {
-  try {
-    const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(songTitle);
-    const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(songTitle);
-    let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
-
-    let queries = [];
-    if (artistName && artistName.trim()) {
-      queries.push(`${songTitle} ${artistName}`);
-      queries.push(`${songTitle} official ${artistName}`);
-    } else {
-      queries.push(songTitle);
-      queries.push(`${songTitle} official`);
-    }
-
-    for (let query of queries) {
-      let data = await fetchResultsForQuery(query, lang, "song", "songTerm");
-      if (data.results.length === 0 && (lang === "en_us" || lang === "en_gb")) {
-        const altLang = (lang === "en_us") ? "en_gb" : "en_us";
-        data = await fetchResultsForQuery(query, altLang, "song", "songTerm");
-      }
-      if (data && data.results && data.results.length > 0) {
-        const uniqueResults = [];
-        const seen = new Set();
-        for (let track of data.results) {
-          const key = (track.trackName + "|" + track.artistName).toLowerCase();
-          if (!seen.has(key)) {
-            seen.add(key);
-            uniqueResults.push({
-              trackName: track.trackName,
-              artistName: track.artistName,
-              trackViewUrl: track.trackViewUrl,
-              artworkUrl: track.artworkUrl100,
-              previewUrl: track.previewUrl || ""
-            });
-          }
-        }
-        if (uniqueResults.length > 0) return uniqueResults;
-      }
-    }
-    return [];
-  } catch (error) {
-    console.error("❌ Apple Music 検索エラー:", error);
-    return [];
-  }
+// 結果の標準化
+function normalizeSong(x) {
+  let artwork = x.artworkUrl100 || x.artworkUrl60 || "";
+  if (artwork) artwork = artwork.replace(/\/[0-9]+x[0-9]+bb\.jpg$/, "/300x300bb.jpg");
+  return {
+    trackName: x.trackName,
+    artistName: x.artistName,
+    trackViewUrl: x.trackViewUrl,
+    artworkUrl: artwork,
+    previewUrl: x.previewUrl || "",
+    releaseDate: x.releaseDate || ""
+  };
 }
 
-// ====== API: 検索（既存のまま） ======
+// 並び替えキー取得（クッキー or クエリ）
+function getSearchSort(req) {
+  const key = (req.query.sort || req.cookies?.searchSort || "relevance").toString();
+  const allowed = new Set(["relevance", "release_desc", "release_asc", "name_asc", "artist_asc"]);
+  return allowed.has(key) ? key : "relevance";
+}
+function sortSongs(list, sortKey) {
+  if (!Array.isArray(list) || list.length === 0) return list;
+  const arr = [...list];
+  switch (sortKey) {
+    case "release_desc":
+      arr.sort((a,b)=> new Date(b.releaseDate||0) - new Date(a.releaseDate||0) || (a.trackName||"").localeCompare(b.trackName||""));
+      break;
+    case "release_asc":
+      arr.sort((a,b)=> new Date(a.releaseDate||0) - new Date(b.releaseDate||0) || (a.trackName||"").localeCompare(b.trackName||""));
+      break;
+    case "name_asc":
+      arr.sort((a,b)=> (a.trackName||"").localeCompare(b.trackName||"") || (a.artistName||"").localeCompare(b.artistName||""));
+      break;
+    case "artist_asc":
+      arr.sort((a,b)=> (a.artistName||"").localeCompare(b.artistName||"") || (a.trackName||"").localeCompare(b.trackName||""));
+      break;
+    case "relevance":
+    default:
+      break;
+  }
+  return arr;
+}
+function sortArtists(artists, sortKey) {
+  if (!Array.isArray(artists) || artists.length === 0) return artists;
+  const arr = [...artists];
+  if (sortKey === "artist_asc" || sortKey === "name_asc") {
+    arr.sort((a,b)=> (a.artistName||"").localeCompare(b.artistName||""));
+  }
+  return arr;
+}
+
+// ==== 検索 API ====
 app.get("/search", async (req, res) => {
-  const mode = req.query.mode || "song";
   try {
+    const mode = (req.query.mode || "song").toString();
+    const sortKey = getSearchSort(req);
+
     if (mode === "artist") {
       if (req.query.artistId) {
-        const tracks = await fetchArtistTracks(req.query.artistId.trim());
-        return res.json(tracks);
-      } else {
-        const query = req.query.query?.trim();
-        if (!query) return res.json([]);
-        const hasKorean  = /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(query);
-        const hasJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(query);
-        let lang = hasKorean ? "ko_kr" : hasJapanese ? "ja_jp" : "en_us";
-        const data = await fetchResultsForQuery(query, lang, "album", "artistTerm");
-        if (!data || !data.results) return res.json([]);
-        const artistMap = new Map();
-        for (let album of data.results) {
-          if (album.artistName && album.artistId) {
-            if (!artistMap.has(album.artistId)) {
-              artistMap.set(album.artistId, {
-                trackName: album.artistName,
-                artistName: album.artistName,
-                artworkUrl: album.artworkUrl100 || "",
-                artistId: album.artistId
-              });
-            }
-          }
-        }
-        return res.json(Array.from(artistMap.values()));
+        const tracks = await itunesLookupSongsByArtist(req.query.artistId.toString().trim());
+        return res.json(sortSongs(tracks, sortKey));
       }
-    } else {
-      const query = req.query.query?.trim();
-      const artist = req.query.artist?.trim() || "";
-      if (!query) return res.json([]);
-      const suggestions = await fetchAppleMusicInfo(query, artist);
-      return res.json(suggestions);
+      const q = (req.query.query || "").toString().trim();
+      if (!q) return res.json([]);
+      const data = await itunesSearch({ term: q, entity: "album" });
+      const artistMap = new Map();
+      for (const a of (data.results || [])) {
+        if (!a.artistId || !a.artistName) continue;
+        if (!artistMap.has(a.artistId)) {
+          let artwork = a.artworkUrl100 || a.artworkUrl60 || "";
+          if (artwork) artwork = artwork.replace(/\/[0-9]+x[0-9]+bb\.jpg$/, "/300x300bb.jpg");
+          artistMap.set(a.artistId, {
+            trackName: a.artistName,
+            artistName: a.artistName,
+            artworkUrl: artwork,
+            artistId: a.artistId
+          });
+        }
+      }
+      return res.json(sortArtists([...artistMap.values()], sortKey));
     }
-  } catch (err) {
-    console.error("❌ /search エラー:", err);
-    return res.json([]);
+
+    // mode=song
+    const q = (req.query.query || "").toString().trim();
+    if (!q) return res.json([]);
+    const artist = (req.query.artist || "").toString().trim();
+    const term = artist ? `${q} ${artist}` : q;
+    const data = await itunesSearch({ term, entity: "song" });
+
+    const seen = new Set();
+    const songs = [];
+    for (const t of data.results || []) {
+      if (!t.trackName || !t.artistName) continue;
+      const key = (t.trackName + "|" + t.artistName).toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      songs.push(normalizeSong(t));
+    }
+    return res.json(sortSongs(songs, sortKey));
+  } catch (e) {
+    console.error(e);
+    res.json([]);
   }
 });
 
-// ====== API: 初回登録＆Cookie発行 ======
-app.post("/register", (req, res) => {
+// ==== 認証状態 ====
+app.get("/auth/status", (req, res) => {
+  const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
+  const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
+  res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem });
+});
+
+// ==== 登録 ====
+app.post("/register", async (req, res) => {
   try {
-    const username = (req.body.username || "Guest").toString().trim() || "Guest";
-    const adminPassword = (req.body.adminPassword || "").toString().trim();
-    const deviceId = nanoid(16);
-    const role = adminPassword && adminPassword === db.data.settings.adminPassword ? "admin" : "user";
+    const usernameRaw = (req.body.username ?? "").toString();
+    const username = usernameRaw.trim() || "Guest";
+    const adminPassword = typeof req.body.adminPassword === "string" ? req.body.adminPassword.trim() : "";
     const monthly = Number(db.data.settings.monthlyTokens ?? 5);
 
-    const user = {
+    const regFails = getRegFails(req);
+    if (adminPassword) {
+      if (regFails >= MAX_TRIES) {
+        return res.json({ ok: false, reason: "locked", remaining: 0, message: "管理者パスワードの試行上限に達しました。" });
+      }
+      if (adminPassword !== db.data.settings.adminPassword) {
+        const n = regFails + 1;
+        setRegFails(res, n);
+        return res.json({ ok: false, reason: "bad_admin_password", remaining: Math.max(0, MAX_TRIES - n) });
+      }
+    }
+
+    const deviceId = nanoid(16);
+    const role = adminPassword ? "admin" : "user";
+    usersDb.data.users.push({
       id: deviceId,
       username,
       deviceInfo: deviceInfoFromReq(req),
       role,
       tokens: role === "admin" ? null : monthly,
-      lastRefillISO: monthKey()
-    };
-    usersDb.data.users.push(user);
-    usersDb.write();
-
-    // Cookie: 端末＝1ユーザー
-    res.cookie("deviceId", deviceId, {
-      httpOnly: true,
-      sameSite: "Lax",
-      maxAge: 1000 * 60 * 60 * 24 * 365 // 1年
+      lastRefillISO: monthKey(),
     });
+    await usersDb.write();
 
-    res.json({ ok: true, user: { id: user.id, username: user.username, role: user.role, tokens: user.tokens } });
+    setRegFails(res, 0);
+    res.cookie("deviceId", deviceId, COOKIE_OPTS);
+    if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
+    res.json({ ok: true, role, username });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
 });
 
-// 自分の状態（残トークンなど）
-app.get("/me", (req, res) => {
+// ==== /me ====
+app.get("/me", async (req, res) => {
   const s = db.data.settings;
-  if (!req.user) return res.json({ loggedIn: false, settings: { monthlyTokens: s.monthlyTokens } });
-  ensureMonthlyRefillSync(req.user);
+  if (!req.user)
+    return res.json({
+      loggedIn: false,
+      adminSession: !!req.adminSession,
+      settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
+    });
+  await ensureMonthlyRefill(req.user);
   res.json({
     loggedIn: true,
+    adminSession: !!req.adminSession,
+    impersonating: !!req.impersonating,
     user: { id: req.user.id, username: req.user.username, role: req.user.role, tokens: req.user.tokens },
-    settings: { monthlyTokens: s.monthlyTokens }
+    settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
   });
 });
 
-// ====== API: リクエスト送信（ここでトークン消費） ======
-app.post("/submit", (req, res) => {
-  // Cookieベースのユーザー必須
+// ==== 送信 ====
+app.post("/submit", async (req, res) => {
   const user = req.user;
-  if (!user) {
-    return res.send(`<script>alert("未登録です。初回登録をしてください。"); window.location.href="/";</script>`);
+  if (!user) return res.send(`<script>alert("未登録です。初回登録をしてください。"); location.href="/";</script>`);
+  await ensureMonthlyRefill(user);
+
+  if (db.data.settings.maintenance) return res.send(`<script>alert("現在メンテナンス中です。投稿できません。"); location.href="/";</script>`);
+  if (!db.data.settings.recruiting) return res.send(`<script>alert("現在は募集を終了しています。"); location.href="/";</script>`);
+
+  const limit = Number(db.data.settings.rateLimitPerMin ?? 5);
+  if (!isAdmin(user) && !hitRate(user.id, limit)) {
+    return res.send(`<script>alert("送信が多すぎます。しばらくしてからお試しください。（1分あたり最大 ${limit} 件）"); location.href="/";</script>`);
   }
-  ensureMonthlyRefillSync(user);
-  if (!isAdmin(user)) {
-    if (typeof user.tokens !== "number" || user.tokens <= 0) {
-      return res.send(`<script>alert("トークンが不足しています。"); window.location.href="/";</script>`);
-    }
+
+  if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
+    return res.send(`<script>alert("トークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
   const artworkUrl = req.body.artworkUrl?.trim();
   const previewUrl = req.body.previewUrl?.trim();
-  if (!appleMusicUrl || !artworkUrl || !previewUrl) {
-    return res.send(`<script>alert("必ず候補一覧から曲を選択してください"); window.location.href="/";</script>`);
-  }
   const responseText = req.body.response?.trim();
   const artistText = req.body.artist?.trim() || "アーティスト不明";
-  if (!responseText) {
-    return res.send(`<script>alert("⚠️入力欄が空です。"); window.location.href="/";</script>`);
+  if (!appleMusicUrl || !artworkUrl || !previewUrl) return res.send(`<script>alert("候補一覧から曲を選択してください"); location.href="/";</script>`);
+  if (!responseText) return res.send(`<script>alert("入力欄が空です。"); location.href="/";</script>`);
+
+  // 同一曲連投の抑止
+  const cooldownMin = Number(db.data.settings.duplicateCooldownMinutes ?? 15);
+  const now = Date.now();
+  const keyLower = `${responseText.toLowerCase()}|${artistText.toLowerCase()}`;
+  const recent = [...db.data.responses].reverse().find(r => r.by?.id === user.id && `${r.text.toLowerCase()}|${r.artist.toLowerCase()}` === keyLower);
+  if (recent) {
+    const dt = now - new Date(recent.createdAt).getTime();
+    if (dt < cooldownMin * 60 * 1000) {
+      const left = Math.ceil((cooldownMin * 60 * 1000 - dt) / 60000);
+      return res.send(`<script>alert("同一曲の連投は ${cooldownMin} 分間できません。あと約 ${left} 分お待ちください。"); location.href="/";</script>`);
+    }
   }
 
-  const key = `${responseText.toLowerCase()}|${artistText.toLowerCase()}`;
-  db.data.songCounts[key] = (db.data.songCounts[key] || 0) + 1;
+  db.data.songCounts[keyLower] = (db.data.songCounts[keyLower] || 0) + 1;
+  const existing = db.data.responses.find(r => r.text.toLowerCase() === responseText.toLowerCase() && r.artist.toLowerCase() === artistText.toLowerCase());
+  if (existing) existing.count = db.data.songCounts[keyLower];
+  else db.data.responses.push({
+    id: nanoid(), text: responseText, artist: artistText, appleMusicUrl, artworkUrl, previewUrl,
+    count: db.data.songCounts[keyLower], createdAt: new Date().toISOString(), by: { id: user.id, username: user.username }
+  });
 
-  const existing = db.data.responses.find(r =>
-    r.text.toLowerCase() === responseText.toLowerCase() &&
-    r.artist.toLowerCase() === artistText.toLowerCase()
-  );
-  if (existing) {
-    existing.count = db.data.songCounts[key];
-  } else {
-    db.data.responses.push({
-      id: nanoid(),
-      text: responseText,
-      artist: artistText,
-      appleMusicUrl,
-      artworkUrl,
-      previewUrl,
-      count: db.data.songCounts[key],
-      createdAt: new Date().toISOString(),
-      by: { id: user.id, username: user.username }
-    });
-  }
-
-  // トークン消費（管理者は無制限）
-  if (!isAdmin(user)) {
-    user.tokens = Math.max(0, (user.tokens ?? 0) - 1);
-    usersDb.write();
-  }
-
-  db.write();
-  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
-  res.send(`<script>alert("✅送信が完了しました！\\nリクエストありがとうございました！"); window.location.href="/";</script>`);
+  if (!isAdmin(user)) { user.tokens = Math.max(0, (user.tokens ?? 0) - 1); await usersDb.write(); }
+  await db.write();
+  res.send(`<script>alert("送信が完了しました！"); location.href="/";</script>`);
 });
 
-// ====== API: リクエスト削除（既存。回数リセット） ======
-app.get("/delete/:id", (req, res) => {
+// ==== リクエスト削除 & まとめて削除 ====
+function safeWriteUsers() { return usersDb.write().catch(e => console.error("users.json write error:", e)); }
+function safeWriteDb() { return db.write().catch(e => console.error("db.json write error:", e)); }
+
+app.get("/delete/:id", requireAdmin, async (req, res) => {
   const id = req.params.id;
-  const toDelete = db.data.responses.find(entry => entry.id === id);
+  const toDelete = db.data.responses.find(e => e.id === id);
   if (toDelete) {
     const key = `${toDelete.text.toLowerCase()}|${toDelete.artist.toLowerCase()}`;
     delete db.data.songCounts[key];
   }
-  db.data.responses = db.data.responses.filter(entry => entry.id !== id);
-  db.write();
-  fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
+  db.data.responses = db.data.responses.filter(e => e.id !== id);
+  await safeWriteDb();
   res.set("Content-Type", "text/html");
-  res.send(`<script>alert("🗑️削除しました！"); window.location.href="/admin";</script>`);
+  res.send(`<script>alert("削除しました"); location.href="/admin";</script>`);
 });
 
-// ====== GitHub 同期/取得（db.json と users.json の両方） ======
+app.post("/admin/bulk-delete-requests", requireAdmin, async (req, res) => {
+  const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
+  const idSet = new Set(ids);
+  for (const r of db.data.responses) if (idSet.has(r.id)) {
+    const key = `${r.text.toLowerCase()}|${r.artist.toLowerCase()}`; delete db.data.songCounts[key];
+  }
+  db.data.responses = db.data.responses.filter(r => !idSet.has(r.id));
+  await safeWriteDb();
+  res.redirect(`/admin`);
+});
+
+// ==== GitHub 同期 ====
 async function getFileSha(pathname) {
   try {
-    const r = await axios.get(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
-      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } }
-    );
+    const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
+      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
     return r.data.sha;
-  } catch (e) {
-    if (e.response && e.response.status === 404) return null;
-    throw e;
-  }
+  } catch (e) { if (e.response?.status === 404) return null; throw e; }
 }
-
 async function putFile(pathname, contentObj, message) {
   const sha = await getFileSha(pathname);
   const contentEncoded = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
-  const payload = { message, content: contentEncoded, branch: BRANCH };
-  if (sha) payload.sha = sha;
-  const r = await axios.put(
-    `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`,
-    payload,
-    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } }
-  );
-  return r.data;
+  const payload = { message, content: contentEncoded, branch: BRANCH, ...(sha ? { sha } : {}) };
+  return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
+    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
 }
-
 async function getFile(pathname) {
-  const r = await axios.get(
-    `https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
-    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } }
-  );
-  const contentBase64 = r.data.content;
-  return JSON.parse(Buffer.from(contentBase64, "base64").toString("utf8"));
+  const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
+    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
+  return JSON.parse(Buffer.from(r.data.content, "base64").toString("utf8"));
 }
-
 async function syncAllToGitHub() {
+  if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) return;
   await putFile("db.json", db.data, `Sync db.json at ${new Date().toISOString()}`);
   await putFile("users.json", usersDb.data, `Sync users.json at ${new Date().toISOString()}`);
 }
-
 async function fetchAllFromGitHub() {
-  try {
-    const dbRemote = await getFile("db.json");
-    db.data = dbRemote;
-    db.write();
-    fs.writeFileSync("db.json", JSON.stringify(db.data, null, 2));
-  } catch (e) {
-    console.warn("fetch db.json failed:", e.message);
-  }
-  try {
-    const usersRemote = await getFile("users.json");
-    usersDb.data = usersRemote;
-    usersDb.write();
-    fs.writeFileSync("users.json", JSON.stringify(usersDb.data, null, 2));
-  } catch (e) {
-    console.warn("fetch users.json failed:", e.message);
-  }
+  if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) return;
+  try { db.data = await getFile("db.json"); await safeWriteDb(); } catch (e) { console.warn("fetch db.json failed:", e.message); }
+  try { usersDb.data = await getFile("users.json"); await safeWriteUsers(); } catch (e) { console.warn("fetch users.json failed:", e.message); }
 }
 
-app.get("/sync-requests", async (req, res) => {
-  try {
-    await syncAllToGitHub();
-    res.set("Content-Type", "text/html");
-    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Sync 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
-  } catch (e) {
-    res.send("Sync エラー: " + (e.response ? JSON.stringify(e.response.data) : e.message));
+// ==== 管理ログイン（維持） ====
+app.post("/admin-login", async (req, res) => {
+  const pwd = typeof req.body.password === "string" ? req.body.password.trim() : "";
+  if (!pwd) return res.json({ success: false, reason: "empty" });
+
+  const fails = getLoginFails(req);
+  if (fails >= MAX_TRIES) return res.json({ success: false, reason: "locked", remaining: 0 });
+
+  const ok = pwd === db.data.settings.adminPassword;
+  if (!ok) {
+    const n = fails + 1; setLoginFails(res, n);
+    return res.json({ success: false, reason: "bad_password", remaining: Math.max(0, MAX_TRIES - n) });
   }
+
+  res.cookie("adminAuth", "1", COOKIE_OPTS);
+  setLoginFails(res, 0);
+
+  if (req.user && !isAdmin(req.user)) {
+    req.user.role = "admin";
+    req.user.tokens = null;
+    await safeWriteUsers();
+  }
+  return res.json({ success: true });
 });
 
-app.get("/fetch-requests", async (req, res) => {
-  try {
-    await fetchAllFromGitHub();
-    res.set("Content-Type", "text/html");
-    res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">✅ Fetch 完了しました。3秒後に管理者ページに戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
-  } catch (error) {
-    res.send("Fetch エラー: " + (error.response ? JSON.stringify(error.response.data) : error.message));
-  }
+// ==== なりすまし ====
+app.post("/admin/impersonate", requireAdmin, async (req, res) => {
+  const { id } = req.body || {};
+  const u = getUserById(id);
+  if (!u) return res.status(404).send("Not found");
+  res.cookie("impersonateId", u.id, COOKIE_OPTS);
+  res.redirect("/admin/users");
+});
+app.get("/admin/impersonate/clear", requireAdmin, async (_req, res) => {
+  res.clearCookie("impersonateId");
+  res.redirect("/admin/users");
 });
 
-// ====== 管理ページ（既存＋ユーザー管理リンク／月次トークン設定） ======
-app.get("/admin", (req, res) => {
-  const page = parseInt(req.query.page || "1", 10);
+// ==== 管理 UI ====
+app.get("/admin", requireAdmin, async (req, res) => {
+  const sort = (req.query.sort || "newest").toString(); // newest | popular
   const perPage = 10;
-  const total = db.data.responses.length;
-  const totalPages = Math.ceil(Math.max(total, 1) / perPage);
-  const startIndex = (page - 1) * perPage;
-  const pageItems = db.data.responses.slice(startIndex, startIndex + perPage);
+  const page = parseInt(req.query.page || "1", 10);
 
-  function createPaginationLinks(currentPage, totalPages) {
-    let html = `<div style="text-align:left; margin-bottom:10px;">`;
-    html += `<a href="?page=1" style="margin:0 5px;">|< 最初のページ</a>`;
-    const prevPage = Math.max(1, currentPage - 1);
-    html += `<a href="?page=${prevPage}" style="margin:0 5px;">&lt;</a>`;
-    for (let p = 1; p <= totalPages; p++) {
-      if (Math.abs(p - currentPage) <= 2 || p === 1 || p === totalPages) {
-        if (p === currentPage) {
-          html += `<span style="margin:0 5px; font-weight:bold;">${p}</span>`;
-        } else {
-          html += `<a href="?page=${p}" style="margin:0 5px;">${p}</a>`;
-        }
-      } else if (Math.abs(p - currentPage) === 3) {
-        html += `...`;
-      }
+  let items = [...db.data.responses];
+  if (sort === "popular") items.sort((a,b)=> (b.count|0)-(a.count|0) || new Date(b.createdAt)-new Date(a.createdAt));
+  else items.sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const currentPage = Math.min(Math.max(1, page), totalPages);
+  const start = (currentPage - 1) * perPage;
+  const pageItems = items.slice(start, start + perPage);
+
+  const pagination = (cur, total, sortKey) => {
+    const btn = (p, label, disabled = false) =>
+      `<a class="pg-btn ${disabled ? "disabled" : ""}" href="?page=${p}&sort=${sortKey}" ${disabled ? 'tabindex="-1"' : ""}>${label}</a>`;
+    let html = `<div class="pg-wrap">`;
+    html += btn(1, "« 最初", cur === 1);
+    html += btn(Math.max(1, cur - 1), "‹ 前へ", cur === 1);
+    for (let p = 1; p <= total; p++) {
+      if (p === cur) html += `<span class="pg-btn current">${p}</span>`;
+      else if (Math.abs(p - cur) <= 2 || p === 1 || p === total) html += btn(p, String(p));
+      else if (Math.abs(p - cur) === 3) html += `<span class="pg-ellipsis">…</span>`;
     }
-    const nextPage = Math.min(totalPages, currentPage + 1);
-    html += `<a href="?page=${nextPage}" style="margin:0 5px;">&gt;</a>`;
-    html += `<a href="?page=${totalPages}" style="margin:0 5px;">最後のページ &gt;|</a>`;
-    html += `</div>`;
-    return html;
-  }
+    html += btn(Math.min(total, cur + 1), "次へ ›", cur === total);
+    html += btn(total, "最後 »", cur === total);
+    return html + `</div>`;
+  };
 
-  let html = `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>管理者ページ</title>
+  let html = `<!doctype html><html lang="ja"><meta charset="utf-8"><title>管理者ページ</title>
   <style>
-    li { margin-bottom: 10px; }
-    .entry-container { position: relative; display: inline-block; margin-bottom:10px; }
-    .entry { display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius: 10px; width: fit-content; }
-    .entry:hover { background-color: rgba(0,0,0,0.05); }
-    .entry img { width: 50px; height: 50px; border-radius: 5px; margin-right: 10px; }
-    .delete { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: red; text-decoration: none; }
-    .count-badge { background-color: #ff6b6b; color: white; font-weight: bold; padding: 4px 8px; border-radius: 5px; margin-right: 10px; }
-    h1 { font-size: 1.5em; margin-bottom: 20px; }
-    form { margin: 20px 0; text-align: left; }
-    textarea { width: 300px; height: 80px; font-size: 0.9em; color: black; display: block; margin-bottom: 10px; }
-    .setting-field { margin-bottom: 10px; }
-    .sync-btn, .fetch-btn {
-      padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;
-    }
-    .sync-btn { background-color: #28a745; color: white; }
-    .sync-btn:hover { background-color: #218838; }
-    .fetch-btn { background-color: #17a2b8; color: white; margin-left: 10px; }
-    .fetch-btn:hover { background-color: #138496; }
-    .button-container { display: flex; justify-content: flex-start; margin-bottom: 10px; }
-    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-left: 10px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .pg-wrap{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+    .pg-btn{display:inline-block;padding:8px 12px;border:1px solid #ccc;border-radius:8px;text-decoration:none;color:#333;min-width:44px;text-align:center}
+    .pg-btn:hover{background:#f5f5f5}
+    .pg-btn.current{background:#007bff;color:#fff;border-color:#007bff}
+    .pg-btn.disabled{opacity:.5;pointer-events:none}
+    .pg-ellipsis{padding:8px 4px}
+    .entry-container{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px;border:1px solid rgba(0,0,0,.1);border-radius:10px}
+    .entry-container:hover{background:#fafafa}
+    .entry img{width:50px;height:50px;border-radius:5px;margin-right:10px}
+    .delete{position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);text-decoration:none}
+    .count-badge{background:#ff6b6b;color:#fff;font-weight:bold;padding:4px 8px;border-radius:5px;margin-right:10px}
+    .tools{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
+    .tools button{padding:8px 12px}
+    .sec{margin:14px 0}
+    code.pwd{padding:2px 6px;background:#f5f5f5;border-radius:6px;border:1px solid #eee}
+    .banner-imp{padding:8px 12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;margin:10px 0}
   </style>
-  </head><body><h1>✉アンケート回答一覧</h1>`;
-  html += createPaginationLinks(page, totalPages);
-  html += `<ul style="list-style:none; padding:0;">`;
-  pageItems.forEach(entry => {
+  <body>
+    <h1>✉ アンケート回答一覧</h1>
+
+    ${req.impersonating ? `<div class="banner-imp">現在 <strong>${req.user?.username || 'user'}</strong> として閲覧中（なりすまし）。 <a href="/admin/impersonate/clear">解除</a></div>` : ""}
+
+    <div class="tools">
+      <div>
+        並び替え:
+        <a class="pg-btn ${sort==='newest'?'current':''}" href="?sort=newest">最新順</a>
+        <a class="pg-btn ${sort==='popular'?'current':''}" href="?sort=popular">人気順</a>
+      </div>
+      <div style="margin-left:auto;">
+        <a class="pg-btn" href="/admin/users">ユーザー管理へ →</a>
+      </div>
+    </div>
+
+    ${pagination(currentPage, totalPages, sort)}
+
+    <form method="POST" action="/admin/bulk-delete-requests" id="bulkReqForm">
+      <div class="tools">
+        <label><input type="checkbox" id="reqSelectAll"> 全選択</label>
+        <button type="submit">選択したリクエストを削除</button>
+        <a class="pg-btn" href="/sync-requests">GitHubに同期</a>
+        <a class="pg-btn" href="/fetch-requests">GitHubから取得</a>
+      </div>
+
+      <ul style="list-style:none; padding:0;">`;
+
+  pageItems.forEach(e => {
     html += `<li>
       <div class="entry-container">
-        <a href="${entry.appleMusicUrl || "#"}" target="_blank" class="entry">
-          <div class="count-badge">${entry.count}</div>
-          <img src="${entry.artworkUrl}" alt="Cover">
-          <div>
-            <strong>${entry.text}</strong><br>
-            <small>${entry.artist}</small>
-          </div>
+        <input type="checkbox" name="ids" value="${e.id}" class="req-check">
+        <a href="${e.appleMusicUrl || "#"}" target="_blank" class="entry" style="display:flex;align-items:center;">
+          <div class="count-badge">${e.count}</div>
+          <img src="${e.artworkUrl}" alt="Cover">
+          <div><strong>${e.text}</strong><br><small>${e.artist}</small></div>
         </a>
-        <a href="/delete/${entry.id}" class="delete">🗑️</a>
+        <a href="/delete/${e.id}" class="delete">🗑️</a>
       </div>
     </li>`;
   });
-  html += `</ul>`;
-  html += createPaginationLinks(page, totalPages);
 
-  html += `<form action="/update-settings" method="post">
-    <div class="setting-field">
-      <label>
-        <input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
-        募集を終了する
-      </label>
-    </div>
-    <div class="setting-field">
-      <label>理由:</label><br>
-      <textarea name="reason" placeholder="理由（任意）">${db.data.settings.reason || ""}</textarea>
-    </div>
-    <div class="setting-field">
-      <label>フロントエンドタイトル:</label><br>
-      <textarea name="frontendTitle" placeholder="フロントエンドに表示するタイトル">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea>
-    </div>
-    <div class="setting-field">
-      <label>管理者パスワード:</label><br>
-      <input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;">
-    </div>
-    <div class="setting-field">
-      <label>
-        <input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""} style="transform: scale(1.5); vertical-align: middle; margin-right: 10px;">
-        ユーザーページの再生・音量ボタンを表示する
-      </label>
-    </div>
-    <br>
-    <button type="submit" style="font-size:18px; padding:12px;">設定を更新</button>
-  </form>`;
+  html += `</ul>
+      <div class="tools">
+        <button type="submit">選択したリクエストを削除</button>
+      </div>
+    </form>
 
-  // 追加: 月次トークン設定＆ユーザー管理リンク
-  html += `<h2>月次トークン</h2>
-  <form method="POST" action="/admin/update-monthly-tokens" style="margin-bottom:16px;">
-    <label>月次配布数: <input type="number" min="0" name="monthlyTokens" value="${db.data.settings.monthlyTokens ?? 5}" style="width:100px;"></label>
-    <button type="submit" style="margin-left:8px;">保存</button>
-  </form>
-  <p><a href="/admin/users" style="font-size:16px;">ユーザー管理へ →</a></p>`;
+    ${pagination(currentPage, totalPages, sort)}
 
-  html += `<div class="button-container">
-    <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">GitHubに同期</button>
-    <button class="fetch-btn" id="fetchBtn" onclick="fetchFromGitHub()">GitHubから取得</button>
-    <div class="spinner" id="loadingSpinner"></div>
-  </div>
-  <br><a href="/" style="font-size:20px; padding:10px 20px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">↵戻る</a>`;
-  html += `<script>
-    function syncToGitHub() {
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("fetchBtn").disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/sync-requests")
-        .then(r => r.text())
-        .then(d => { document.body.innerHTML = d; })
-        .catch(e => {
-          alert("エラー: " + e);
-          document.getElementById("loadingSpinner").style.display = "none";
-          document.getElementById("syncBtn").disabled = false;
-          document.getElementById("fetchBtn").disabled = false;
-        });
-    }
-    function fetchFromGitHub() {
-      document.getElementById("syncBtn").disabled = true;
-      document.getElementById("fetchBtn").disabled = true;
-      document.getElementById("loadingSpinner").style.display = "block";
-      fetch("/fetch-requests")
-        .then(r => r.text())
-        .then(d => { document.body.innerHTML = d; })
-        .catch(e => {
-          alert("エラー: " + e);
-          document.getElementById("loadingSpinner").style.display = "none";
-          document.getElementById("syncBtn").disabled = false;
-          document.getElementById("fetchBtn").disabled = false;
-        });
-    }
-  </script>`;
-  html += `</body></html>`;
+    <div class="sec">
+      <h2>設定</h2>
+      <p>現在の管理者パスワード: <code class="pwd" id="curPwd">${db.data.settings.adminPassword}</code>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('curPwd').textContent)">コピー</button>
+      </p>
+      <form action="/update-settings" method="post">
+        <div><label><input type="checkbox" name="maintenance" value="on" ${db.data.settings.maintenance ? "checked" : ""}> メンテナンス中にする</label></div>
+        <div style="margin-top:6px;"><label><input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"}> 募集を終了する</label></div>
+        <div style="margin-top:10px;"><label>理由:<br><textarea name="reason" style="width:300px;height:80px;">${db.data.settings.reason || ""}</textarea></label></div>
+        <div><label>フロントエンドタイトル:<br><textarea name="frontendTitle" style="width:300px;height:60px;">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea></label></div>
+        <div><label>管理者パスワード:<br><input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;"></label></div>
+        <div><label><input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""}> 再生・音量ボタンを表示</label></div>
+        <div style="margin-top:10px;">
+          <label>1分あたりの送信上限: <input type="number" name="rateLimitPerMin" min="1" value="${db.data.settings.rateLimitPerMin}" style="width:90px;"></label>
+          <label style="margin-left:10px;">同一曲連投クールダウン(分): <input type="number" name="duplicateCooldownMinutes" min="0" value="${db.data.settings.duplicateCooldownMinutes}" style="width:90px;"></label>
+        </div>
+        <button type="submit" style="font-size:16px; padding:8px 14px; margin-top:6px;">設定を更新</button>
+      </form>
+    </div>
+
+    <div class="sec">
+      <h2>月次トークン</h2>
+      <form method="POST" action="/admin/update-monthly-tokens">
+        <label>月次配布数: <input type="number" min="0" name="monthlyTokens" value="${db.data.settings.monthlyTokens ?? 5}" style="width:100px;"></label>
+        <button type="submit" style="margin-left:8px;">保存</button>
+      </form>
+      <p><a href="/admin/users">ユーザー管理へ →</a></p>
+    </div>
+
+    <p><a href="/" style="font-size:20px;">↵戻る</a></p>
+
+    <script>
+      const reqAll = document.getElementById('reqSelectAll');
+      if (reqAll) reqAll.addEventListener('change', () => {
+        document.querySelectorAll('.req-check').forEach(chk => chk.checked = reqAll.checked);
+      });
+    </script>
+  </body></html>`;
+
   res.send(html);
 });
 
-// 管理: 月次配布数の保存
-app.post("/admin/update-monthly-tokens", (req, res) => {
+// ==== 月次配布数の保存 ====
+app.post("/admin/update-monthly-tokens", requireAdmin, async (req, res) => {
   const n = Number(req.body.monthlyTokens);
-  if (!Number.isFinite(n) || n < 0) {
-    return res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:red;">入力が不正です。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
-  }
+  if (!Number.isFinite(n) || n < 0)
+    return res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="2;url=/admin">入力が不正です`);
   db.data.settings.monthlyTokens = n;
-  db.write();
-  res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="1;url=/admin"></head><body><p style="font-size:18px; color:green;">保存しました。</p><script>setTimeout(()=>{ location.href="/admin"; },1000);</script></body></html>`);
+  await safeWriteDb();
+  res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin">保存しました`);
 });
 
-// 管理: ユーザー一覧
-app.get("/admin/users", (_req, res) => {
-  usersDb.read();
+// ==== Users（管理者のみ + なりすましボタン） ====
+app.get("/admin/users", requireAdmin, async (_req, res) => {
+  await usersDb.read();
   const rows = usersDb.data.users.map(u => `
     <tr>
+      <td><input type="checkbox" name="ids" value="${u.id}" class="user-check"></td>
       <td>${u.username}</td>
       <td>${u.id}</td>
       <td>${u.role}</td>
       <td>${isAdmin(u) ? "∞" : (u.tokens ?? 0)}</td>
       <td>${u.lastRefillISO || "-"}</td>
-      <td>
-        <form method="POST" action="/admin/update-user" style="display:flex; gap:6px; align-items:center;">
+      <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <form method="POST" action="/admin/update-user" style="display:inline-flex; gap:6px; align-items:center; margin-right:8px;">
           <input type="hidden" name="id" value="${u.id}">
           <label>tokens:<input type="number" min="0" name="tokens" value="${isAdmin(u)?0:(u.tokens??0)}" ${isAdmin(u)?'disabled':''} style="width:90px;"></label>
           <label>role:
@@ -619,74 +666,158 @@ app.get("/admin/users", (_req, res) => {
           </label>
           <button type="submit">更新</button>
         </form>
+        <form method="POST" action="/admin/delete-user" style="display:inline;">
+          <input type="hidden" name="id" value="${u.id}">
+          <button type="submit" title="このユーザーを削除" style="cursor:pointer;">🗑️</button>
+        </form>
+        <form method="POST" action="/admin/impersonate" style="display:inline;">
+          <input type="hidden" name="id" value="${u.id}">
+          <button type="submit" title="このユーザーになりすます">👤</button>
+        </form>
       </td>
-    </tr>
-  `).join("");
+    </tr>`).join("");
 
-  res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><title>Admin Users</title></head>
-  <body>
-    <h1>Users</h1>
-    <p>Monthly tokens: ${db.data.settings.monthlyTokens}</p>
-    <p><a href="/admin">← Adminへ戻る</a></p>
-    <table border="1" cellpadding="6" cellspacing="0">
-      <thead><tr><th>username</th><th>deviceId</th><th>role</th><th>tokens</th><th>lastRefill</th><th>操作</th></tr></thead>
+  res.send(`<!doctype html><meta charset="utf-8"><title>Admin Users</title>
+  <style>
+    .tools{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
+    .tools button{padding:8px 12px}
+    table{border-collapse:collapse}
+    th,td{border:1px solid #ccc;padding:6px 8px}
+    .note{margin:8px 0 0;color:#555}
+  </style>
+  <h1>Users</h1>
+  <p><a href="/admin">← Adminへ戻る</a></p>
+
+  <form method="POST" action="/admin/bulk-delete-users" id="bulkUserForm">
+    <div class="tools"><label><input type="checkbox" id="userSelectAll"> 全選択</label>
+      <button type="submit">選択したユーザーを削除</button></div>
+    <table cellpadding="6" cellspacing="0">
+      <thead><tr><th></th><th>username</th><th>deviceId</th><th>role</th><th>tokens</th><th>lastRefill</th><th>操作</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
-  </body></html>`);
+  </form>
+
+  <div class="tools">
+    <form method="POST" action="/admin/bulk-update-user-tokens" style="display:flex;gap:8px;align-items:center;">
+      <label>一般ユーザーの tokens を一括で
+        <input type="number" min="0" name="tokens" value="5" style="width:100px;"> に更新</label>
+      <button type="submit">実行</button>
+    </form>
+    <a href="/admin/impersonate/clear" class="note">なりすましを解除</a>
+  </div>
+
+  <script>
+    const userAll = document.getElementById('userSelectAll');
+    if (userAll) userAll.addEventListener('change', () => {
+      document.querySelectorAll('.user-check').forEach(chk => chk.checked = userAll.checked);
+    });
+  </script>`);
 });
 
-// 管理: 個別ユーザー更新
-app.post("/admin/update-user", (req, res) => {
+// 個別ユーザー更新
+app.post("/admin/update-user", requireAdmin, async (req, res) => {
+  await usersDb.read();
   const { id, tokens, role } = req.body || {};
   const u = usersDb.data.users.find(x => x.id === id);
   if (!u) return res.status(404).send("Not found");
-
-  if (role === "admin") {
-    u.role = "admin";
-    u.tokens = null; // 無制限
-  } else {
-    u.role = "user";
-    const n = Number(tokens);
-    u.tokens = Number.isFinite(n) && n >= 0 ? n : 0;
-  }
-  usersDb.write();
+  if (role === "admin") { u.role = "admin"; u.tokens = null; }
+  else { u.role = "user"; const n = Number(tokens); u.tokens = Number.isFinite(n) && n >= 0 ? n : 0; }
+  await usersDb.write();
+  res.redirect(`/admin/users`);
+});
+app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
+  await usersDb.read();
+  const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
+  const idSet = new Set(ids);
+  usersDb.data.users = usersDb.data.users.filter(u => !idSet.has(u.id));
+  await usersDb.write();
+  res.redirect(`/admin/users`);
+});
+app.post("/admin/bulk-update-user-tokens", requireAdmin, async (req, res) => {
+  await usersDb.read();
+  const n = Number(req.body.tokens);
+  if (!Number.isFinite(n) || n < 0) return res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="2;url=/admin/users">入力が不正です`);
+  for (const u of usersDb.data.users) if (!isAdmin(u)) u.tokens = n;
+  await usersDb.write();
+  res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin/users">更新しました`);
+});
+app.post("/admin/delete-user", requireAdmin, async (req, res) => {
+  await usersDb.read();
+  const { id } = req.body || {};
+  if (!id) return res.status(400).send("bad request");
+  usersDb.data.users = usersDb.data.users.filter(u => u.id !== id);
+  await usersDb.write();
   res.redirect(`/admin/users`);
 });
 
-// ====== 既存: 管理ログイン・設定 ======
-app.get("/admin-login", (req, res) => {
-  const { password } = req.query;
-  res.json({ success: password === db.data.settings.adminPassword });
-});
-
-app.post("/update-settings", (req, res) => {
+// ==== 設定 ====
+app.post("/update-settings", requireAdmin, async (req, res) => {
+  db.data.settings.maintenance = !!req.body.maintenance;
   db.data.settings.recruiting = req.body.recruiting ? false : true;
   db.data.settings.reason = req.body.reason || "";
   db.data.settings.frontendTitle = req.body.frontendTitle || "♬曲をリクエストする";
-  if (req.body.adminPassword && req.body.adminPassword.trim()) {
-    db.data.settings.adminPassword = req.body.adminPassword.trim();
-  }
+  if (req.body.adminPassword?.trim()) db.data.settings.adminPassword = req.body.adminPassword.trim();
   db.data.settings.playerControlsEnabled = !!req.body.playerControlsEnabled;
-  db.write();
-  res.send(`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="3;url=/admin"></head><body><p style="font-size:18px; color:green;">設定を完了しました。3秒後に戻ります。</p><script>setTimeout(()=>{ location.href="/admin"; },3000);</script></body></html>`);
-});
 
-app.get("/settings", (req, res) => {
-  res.json(db.data.settings);
-});
+  const rl = Number(req.body.rateLimitPerMin);
+  const cd = Number(req.body.duplicateCooldownMinutes);
+  if (Number.isFinite(rl) && rl > 0) db.data.settings.rateLimitPerMin = rl;
+  if (Number.isFinite(cd) && cd >= 0) db.data.settings.duplicateCooldownMinutes = cd;
 
-// ====== 8分ごと自動同期（db.json / users.json） ======
-cron.schedule("*/8 * * * *", async () => {
-  console.log("自動更新ジョブ開始: db.json / users.json を GitHub にアップロードします。");
+  await safeWriteDb();
+  res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin">設定を保存しました`);
+});
+app.get("/settings", (_req, res) => res.json(db.data.settings));
+
+// ==== プレビュー用プロキシ ====
+app.get("/preview", async (req, res) => {
   try {
-    db.write(); usersDb.write();
-    await syncAllToGitHub();
-    console.log("自動更新完了");
+    const raw = req.query.url;
+    if (!raw) return res.status(400).send("missing url");
+    const parsed = url.parse(raw);
+    const host = (parsed.hostname || "").toLowerCase();
+    const allowed =
+      host.endsWith("itunes.apple.com") ||
+      host.endsWith("audio-ssl.itunes.apple.com") ||
+      host.endsWith("mzstatic.com");
+    if (!allowed) return res.status(403).send("forbidden host");
+
+    const headers = {};
+    if (req.headers.range) headers["range"] = req.headers.range;
+
+    const r = await fetch(raw, { headers });
+    res.status(r.status);
+    const ct = r.headers.get("content-type") || "audio/mpeg";
+    res.setHeader("Content-Type", ct);
+    const len = r.headers.get("content-length");
+    if (len) res.setHeader("Content-Length", len);
+    const ar = r.headers.get("accept-ranges");
+    if (ar) res.setHeader("Accept-Ranges", ar);
+    const cr = r.headers.get("content-range");
+    if (cr) res.setHeader("Content-Range", cr);
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    r.body.pipe(res);
   } catch (e) {
-    console.error("自動更新エラー:", e);
+    console.error("preview proxy error:", e);
+    res.status(500).send("preview error");
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀サーバーが http://localhost:${PORT} で起動しました`);
+// ==== GitHub 同期（任意ボタン） ====
+app.get("/sync-requests", requireAdmin, async (_req, res) => {
+  try { await syncAllToGitHub(); res.redirect("/admin"); }
+  catch { res.redirect("/admin"); }
 });
+app.get("/fetch-requests", requireAdmin, async (_req, res) => {
+  try { await fetchAllFromGitHub(); res.redirect("/admin"); }
+  catch { res.redirect("/admin"); }
+});
+
+// ==== 起動時 ====
+await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
+
+// ==== Cron ====
+cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
+cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
+
+app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
