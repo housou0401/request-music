@@ -1088,6 +1088,15 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/fd/88/94/fd88942c-54dc-47bc-e8f0-a62af5f8e228/4525853670799.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/62/6e/d4/626ed418-6cc0-7c94-804c-43001cc35d43/mzaf_1440366012388135953.plus.aac.p.m4a",
       "count": 1
+    },
+    {
+      "id": "_Gp-8WhidXKOMRJy2jIdf",
+      "text": "ピース",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%94%E3%83%BC%E3%82%B9/1822948725?i=1822948728&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5b/c1/5f/5bc15fbb-ca1d-c57a-b24a-32b9cbb6d08a/4517331095972.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b4/73/10/b473107a-33e8-3d59-084d-6596f83d13ac/mzaf_10093971877857087500.plus.aac.p.m4a",
+      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1227,7 +1236,8 @@
     "remember me|アーティスト不明": 1,
     "くりてぃかる♡ぷりちー|ilife!": 1,
     "stay tune|アーティスト不明": 1,
-    "アストロビスタ (2025 mix)|アーティスト不明": 1
+    "アストロビスタ (2025 mix)|アーティスト不明": 1,
+    "ピース|アーティスト不明": 1
   },
   "settings": {
     "recruiting": false,
