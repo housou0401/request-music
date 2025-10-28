@@ -109,6 +109,15 @@
       "count": 1
     },
     {
+      "id": "Foi03Sc2Qfe4wewD_7jR0",
+      "text": "ハイパーベンチレイション",
+      "artist": "RADWIMPS",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8F%E3%82%A4%E3%83%91%E3%83%BC%E3%83%99%E3%83%B3%E3%83%81%E3%83%AC%E3%82%A4%E3%82%B7%E3%83%A7%E3%83%B3/720569638?i=720569789&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/84/17/92/841792f7-d0dd-debf-1227-0bd7521b81d3/05099964642550.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview71/v4/0f/ec/a7/0feca777-5385-354f-eeb6-17a0da203758/mzaf_6683253490500750279.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "-TTD_pwBcsICan74CqngZ",
       "text": "クスシキ",
       "artist": "アーティスト不明",
@@ -334,6 +343,15 @@
       "count": 1
     },
     {
+      "id": "ihhtkIDP9gBIZUVTL2SVp",
+      "text": "NEW KAWAII",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/new-kawaii/1734146998?i=1734147009&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/5c/1c/50/5c1c5006-d32f-d304-a801-bc17fe63ab4e/4580789624261.png/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/69/a2/19/69a219d0-4921-8aab-b9fe-b4c73182b01e/mzaf_1401586222655412037.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
       "id": "FXKUJIixy7MP2qE3cbtaq",
       "text": "Love the warz",
       "artist": "アーティスト不明",
@@ -385,6 +403,15 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A3%B0/1538147033?i=1538147034&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/10/db/0c/10db0cfa-6a28-c456-d220-9d7b62fa2189/jacket_ESXX01578B00Z_550.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c8/e5/56/c8e55674-d7ed-7450-1fff-82aa233d3843/mzaf_12402055554099687226.plus.aac.p.m4a",
+      "count": 1
+    },
+    {
+      "id": "f5vMOM3LsWfO0JUojoMGj",
+      "text": "不思議",
+      "artist": "星野源",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E4%B8%8D%E6%80%9D%E8%AD%B0/1564408392?i=1564408393&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/17/a8/c4/17a8c4dc-5042-a62e-503c-437e672649a8/VEATP-38717.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c7/6e/ae/c76eae13-8daf-279d-2cea-ac0408c1ba02/mzaf_9150765621570642938.plus.aac.p.m4a",
       "count": 1
     },
     {
@@ -1083,6 +1110,7 @@
     "かがみ|アーティスト不明": 4,
     "ナルバキスン(look at me, gwisun)|d": 1,
     "my way|def tech": 1,
+    "ハイパーベンチレイション|radwimps": 1,
     "クスシキ|アーティスト不明": 4,
     "春雷|アーティスト不明": 1,
     "ハピチョコ|アーティスト不明": 3,
@@ -1108,12 +1136,14 @@
     "全力少年|スキマスイッチ": 1,
     "かわいいだけじゃだめですか?|cutie street": 1,
     "全人類 兎化計画!|兎田ぺこら": 1,
+    "new kawaii|アーティスト不明": 1,
     "love the warz|アーティスト不明": 1,
     "yaju&u|アーティスト不明": 1,
     "help!!|kobo kanaeru": 1,
     "ラッキーカラー|あいみょん": 1,
     "hikari|アーティスト不明": 1,
     "声|アーティスト不明": 1,
+    "不思議|星野源": 1,
     "虹色の戦争|sekai no owari": 1,
     "10,000 hours|dan + shay & ジャスティン・ビーバー": 1,
     "bite you|muque": 1,
