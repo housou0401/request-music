@@ -344,19 +344,19 @@ app.get("/me", async (req, res) => {
 // ==== 送信 ====
 app.post("/submit", async (req, res) => {
   const user = req.user;
-  if (!user) return res.send(`<script>alert("未登録です。初回登録をしてください。"); location.href="/";</script>`);
+  if (!user) return res.send(`<script>alert("⚠未登録です。初回登録をしてください。"); location.href="/";</script>`);
   await ensureMonthlyRefill(user);
 
-  if (db.data.settings.maintenance) return res.send(`<script>alert("現在メンテナンス中です。投稿できません。"); location.href="/";</script>`);
-  if (!db.data.settings.recruiting) return res.send(`<script>alert("現在は募集を終了しています。"); location.href="/";</script>`);
+  if (db.data.settings.maintenance) return res.send(`<script>alert("⚠現在メンテナンス中です。投稿できません。"); location.href="/";</script>`);
+  if (!db.data.settings.recruiting) return res.send(`<script>alert("⚠現在は募集を終了しています。"); location.href="/";</script>`);
 
   const limit = Number(db.data.settings.rateLimitPerMin ?? 5);
   if (!isAdmin(user) && !hitRate(user.id, limit)) {
-    return res.send(`<script>alert("送信が多すぎます。しばらくしてからお試しください。（1分あたり最大 ${limit} 件）"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠送信が多すぎます。しばらくしてからお試しください。（1分あたり最大 ${limit} 件）"); location.href="/";</script>`);
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("トークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠トークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
@@ -364,8 +364,8 @@ app.post("/submit", async (req, res) => {
   const previewUrl = req.body.previewUrl?.trim();
   const responseText = req.body.response?.trim();
   const artistText = req.body.artist?.trim() || "アーティスト不明";
-  if (!appleMusicUrl || !artworkUrl || !previewUrl) return res.send(`<script>alert("候補一覧から曲を選択してください"); location.href="/";</script>`);
-  if (!responseText) return res.send(`<script>alert("入力欄が空です。"); location.href="/";</script>`);
+  if (!appleMusicUrl || !artworkUrl || !previewUrl) return res.send(`<script>alert("⚠候補一覧から曲を選択してください"); location.href="/";</script>`);
+  if (!responseText) return res.send(`<script>alert("⚠入力欄が空です。"); location.href="/";</script>`);
 
   // 同一曲連投の抑止
   const cooldownMin = Number(db.data.settings.duplicateCooldownMinutes ?? 15);
@@ -376,7 +376,7 @@ app.post("/submit", async (req, res) => {
     const dt = now - new Date(recent.createdAt).getTime();
     if (dt < cooldownMin * 60 * 1000) {
       const left = Math.ceil((cooldownMin * 60 * 1000 - dt) / 60000);
-      return res.send(`<script>alert("同一曲の連投は ${cooldownMin} 分間できません。あと約 ${left} 分お待ちください。"); location.href="/";</script>`);
+      return res.send(`<script>alert("⚠同一曲の連投は ${cooldownMin} 分間できません。あと約 ${left} 分お待ちください。"); location.href="/";</script>`);
     }
   }
 
@@ -390,7 +390,7 @@ app.post("/submit", async (req, res) => {
 
   if (!isAdmin(user)) { user.tokens = Math.max(0, (user.tokens ?? 0) - 1); await usersDb.write(); }
   await db.write();
-  res.send(`<script>alert("送信が完了しました！"); location.href="/";</script>`);
+  res.send(`<script>alert("✅送信が完了しました！"); location.href="/";</script>`);
 });
 
 // ==== リクエスト削除 & まとめて削除 ====
@@ -407,7 +407,7 @@ app.get("/delete/:id", requireAdmin, async (req, res) => {
   db.data.responses = db.data.responses.filter(e => e.id !== id);
   await safeWriteDb();
   res.set("Content-Type", "text/html");
-  res.send(`<script>alert("削除しました"); location.href="/admin";</script>`);
+  res.send(`<script>alert("🗑️削除しました"); location.href="/admin";</script>`);
 });
 
 app.post("/admin/bulk-delete-requests", requireAdmin, async (req, res) => {
@@ -820,4 +820,4 @@ await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await re
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
 cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
 
-app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
