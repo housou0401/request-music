@@ -34,17 +34,6 @@
       "lastRefillISO": "2025-10"
     },
     {
-      "id": "L8sjKfFshVJcF9o4",
-      "username": "管理者3",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/141.0.7390.96 Mobile/15E148 Safari/604.1",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2025-10"
-    },
-    {
       "id": "4LOBN67Kp0bEML3_",
       "username": "ふうか",
       "deviceInfo": {
@@ -53,6 +42,17 @@
       },
       "role": "user",
       "tokens": 5,
+      "lastRefillISO": "2025-10"
+    },
+    {
+      "id": "8WZocJD1vk5v4pz-",
+      "username": "管理者3",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
       "lastRefillISO": "2025-10"
     }
   ]
