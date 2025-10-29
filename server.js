@@ -15,6 +15,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ==== GitHub 同期設定 ====
+
+async function getFileMeta(pathname) {
+  try {
+    const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
+      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
+    const contentB64 = (r.data.content || "").replace(/\n/g, "");
+    return { sha: r.data.sha, contentB64 };
+  } catch (e) { if (e.response?.status === 404) return { sha: null, contentB64: null }; throw e; }
+}
+
+
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const BRANCH = process.env.GITHUB_BRANCH || "main";
@@ -36,6 +47,12 @@ const db = await JSONFilePreset("db.json", {
     duplicateCooldownMinutes: 15,
   },
 });
+
+// --- Ensure default settings for refill schedule ---
+if (!db.data.settings) db.data.settings = {};
+if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;     // 00:
+if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 10; // :10
+if (!db.data.settings.refillTimezone) db.data.settings.refillTimezone = "Asia/Tokyo";
 const usersDb = await JSONFilePreset("users.json", {
   users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
 });
@@ -275,6 +292,7 @@ app.get("/search", async (req, res) => {
 });
 
 // ==== 認証状態 ====
+
 app.get("/auth/status", (req, res) => {
   const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
   const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
@@ -331,6 +349,7 @@ app.post("/register", async (req, res) => {
     setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
+    res.cookie("justLoggedIn","1", COOKIE_OPTS);
     res.json({ ok: true, role, username });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -445,9 +464,16 @@ async function getFileSha(pathname) {
   } catch (e) { if (e.response?.status === 404) return null; throw e; }
 }
 async function putFile(pathname, contentObj, message) {
-  const sha = await getFileSha(pathname);
-  const contentEncoded = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
-  const payload = { message, content: contentEncoded, branch: BRANCH, ...(sha ? { sha } : {}) };
+  const nextB64 = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
+  const { sha, contentB64 } = await getFileMeta(pathname);
+  if (contentB64 && contentB64 === nextB64) {
+    console.log(`[github-sync] ${pathname}: no changes, skip`);
+    return { skipped: true };
+  }
+  const payload = { message, content: nextB64, branch: BRANCH, ...(sha ? { sha } : {}) };
+  return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
+    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
+} : {}) };
   return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
     { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
 }
@@ -489,6 +515,7 @@ app.post("/admin-login", async (req, res) => {
     req.user.tokens = null;
     await safeWriteUsers();
   }
+  res.cookie("justLoggedIn","1", COOKIE_OPTS);
   return res.json({ success: true });
 });
 
@@ -831,8 +858,40 @@ app.get("/fetch-requests", requireAdmin, async (_req, res) => {
 // ==== 起動時 ====
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
+
+let _refillCron = null;
+function scheduleRefillCron() {
+  try {
+    if (_refillCron) { try { _refillCron.stop(); } catch {} _refillCron = null; }
+    const hour = Number(db.data.settings.refillHour ?? 0);
+    const minute = Number(db.data.settings.refillMinute ?? 10);
+    const tz = db.data.settings.refillTimezone || "Asia/Tokyo";
+    const expr = `${minute} ${hour} * * *`;
+    _refillCron = cron.schedule(expr, async () => {
+      try { await refillAllIfMonthChanged(); } catch (e) { console.error("refill cron error:", e); }
+    }, { timezone: tz });
+    console.log(`[refill-cron] scheduled at`, expr, `TZ=${tz}`);
+  } catch (e) {
+    console.error("scheduleRefillCron failed:", e);
+  }
+}
+
 // ==== Cron ====
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
 cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
+
+
+app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
+  const hour = Math.min(23, Math.max(0, parseInt(req.body.hour, 10) || 0));
+  const minute = Math.min(59, Math.max(0, parseInt(req.body.minute, 10) || 0));
+  const timezone = (req.body.timezone || "Asia/Tokyo").toString().trim() || "Asia/Tokyo";
+  db.data.settings.refillHour = hour;
+  db.data.settings.refillMinute = minute;
+  db.data.settings.refillTimezone = timezone;
+  await db.write();
+  try { scheduleRefillCron(); } catch (e) { console.error(e); }
+  res.redirect("/admin");
+});
+
