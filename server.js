@@ -45,14 +45,6 @@ const usersDb = await JSONFilePreset("users.json", {
 
 // ==== Middleware ====
 app.use(bodyParser.urlencoded({ extended: true }));
-// Ensure refill schedule defaults
-if (db.data && db.data.settings) {
-  const s = db.data.settings;
-  if (typeof s.refillHour !== 'number') s.refillHour = 0;
-  if (typeof s.refillMinute !== 'number') s.refillMinute = 10;
-  if (!s.refillTimezone) s.refillTimezone = "Asia/Tokyo";
-}
-
 app.use(express.json());
 app.use(cookieParser());
 
@@ -286,17 +278,19 @@ app.get("/search", async (req, res) => {
 });
 
 // ==== 認証状態 ====
-
 app.get("/auth/status", (req, res) => {
   const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
   const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
-  const notifyLogin = req.cookies?.justLoggedIn === "1";
-  if (notifyLogin) res.clearCookie("justLoggedIn");
-  const name = req.cookies?.welcomeName || (req.user?.username);
-  const welcome = req.user ? `${name || req.user?.username} ようこそ` : null;
-  res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem, notify: notifyLogin ? { type: "success", message: "ログインしました" } : null, welcome });
-});
 
+  // one-shot login success notify
+  let notify = null;
+  if (req.cookies?.justLoggedIn === "1") {
+    notify = { type: "success", message: "ログインしました" };
+    res.clearCookie("justLoggedIn");
+  }
+
+  const welcome = req.user ? `${req.user.username} ようこそ` : null;
+  res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem, notify, welcome });
 });
 
 // ==== 登録 ====
@@ -335,7 +329,6 @@ app.post("/register", async (req, res) => {
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
     res.cookie("justLoggedIn", "1", COOKIE_OPTS);
-    res.cookie("welcomeName", username, COOKIE_OPTS);
     res.json({ ok: true, role, username });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -343,7 +336,6 @@ app.post("/register", async (req, res) => {
 });
 
 // ==== /me ====
-
 app.get("/me", async (req, res) => {
   const s = db.data.settings;
   if (!req.user)
@@ -351,20 +343,15 @@ app.get("/me", async (req, res) => {
       loggedIn: false,
       adminSession: !!req.adminSession,
       settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
-      welcome: null
-    });
+    });, welcome: null },
   await ensureMonthlyRefill(req.user);
-  const name = req.cookies?.welcomeName || req.user.username;
   res.json({
     loggedIn: true,
     adminSession: !!req.adminSession,
     impersonating: !!req.impersonating,
     user: { id: req.user.id, username: req.user.username, role: req.user.role, tokens: req.user.tokens },
     settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
-    welcome: `${name} ようこそ`
   });
-});
-
 });
 
 // ==== 送信 ====
@@ -382,7 +369,7 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠${user.username} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
@@ -455,27 +442,29 @@ async function getFileSha(pathname) {
     return r.data.sha;
   } catch (e) { if (e.response?.status === 404) return null; throw e; }
 }
-
 async function putFile(pathname, contentObj, message) {
-  // Commit only if content differs from remote
-  let remoteSame = false;
-  try {
-    const remoteObj = await getFile(pathname); // parsed JSON
-    remoteSame = JSON.stringify(remoteObj) === JSON.stringify(contentObj);
-  } catch (e) {
-    // if 404 or parse fail, treat as different
-    remoteSame = false;
-  }
-  if (remoteSame) {
-    console.log(`[github-sync] ${pathname}: no changes, skip`);
-    return { skipped: true };
-  }
-  const sha = await getFileSha(pathname);
+  // 差分比較: リモートと完全一致ならコミットをスキップ
   const contentEncoded = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
-  const payload = { message, content: contentEncoded, branch: BRANCH, ...(sha ? { sha } : {}) };
-  return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
-    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
-}
+  try {
+    const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
+      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
+    const remoteSha = r.data.sha;
+    const remoteB64 = (r.data.content || "").replace(/\n/g, "");
+    if (remoteB64 && remoteB64 === contentEncoded) {
+      console.log(`[github-sync] ${pathname}: no changes, skip`);
+      return { skipped: true };
+    }
+    const payload = { message, content: contentEncoded, branch: BRANCH, ...(remoteSha ? { sha: remoteSha } : {}) };
+    return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
+      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
+  } catch (e) {
+    if (e.response?.status === 404) {
+      const payload = { message, content: contentEncoded, branch: BRANCH };
+      return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
+        { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
+    }
+    throw e;
+  }
 }
 async function getFile(pathname) {
   const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
@@ -509,14 +498,13 @@ app.post("/admin-login", async (req, res) => {
 
   res.cookie("adminAuth", "1", COOKIE_OPTS);
   setLoginFails(res, 0);
-  res.cookie("justLoggedIn", "1", COOKIE_OPTS);
-  if (req.user) res.cookie("welcomeName", req.user.username, COOKIE_OPTS);
 
   if (req.user && !isAdmin(req.user)) {
     req.user.role = "admin";
     req.user.tokens = null;
     await safeWriteUsers();
   }
+  res.cookie("justLoggedIn", "1", COOKIE_OPTS);
   return res.json({ success: true });
 });
 
@@ -641,6 +629,16 @@ app.get("/admin", requireAdmin, async (req, res) => {
       </p>
       <form action="/update-settings" method="post">
         <div><label><input type="checkbox" name="maintenance" value="on" ${db.data.settings.maintenance ? "checked" : ""}> メンテナンス中にする</label></div>
+      <form method="POST" action="/admin/update-refill-schedule" style="margin-top:8px;">
+        <label>配布時刻: 
+          <input type="number" min="0" max="23" name="refillHour" value="${db.data.settings.refillHour ?? 0}" style="width:70px;"> : 
+          <input type="number" min="0" max="59" name="refillMinute" value="${db.data.settings.refillMinute ?? 10}" style="width:70px;">
+        </label>
+        <label style="margin-left:8px;">Timezone: 
+          <input type="text" name="refillTimezone" value="${db.data.settings.refillTimezone || 'Asia/Tokyo'}" style="width:160px;">
+        </label>
+        <button type="submit" style="margin-left:8px;">時刻を保存</button>
+      </form>
         <div style="margin-top:6px;"><label><input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"}> 募集を終了する</label></div>
         <div style="margin-top:10px;"><label>理由:<br><textarea name="reason" style="width:300px;height:80px;">${db.data.settings.reason || ""}</textarea></label></div>
         <div><label>フロントエンドタイトル:<br><textarea name="frontendTitle" style="width:300px;height:60px;">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea></label></div>
@@ -662,24 +660,25 @@ app.get("/admin", requireAdmin, async (req, res) => {
       </form>
       <p><a href="/admin/users">ユーザー管理へ →</a></p>
     </div>
-    <div class="sec">
-      <h2>月次トークン配布時刻</h2>
-      <form method="POST" action="/admin/update-refill-schedule">
-        <label>時刻 (JST): 
-          <input type="number" name="refillHour" min="0" max="23" value="${db.data.settings.refillHour ?? 0}" style="width:80px;"> :
-          <input type="number" name="refillMinute" min="0" max="59" value="${db.data.settings.refillMinute ?? 10}" style="width:80px;">
-        </label>
-        <label style="margin-left:10px;">タイムゾーン:
-          <input type="text" name="refillTimezone" value="${db.data.settings.refillTimezone || 'Asia/Tokyo'}" style="width:160px;">
-        </label>
-        <button type="submit" style="margin-left:8px;">保存</button>
-      </form>
-      <p class="note">現在: 毎日 ${db.data.settings.refillHour ?? 0}時${db.data.settings.refillMinute ?? 10}分（${db.data.settings.refillTimezone || 'Asia/Tokyo'}）に配布チェック</p>
-    </div>
-
 
     <p><a href="/" style="font-size:20px;">↵戻る</a></p>
 
+
+// ==== 月次トークン補充時刻の保存 ====
+app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
+  const h = Number(req.body.refillHour);
+  const m = Number(req.body.refillMinute);
+  const tz = (req.body.refillTimezone || "Asia/Tokyo").toString();
+  if (!Number.isFinite(h) || h < 0 || h > 23 || !Number.isFinite(m) || m < 0 || m > 59) {
+    return res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="2;url=/admin">入力が不正です`);
+  }
+  db.data.settings.refillHour = h;
+  db.data.settings.refillMinute = m;
+  db.data.settings.refillTimezone = tz;
+  await safeWriteDb();
+  scheduleRefillCron();
+  res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin">スケジュールを更新しました`);
+});
     <script>
       const reqAll = document.getElementById('reqSelectAll');
       if (reqAll) reqAll.addEventListener('change', () => {
@@ -700,22 +699,6 @@ app.post("/admin/update-monthly-tokens", requireAdmin, async (req, res) => {
   await safeWriteDb();
   res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin">保存しました`);
 });
-// ==== 月次トークン配布スケジュールの保存 ====
-app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
-  const h = Number(req.body.refillHour);
-  const m = Number(req.body.refillMinute);
-  const tz = (req.body.refillTimezone || "").toString().trim() || "Asia/Tokyo";
-  if (!Number.isFinite(h) || h < 0 || h > 23 || !Number.isFinite(m) || m < 0 || m > 59) {
-    return res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="2;url=/admin">入力が不正です`);
-  }
-  db.data.settings.refillHour = h;
-  db.data.settings.refillMinute = m;
-  db.data.settings.refillTimezone = tz;
-  await safeWriteDb();
-  scheduleRefillCron();
-  res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin">配布時刻を更新しました`);
-});
-
 
 // ==== Users（管理者のみ + なりすましボタン） ====
 app.get("/admin/users", requireAdmin, async (_req, res) => {
@@ -891,22 +874,21 @@ app.get("/fetch-requests", requireAdmin, async (_req, res) => {
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
 
-// ==== Refill schedule (dynamic) ====
-let refillJob = null;
+// 動的に月次トークン補充のcronを設定
+let refillCronTask = null;
 function scheduleRefillCron() {
   try {
-    const s = db.data.settings || {};
-    const min = Math.min(59, Math.max(0, Number(s.refillMinute ?? 10)));
-    const hr  = Math.min(23, Math.max(0, Number(s.refillHour ?? 0)));
-    const tz  = s.refillTimezone || "Asia/Tokyo";
-    const expr = `${min} ${hr} * * *`;
-    if (refillJob) { try { refillJob.stop(); } catch {} }
-    refillJob = cron.schedule(expr, async () => {
+    const hour = Number(db.data.settings.refillHour ?? 0);
+    const minute = Number(db.data.settings.refillMinute ?? 10);
+    const timezone = db.data.settings.refillTimezone || "Asia/Tokyo";
+    if (refillCronTask) { try { refillCronTask.stop(); } catch {} refillCronTask = null; }
+    const expr = `${minute} ${hour} * * *`;
+    refillCronTask = cron.schedule(expr, async () => {
       try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); }
-    }, { timezone: tz });
-    console.log(`[refill-cron] scheduled at ${expr} tz=${tz}`);
+    }, { timezone });
+    console.log(`[refill-cron] scheduled at ${expr} TZ=${timezone}`);
   } catch (e) {
-    console.error("[refill-cron] schedule error", e);
+    console.error("[refill-cron] schedule error:", e);
   }
 }
 // ==== Cron ====
