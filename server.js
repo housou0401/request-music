@@ -429,10 +429,31 @@ async function getFileSha(pathname) {
     return r.data.sha;
   } catch (e) { if (e.response?.status === 404) return null; throw e; }
 }
+async function getFileMeta(pathname) {
+  try {
+    const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
+      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
+    const contentB64 = (r.data.content || "").replace(/\n/g, "");
+    return { sha: r.data.sha, contentB64 };
+  } catch (e) {
+    if (e.response?.status === 404) return { sha: null, contentB64: null };
+    throw e;
+  }
+}
 async function putFile(pathname, contentObj, message) {
-  const sha = await getFileSha(pathname);
-  const contentEncoded = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
-  const payload = { message, content: contentEncoded, branch: BRANCH, ...(sha ? { sha } : {}) };
+  // encode next content
+  const nextB64 = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
+  // get current meta (sha & base64 content)
+  const { sha, contentB64 } = await getFileMeta(pathname);
+  // skip if identical
+  if (contentB64 && contentB64 === nextB64) {
+    console.log(`[github-sync] ${pathname}: no changes, skip`);
+    return { skipped: true };
+  }
+  const payload = { message, content: nextB64, branch: BRANCH, ...(sha ? { sha } : {}) };
+  return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
+    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
+} : {}) };
   return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
     { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
 }
