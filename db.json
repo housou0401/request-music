@@ -1240,6 +1240,7 @@
     "rateLimitPerMin": 2,
     "refillHour": 0,
     "refillMinute": 10,
-    "refillTimezone": "Asia/Tokyo"
+    "refillTimezone": "Asia/Tokyo",
+    "monthlyTokens": 5
   }
 }
