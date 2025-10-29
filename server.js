@@ -34,9 +34,6 @@ const db = await JSONFilePreset("db.json", {
     maintenance: false,
     rateLimitPerMin: 5,
     duplicateCooldownMinutes: 15,
-    refillHour: 0,
-    refillMinute: 10,
-    refillTimezone: "Asia/Tokyo",
   },
 });
 const usersDb = await JSONFilePreset("users.json", {
@@ -282,15 +279,21 @@ app.get("/auth/status", (req, res) => {
   const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
   const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
 
-  // one-shot login success notify
   let notify = null;
-  if (req.cookies?.justLoggedIn === "1") {
+  if (req.cookies && req.cookies.justLoggedIn === "1") {
     notify = { type: "success", message: "ログインしました" };
     res.clearCookie("justLoggedIn");
   }
 
   const welcome = req.user ? `${req.user.username} ようこそ` : null;
-  res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem, notify, welcome });
+
+  res.json({
+    adminRegRemaining: regRem,
+    adminLoginRemaining: logRem,
+    notify,
+    welcome
+  });
+});
 });
 
 // ==== 登録 ====
@@ -328,7 +331,6 @@ app.post("/register", async (req, res) => {
     setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
-    res.cookie("justLoggedIn", "1", COOKIE_OPTS);
     res.json({ ok: true, role, username });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -343,7 +345,7 @@ app.get("/me", async (req, res) => {
       loggedIn: false,
       adminSession: !!req.adminSession,
       settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
-    });, welcome: null },
+    });
   await ensureMonthlyRefill(req.user);
   res.json({
     loggedIn: true,
@@ -369,7 +371,7 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${user.username} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
@@ -443,28 +445,11 @@ async function getFileSha(pathname) {
   } catch (e) { if (e.response?.status === 404) return null; throw e; }
 }
 async function putFile(pathname, contentObj, message) {
-  // 差分比較: リモートと完全一致ならコミットをスキップ
+  const sha = await getFileSha(pathname);
   const contentEncoded = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
-  try {
-    const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
-      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
-    const remoteSha = r.data.sha;
-    const remoteB64 = (r.data.content || "").replace(/\n/g, "");
-    if (remoteB64 && remoteB64 === contentEncoded) {
-      console.log(`[github-sync] ${pathname}: no changes, skip`);
-      return { skipped: true };
-    }
-    const payload = { message, content: contentEncoded, branch: BRANCH, ...(remoteSha ? { sha: remoteSha } : {}) };
-    return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
-      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
-  } catch (e) {
-    if (e.response?.status === 404) {
-      const payload = { message, content: contentEncoded, branch: BRANCH };
-      return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
-        { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
-    }
-    throw e;
-  }
+  const payload = { message, content: contentEncoded, branch: BRANCH, ...(sha ? { sha } : {}) };
+  return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
+    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
 }
 async function getFile(pathname) {
   const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
@@ -504,7 +489,6 @@ app.post("/admin-login", async (req, res) => {
     req.user.tokens = null;
     await safeWriteUsers();
   }
-  res.cookie("justLoggedIn", "1", COOKIE_OPTS);
   return res.json({ success: true });
 });
 
@@ -629,16 +613,6 @@ app.get("/admin", requireAdmin, async (req, res) => {
       </p>
       <form action="/update-settings" method="post">
         <div><label><input type="checkbox" name="maintenance" value="on" ${db.data.settings.maintenance ? "checked" : ""}> メンテナンス中にする</label></div>
-      <form method="POST" action="/admin/update-refill-schedule" style="margin-top:8px;">
-        <label>配布時刻: 
-          <input type="number" min="0" max="23" name="refillHour" value="${db.data.settings.refillHour ?? 0}" style="width:70px;"> : 
-          <input type="number" min="0" max="59" name="refillMinute" value="${db.data.settings.refillMinute ?? 10}" style="width:70px;">
-        </label>
-        <label style="margin-left:8px;">Timezone: 
-          <input type="text" name="refillTimezone" value="${db.data.settings.refillTimezone || 'Asia/Tokyo'}" style="width:160px;">
-        </label>
-        <button type="submit" style="margin-left:8px;">時刻を保存</button>
-      </form>
         <div style="margin-top:6px;"><label><input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"}> 募集を終了する</label></div>
         <div style="margin-top:10px;"><label>理由:<br><textarea name="reason" style="width:300px;height:80px;">${db.data.settings.reason || ""}</textarea></label></div>
         <div><label>フロントエンドタイトル:<br><textarea name="frontendTitle" style="width:300px;height:60px;">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea></label></div>
@@ -663,22 +637,6 @@ app.get("/admin", requireAdmin, async (req, res) => {
 
     <p><a href="/" style="font-size:20px;">↵戻る</a></p>
 
-
-// ==== 月次トークン補充時刻の保存 ====
-app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
-  const h = Number(req.body.refillHour);
-  const m = Number(req.body.refillMinute);
-  const tz = (req.body.refillTimezone || "Asia/Tokyo").toString();
-  if (!Number.isFinite(h) || h < 0 || h > 23 || !Number.isFinite(m) || m < 0 || m > 59) {
-    return res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="2;url=/admin">入力が不正です`);
-  }
-  db.data.settings.refillHour = h;
-  db.data.settings.refillMinute = m;
-  db.data.settings.refillTimezone = tz;
-  await safeWriteDb();
-  scheduleRefillCron();
-  res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin">スケジュールを更新しました`);
-});
     <script>
       const reqAll = document.getElementById('reqSelectAll');
       if (reqAll) reqAll.addEventListener('change', () => {
@@ -873,26 +831,8 @@ app.get("/fetch-requests", requireAdmin, async (_req, res) => {
 // ==== 起動時 ====
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
-
-// 動的に月次トークン補充のcronを設定
-let refillCronTask = null;
-function scheduleRefillCron() {
-  try {
-    const hour = Number(db.data.settings.refillHour ?? 0);
-    const minute = Number(db.data.settings.refillMinute ?? 10);
-    const timezone = db.data.settings.refillTimezone || "Asia/Tokyo";
-    if (refillCronTask) { try { refillCronTask.stop(); } catch {} refillCronTask = null; }
-    const expr = `${minute} ${hour} * * *`;
-    refillCronTask = cron.schedule(expr, async () => {
-      try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); }
-    }, { timezone });
-    console.log(`[refill-cron] scheduled at ${expr} TZ=${timezone}`);
-  } catch (e) {
-    console.error("[refill-cron] schedule error:", e);
-  }
-}
 // ==== Cron ====
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
-scheduleRefillCron();
+cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
