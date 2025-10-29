@@ -543,6 +543,7 @@ app.post("/admin-login", async (req, res) => {
   res.cookie("adminAuth", "1", COOKIE_OPTS);
   setLoginFails(res, 0);
 
+  res.cookie("justLoggedIn","1",COOKIE_OPTS);
   if (req.user && !isAdmin(req.user)) {
     req.user.role = "admin";
     req.user.tokens = null;
@@ -942,6 +943,5 @@ function scheduleRefillCron() {
 // ==== Cron ====
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
 scheduleRefillCron();
-} catch (e) { console.error(e); } });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
