@@ -8,12 +8,10 @@ import cron from "node-cron";
 import axios from "axios";
 import dotenv from "dotenv";
 import path from "node:path";
-import url from "node:url";
+import * as url from "node:url";
 dotenv.config();
 
 const app = express();
-
-app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT || 3000;
 
 // ==== GitHub 同期設定 ====
@@ -50,48 +48,8 @@ app.use(cookieParser());
 // 静的配信 & ルート
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 app.use(express.static("public"));
-app.get("/", async (_req, res) => {
-  try {
-    const filePath = path.join(__dirname, "index.html");
-    const fs = await import("node:fs/promises");
-    let html = await fs.readFile(filePath, "utf8");
-    const bridge = `
-<style id="mypage-bridge-style">
-  .mypage-link{position:fixed;top:12px;right:12px;display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid #374151;box-shadow:0 6px 16px rgba(0,0,0,.25);z-index:9999;font-size:14px}
-  .mypage-link img{width:20px;height:20px;border-radius:50%;object-fit:cover}
-  @media (max-width:520px){.mypage-link{top:12px;right:12px;padding:8px 12px}}
-</style>
-<script id="mypage-bridge">
-(function(){
-  function insert(){
-    if (document.getElementById("mypage-link")) return;
-    var a = document.createElement("a");
-    a.id = "mypage-link";
-    a.href = "/mypage";
-    a.className = "mypage-link";
-    var img = new Image();
-    img.src = "/img/mypage.png"; // 画像は public/img/mypage.png に置いてください
-    img.alt = "マイページ";
-    a.appendChild(img);
-    var span = document.createElement("span");
-    span.textContent = "マイページ";
-    a.appendChild(span);
-    document.body.appendChild(a);
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", insert);
-  else insert();
-})();
-</script>`;
-    if (html.includes("</body>")) html = html.replace("</body>", bridge + "
-</body>");
-    else html += bridge;
-    res.set("Content-Type","text/html; charset=utf-8");
-    res.send(html);
-  } catch (e) {
-    console.error("mypage bridge send error:", e);
-    res.sendFile(path.join(__dirname, "index.html"));
-  }
-});
+app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
+
 // ==== Helpers ====
 const monthKey = () => {
   const d = new Date();
@@ -127,14 +85,19 @@ function hitRate(userId, limitPerMin) {
 // 月次トークン配布
 async function ensureMonthlyRefill(user) {
   if (!user || isAdmin(user)) return;
-  const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
-  if (user.lastRefillISO !== m) {
+  const tz = db.data.settings.refillTimezone || "Asia/Tokyo";
+  const dayCfg = Number(db.data.settings.refillDay ?? 1);
+  const ds = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
+  const [Y,M,D] = ds.split('-').map(Number);
+  const monthKeyNow = `${Y}-${String(M).padStart(2,"0")}`;
+  if (user.lastRefillISO !== monthKeyNow && D >= dayCfg) {
     user.tokens = monthly;
-    user.lastRefillISO = m;
+    user.lastRefillISO = monthKeyNow;
     await usersDb.write();
   }
 }
+
 async function refillAllIfMonthChanged() {
   const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
@@ -320,27 +283,9 @@ app.get("/search", async (req, res) => {
 app.get("/auth/status", (req, res) => {
   const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
   const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
-
-  const u = req.user;
-  const name = u?.username || null;
-  const role = u?.role || null;
-  const roleName = role === "admin" ? "管理者" : "ユーザ";
-
-  let notify = null;
-  let welcome = null;
-  let adminNote = null;
-
-  if (req.cookies && req.cookies.justLoggedIn === "1" && name) {
-    notify = `${roleName}としてログインしました。 ${name} さん、ようこそ！`;
-    if (role === "admin") adminNote = "あなたは管理者としてログイン中です。";
-    res.clearCookie("justLoggedIn");
-  } else if (name) {
-    welcome = `${name} さん、ようこそ！`;
-    if (role === "admin") adminNote = "あなたは管理者としてログイン中です。";
-  }
-
-  res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem, notify, welcome, adminNote });
+  res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem });
 });
+
 // ==== 登録 ====
 app.post("/register", async (req, res) => {
   try {
@@ -375,7 +320,6 @@ app.post("/register", async (req, res) => {
 
     setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
-    res.cookie("justLoggedIn","1",COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
     res.json({ ok: true, role, username });
   } catch (e) {
@@ -417,7 +361,7 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠${user.username} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
@@ -530,7 +474,6 @@ app.post("/admin-login", async (req, res) => {
   res.cookie("adminAuth", "1", COOKIE_OPTS);
   setLoginFails(res, 0);
 
-  res.cookie("justLoggedIn","1",COOKIE_OPTS);
   if (req.user && !isAdmin(req.user)) {
     req.user.role = "admin";
     req.user.tokens = null;
@@ -552,71 +495,7 @@ app.get("/admin/impersonate/clear", requireAdmin, async (_req, res) => {
   res.redirect("/admin/users");
 });
 
-
-// ==== マイページ ====
-app.get("/mypage", async (req, res) => {
-  const u = req.user;
-  const s = db.data.settings;
-  const head = `<!doctype html><html lang="ja"><meta charset="utf-8"><title>マイページ</title>
-  <style>
-    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Meiryo", "MS PGothic", sans-serif;padding:20px;background:#f7f7fb;color:#111827}
-    .wrap{max-width:820px;margin:0 auto}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:18px}
-    .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-    .avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;border:1px solid #e5e7eb}
-    .muted{color:#6b7280}
-    .pill{display:inline-block;background:#111827;color:#fff;border-radius:999px;padding:2px 10px;font-size:12px;margin-left:6px}
-    .kv{display:grid;grid-template-columns:140px 1fr;gap:8px 16px;margin-top:12px}
-    a.btn{display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;text-decoration:none;padding:8px 12px;border-radius:10px;border:1px solid #374151}
-    .back{margin-top:16px}
-    @media (max-width:520px){.kv{grid-template-columns:1fr} .kv b{display:block;margin-top:10px}}
-  </style>`;
-  if (!u) {
-    return res.send(head + `<div class="wrap">
-      <h1>マイページ</h1>
-      <div class="card">
-        <p class="muted">まだ登録されていません。</p>
-        <a href="/" class="btn">トップへ戻る</a>
-      </div>
-    </div>`);
-  }
-  const tokens = (u.role === "admin") ? "∞" : (u.tokens ?? 0);
-  res.send(head + `<div class="wrap">
-    <h1>マイページ</h1>
-    <div class="card">
-      <div class="row">
-        <img src="/img/mypage.png" alt="icon" class="avatar">
-        <div>
-          <div><b>${u.username}</b> <span class="pill">${u.role}</span></div>
-          <div class="muted">deviceId: ${u.id}</div>
-        </div>
-      </div>
-      <div class="kv">
-        <b>トークン残数</b> <span>${tokens}</span>
-        <b>最終配布</b> <span>${u.lastRefillISO || "-"}</span>
-        <b>募集状態</b> <span>${s.recruiting ? "受付中" : "停止中"}</span>
-        <b>メンテナンス</b> <span>${s.maintenance ? "ON" : "OFF"}</span>
-      </div>
-      <div class="back"><a class="btn" href="/">↵ トップへ</a></div>
-    </div>
-  </div>`);
-});
 // ==== 管理 UI ====
-
-// ==== 月次配布スケジュール（Tokyo固定）の保存 ====
-app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
-  const day = Math.min(31, Math.max(1, parseInt(req.body.day, 10) || 1));
-  const hour = Math.min(23, Math.max(0, parseInt(req.body.hour, 10) || 0));
-  const minute = Math.min(59, Math.max(0, parseInt(req.body.minute, 10) || 0));
-  if (!db.data.settings) db.data.settings = {};
-  db.data.settings.refillDay = day;
-  db.data.settings.refillHour = hour;
-  db.data.settings.refillMinute = minute;
-  db.data.settings.refillTimezone = "Asia/Tokyo";
-  await db.write().catch(e => console.error("db.json write error:", e));
-  try { if (typeof scheduleRefillCron === "function") scheduleRefillCron(); } catch (e) { console.error(e); }
-  res.redirect("/admin");
-});
 app.get("/admin", requireAdmin, async (req, res) => {
   const sort = (req.query.sort || "newest").toString(); // newest | popular
   const perPage = 10;
@@ -719,6 +598,10 @@ app.get("/admin", requireAdmin, async (req, res) => {
 
     <div class="sec">
       <h2>設定</h2>
+      <form action="/admin/update-deploy-hook" method="post" style="margin:8px 0 10px;">
+        <label>Render Deploy Hook URL（任意）: <input type="url" name="deployHookUrl" value="${db.data.settings.deployHookUrl||''}" style="width:420px;padding:6px;border:1px solid #ddd;border-radius:8px"></label>
+        <button type="submit" style="margin-left:6px">保存</button>
+      </form>
       <p>現在の管理者パスワード: <code class="pwd" id="curPwd">${db.data.settings.adminPassword}</code>
         <button onclick="navigator.clipboard.writeText(document.getElementById('curPwd').textContent)">コピー</button>
       </p>
@@ -754,18 +637,7 @@ app.get("/admin", requireAdmin, async (req, res) => {
         document.querySelectorAll('.req-check').forEach(chk => chk.checked = reqAll.checked);
       });
     </script>
-  <div class="sec">
-  <h2>配布スケジュール（Tokyo固定）</h2>
-  <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-    <label>日: <input type="number" name="day" min="1" max="31" value="${db.data.settings.refillDay ?? 1}" style="width:90px;"></label>
-    <label>時: <input type="number" name="hour" min="0" max="23" value="${db.data.settings.refillHour ?? 0}" style="width:90px;"></label>
-    <label>分: <input type="number" name="minute" min="0" max="59" value="${db.data.settings.refillMinute ?? 10}" style="width:90px;"></label>
-    <span style="opacity:.7">Timezone: Asia/Tokyo</span>
-    <button type="submit">保存</button>
-  </form>
-  <small style="color:#666">指定日のみ配布。毎日 指定時刻(Tokyo)にチェックが走ります。</small>
-</div>
-</body></html>`;
+  </body></html>`;
 
   res.send(html);
 });
@@ -953,31 +825,37 @@ app.get("/fetch-requests", requireAdmin, async (_req, res) => {
 // ==== 起動時 ====
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
-
-// ==== Refill Scheduler (Tokyo fixed) ====
-let _refillCron = null;
-function scheduleRefillCron() {
-  try {
-    if (_refillCron) { try { _refillCron.stop(); } catch {} _refillCron = null; }
-    const day = Number(db.data.settings.refillDay ?? 1);
-    const hour = Number(db.data.settings.refillHour ?? 0);
-    const minute = Number(db.data.settings.refillMinute ?? 10);
-    const expr = `${minute} ${hour} * * *`;
-    _refillCron = cron.schedule(expr, async () => {
-      try {
-        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: "Asia/Tokyo" });
-        const d = Number(todayStr.split('-')[2]);
-        if (d === day) await refillAllIfMonthChanged();
-      } catch (e) { console.error("refill cron error:", e); }
-    }, { timezone: "Asia/Tokyo" });
-    console.log(`[refill-cron] scheduled daily at`, expr, `TZ=Asia/Tokyo (refill on day=${day})`);
-  } catch (e) {
-    console.error("scheduleRefillCron failed:", e);
-  }
-}
-
 // ==== Cron ====
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
-scheduleRefillCron();
+cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
+
+
+app.get("/admin/schedule", requireAdmin, async (_req, res) => {
+  res.send(`<!doctype html><meta charset="utf-8"><title>Refill Schedule</title>
+  <h1>トークン配布スケジュール</h1>
+  <p><a href="/admin">← Adminへ戻る</a></p>
+  <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <label>日:
+      <input type="number" name="day" min="1" max="31" value="${db.data.settings.refillDay ?? 1}" style="width:80px;">
+    </label>
+    <label>時刻:
+      <input type="number" name="hour" min="0" max="23" value="${db.data.settings.refillHour ?? 0}" style="width:80px;"> :
+      <input type="number" name="minute" min="0" max="59" value="${db.data.settings.refillMinute ?? 10}" style="width:80px;">
+    </label>
+    <label>Timezone:
+      <select name="timezone" style="width:220px;">
+        <option value="Asia/Tokyo">${db.data.settings.refillTimezone==="Asia/Tokyo"?"selected":""}} {tz}</option><option value="Asia/Seoul">${db.data.settings.refillTimezone==="Asia/Seoul"?"selected":""}} {tz}</option><option value="Asia/Shanghai">${db.data.settings.refillTimezone==="Asia/Shanghai"?"selected":""}} {tz}</option><option value="Asia/Taipei">${db.data.settings.refillTimezone==="Asia/Taipei"?"selected":""}} {tz}</option><option value="Asia/Hong_Kong">${db.data.settings.refillTimezone==="Asia/Hong_Kong"?"selected":""}} {tz}</option><option value="Asia/Singapore">${db.data.settings.refillTimezone==="Asia/Singapore"?"selected":""}} {tz}</option><option value="Asia/Bangkok">${db.data.settings.refillTimezone==="Asia/Bangkok"?"selected":""}} {tz}</option><option value="Australia/Sydney">${db.data.settings.refillTimezone==="Australia/Sydney"?"selected":""}} {tz}</option><option value="Europe/London">${db.data.settings.refillTimezone==="Europe/London"?"selected":""}} {tz}</option><option value="Europe/Paris">${db.data.settings.refillTimezone==="Europe/Paris"?"selected":""}} {tz}</option><option value="Europe/Berlin">${db.data.settings.refillTimezone==="Europe/Berlin"?"selected":""}} {tz}</option><option value="UTC">${db.data.settings.refillTimezone==="UTC"?"selected":""}} {tz}</option><option value="America/Los_Angeles">${db.data.settings.refillTimezone==="America/Los_Angeles"?"selected":""}} {tz}</option><option value="America/New_York">${db.data.settings.refillTimezone==="America/New_York"?"selected":""}} {tz}</option>
+      </select>
+    </label>
+    <button type="submit">保存</button>
+  </form>`);
+});
+
+
+app.post("/admin/update-deploy-hook", requireAdmin, async (req, res) => {
+  db.data.settings.deployHookUrl = (req.body.deployHookUrl || "").toString().trim();
+  await safeWriteDb();
+  res.redirect("/admin");
+});
