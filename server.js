@@ -283,7 +283,27 @@ app.get("/search", async (req, res) => {
 app.get("/auth/status", (req, res) => {
   const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
   const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
-  res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem });
+
+  const u = req.user;
+  const name = u?.username || null;
+  const role = u?.role || null;
+  const roleName = role === "admin" ? "管理者" : "ユーザ";
+
+  let notify = null;
+  let welcome = null;
+  let adminNote = null;
+
+  if (req.cookies && req.cookies.justLoggedIn === "1" && name) {
+    notify = `${roleName}としてログインしました。 ${name} さん、ようこそ！`;
+    if (role === "admin") adminNote = "あなたは管理者としてログイン中です。";
+    res.clearCookie("justLoggedIn");
+  } else if (name) {
+    welcome = `${name} さん、ようこそ！`;
+    if (role === "admin") adminNote = "あなたは管理者としてログイン中です。";
+  }
+
+  res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem, notify, welcome, adminNote });
+});
 });
 
 // ==== 登録 ====
@@ -320,7 +340,8 @@ app.post("/register", async (req, res) => {
 
     setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
-    if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
+    res.cookie("adminAuth","1",COOKIE_OPTS);
+    res.cookie("justLoggedIn","1",COOKIE_OPTS);
     res.json({ ok: true, role, username });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -479,6 +500,7 @@ app.post("/admin-login", async (req, res) => {
     req.user.tokens = null;
     await safeWriteUsers();
   }
+  res.cookie("justLoggedIn","1",COOKIE_OPTS);
   return res.json({ success: true });
 });
 
@@ -621,6 +643,17 @@ app.get("/admin", requireAdmin, async (req, res) => {
       <form method="POST" action="/admin/update-monthly-tokens">
         <label>月次配布数: <input type="number" min="0" name="monthlyTokens" value="${db.data.settings.monthlyTokens ?? 5}" style="width:100px;"></label>
         <button type="submit" style="margin-left:8px;">保存</button>
+      </form>
+      <form method="POST" action="/admin/update-refill-schedule" class="sec" style="margin-top:12px;">
+        <h3>配布スケジュール（Tokyo固定）</h3>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <label>日: <input type="number" name="day" min="1" max="31" value="${db.data.settings.refillDay ?? 1}" style="width:90px;"></label>
+          <label>時: <input type="number" name="hour" min="0" max="23" value="${db.data.settings.refillHour ?? 0}" style="width:90px;"></label>
+          <label>分: <input type="number" name="minute" min="0" max="59" value="${db.data.settings.refillMinute ?? 10}" style="width:90px;"></label>
+          <span style="opacity:.7">Timezone: Asia/Tokyo</span>
+          <button type="submit">保存</button>
+        </div>
+        <small style="color:#666">指定日のみ配布。毎日 指定時刻(Tokyo)にチェックが走ります。</small>
       </form>
       <p><a href="/admin/users">ユーザー管理へ →</a></p>
     </div>
@@ -821,31 +854,36 @@ app.get("/fetch-requests", requireAdmin, async (_req, res) => {
 // ==== 起動時 ====
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
+// ==== Refill Scheduler (Tokyo fixed) ====
+let _refillCron = null;
+function scheduleRefillCron() {
+  try {
+    if (_refillCron) { try { _refillCron.stop(); } catch {} _refillCron = null; }
+    const hour = Number(db.data.settings.refillHour ?? 0);
+    const minute = Number(db.data.settings.refillMinute ?? 10);
+    const day = Number(db.data.settings.refillDay ?? 1);
+    const tz = "Asia/Tokyo";
+    const expr = `${minute} ${hour} * * *`;
+    _refillCron = cron.schedule(expr, async () => {
+      try {
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+        const d = Number(todayStr.split('-')[2]);
+        if (d === day) await refillAllIfMonthChanged();
+      } catch (e) { console.error("refill cron error:", e); }
+    }, { timezone: tz });
+    console.log(`[refill-cron] scheduled daily at`, expr, `TZ=${tz} (refill on day=${day})`);
+  } catch (e) {
+    console.error("scheduleRefillCron failed:", e);
+  }
+}
+
 // ==== Cron ====
+
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
-cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
+scheduleRefillCron();
+} catch (e) { console.error(e); } });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
 
-app.get("/admin/schedule", requireAdmin, async (_req, res) => {
-  res.send(`<!doctype html><meta charset="utf-8"><title>Refill Schedule</title>
-  <h1>トークン配布スケジュール</h1>
-  <p><a href="/admin">← Adminへ戻る</a></p>
-  <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-    <label>日:
-      <input type="number" name="day" min="1" max="31" value="${db.data.settings.refillDay ?? 1}" style="width:80px;">
-    </label>
-    <label>時刻:
-      <input type="number" name="hour" min="0" max="23" value="${db.data.settings.refillHour ?? 0}" style="width:80px;"> :
-      <input type="number" name="minute" min="0" max="59" value="${db.data.settings.refillMinute ?? 10}" style="width:80px;">
-    </label>
-    <label>Timezone:
-      <select name="timezone" style="width:220px;">
-        <option value="Asia/Tokyo">${db.data.settings.refillTimezone==="Asia/Tokyo"?"selected":""}} {tz}</option><option value="Asia/Seoul">${db.data.settings.refillTimezone==="Asia/Seoul"?"selected":""}} {tz}</option><option value="Asia/Shanghai">${db.data.settings.refillTimezone==="Asia/Shanghai"?"selected":""}} {tz}</option><option value="Asia/Taipei">${db.data.settings.refillTimezone==="Asia/Taipei"?"selected":""}} {tz}</option><option value="Asia/Hong_Kong">${db.data.settings.refillTimezone==="Asia/Hong_Kong"?"selected":""}} {tz}</option><option value="Asia/Singapore">${db.data.settings.refillTimezone==="Asia/Singapore"?"selected":""}} {tz}</option><option value="Asia/Bangkok">${db.data.settings.refillTimezone==="Asia/Bangkok"?"selected":""}} {tz}</option><option value="Australia/Sydney">${db.data.settings.refillTimezone==="Australia/Sydney"?"selected":""}} {tz}</option><option value="Europe/London">${db.data.settings.refillTimezone==="Europe/London"?"selected":""}} {tz}</option><option value="Europe/Paris">${db.data.settings.refillTimezone==="Europe/Paris"?"selected":""}} {tz}</option><option value="Europe/Berlin">${db.data.settings.refillTimezone==="Europe/Berlin"?"selected":""}} {tz}</option><option value="UTC">${db.data.settings.refillTimezone==="UTC"?"selected":""}} {tz}</option><option value="America/Los_Angeles">${db.data.settings.refillTimezone==="America/Los_Angeles"?"selected":""}} {tz}</option><option value="America/New_York">${db.data.settings.refillTimezone==="America/New_York"?"selected":""}} {tz}</option>
-      </select>
-    </label>
-    <button type="submit">保存</button>
-  </form>`);
-});
 
