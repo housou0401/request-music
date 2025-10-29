@@ -56,55 +56,42 @@ app.get("/", async (_req, res) => {
     const fs = await import("node:fs/promises");
     let html = await fs.readFile(filePath, "utf8");
     const bridge = `
-<style id="notify-bridge-style">
-.toast{position:fixed;top:12px;right:12px;max-width:92vw;padding:10px 14px;border-radius:12px;background:#111827;color:#fff;border:1px solid #374151;box-shadow:0 8px 20px rgba(0,0,0,.25);opacity:0;transform:translateY(-6px);transition:.25s;z-index:9999;font-size:14px;line-height:1.5}
-.toast.show{opacity:1;transform:translateY(0)}
-@media (max-width:520px){.toast{left:12px;right:12px}}
+<style id="mypage-bridge-style">
+  .mypage-link{position:fixed;top:12px;right:12px;display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid #374151;box-shadow:0 6px 16px rgba(0,0,0,.25);z-index:9999;font-size:14px}
+  .mypage-link img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+  @media (max-width:520px){.mypage-link{top:12px;right:12px;padding:8px 12px}}
 </style>
-<script id="notify-bridge">
+<script id="mypage-bridge">
 (function(){
-  function ensureToast(){
-    var el = document.getElementById("toast");
-    if (!el){
-      el = document.createElement("div");
-      el.id = "toast";
-      el.className = "toast";
-      document.body.appendChild(el);
-    }
-    return el;
+  function insert(){
+    if (document.getElementById("mypage-link")) return;
+    var a = document.createElement("a");
+    a.id = "mypage-link";
+    a.href = "/mypage";
+    a.className = "mypage-link";
+    var img = new Image();
+    img.src = "/img/mypage.png"; // 画像は public/img/mypage.png に置いてください
+    img.alt = "マイページ";
+    a.appendChild(img);
+    var span = document.createElement("span");
+    span.textContent = "マイページ";
+    a.appendChild(span);
+    document.body.appendChild(a);
   }
-  window.notify = function(msg){
-    if(!msg) return;
-    var el = ensureToast();
-    el.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(window.__toastTimer);
-    window.__toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 1800);
-  };
-  async function run(){
-    try{
-      var s = await fetch("/auth/status",{credentials:"include"}).then(r=>r.json()).catch(()=>({}));
-      var me = await fetch("/me",{credentials:"include"}).then(r=>r.json()).catch(()=>({}));
-      var name = me && me.user ? me.user.username : null;
-      if (s && s.notify) notify(s.notify);
-      else if (s && s.welcome && name) notify(s.welcome);
-      if (s && s.adminNote) notify(s.adminNote);
-    }catch(e){ console && console.warn && console.warn("notify-bridge", e); }
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
-  else run();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", insert);
+  else insert();
 })();
 </script>`;
-    if (html.includes("</body>")) html = html.replace("</body>", bridge + "\\n</body>");
+    if (html.includes("</body>")) html = html.replace("</body>", bridge + "
+</body>");
     else html += bridge;
     res.set("Content-Type","text/html; charset=utf-8");
     res.send(html);
   } catch (e) {
-    console.error("notify bridge send error:", e);
+    console.error("mypage bridge send error:", e);
     res.sendFile(path.join(__dirname, "index.html"));
   }
 });
-
 // ==== Helpers ====
 const monthKey = () => {
   const d = new Date();
@@ -565,6 +552,55 @@ app.get("/admin/impersonate/clear", requireAdmin, async (_req, res) => {
   res.redirect("/admin/users");
 });
 
+
+// ==== マイページ ====
+app.get("/mypage", async (req, res) => {
+  const u = req.user;
+  const s = db.data.settings;
+  const head = `<!doctype html><html lang="ja"><meta charset="utf-8"><title>マイページ</title>
+  <style>
+    body{font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", "Meiryo", "MS PGothic", sans-serif;padding:20px;background:#f7f7fb;color:#111827}
+    .wrap{max-width:820px;margin:0 auto}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:18px}
+    .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+    .avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;border:1px solid #e5e7eb}
+    .muted{color:#6b7280}
+    .pill{display:inline-block;background:#111827;color:#fff;border-radius:999px;padding:2px 10px;font-size:12px;margin-left:6px}
+    .kv{display:grid;grid-template-columns:140px 1fr;gap:8px 16px;margin-top:12px}
+    a.btn{display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;text-decoration:none;padding:8px 12px;border-radius:10px;border:1px solid #374151}
+    .back{margin-top:16px}
+    @media (max-width:520px){.kv{grid-template-columns:1fr} .kv b{display:block;margin-top:10px}}
+  </style>`;
+  if (!u) {
+    return res.send(head + `<div class="wrap">
+      <h1>マイページ</h1>
+      <div class="card">
+        <p class="muted">まだ登録されていません。</p>
+        <a href="/" class="btn">トップへ戻る</a>
+      </div>
+    </div>`);
+  }
+  const tokens = (u.role === "admin") ? "∞" : (u.tokens ?? 0);
+  res.send(head + `<div class="wrap">
+    <h1>マイページ</h1>
+    <div class="card">
+      <div class="row">
+        <img src="/img/mypage.png" alt="icon" class="avatar">
+        <div>
+          <div><b>${u.username}</b> <span class="pill">${u.role}</span></div>
+          <div class="muted">deviceId: ${u.id}</div>
+        </div>
+      </div>
+      <div class="kv">
+        <b>トークン残数</b> <span>${tokens}</span>
+        <b>最終配布</b> <span>${u.lastRefillISO || "-"}</span>
+        <b>募集状態</b> <span>${s.recruiting ? "受付中" : "停止中"}</span>
+        <b>メンテナンス</b> <span>${s.maintenance ? "ON" : "OFF"}</span>
+      </div>
+      <div class="back"><a class="btn" href="/">↵ トップへ</a></div>
+    </div>
+  </div>`);
+});
 // ==== 管理 UI ====
 
 // ==== 月次配布スケジュール（Tokyo固定）の保存 ====
