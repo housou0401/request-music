@@ -48,7 +48,60 @@ app.use(cookieParser());
 // 静的配信 & ルート
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 app.use(express.static("public"));
-app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/", async (_req, res) => {
+  try {
+    const filePath = path.join(__dirname, "index.html");
+    const fs = await import("node:fs/promises");
+    let html = await fs.readFile(filePath, "utf8");
+    const bridge = `
+<style id="notify-bridge-style">
+.toast{position:fixed;top:12px;right:12px;max-width:92vw;padding:10px 14px;border-radius:12px;background:#111827;color:#fff;border:1px solid #374151;box-shadow:0 8px 20px rgba(0,0,0,.25);opacity:0;transform:translateY(-6px);transition:.25s;z-index:9999;font-size:14px;line-height:1.5}
+.toast.show{opacity:1;transform:translateY(0)}
+@media (max-width:520px){.toast{left:12px;right:12px}}
+</style>
+<script id="notify-bridge">
+(function(){
+  function ensureToast(){
+    var el = document.getElementById("toast");
+    if (!el){
+      el = document.createElement("div");
+      el.id = "toast";
+      el.className = "toast";
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+  window.notify = function(msg){
+    if(!msg) return;
+    var el = ensureToast();
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(function(){ el.classList.remove("show"); }, 1800);
+  };
+  async function run(){
+    try{
+      var s = await fetch("/auth/status",{credentials:"include"}).then(r=>r.json()).catch(()=>({}));
+      var me = await fetch("/me",{credentials:"include"}).then(r=>r.json()).catch(()=>({}));
+      var name = me && me.user ? me.user.username : null;
+      if (s && s.notify) notify(s.notify);
+      else if (s && s.welcome && name) notify(s.welcome);
+      if (s && s.adminNote) notify(s.adminNote);
+    }catch(e){ console && console.warn && console.warn("notify-bridge", e); }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
+  else run();
+})();
+</script>`;
+    if (html.includes("</body>")) html = html.replace("</body>", bridge + "\\n</body>");
+    else html += bridge;
+    res.set("Content-Type","text/html; charset=utf-8");
+    res.send(html);
+  } catch (e) {
+    console.error("notify bridge send error:", e);
+    res.sendFile(path.join(__dirname, "index.html"));
+  }
+});
 
 // ==== Helpers ====
 const monthKey = () => {
@@ -303,7 +356,6 @@ app.get("/auth/status", (req, res) => {
   }
 
   res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem, notify, welcome, adminNote });
-});
 });
 
 // ==== 登録 ====
@@ -881,8 +933,6 @@ function scheduleRefillCron() {
 
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
 scheduleRefillCron();
-} catch (e) { console.error(e); } });
-
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
 
