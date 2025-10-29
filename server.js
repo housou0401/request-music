@@ -51,11 +51,7 @@ if (!db.data.settings) db.data.settings = {};
 if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
 if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 10;
 if (!db.data.settings.refillTimezone) db.data.settings.refillTimezone = "Asia/Tokyo";
-// --- default refill schedule settings (if missing) ---
-if (!db.data.settings) db.data.settings = {};
-if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
-if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 10;
-if (!db.data.settings.refillTimezone) db.data.settings.refillTimezone = "Asia/Tokyo";
+
 const usersDb = await JSONFilePreset("users.json", {
   users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
 });
@@ -314,7 +310,6 @@ app.get("/auth/status", (req, res) => {
     welcome
   });
 });
-});
 
 // ==== 登録 ====
 app.post("/register", async (req, res) => {
@@ -351,7 +346,6 @@ app.post("/register", async (req, res) => {
     setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
-    res.cookie("justLoggedIn","1", COOKIE_OPTS);
     res.cookie("justLoggedIn","1", COOKIE_OPTS);
     res.json({ ok: true, role, username });
   } catch (e) {
@@ -476,15 +470,8 @@ async function putFile(pathname, contentObj, message) {
   const payload = { message, content: nextB64, branch: BRANCH, ...(sha ? { sha } : {}) };
   return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
     { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
-} = await getFileMeta(pathname);
-  if (contentB64 && contentB64 === nextB64) {
-    console.log(`[github-sync] ${pathname}: no changes, skip`);
-    return { skipped: true };
-  }
-  const payload = { message, content: nextB64, branch: BRANCH, ...(sha ? { sha } : {}) };
-  return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
-    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
 }
+
 async function getFile(pathname) {
   const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
     { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
@@ -523,7 +510,6 @@ app.post("/admin-login", async (req, res) => {
     req.user.tokens = null;
     await safeWriteUsers();
   }
-  res.cookie("justLoggedIn","1", COOKIE_OPTS);
   res.cookie("justLoggedIn","1", COOKIE_OPTS);
   return res.json({ success: true });
 });
@@ -669,6 +655,20 @@ app.get("/admin", requireAdmin, async (req, res) => {
         <button type="submit" style="margin-left:8px;">保存</button>
       </form>
       <p><a href="/admin/users">ユーザー管理へ →</a></p>
+    </div>
+    <div class="sec">
+      <h2>月次トークン配布時刻</h2>
+      <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <label>時刻:
+          <input type="number" name="hour" min="0" max="23" value="${db.data.settings.refillHour ?? 0}" style="width:80px;">
+          :
+          <input type="number" name="minute" min="0" max="59" value="${db.data.settings.refillMinute ?? 10}" style="width:80px;">
+        </label>
+        <label>Timezone:
+          <input type="text" name="timezone" value="${db.data.settings.refillTimezone || 'Asia/Tokyo'}" placeholder="Asia/Tokyo" style="width:180px;">
+        </label>
+        <button type="submit">保存</button>
+      </form>
     </div>
 
     <p><a href="/" style="font-size:20px;">↵戻る</a></p>
@@ -886,8 +886,6 @@ function scheduleRefillCron() {
 }
 
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
-} catch (e) { console.error(e); } });
-
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
 app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
