@@ -14,8 +14,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ==== GitHub 同期設定 ====
-
 async function getFileMeta(pathname) {
   try {
     const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
@@ -25,7 +23,7 @@ async function getFileMeta(pathname) {
   } catch (e) { if (e.response?.status === 404) return { sha: null, contentB64: null }; throw e; }
 }
 
-
+// ==== GitHub 同期設定 ====
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const BRANCH = process.env.GITHUB_BRANCH || "main";
@@ -47,11 +45,10 @@ const db = await JSONFilePreset("db.json", {
     duplicateCooldownMinutes: 15,
   },
 });
-
-// --- Ensure default settings for refill schedule ---
+// --- default refill schedule settings (if missing) ---
 if (!db.data.settings) db.data.settings = {};
-if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;     // 00:
-if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 10; // :10
+if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
+if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 10;
 if (!db.data.settings.refillTimezone) db.data.settings.refillTimezone = "Asia/Tokyo";
 const usersDb = await JSONFilePreset("users.json", {
   users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
@@ -292,7 +289,6 @@ app.get("/search", async (req, res) => {
 });
 
 // ==== 認証状態 ====
-
 app.get("/auth/status", (req, res) => {
   const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
   const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
@@ -390,7 +386,7 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠${user.username} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
@@ -858,7 +854,7 @@ app.get("/fetch-requests", requireAdmin, async (_req, res) => {
 // ==== 起動時 ====
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
-
+// ==== Cron ====
 let _refillCron = null;
 function scheduleRefillCron() {
   try {
@@ -876,12 +872,10 @@ function scheduleRefillCron() {
   }
 }
 
-// ==== Cron ====
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
 cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
-
 
 app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
   const hour = Math.min(23, Math.max(0, parseInt(req.body.hour, 10) || 0));
@@ -894,4 +888,3 @@ app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
   try { scheduleRefillCron(); } catch (e) { console.error(e); }
   res.redirect("/admin");
 });
-
