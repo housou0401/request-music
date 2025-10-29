@@ -8,12 +8,10 @@ import cron from "node-cron";
 import axios from "axios";
 import dotenv from "dotenv";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-
+import url from "node:url";
 dotenv.config();
 
 const app = express();
-app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 
 // ==== GitHub 同期設定 ====
@@ -42,18 +40,13 @@ const usersDb = await JSONFilePreset("users.json", {
   users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
 });
 
-// Override admin password from environment if provided (not persisted)
-if (process.env.ADMIN_PASSWORD) {
-  db.data.settings.adminPassword = process.env.ADMIN_PASSWORD;
-}
-
 // ==== Middleware ====
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
 // 静的配信 & ルート
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 app.use(express.static("public"));
 app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
@@ -69,8 +62,7 @@ const deviceInfoFromReq = (req) => ({
   ip: req.ip || req.connection?.remoteAddress || "",
 });
 
-const isProd = process.env.NODE_ENV === "production";
-const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 365, secure: isProd };
+const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 365 };
 const getInt = (v) => (Number.isFinite(parseInt(v, 10)) ? parseInt(v, 10) : 0);
 const getRegFails = (req) => Math.max(0, getInt(req.cookies?.areg));
 const setRegFails = (res, n) => res.cookie("areg", Math.max(0, n), COOKIE_OPTS);
@@ -165,7 +157,7 @@ async function itunesSearch(params) {
 
 // アーティストの楽曲一覧（lookup）
 async function itunesLookupSongsByArtist(artistId) {
-  const urlStr = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=100";
+  const urlStr = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=100`;
   const r = await fetch(urlStr, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!r.ok) return [];
   const text = await r.text();
@@ -364,7 +356,7 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${user.username} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
@@ -437,23 +429,10 @@ async function getFileSha(pathname) {
     return r.data.sha;
   } catch (e) { if (e.response?.status === 404) return null; throw e; }
 }
-async function getFileMeta(pathname) {
-  try {
-    const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
-      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
-    const contentB64 = (r.data.content || "").replace(/\\n/g, "");
-    return { sha: r.data.sha, contentB64 };
-  } catch (e) { if (e.response?.status === 404) return { sha: null, contentB64: null }; throw e; }
-}
 async function putFile(pathname, contentObj, message) {
-  // 差分比較して同一なら commit をスキップ
-  const nextB64 = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
-  const { sha, contentB64 } = await getFileMeta(pathname);
-  if (contentB64 && contentB64 === nextB64) {
-    console.log(`[github-sync] ${pathname}: no changes, skip`);
-    return { skipped: true };
-  }
-  const payload = { message, content: nextB64, branch: BRANCH, ...(sha ? { sha } : {}) };
+  const sha = await getFileSha(pathname);
+  const contentEncoded = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
+  const payload = { message, content: contentEncoded, branch: BRANCH, ...(sha ? { sha } : {}) };
   return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
     { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
 }
@@ -774,7 +753,6 @@ app.post("/admin/delete-user", requireAdmin, async (req, res) => {
 // ==== 設定 ====
 app.post("/update-settings", requireAdmin, async (req, res) => {
   db.data.settings.maintenance = !!req.body.maintenance;
-  // チェックが付いた時は「募集を終了」するUIのため、送信値があれば false
   db.data.settings.recruiting = req.body.recruiting ? false : true;
   db.data.settings.reason = req.body.reason || "";
   db.data.settings.frontendTitle = req.body.frontendTitle || "♬曲をリクエストする";
@@ -796,14 +774,8 @@ app.get("/preview", async (req, res) => {
   try {
     const raw = req.query.url;
     if (!raw) return res.status(400).send("missing url");
-
-    let host;
-    try {
-      host = new URL(raw).hostname.toLowerCase();
-    } catch {
-      return res.status(400).send("invalid url");
-    }
-
+    const parsed = url.parse(raw);
+    const host = (parsed.hostname || "").toLowerCase();
     const allowed =
       host.endsWith("itunes.apple.com") ||
       host.endsWith("audio-ssl.itunes.apple.com") ||
@@ -817,9 +789,12 @@ app.get("/preview", async (req, res) => {
     res.status(r.status);
     const ct = r.headers.get("content-type") || "audio/mpeg";
     res.setHeader("Content-Type", ct);
-    const len = r.headers.get("content-length"); if (len) res.setHeader("Content-Length", len);
-    const ar  = r.headers.get("accept-ranges"); if (ar) res.setHeader("Accept-Ranges", ar);
-    const cr  = r.headers.get("content-range"); if (cr) res.setHeader("Content-Range", cr);
+    const len = r.headers.get("content-length");
+    if (len) res.setHeader("Content-Length", len);
+    const ar = r.headers.get("accept-ranges");
+    if (ar) res.setHeader("Accept-Ranges", ar);
+    const cr = r.headers.get("content-range");
+    if (cr) res.setHeader("Content-Range", cr);
     res.setHeader("Cache-Control", "public, max-age=86400");
     r.body.pipe(res);
   } catch (e) {
