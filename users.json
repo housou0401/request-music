@@ -10,6 +10,17 @@
       "role": "admin",
       "tokens": null,
       "lastRefillISO": "2025-10"
+    },
+    {
+      "id": "uoHZdqtP3P3bHY4R",
+      "username": "管理者2",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2025-10"
     }
   ]
 }
