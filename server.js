@@ -869,8 +869,6 @@ function scheduleRefillCron() {
 }
 
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
-} catch (e) { console.error(e); } });
-
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
 app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
