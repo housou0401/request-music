@@ -8,20 +8,11 @@ import cron from "node-cron";
 import axios from "axios";
 import dotenv from "dotenv";
 import path from "node:path";
-import * as url from "node:url";
+import url from "node:url";
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-async function getFileMeta(pathname) {
-  try {
-    const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
-      { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
-    const contentB64 = (r.data.content || "").replace(/\n/g, "");
-    return { sha: r.data.sha, contentB64 };
-  } catch (e) { if (e.response?.status === 404) return { sha: null, contentB64: null }; throw e; }
-}
 
 // ==== GitHub 同期設定 ====
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
@@ -45,13 +36,6 @@ const db = await JSONFilePreset("db.json", {
     duplicateCooldownMinutes: 15,
   },
 });
-
-// --- default refill schedule settings (if missing) ---
-if (!db.data.settings) db.data.settings = {};
-if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
-if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 10;
-if (!db.data.settings.refillTimezone) db.data.settings.refillTimezone = "Asia/Tokyo";
-
 const usersDb = await JSONFilePreset("users.json", {
   users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
 });
@@ -99,15 +83,20 @@ function hitRate(userId, limitPerMin) {
 }
 
 // 月次トークン配布
-async function ensureMonthlyRefill(user) {
+async async function ensureMonthlyRefill(user) {
   if (!user || isAdmin(user)) return;
-  const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
-  if (user.lastRefillISO !== m) {
+  const tz = db.data.settings.refillTimezone || "Asia/Tokyo";
+  const dayCfg = Number(db.data.settings.refillDay ?? 1);
+  const ds = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
+  const [Y,M,D] = ds.split('-').map(Number);
+  const monthKeyNow = `${Y}-${String(M).padStart(2,"0")}`;
+  if (user.lastRefillISO !== monthKeyNow && D >= dayCfg) {
     user.tokens = monthly;
-    user.lastRefillISO = m;
+    user.lastRefillISO = monthKeyNow;
     await usersDb.write();
   }
+}
 }
 async function refillAllIfMonthChanged() {
   const m = monthKey();
@@ -294,21 +283,7 @@ app.get("/search", async (req, res) => {
 app.get("/auth/status", (req, res) => {
   const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
   const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
-
-  let notify = null;
-  if (req.cookies && req.cookies.justLoggedIn === "1") {
-    notify = { type: "success", message: "ログインしました" };
-    res.clearCookie("justLoggedIn");
-  }
-
-  const welcome = req.user ? `${req.user.username} ようこそ` : null;
-
-  res.json({
-    adminRegRemaining: regRem,
-    adminLoginRemaining: logRem,
-    notify,
-    welcome
-  });
+  res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem });
 });
 
 // ==== 登録 ====
@@ -346,7 +321,6 @@ app.post("/register", async (req, res) => {
     setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
-    res.cookie("justLoggedIn","1", COOKIE_OPTS);
     res.json({ ok: true, role, username });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -387,7 +361,7 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${user.username} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
@@ -461,17 +435,12 @@ async function getFileSha(pathname) {
   } catch (e) { if (e.response?.status === 404) return null; throw e; }
 }
 async function putFile(pathname, contentObj, message) {
-  const nextB64 = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
-  const { sha, contentB64 } = await getFileMeta(pathname);
-  if (contentB64 && contentB64 === nextB64) {
-    console.log(`[github-sync] ${pathname}: no changes, skip`);
-    return { skipped: true };
-  }
-  const payload = { message, content: nextB64, branch: BRANCH, ...(sha ? { sha } : {}) };
+  const sha = await getFileSha(pathname);
+  const contentEncoded = Buffer.from(JSON.stringify(contentObj, null, 2)).toString("base64");
+  const payload = { message, content: contentEncoded, branch: BRANCH, ...(sha ? { sha } : {}) };
   return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
     { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
 }
-
 async function getFile(pathname) {
   const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
     { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
@@ -510,7 +479,6 @@ app.post("/admin-login", async (req, res) => {
     req.user.tokens = null;
     await safeWriteUsers();
   }
-  res.cookie("justLoggedIn","1", COOKIE_OPTS);
   return res.json({ success: true });
 });
 
@@ -655,20 +623,6 @@ app.get("/admin", requireAdmin, async (req, res) => {
         <button type="submit" style="margin-left:8px;">保存</button>
       </form>
       <p><a href="/admin/users">ユーザー管理へ →</a></p>
-    </div>
-    <div class="sec">
-      <h2>月次トークン配布時刻</h2>
-      <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <label>時刻:
-          <input type="number" name="hour" min="0" max="23" value="${db.data.settings.refillHour ?? 0}" style="width:80px;">
-          :
-          <input type="number" name="minute" min="0" max="59" value="${db.data.settings.refillMinute ?? 10}" style="width:80px;">
-        </label>
-        <label>Timezone:
-          <input type="text" name="timezone" value="${db.data.settings.refillTimezone || 'Asia/Tokyo'}" placeholder="Asia/Tokyo" style="width:180px;">
-        </label>
-        <button type="submit">保存</button>
-      </form>
     </div>
 
     <p><a href="/" style="font-size:20px;">↵戻る</a></p>
@@ -868,34 +822,30 @@ app.get("/fetch-requests", requireAdmin, async (_req, res) => {
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
 // ==== Cron ====
-let _refillCron = null;
-function scheduleRefillCron() {
-  try {
-    if (_refillCron) { try { _refillCron.stop(); } catch {} _refillCron = null; }
-    const hour = Number(db.data.settings.refillHour ?? 0);
-    const minute = Number(db.data.settings.refillMinute ?? 10);
-    const tz = db.data.settings.refillTimezone || "Asia/Tokyo";
-    const expr = `${minute} ${hour} * * *`;
-    _refillCron = cron.schedule(expr, async () => {
-      try { await refillAllIfMonthChanged(); } catch (e) { console.error("refill cron error:", e); }
-    }, { timezone: tz });
-    console.log(`[refill-cron] scheduled at`, expr, `TZ=${tz}`);
-  } catch (e) {
-    console.error("scheduleRefillCron failed:", e);
-  }
-}
-
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
+cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
+
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
-app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
-  const hour = Math.min(23, Math.max(0, parseInt(req.body.hour, 10) || 0));
-  const minute = Math.min(59, Math.max(0, parseInt(req.body.minute, 10) || 0));
-  const timezone = (req.body.timezone || "Asia/Tokyo").toString().trim() || "Asia/Tokyo";
-  db.data.settings.refillHour = hour;
-  db.data.settings.refillMinute = minute;
-  db.data.settings.refillTimezone = timezone;
-  await db.write();
-  try { scheduleRefillCron(); } catch (e) { console.error(e); }
-  res.redirect("/admin");
+
+app.get("/admin/schedule", requireAdmin, async (_req, res) => {
+  res.send(`<!doctype html><meta charset="utf-8"><title>Refill Schedule</title>
+  <h1>トークン配布スケジュール</h1>
+  <p><a href="/admin">← Adminへ戻る</a></p>
+  <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <label>日:
+      <input type="number" name="day" min="1" max="31" value="${db.data.settings.refillDay ?? 1}" style="width:80px;">
+    </label>
+    <label>時刻:
+      <input type="number" name="hour" min="0" max="23" value="${db.data.settings.refillHour ?? 0}" style="width:80px;"> :
+      <input type="number" name="minute" min="0" max="59" value="${db.data.settings.refillMinute ?? 10}" style="width:80px;">
+    </label>
+    <label>Timezone:
+      <select name="timezone" style="width:220px;">
+        <option value="Asia/Tokyo">${db.data.settings.refillTimezone==="Asia/Tokyo"?"selected":""}} {tz}</option><option value="Asia/Seoul">${db.data.settings.refillTimezone==="Asia/Seoul"?"selected":""}} {tz}</option><option value="Asia/Shanghai">${db.data.settings.refillTimezone==="Asia/Shanghai"?"selected":""}} {tz}</option><option value="Asia/Taipei">${db.data.settings.refillTimezone==="Asia/Taipei"?"selected":""}} {tz}</option><option value="Asia/Hong_Kong">${db.data.settings.refillTimezone==="Asia/Hong_Kong"?"selected":""}} {tz}</option><option value="Asia/Singapore">${db.data.settings.refillTimezone==="Asia/Singapore"?"selected":""}} {tz}</option><option value="Asia/Bangkok">${db.data.settings.refillTimezone==="Asia/Bangkok"?"selected":""}} {tz}</option><option value="Australia/Sydney">${db.data.settings.refillTimezone==="Australia/Sydney"?"selected":""}} {tz}</option><option value="Europe/London">${db.data.settings.refillTimezone==="Europe/London"?"selected":""}} {tz}</option><option value="Europe/Paris">${db.data.settings.refillTimezone==="Europe/Paris"?"selected":""}} {tz}</option><option value="Europe/Berlin">${db.data.settings.refillTimezone==="Europe/Berlin"?"selected":""}} {tz}</option><option value="UTC">${db.data.settings.refillTimezone==="UTC"?"selected":""}} {tz}</option><option value="America/Los_Angeles">${db.data.settings.refillTimezone==="America/Los_Angeles"?"selected":""}} {tz}</option><option value="America/New_York">${db.data.settings.refillTimezone==="America/New_York"?"selected":""}} {tz}</option>
+      </select>
+    </label>
+    <button type="submit">保存</button>
+  </form>`);
 });
+
