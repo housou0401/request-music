@@ -54,6 +54,17 @@
       "role": "admin",
       "tokens": null,
       "lastRefillISO": "2025-10"
+    },
+    {
+      "id": "zwLXNADZsqArCmYk",
+      "username": "りおん",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Safari Line/15.16.1",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 5,
+      "lastRefillISO": "2025-10"
     }
   ]
 }
