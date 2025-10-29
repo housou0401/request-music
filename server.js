@@ -8,7 +8,7 @@ import cron from "node-cron";
 import axios from "axios";
 import dotenv from "dotenv";
 import path from "node:path";
-import url from "node:url";
+import * as url from "node:url";
 dotenv.config();
 
 const app = express();
@@ -308,7 +308,6 @@ app.get("/auth/status", (req, res) => {
     welcome
   });
 });
-});
 
 // ==== 登録 ====
 app.post("/register", async (req, res) => {
@@ -467,9 +466,6 @@ async function putFile(pathname, contentObj, message) {
     return { skipped: true };
   }
   const payload = { message, content: nextB64, branch: BRANCH, ...(sha ? { sha } : {}) };
-  return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
-    { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
-} : {}) };
   return axios.put(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}`, payload,
     { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
 }
@@ -873,7 +869,7 @@ function scheduleRefillCron() {
 }
 
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
-cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
+} catch (e) { console.error(e); } });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
