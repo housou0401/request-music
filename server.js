@@ -8,7 +8,7 @@ import cron from "node-cron";
 import axios from "axios";
 import dotenv from "dotenv";
 import path from "node:path";
-import url from "node:url";
+import * as url from "node:url";
 dotenv.config();
 
 const app = express();
@@ -83,7 +83,7 @@ function hitRate(userId, limitPerMin) {
 }
 
 // 月次トークン配布
-async async function ensureMonthlyRefill(user) {
+async function ensureMonthlyRefill(user) {
   if (!user || isAdmin(user)) return;
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
   const tz = db.data.settings.refillTimezone || "Asia/Tokyo";
@@ -97,7 +97,7 @@ async async function ensureMonthlyRefill(user) {
     await usersDb.write();
   }
 }
-}
+
 async function refillAllIfMonthChanged() {
   const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
@@ -361,7 +361,7 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠${user.username} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
