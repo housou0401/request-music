@@ -65,17 +65,6 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-10"
-    },
-    {
-      "id": "MTX7-G3HWt1iv-cl",
-      "username": "ae",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2025-10"
     }
   ]
 }
