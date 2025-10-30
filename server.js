@@ -39,6 +39,10 @@ const db = await JSONFilePreset("db.json", {
 const usersDb = await JSONFilePreset("users.json", {
   users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
 });
+// defaults for schedule
+if (typeof db.data.settings.refillDay !== "number") db.data.settings.refillDay = 1;
+if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
+if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 0;
 
 // ==== Middleware ====
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -51,6 +55,34 @@ app.use(express.static("public"));
 app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 // ==== Helpers ====
+// ---- Schedule helpers (Asia/Tokyo monthly schedule) ----
+function latestScheduleKey(now = new Date()) {
+  const s = db.data.settings || {};
+  const day = Number(s.refillDay ?? 1);
+  const hour = Number(s.refillHour ?? 0);
+  const minute = Number(s.refillMinute ?? 0);
+
+  const y = now.getUTCFullYear();
+  const m0 = now.getUTCMonth(); // 0..11
+
+  function schedUTC(year, mZero) {
+    const last = new Date(Date.UTC(year, mZero + 1, 0)).getUTCDate(); // days in month
+    const d = Math.min(day, last);
+    // JST(UTC+9) to UTC
+    return new Date(Date.UTC(year, mZero, d, hour - 9, minute, 0));
+  }
+
+  const thisSched = schedUTC(y, m0);
+  if (now.getTime() >= thisSched.getTime()) {
+    return `${y}-${String(m0 + 1).padStart(2, "0")}`;
+  } else {
+    // previous month key
+    const py = m0 === 0 ? y - 1 : y;
+    const pm = m0 === 0 ? 12 : m0;
+    return `${py}-${String(pm).padStart(2, "0")}`;
+  }
+}
+
 const monthKey = () => {
   const d = new Date();
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -83,27 +115,35 @@ function hitRate(userId, limitPerMin) {
 }
 
 // 月次トークン配布
+
 async function ensureMonthlyRefill(user) {
   if (!user || isAdmin(user)) return;
-  const m = monthKey();
+  const key = latestScheduleKey(new Date());
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
-  if (user.lastRefillISO !== m) {
+  if (user.lastRefillISO !== key) {
     user.tokens = monthly;
-    user.lastRefillISO = m;
+    user.lastRefillISO = key;
+    user.lastRefillAtISO = new Date().toISOString();
     await usersDb.write();
   }
 }
+}
+
 async function refillAllIfMonthChanged() {
-  const m = monthKey();
+  const key = latestScheduleKey(new Date());
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
   let touched = false;
   for (const u of usersDb.data.users) {
-    if (!isAdmin(u) && u.lastRefillISO !== m) {
+    if (!isAdmin(u) && u.lastRefillISO !== key) {
       u.tokens = monthly;
-      u.lastRefillISO = m;
+      u.lastRefillISO = key;
+      u.lastRefillAtISO = new Date().toISOString();
       touched = true;
     }
   }
+  if (touched) await usersDb.write();
+}
+}
   if (touched) await usersDb.write();
 }
 
@@ -181,6 +221,23 @@ function normalizeSong(x) {
     previewUrl: x.previewUrl || "",
     releaseDate: x.releaseDate || ""
   };
+}
+// Resolve trackName/artistName from Apple Music trackViewUrl (uses ?i=TRACK_ID)
+async function tryResolveTrackByUrl(appleMusicUrl) {
+  try {
+    const m = String(appleMusicUrl || "").match(/[?&]i=(\d+)/);
+    if (!m) return null;
+    const id = m[1];
+    const urlStr = `https://itunes.apple.com/lookup?id=${id}&country=JP`;
+    const r = await fetch(urlStr, { headers: { "User-Agent": "Mozilla/5.0" } });
+    if (!r.ok) return null;
+    const text = await r.text();
+    if (!text.trim()) return null;
+    const data = JSON.parse(text);
+    const item = (data.results && data.results[0]) || null;
+    if (!item) return null;
+    return normalizeSong(item);
+  } catch { return null; }
 }
 
 // 並び替えキー取得（クッキー or クエリ）
@@ -309,7 +366,7 @@ app.post("/register", async (req, res) => {
       deviceInfo: deviceInfoFromReq(req),
       role,
       tokens: role === "admin" ? null : monthly,
-      lastRefillISO: monthKey(),
+      lastRefillISO: latestScheduleKey(new Date()), lastRefillAtISO: new Date().toISOString(), registeredAt: new Date().toISOString(),
     });
     await usersDb.write();
 
@@ -356,14 +413,23 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert(`⚠${user.username} さん、送信には今月のトークンが不足しています。`); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
   const artworkUrl = req.body.artworkUrl?.trim();
   const previewUrl = req.body.previewUrl?.trim();
-  const responseText = req.body.response?.trim();
-  const artistText = req.body.artist?.trim() || "アーティスト不明";
+  let responseText = (req.body.response ?? "").toString().trim();
+  let artistText = (req.body.artist ?? "").toString().trim() || "アーティスト不明";
+  if (appleMusicUrl) {
+    try {
+      const resolved = await tryResolveTrackByUrl(appleMusicUrl);
+      if (resolved) {
+        responseText = resolved.trackName || responseText;
+        if (!req.body.artist) artistText = resolved.artistName || artistText;
+      }
+    } catch {}
+  }
   if (!appleMusicUrl || !artworkUrl || !previewUrl) return res.send(`<script>alert("⚠候補一覧から曲を選択してください"); location.href="/";</script>`);
   if (!responseText) return res.send(`<script>alert("⚠入力欄が空です。"); location.href="/";</script>`);
 
@@ -419,6 +485,34 @@ app.post("/admin/bulk-delete-requests", requireAdmin, async (req, res) => {
   db.data.responses = db.data.responses.filter(r => !idSet.has(r.id));
   await safeWriteDb();
   res.redirect(`/admin`);
+});
+
+// ==== 放送済みトグル ====
+app.get("/broadcast/:id", requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  const r = db.data.responses.find(e => e.id === id);
+  if (r) { r.broadcasted = true; r.broadcastedAt = new Date().toISOString(); await safeWriteDb(); }
+  res.redirect("/admin");
+});
+app.get("/unbroadcast/:id", requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  const r = db.data.responses.find(e => e.id === id);
+  if (r) { r.broadcasted = false; r.broadcastedAt = null; await safeWriteDb(); }
+  res.redirect("/admin");
+});
+app.post("/admin/bulk-broadcast-requests", requireAdmin, async (req, res) => {
+  const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
+  const idSet = new Set(ids);
+  for (const r of db.data.responses) if (idSet.has(r.id)) { r.broadcasted = true; r.broadcastedAt = new Date().toISOString(); }
+  await safeWriteDb();
+  res.redirect("/admin");
+});
+app.post("/admin/bulk-unbroadcast-requests", requireAdmin, async (req, res) => {
+  const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
+  const idSet = new Set(ids);
+  for (const r of db.data.responses) if (idSet.has(r.id)) { r.broadcasted = false; r.broadcastedAt = null; }
+  await safeWriteDb();
+  res.redirect("/admin");
 });
 
 // ==== GitHub 同期 ====
@@ -497,6 +591,9 @@ app.get("/admin", requireAdmin, async (req, res) => {
   const page = parseInt(req.query.page || "1", 10);
 
   let items = [...db.data.responses];
+  const only = (req.query.only||"").toString();
+  if (only==="broadcasted") items = items.filter(x=>x.broadcasted);
+  if (only==="unbroadcasted") items = items.filter(x=>!x.broadcasted);
   if (sort === "popular") items.sort((a,b)=> (b.count|0)-(a.count|0) || new Date(b.createdAt)-new Date(a.createdAt));
   else items.sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
 
@@ -533,7 +630,10 @@ app.get("/admin", requireAdmin, async (req, res) => {
     .entry-container{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px;border:1px solid rgba(0,0,0,.1);border-radius:10px}
     .entry-container:hover{background:#fafafa}
     .entry img{width:50px;height:50px;border-radius:5px;margin-right:10px}
-    .delete{position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);text-decoration:none}
+    .delete{text-decoration:none}
+    .actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+    .actions a{border:1px solid #ccc;border-radius:8px;padding:6px 8px;background:#fff;color:#333}
+    .actions a:hover{background:#f5f5f5}
     .count-badge{background:#ff6b6b;color:#fff;font-weight:bold;padding:4px 8px;border-radius:5px;margin-right:10px}
     .tools{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
     .tools button{padding:8px 12px}
@@ -551,6 +651,11 @@ app.get("/admin", requireAdmin, async (req, res) => {
         並び替え:
         <a class="pg-btn ${sort==='newest'?'current':''}" href="?sort=newest">最新順</a>
         <a class="pg-btn ${sort==='popular'?'current':''}" href="?sort=popular">人気順</a>
+        <span style="margin-left:12px">絞り込み:
+          <a class="pg-btn ${ (req.query.only||'')==='broadcasted'?'current':''}" href="?sort=${sort}&only=broadcasted">放送済みのみ</a>
+          <a class="pg-btn ${ (req.query.only||'')==='unbroadcasted'?'current':''}" href="?sort=${sort}&only=unbroadcasted">未放送のみ</a>
+          <a class="pg-btn ${ (req.query.only||'')===''?'current':''}" href="?sort=${sort}">すべて</a>
+        </span>
       </div>
       <div style="margin-left:auto;">
         <a class="pg-btn" href="/admin/users">ユーザー管理へ →</a>
@@ -563,6 +668,8 @@ app.get("/admin", requireAdmin, async (req, res) => {
       <div class="tools">
         <label><input type="checkbox" id="reqSelectAll"> 全選択</label>
         <button type="submit">選択したリクエストを削除</button>
+        <button type="submit" formaction="/admin/bulk-broadcast-requests">選択を放送済みに</button>
+        <button type="submit" formaction="/admin/bulk-unbroadcast-requests">選択を未放送へ</button>
         <a class="pg-btn" href="/sync-requests">GitHubに同期</a>
         <a class="pg-btn" href="/fetch-requests">GitHubから取得</a>
       </div>
@@ -578,7 +685,7 @@ app.get("/admin", requireAdmin, async (req, res) => {
           <img src="${e.artworkUrl}" alt="Cover">
           <div><strong>${e.text}</strong><br><small>${e.artist}</small></div>
         </a>
-        <a href="/delete/${e.id}" class="delete">🗑️</a>
+        ${e.broadcasted ? `<div class="actions"><a href="/unbroadcast/${e.id}">↩️ 未放送へ</a><a href="/delete/${e.id}" class="delete">🗑️</a></div>` : `<div class="actions"><a href="/broadcast/${e.id}">📻 放送済みへ</a><a href="/delete/${e.id}" class="delete">🗑️</a></div>`}
       </div>
     </li>`;
   });
@@ -618,7 +725,18 @@ app.get("/admin", requireAdmin, async (req, res) => {
         <button type="submit" style="margin-left:8px;">保存</button>
       </form>
       <p><a href="/admin/users">ユーザー管理へ →</a></p>
+    
+    <div class="sec">
+      <h2>配布スケジュール</h2>
+      <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label>毎月の日: <input type="number" min="1" max="31" name="refillDay" value="${db.data.settings.refillDay ?? 1}" style="width:90px;"></label>
+        <label>時: <input type="number" min="0" max="23" name="refillHour" value="${db.data.settings.refillHour ?? 0}" style="width:90px;"></label>
+        <label>分: <input type="number" min="0" max="59" name="refillMinute" value="${db.data.settings.refillMinute ?? 0}" style="width:90px;"></label>
+        <span class="muted">タイムゾーン: Asia/Tokyo</span>
+        <button type="submit">保存</button>
+      </form>
     </div>
+</div>
 
     <p><a href="/" style="font-size:20px;">↵戻る</a></p>
 
@@ -643,6 +761,18 @@ app.post("/admin/update-monthly-tokens", requireAdmin, async (req, res) => {
   res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin">保存しました`);
 });
 
+
+// Save refill schedule (admin)
+app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
+  const day = Math.max(1, Math.min(31, parseInt(req.body.refillDay, 10) || 1));
+  const hour = Math.max(0, Math.min(23, parseInt(req.body.refillHour, 10) || 0));
+  const minute = Math.max(0, Math.min(59, parseInt(req.body.refillMinute, 10) || 0));
+  db.data.settings.refillDay = day;
+  db.data.settings.refillHour = hour;
+  db.data.settings.refillMinute = minute;
+  await safeWriteDb();
+  res.redirect("/admin");
+});
 // ==== Users（管理者のみ + なりすましボタン） ====
 app.get("/admin/users", requireAdmin, async (_req, res) => {
   await usersDb.read();
@@ -818,6 +948,122 @@ await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await re
 
 // ==== Cron ====
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
-cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
+cron.schedule("*/2 * * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
+
+// My Page (server-rendered)
+app.get("/mypage", async (req, res) => {
+  if (!req.user) return res.send(`<!doctype html><meta charset="utf-8"><p>未ログインです。<a href="/">トップへ</a></p>`);
+  const u = req.user;
+  const sset = db.data.settings || {};
+  const tz = "Asia/Tokyo";
+  const day = Number(sset.refillDay ?? 1);
+  const hour = Number(sset.refillHour ?? 0);
+  const minute = Number(sset.refillMinute ?? 0);
+
+  function nextRefillDate() {
+    const now = new Date();
+    const jst = new Date(now.getTime() + 9*60*60*1000);
+    let y = jst.getUTCFullYear();
+    let m = jst.getUTCMonth() + 1;
+    const last = new Date(y, m, 0).getDate();
+    const d = Math.min(day, last);
+    function build(y,m){ return new Date(Date.UTC(y, m-1, d, hour-9, minute, 0)); }
+    let target = build(y, m);
+    if (now.getTime() >= target.getTime()) {
+      if (m === 12) { y += 1; m = 1; } else { m += 1; }
+      const last2 = new Date(y, m, 0).getDate();
+      const d2 = Math.min(day, last2);
+      target = new Date(Date.UTC(y, m-1, d2, hour-9, minute, 0));
+    }
+    return target;
+  }
+  const nextRef = nextRefillDate();
+
+  const fmt = (iso) => { try { return iso ? new Date(iso).toLocaleString("ja-JP", { timeZone: tz }) : "-"; } catch { return iso || "-"; } };
+  const head = `<!doctype html><html lang="ja"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>マイページ</title>
+<style>
+  :root{ --bg:#f3f4f6; --card:#ffffff; --text:#111827; --muted:#6b7280; --border:#e5e7eb; --ok:#10b981;}
+  body{margin:0;background:linear-gradient(180deg,#eef2f7 0%,#f6f7fb 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial}
+  .wrap{max-width:980px;margin:24px auto;padding:0 16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0;box-shadow:0 6px 18px rgba(16,24,40,.06)}
+  .row{display:flex;gap:12px;align-items:center}
+  .muted{color:var(--muted)}
+  .kv{display:grid;grid-template-columns:160px 1fr;gap:8px 12px;margin-top:12px;align-items:center}
+  .list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  .item{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(16,24,40,.05)}
+  .item img{width:60px;height:60px;border-radius:10px}
+  .badge{background:var(--ok);color:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:8px}
+  .badge.gray{background:#9ca3af;color:#fff}
+  .btn{display:inline-block;padding:8px 12px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:#111827;background:#f9fafb}
+  .btn:hover{background:#eef2f7}
+  .btn.gray{background:#eee;border-color:#d1d5db;color:#111}
+  .btn.gray:hover{background:#e5e7eb}
+  .icon-mypage{width:24px;height:24px;margin-left:8px;vertical-align:middle}
+  .f-right{margin-left:auto}
+</style><body>`;
+
+  const my = db.data.responses.filter(r => r.by?.id === u.id).sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+  const items = (my.length===0)
+    ? `<p class="muted">🤫シーッ、まだここには何もないようです。</p>`
+    : `<ul class="list">${my.map(r => `
+      <li class="item">
+        <img src="${r.artworkUrl}" alt="cover">
+        <div>
+          <div><b>${r.text}</b> <small class="muted">/ ${r.artist}</small> ${r.broadcasted ? '<span class="badge">放送済み</span>' : '<span class="badge gray">未放送</span>'}</div>
+          <div class="muted">${new Date(r.createdAt).toLocaleString("ja-JP")}</div>
+        </div>
+        <a class="btn gray f-right" href="${r.appleMusicUrl || '#'}" target="_blank" rel="noopener">Apple Music ↗</a>
+      </li>`).join("")}</ul>`;
+let html = head + `<div class="wrap">
+    <div class="card">
+      <div class="row">
+        <div style="font-size:18px;font-weight:600;">${u.username} さんのマイページ <img src="/mypage.png" alt="mypage" class="icon-mypage"></div>
+        
+      </div>
+      <div class="kv">
+        <b>初回登録</b> <span>${fmt(u.registeredAt)}</span>
+        <b>残トークン</b> <span>${isAdmin(u) ? '∞' : (u.tokens ?? 0)}</span>
+        <b>最終配布</b> <span>${fmt(u.lastRefillAtISO) || (u.lastRefillISO || "-")}</span>
+        <b>次回配布予定</b> <span>${nextRef.toLocaleString("ja-JP", { timeZone: tz })} (Asia/Tokyo)</span>
+      </div>
+    </div>
+    <div class="muted" style="font-size:12px;margin-top:4px;">
+      次回配布予定: <span id="refillDate">${new Date(nextRef).toLocaleString("ja-JP", { timeZone: tz })}</span>
+      （<span id="refillCountdown"></span>）
+    </div>
+    <span id="refillTarget" data-next-ref="${nextRef.toISOString()}" style="display:none"></span>
+
+      <h3>自分の投稿一覧</h3>
+      ${items}
+    </div>
+    <p><a href="/">↩ トップへ戻る</a></p>
+  </div>`;
+  html += `<script>
+    (function(){
+      var targetEl = document.getElementById('refillTarget');
+      if(!targetEl) return;
+      var ts = targetEl.getAttribute('data-next-ref');
+      var target = ts ? new Date(ts) : null;
+      var out = document.getElementById('refillCountdown');
+      function tick(){
+        if(!target || !out) return;
+        var now = new Date();
+        var diff = Math.max(0, Math.floor((target - now)/1000));
+        var d = Math.floor(diff/86400); diff -= d*86400;
+        var h = Math.floor(diff/3600); diff -= h*3600;
+        var m = Math.floor(diff/60);
+        var s = diff - m*60;
+        var parts = [];
+        if (d) parts.push(d + "日");
+        parts.push(String(h).padStart(2,"0") + "時間", String(m).padStart(2,"0") + "分", String(s).padStart(2,"0") + "秒");
+        out.textContent = parts.join(" ");
+        requestAnimationFrame(tick);
+      }
+      tick();
+    })();
+  </script>`;
+  res.send(html + "</body></html>");
+});
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
