@@ -1,3 +1,4 @@
+
 /* =========================================================
    AudioManager で単一路線化（/preview プロキシ再生）
    - <audio id="previewAudio"> は 1 つだけ
@@ -144,7 +145,10 @@ async function loadSettings() {
 function setSearchMode(mode) {
   searchMode = mode; artistPhase = 0; selectedArtistId = null;
   ["songName","artistName"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
-  ["suggestions","selectedLabel","selectedSong","selectedArtist"].forEach(id => document.getElementById(id).innerHTML = "");
+  ["suggestions","selectedLabel","selectedSong","selectedArtist"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = "";
+  });
   stopPlayback(true);
 
   if (mode === "artist") {
@@ -231,103 +235,115 @@ async function fetchArtistTracksAndShow() {
   finally { hideLoading(); }
 }
 
-/* ========== 曲を選択 → カード描画 & AudioManagerにURLロード ========== */
+/* ========== 曲を選択 → レガシーカードに情報を詰める ========== */
+
 function selectSong(song) {
   const wrap = document.getElementById("selectedSong");
   const label = document.getElementById("selectedLabel");
+  if (label) label.textContent = "選択中の曲";
   document.getElementById("suggestions").innerHTML = "";
 
-  // 横並びカード（色は#666 / スライダーは幅280px, 1〜100%）
-  const initPercent = Math.max(1, Math.round(AudioManager.getVolume01() * 100)) || 40;
+  const artwork = song.artworkUrl || "";
+  const title   = song.trackName || "(曲名なし)";
+  const artist  = song.artistName || "アーティスト不明";
+
+  // カードHTML
   wrap.innerHTML = `
-    <div class="selected-song-card" style="display:flex;align-items:center;gap:10px;padding:8px;border:1px solid rgba(0,0,0,.1);border-radius:12px;background:#f3f3f3;">
-      <img src="${song.artworkUrl}" alt="Cover" style="width:50px;height:50px;border-radius:6px;object-fit:cover;">
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${song.trackName}</div>
-        <div style="font-size:12px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${song.artistName}</div>
+    <div class="selected-song-card" style="background:#f8f8f8;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:8px 10px;">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px;">
+        <img src="${artwork}" alt="Cover" style="width:48px;height:48px;border-radius:6px;object-fit:cover;background:#eee;">
+        <div style="min-width:0;flex:1;">
+          <div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</div>
+          <div style="font-size:12px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${artist}</div>
+        </div>
       </div>
-      <button type="button" id="playPauseBtn" style="background:none;border:none;cursor:pointer;padding:6px;color:#666;font-size:18px;">▶</button>
-      <button type="button" id="volumeBtn"    style="background:none;border:none;cursor:pointer;padding:6px;color:#666;font-size:18px;">${initPercent<=1?'🔇':'🔊'}</button>
-      <input type="range" min="1" max="100" step="1" value="${initPercent}" id="volumeSlider" style="width:280px;accent-color:#888;">
-      <button type="button" class="clear-btn" onclick="clearSelection()" style="background:none;border:none;cursor:pointer;padding:6px;font-size:16px;color:#666;">×</button>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button type="button" class="play" title="再生" style="background:none;border:none;font-size:18px;cursor:pointer;color:#111;">▶</button>
+        <button type="button" class="vol-btn" title="ミュート/解除" style="background:none;border:none;font-size:16px;cursor:pointer;color:#111;">🔊</button>
+        <input type="range" class="vol-range" min="0" max="1" step="0.01" value="0.8" style="flex:1;">
+        <button type="button" onclick="clearSelection()" style="background:none;border:none;font-size:16px;margin-left:auto;cursor:pointer;">×</button>
+      </div>
     </div>
   `;
 
   // hidden fields（送信用）
   setHidden("appleMusicUrlHidden","appleMusicUrl", song.trackViewUrl);
-  setHidden("artworkUrlHidden","artworkUrl", song.artworkUrl);
+  setHidden("artworkUrlHidden","artworkUrl", artwork);
   setHidden("previewUrlHidden","previewUrl", song.previewUrl);
-  setHidden("artistHidden","artist", song.artistName || "");
 
-  // 音源ロード（※自動再生はしない）
-  if (playerControlsEnabled && song.previewUrl) {
+  // 再生制御のアタッチ
+  const card = wrap.querySelector(".selected-song-card");
+  const playBtn = card.querySelector(".play");
+  const volBtn = card.querySelector(".vol-btn");
+  const volRange = card.querySelector(".vol-range");
+
+  // 曲を読み込んで自動再生
+  if (song.previewUrl) {
     AudioManager.load(song.previewUrl);
+    AudioManager.play().then(() => {
+      playBtn.textContent = "■";
+      updateVolumeIcon(volBtn, AudioManager.getVolume01(), AudioManager.isMuted());
+      const nowVol = AudioManager.getVolume01();
+      if (volRange) volRange.value = nowVol.toFixed(2);
+    }).catch(() => {
+      // 再生できなかったら▶に戻す
+      playBtn.textContent = "▶";
+    });
+  } else {
+    // プレビューがない場合は▶のまま
+    updateVolumeIcon(volBtn, AudioManager.getVolume01(), AudioManager.isMuted());
+    if (volRange) volRange.value = AudioManager.getVolume01().toFixed(2);
   }
 
-  // UIイベント（毎回新規にバインド：積み重ね防止）
-  const playBtn = document.getElementById("playPauseBtn");
-  const volBtn  = document.getElementById("volumeBtn");
-  const slider  = document.getElementById("volumeSlider");
-
-  const el = AudioManager.element();
-  el.onplay  = () => updatePlayPauseUI();
-  el.onpause = () => updatePlayPauseUI();
-  el.onended = () => updatePlayPauseUI();
-
-  playBtn.onclick = async (e) => {
-    e.preventDefault();
-    if (el.paused || el.ended) {
-      try { await AudioManager.play(); } catch(err){ console.error("play error:", err); }
+  // 再生/停止
+  playBtn.addEventListener("click", async () => {
+    const el = AudioManager.element();
+    if (el.paused) {
+      try {
+        await AudioManager.play();
+        playBtn.textContent = "■";
+      } catch(e) { console.warn(e); }
     } else {
       AudioManager.pause(false);
+      playBtn.textContent = "▶";
     }
-    updatePlayPauseUI();
-  };
+  });
 
-  volBtn.onclick = (e) => {
-    e.preventDefault();
+  // 音量スライダー
+  volRange.addEventListener("input", (ev) => {
+    const v = Number(ev.target.value);
+    AudioManager.setVolume01(v);
+    updateVolumeIcon(volBtn, v, v <= 0.001);
+  });
+
+  // ミュートボタン
+  volBtn.addEventListener("click", () => {
     if (AudioManager.isMuted()) {
       AudioManager.unmute();
-      const p = Math.max(1, Math.round(AudioManager.getVolume01() * 100));
-      slider.value = String(p);
+      const v = AudioManager.getVolume01();
+      if (volRange) volRange.value = v.toFixed(2);
+      updateVolumeIcon(volBtn, v, false);
     } else {
       AudioManager.mute();
-      slider.value = "1"; // ミュート時は1%に寄せる（0%は使わない仕様）
+      if (volRange) volRange.value = "0";
+      updateVolumeIcon(volBtn, 0, true);
     }
-    updateVolumeIcon();
-  };
-
-  // スライダー → 音量（1〜100% を 0.01〜1.00 にマッピング）
-  slider.oninput = (e) => {
-    const p = Math.max(1, Math.min(100, Number(e.target.value)));
-    const v01 = p / 100;
-    AudioManager.setVolume01(v01);
-    updateVolumeIcon();
-  };
-  slider.onchange = slider.oninput;
-
-  updatePlayPauseUI();
-  updateVolumeIcon();
-  label.innerHTML = `<div class="selected-label">${song.trackName}・${song.artistName}</div>`;
+  });
 }
 
-/* ---- UI更新 ---- */
-function updatePlayPauseUI() {
-  const btn = document.getElementById("playPauseBtn");
-  const el = AudioManager.element();
-  if (!btn || !el) return;
-  const playing = !el.paused && !el.ended;
-  btn.textContent = playing ? "Ⅱ" : "▶";
-  btn.style.color = "#666";
-}
-function updateVolumeIcon() {
-  const btn = document.getElementById("volumeBtn");
+// ボリュームのアイコンを音量に応じて変える
+function updateVolumeIcon(btn, vol, muted){
   if (!btn) return;
-  const v = AudioManager.getVolume01();
-  btn.textContent = v <= 0.011 ? "🔇" : v < 0.35 ? "🔈" : v < 0.7 ? "🔉" : "🔊";
-  btn.style.color = "#666";
+  if (muted || vol <= 0.001) {
+    btn.textContent = "🔇";
+  } else if (vol < 0.33) {
+    btn.textContent = "🔈";
+  } else if (vol < 0.66) {
+    btn.textContent = "🔉";
+  } else {
+    btn.textContent = "🔊";
+  }
 }
-
 /* ---- 共通 ---- */
 function setHidden(id,name,val){
   let el = document.getElementById(id);
