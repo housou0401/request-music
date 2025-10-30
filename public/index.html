@@ -47,9 +47,50 @@
       overflow: auto;
     }
   </style>
+
+    <style>
+      .fixed-top-buttons {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        gap: 8px;
+        z-index: 999;
+      }
+      .admin-button {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 9999px;
+        padding: 6px 14px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .mypage-button {
+        background: #fff;
+        border: 1px solid #ccd3dd;
+        border-radius: 9999px;
+        padding: 6px 12px 6px 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .mypage-button:hover { background: #f5f5f5; }
+      .mypage-icon { width: 18px; height: 18px; }
+    </style>
+
 </head>
 
 <body>
+    <div class="fixed-top-buttons">
+      <button class="admin-button" onclick="goAdmin()">管理者用</button>
+      <button class="mypage-button" onclick="goMypage()">
+        <img src="/mypage.png" alt="mypage" class="mypage-icon" />
+        マイページ
+      </button>
+    </div>
+    
   <!-- 管理者ボタン（右上固定） -->
   <button class="admin-button" onclick="goAdmin()">管理者用</button>
 
@@ -414,5 +455,32 @@
       wireLegacyPlayerControls();
     });
   </script>
-</body>
+
+    <script>
+      async function goAdmin() {
+        try {
+          const me = await fetch("/me").then(r => r.json());
+          if ((me && me.loggedIn && me.user && me.user.role === "admin") || me.adminSession === true) {
+            location.href = "/admin";
+          } else {
+            alert("管理者権限がありません。");
+          }
+        } catch(e) {
+          alert("状態を確認できませんでした。");
+        }
+      }
+      async function goMypage() {
+        try {
+          const me = await fetch("/me").then(r => r.json());
+          if (me && me.loggedIn) {
+            location.href = "/mypage";
+          } else {
+            alert("先に1曲リクエストしてください。マイページが作成されます。");
+          }
+        } catch(e) {
+          location.href = "/mypage";
+        }
+      }
+    </script>
+    </body>
 </html>

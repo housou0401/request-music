@@ -1,9 +1,8 @@
 /* =========================================================
-   AudioManager で単一路線化
+   AudioManager で単一路線化（/preview プロキシ再生）
    - <audio id="previewAudio"> は 1 つだけ
-   - /preview?url=... 経由で再生
    - 音量は GainNode で制御（fallback: audio.volume）
-   - UIは一方向同期（slider -> volume）
+   - スライダーは 1〜100%（左=1%, 右=100%）
    ========================================================= */
 
 const AudioManager = (() => {
@@ -12,10 +11,10 @@ const AudioManager = (() => {
   let source = null;         // MediaElementSourceNode
   let gain = null;           // GainNode
   let useWA = false;         // WebAudio を使えているか
-  let lastNonZero = 0.5;     // ミュート解除時に戻す音量
-  let vol01 = 0.5;           // 0.0〜1.0
+  let lastNonZero = 0.4;     // ミュート解除時に戻す音量(0.0-1.0)
+  let vol01 = 0.4;           // 現在の音量(0.0-1.0) 初期は控えめ
 
-  function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
   function ensureNodes() {
     // <audio> を1つだけ確保
@@ -58,11 +57,9 @@ const AudioManager = (() => {
 
     // 出力経路の一本化
     if (useWA) {
-      // 音量は GainNode のみで制御
-      audioEl.volume = 1.0;
+      audioEl.volume = 1.0;    // 実音量は GainNode 側で
     } else {
-      // Fallback: 直接 volume を使う
-      audioEl.volume = vol01;
+      audioEl.volume = vol01;  // Fallback
     }
     return audioEl;
   }
@@ -88,18 +85,18 @@ const AudioManager = (() => {
     setVolume01(v) {
       vol01 = clamp01(v);
       if (gain) gain.gain.value = vol01;
-      if (!useWA) audioEl.volume = vol01;
+      if (!useWA && audioEl) audioEl.volume = vol01; // Fallback
     },
     getVolume01() {
       if (gain) return clamp01(gain.gain.value);
       return clamp01(audioEl?.volume ?? vol01);
     },
     mute() {
-      lastNonZero = this.getVolume01() || lastNonZero || 0.5;
-      this.setVolume01(0);
+      lastNonZero = this.getVolume01() || lastNonZero || 0.4;
+      this.setVolume01(0); // ミュートは 0 に
     },
     unmute() {
-      this.setVolume01(Math.max(0.05, lastNonZero || 0.5));
+      this.setVolume01(Math.max(0.01, lastNonZero || 0.4)); // 最低1%復帰
     },
     isMuted() { return this.getVolume01() <= 0.001; },
     element() { return ensureNodes(); }
@@ -121,6 +118,7 @@ window.onload = async function () {
   songInput.addEventListener("input", searchSongs);
   artistInput.addEventListener("input", searchSongs);
 
+  // 簡易ローディング
   if (!document.getElementById("loadingIndicator")) {
     const loader = document.createElement("div");
     loader.id = "loadingIndicator";
@@ -233,78 +231,81 @@ async function fetchArtistTracksAndShow() {
   finally { hideLoading(); }
 }
 
-/* ========== 曲を選択 → 旧UIカード描画 & AudioManagerにURLロード ========== */
+/* ========== 曲を選択 → カード描画 & AudioManagerにURLロード ========== */
+
 function selectSong(song) {
   const wrap = document.getElementById("selectedSong");
-  const label = document.getElementById("selectedLabel");
-  document.getElementById("suggestions").innerHTML = "";
+  const sug = document.getElementById("suggestions");
+  if (sug) sug.innerHTML = "";
 
+  const initPercent = 40;
   wrap.innerHTML = `
-    <div class="selected-song-card" style="display:flex;align-items:center;gap:10px;padding:8px;border:1px solid rgba(0,0,0,.1);border-radius:12px;background:#f3f3f3;">
+    <div class="selected-song-card" style="display:flex;align-items:center;gap:8px;padding:8px;border:1px solid rgba(0,0,0,.1);border-radius:12px;background:#f3f3f3;">
       <img src="${song.artworkUrl}" alt="Cover" style="width:50px;height:50px;border-radius:6px;object-fit:cover;">
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${song.trackName}</div>
         <div style="font-size:12px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${song.artistName}</div>
       </div>
       <button type="button" id="playPauseBtn" style="background:none;border:none;cursor:pointer;padding:6px;color:#666;font-size:18px;">▶</button>
-      <button type="button" id="volumeBtn"    style="background:none;border:none;cursor:pointer;padding:6px;color:#666;font-size:18px;">🔊</button>
-      <input type="range" min="0" max="100" step="1" value="${Math.round(AudioManager.getVolume01()*100)}" id="volumeSlider" style="width:140px;accent-color:#888;">
+      <button type="button" id="volumeBtn" style="background:none;border:none;cursor:pointer;padding:6px;color:#666;font-size:18px;">🔊</button>
+      <input type="range" min="1" max="100" step="1" value="${initPercent}" id="volumeSlider" style="width:280px;accent-color:#888;">
       <button type="button" class="clear-btn" onclick="clearSelection()" style="background:none;border:none;cursor:pointer;padding:6px;font-size:16px;color:#666;">×</button>
     </div>
   `;
 
-  // hidden fields（送信用）
-  setHidden("appleMusicUrlHidden","appleMusicUrl", song.trackViewUrl);
-  setHidden("artworkUrlHidden","artworkUrl", song.artworkUrl);
-  setHidden("previewUrlHidden","previewUrl", song.previewUrl);
+  // send hidden
+  setHidden("appleMusicUrlHidden", "appleMusicUrl", song.trackViewUrl);
+  setHidden("artworkUrlHidden", "artworkUrl", song.artworkUrl);
+  setHidden("previewUrlHidden", "previewUrl", song.previewUrl);
 
-  // 音源ロード（※自動再生はしない）
-  if (playerControlsEnabled && song.previewUrl) {
+  // write back visible fields
+  const sIn = document.getElementById("songName");
+  if (sIn) sIn.value = song.trackName || "";
+  const aIn = document.getElementById("artistName");
+  if (aIn) aIn.value = song.artistName || "";
+
+  // audio
+  const el = AudioManager.element();
+  if (song.previewUrl) {
     AudioManager.load(song.previewUrl);
   }
-
-  // UIイベント（毎回新規にバインド：積み重ね防止）
   const playBtn = document.getElementById("playPauseBtn");
-  const volBtn  = document.getElementById("volumeBtn");
-  const slider  = document.getElementById("volumeSlider");
+  const volBtn = document.getElementById("volumeBtn");
+  const slider = document.getElementById("volumeSlider");
 
-  const el = AudioManager.element();
-  el.onplay  = () => updatePlayPauseUI();
-  el.onpause = () => updatePlayPauseUI();
-  el.onended = () => updatePlayPauseUI();
+  el.onplay = updatePlayPauseUI;
+  el.onpause = updatePlayPauseUI;
+
+  function updatePlayPauseUI() {
+    playBtn.textContent = (el.paused || el.ended) ? "▶" : "⏸";
+  }
+  function updateVolumeIcon() {
+    volBtn.textContent = (AudioManager.muted() || AudioManager.getVolume01() <= 0.01) ? "🔇" : "🔊";
+  }
 
   playBtn.onclick = async (e) => {
     e.preventDefault();
     if (el.paused || el.ended) {
-      try { await AudioManager.play(); } catch(err){ console.error("play error:", err); }
+      try { await AudioManager.play(); } catch(e) {}
     } else {
       AudioManager.pause(false);
     }
     updatePlayPauseUI();
   };
-
   volBtn.onclick = (e) => {
     e.preventDefault();
-    if (AudioManager.isMuted()) {
-      AudioManager.unmute();
-    } else {
-      AudioManager.mute();
-    }
-    slider.value = String(Math.round(AudioManager.getVolume01()*100));
+    AudioManager.setMuted(!AudioManager.muted());
     updateVolumeIcon();
   };
-
   slider.oninput = (e) => {
-    const v01 = Number(e.target.value) / 100;
-    AudioManager.setVolume01(v01);
+    const v = Number(e.target.value || 0) / 100;
+    AudioManager.setVolume01(v);
     updateVolumeIcon();
   };
-  slider.onchange = slider.oninput;
-
   updatePlayPauseUI();
   updateVolumeIcon();
-  label.innerHTML = `<div class="selected-label">${song.trackName}・${song.artistName}</div>`;
 }
+
 
 /* ---- UI更新 ---- */
 function updatePlayPauseUI() {
@@ -319,7 +320,7 @@ function updateVolumeIcon() {
   const btn = document.getElementById("volumeBtn");
   if (!btn) return;
   const v = AudioManager.getVolume01();
-  btn.textContent = v <= 0.001 ? "🔇" : v < 0.35 ? "🔈" : v < 0.7 ? "🔉" : "🔊";
+  btn.textContent = v <= 0.011 ? "🔇" : v < 0.35 ? "🔈" : v < 0.7 ? "🔉" : "🔊";
   btn.style.color = "#666";
 }
 
@@ -345,6 +346,16 @@ function clearSelection(){
 }
 function stopPlayback(resetSrc){
   try { AudioManager.pause(resetSrc); } catch {}
+}
+
+/* ====== 入力欄 × ボタン対策 ====== */
+function clearInput(inputId){
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  el.value = "";
+  // 入力イベントを発火してUI更新（候補リスト等）
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+  el.focus();
 }
 
 /* ---- ローディング ---- */
