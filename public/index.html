@@ -46,51 +46,19 @@
       max-height: 90vh;
       overflow: auto;
     }
-  </style>
-
-    <style>
-      .fixed-top-buttons {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        display: flex;
-        gap: 8px;
-        z-index: 999;
-      }
-      .admin-button {
-        background: #fff;
-        border: 1px solid #ccc;
-        border-radius: 9999px;
-        padding: 6px 14px;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      }
-      .mypage-button {
-        background: #fff;
-        border: 1px solid #ccd3dd;
-        border-radius: 9999px;
-        padding: 6px 12px 6px 8px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      }
-      .mypage-button:hover { background: #f5f5f5; }
-      .mypage-icon { width: 18px; height: 18px; }
-    </style>
-
+  
+  /* My Page link (top-right) */
+  .mypage-link{position:fixed;top:12px;right:12px;z-index:1100;display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid #374151;box-shadow:0 6px 16px rgba(0,0,0,.25);font-size:14px}
+  .mypage-link img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+  @media (max-width:520px){.mypage-link{padding:8px 12px}}
+  /* push admin button down a bit so both are visible */
+  .admin-button{top:56px !important;}
+</style>
 </head>
 
 <body>
-    <div class="fixed-top-buttons">
-      <button class="admin-button" onclick="goAdmin()">管理者用</button>
-      <button class="mypage-button" onclick="goMypage()">
-        <img src="/mypage.png" alt="mypage" class="mypage-icon" />
-        マイページ
-      </button>
-    </div>
-    
+  <a id="mypage-link" class="mypage-link" href="/mypage"><img src="/img/mypage.png" alt="マイページ"><span>マイページ</span></a>
+
   <!-- 管理者ボタン（右上固定） -->
   <button class="admin-button" onclick="goAdmin()">管理者用</button>
 
@@ -147,6 +115,7 @@
 
       <button id="submitButton" type="submit">送信</button>
       <div id="token-info">-</div>
+      <div id="token-countdown" class="muted" style="font-size:12px;margin-top:2px;"></div>
 
       <!-- 募集停止カードの挿入先 -->
       <div id="stopCardHost"></div>
@@ -422,9 +391,63 @@
       document.cookie = `searchSort=${encodeURIComponent(val)}; path=/; max-age=${maxAge}`;
     }
 
+    
+    async function startRefillCountdown() {
+      try {
+        const s = await (await fetch("/settings")).json();
+        const day = Number(s.refillDay ?? 1);
+        const hour = Number(s.refillHour ?? 0);
+        const minute = Number(s.refillMinute ?? 0);
+        const tz = s.refillTimezone || "Asia/Tokyo";
+        const out = document.getElementById("token-countdown");
+        if (!out) return;
+
+        function nextRefillEpoch() {
+          const now = new Date();
+          // JST(+9) only (Asia/Tokyo; no DST)
+          const jstNow = new Date(now.getTime() + 9*60*60*1000);
+          let y = jstNow.getUTCFullYear();
+          let m = jstNow.getUTCMonth() + 1;
+          const last = new Date(y, m, 0).getDate();
+          const d = Math.min(day, last);
+          function build(y,m){ return Date.UTC(y, m-1, d, hour-9, minute, 0); } // UTC epoch
+          let target = build(y, m);
+          if (now.getTime() >= target) {
+            if (m === 12) { y += 1; m = 1; } else { m += 1; }
+            const last2 = new Date(y, m, 0).getDate();
+            const d2 = Math.min(day, last2);
+            target = Date.UTC(y, m-1, d2, hour-9, minute, 0);
+          }
+          return target;
+        }
+
+        function fmtLeft(ms) {
+          if (ms <= 0) return "まもなく配布されます";
+          const totalSec = Math.floor(ms/1000);
+          const days = Math.floor(totalSec / 86400);
+          const hrs = Math.floor((totalSec % 86400) / 3600);
+          const mins = Math.floor((totalSec % 3600) / 60);
+          const secs = totalSec % 60;
+          if (days > 0) return `次回配布まで: ${days}日 ${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+          return `次回配布まで: ${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+        }
+
+        function tick() {
+          const target = nextRefillEpoch();
+          const ms = target - Date.now();
+          out.textContent = fmtLeft(ms) + " (Asia/Tokyo)";
+        }
+        tick();
+        setInterval(tick, 1000);
+      } catch (e) {
+        console.warn("countdown init failed:", e);
+      }
+    }
+    
     document.addEventListener('DOMContentLoaded', () => {
       applySettingsToUI();
       ensureRegistered();
+      startRefillCountdown();
       refreshAdminTryInfo();
 
       // ソート選択の初期化
@@ -455,32 +478,5 @@
       wireLegacyPlayerControls();
     });
   </script>
-
-    <script>
-      async function goAdmin() {
-        try {
-          const me = await fetch("/me").then(r => r.json());
-          if ((me && me.loggedIn && me.user && me.user.role === "admin") || me.adminSession === true) {
-            location.href = "/admin";
-          } else {
-            alert("管理者権限がありません。");
-          }
-        } catch(e) {
-          alert("状態を確認できませんでした。");
-        }
-      }
-      async function goMypage() {
-        try {
-          const me = await fetch("/me").then(r => r.json());
-          if (me && me.loggedIn) {
-            location.href = "/mypage";
-          } else {
-            alert("先に1曲リクエストしてください。マイページが作成されます。");
-          }
-        } catch(e) {
-          location.href = "/mypage";
-        }
-      }
-    </script>
-    </body>
+</body>
 </html>
