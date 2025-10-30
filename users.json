@@ -1,28 +1,6 @@
 {
   "users": [
     {
-      "id": "uy0-4JaKNPNuAbJc",
-      "username": "管理者1",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2025-10"
-    },
-    {
-      "id": "uoHZdqtP3P3bHY4R",
-      "username": "管理者2",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2025-10"
-    },
-    {
       "id": "MmK6FCYT0Dynx6rT",
       "username": "みお",
       "deviceInfo": {
@@ -42,7 +20,8 @@
       },
       "role": "admin",
       "tokens": null,
-      "lastRefillISO": "2025-10"
+      "lastRefillISO": "2025-10",
+      "lastSeenRefillReloadISO": "2025-10-30T16:07:46.305Z"
     },
     {
       "id": "8WZocJD1vk5v4pz-",
@@ -53,7 +32,8 @@
       },
       "role": "admin",
       "tokens": null,
-      "lastRefillISO": "2025-10"
+      "lastRefillISO": "2025-10",
+      "lastSeenRefillReloadISO": "2025-10-30T16:07:48.446Z"
     },
     {
       "id": "zwLXNADZsqArCmYk",
@@ -64,18 +44,24 @@
       },
       "role": "admin",
       "tokens": null,
-      "lastRefillISO": "2025-10"
+      "lastRefillISO": "2025-10",
+      "lastRefillAtISO": "2025-10-30T16:01:00.330Z",
+      "refillToastPending": false,
+      "lastSeenRefillReloadISO": "2025-10-30T16:01:02.959Z"
     },
     {
-      "id": "Luie3_Qlv0Is13Oc",
-      "username": "Test2",
+      "registeredAt": "2025-10-30T16:08:14.216Z",
+      "lastRefillAtISO": "2025-10-30T16:08:14.216Z",
+      "id": "RoAs-aWmAE5mbUSe",
+      "username": "管理者1",
       "deviceInfo": {
         "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
         "ip": "::1"
       },
       "role": "admin",
       "tokens": null,
-      "lastRefillISO": "2025-10"
+      "lastRefillISO": "2025-10",
+      "lastSeenRefillReloadISO": "2025-10-30T16:08:15.355Z"
     }
   ]
 }
