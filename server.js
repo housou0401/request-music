@@ -55,34 +55,6 @@ app.use(express.static("public"));
 app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 // ==== Helpers ====
-// ---- Schedule helpers (Asia/Tokyo monthly schedule) ----
-function latestScheduleKey(now = new Date()) {
-  const s = db.data.settings || {};
-  const day = Number(s.refillDay ?? 1);
-  const hour = Number(s.refillHour ?? 0);
-  const minute = Number(s.refillMinute ?? 0);
-
-  const y = now.getUTCFullYear();
-  const m0 = now.getUTCMonth(); // 0..11
-
-  function schedUTC(year, mZero) {
-    const last = new Date(Date.UTC(year, mZero + 1, 0)).getUTCDate(); // days in month
-    const d = Math.min(day, last);
-    // JST(UTC+9) to UTC
-    return new Date(Date.UTC(year, mZero, d, hour - 9, minute, 0));
-  }
-
-  const thisSched = schedUTC(y, m0);
-  if (now.getTime() >= thisSched.getTime()) {
-    return `${y}-${String(m0 + 1).padStart(2, "0")}`;
-  } else {
-    // previous month key
-    const py = m0 === 0 ? y - 1 : y;
-    const pm = m0 === 0 ? 12 : m0;
-    return `${py}-${String(pm).padStart(2, "0")}`;
-  }
-}
-
 const monthKey = () => {
   const d = new Date();
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -115,35 +87,29 @@ function hitRate(userId, limitPerMin) {
 }
 
 // 月次トークン配布
-
 async function ensureMonthlyRefill(user) {
   if (!user || isAdmin(user)) return;
-  const key = latestScheduleKey(new Date());
+  const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
-  if (user.lastRefillISO !== key) {
+  if (user.lastRefillISO !== m) {
     user.tokens = monthly;
-    user.lastRefillISO = key;
+    user.lastRefillISO = m;
     user.lastRefillAtISO = new Date().toISOString();
     await usersDb.write();
   }
 }
-}
-
 async function refillAllIfMonthChanged() {
-  const key = latestScheduleKey(new Date());
+  const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
   let touched = false;
   for (const u of usersDb.data.users) {
-    if (!isAdmin(u) && u.lastRefillISO !== key) {
+    if (!isAdmin(u) && u.lastRefillISO !== m) {
       u.tokens = monthly;
-      u.lastRefillISO = key;
+      u.lastRefillISO = m;
       u.lastRefillAtISO = new Date().toISOString();
       touched = true;
     }
   }
-  if (touched) await usersDb.write();
-}
-}
   if (touched) await usersDb.write();
 }
 
@@ -366,7 +332,7 @@ app.post("/register", async (req, res) => {
       deviceInfo: deviceInfoFromReq(req),
       role,
       tokens: role === "admin" ? null : monthly,
-      lastRefillISO: latestScheduleKey(new Date()), lastRefillAtISO: new Date().toISOString(), registeredAt: new Date().toISOString(),
+      lastRefillISO: monthKey(),
     });
     await usersDb.write();
 
@@ -413,7 +379,7 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert(`⚠${user.username} さん、送信には今月のトークンが不足しています。`); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
@@ -487,34 +453,6 @@ app.post("/admin/bulk-delete-requests", requireAdmin, async (req, res) => {
   res.redirect(`/admin`);
 });
 
-// ==== 放送済みトグル ====
-app.get("/broadcast/:id", requireAdmin, async (req, res) => {
-  const id = req.params.id;
-  const r = db.data.responses.find(e => e.id === id);
-  if (r) { r.broadcasted = true; r.broadcastedAt = new Date().toISOString(); await safeWriteDb(); }
-  res.redirect("/admin");
-});
-app.get("/unbroadcast/:id", requireAdmin, async (req, res) => {
-  const id = req.params.id;
-  const r = db.data.responses.find(e => e.id === id);
-  if (r) { r.broadcasted = false; r.broadcastedAt = null; await safeWriteDb(); }
-  res.redirect("/admin");
-});
-app.post("/admin/bulk-broadcast-requests", requireAdmin, async (req, res) => {
-  const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
-  const idSet = new Set(ids);
-  for (const r of db.data.responses) if (idSet.has(r.id)) { r.broadcasted = true; r.broadcastedAt = new Date().toISOString(); }
-  await safeWriteDb();
-  res.redirect("/admin");
-});
-app.post("/admin/bulk-unbroadcast-requests", requireAdmin, async (req, res) => {
-  const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
-  const idSet = new Set(ids);
-  for (const r of db.data.responses) if (idSet.has(r.id)) { r.broadcasted = false; r.broadcastedAt = null; }
-  await safeWriteDb();
-  res.redirect("/admin");
-});
-
 // ==== GitHub 同期 ====
 async function getFileSha(pathname) {
   try {
@@ -535,15 +473,58 @@ async function getFile(pathname) {
     { headers: { Authorization: `token ${GITHUB_TOKEN}`, Accept: "application/vnd.github.v3+json" } });
   return JSON.parse(Buffer.from(r.data.content, "base64").toString("utf8"));
 }
-async function syncAllToGitHub() {
+
+async function syncAllToGitHub(triggerDeploy = false) {
   if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) return;
-  await putFile("db.json", db.data, `Sync db.json at ${new Date().toISOString()}`);
-  await putFile("users.json", usersDb.data, `Sync users.json at ${new Date().toISOString()}`);
+  // まず最新のGitHub版を取得して差分チェック
+  let remoteDb = null, remoteUsers = null;
+  try { remoteDb = await getFile("db.json"); } catch {}
+  try { remoteUsers = await getFile("users.json"); } catch {}
+  const localDbStr = JSON.stringify(db.data, null, 2);
+  const remoteDbStr = remoteDb ? JSON.stringify(remoteDb, null, 2) : null;
+  const localUsersStr = JSON.stringify(usersDb.data, null, 2);
+  const remoteUsersStr = remoteUsers ? JSON.stringify(remoteUsers, null, 2) : null;
+  let changed = false;
+  if (localDbStr !== remoteDbStr) {
+    await putFile("db.json", db.data, `Sync db.json at ${new Date().toISOString()}`);
+    changed = true;
+  }
+  if (localUsersStr !== remoteUsersStr) {
+    await putFile("users.json", usersDb.data, `Sync users.json at ${new Date().toISOString()}`);
+    changed = true;
+  }
+  if (changed && triggerDeploy && process.env.RENDER_DEPLOY_HOOK) {
+    try {
+      await fetch(process.env.RENDER_DEPLOY_HOOK, { method: "POST" });
+    } catch (e) {
+      console.warn("deploy hook failed:", e.message);
+    }
+  }
 }
-async function fetchAllFromGitHub() {
+async function fetchAllFromGitHub(triggerDeploy = false) {
   if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) return;
-  try { db.data = await getFile("db.json"); await safeWriteDb(); } catch (e) { console.warn("fetch db.json failed:", e.message); }
-  try { usersDb.data = await getFile("users.json"); await safeWriteUsers(); } catch (e) { console.warn("fetch users.json failed:", e.message); }
+  let changed = false;
+  try {
+    const remoteDb = await getFile("db.json");
+    if (JSON.stringify(remoteDb, null, 2) !== JSON.stringify(db.data, null, 2)) {
+      db.data = remoteDb;
+      await safeWriteDb();
+      changed = true;
+    }
+  } catch (e) { console.warn("fetch db.json failed:", e.message); }
+  try {
+    const remoteUsers = await getFile("users.json");
+    if (JSON.stringify(remoteUsers, null, 2) !== JSON.stringify(usersDb.data, null, 2)) {
+      usersDb.data = remoteUsers;
+      await safeWriteUsers();
+      changed = true;
+    }
+  } catch (e) { console.warn("fetch users.json failed:", e.message); }
+  if (changed && triggerDeploy && process.env.RENDER_DEPLOY_HOOK) {
+    try {
+      await fetch(process.env.RENDER_DEPLOY_HOOK, { method: "POST" });
+    } catch (e) { console.warn("deploy hook failed:", e.message); }
+  }
 }
 
 // ==== 管理ログイン（維持） ====
@@ -587,13 +568,13 @@ app.get("/admin/impersonate/clear", requireAdmin, async (_req, res) => {
 // ==== 管理 UI ====
 app.get("/admin", requireAdmin, async (req, res) => {
   const sort = (req.query.sort || "newest").toString(); // newest | popular
+  const only = (req.query.only || "all").toString();
   const perPage = 10;
   const page = parseInt(req.query.page || "1", 10);
 
   let items = [...db.data.responses];
-  const only = (req.query.only||"").toString();
-  if (only==="broadcasted") items = items.filter(x=>x.broadcasted);
-  if (only==="unbroadcasted") items = items.filter(x=>!x.broadcasted);
+  if (only === "broadcasted") items = items.filter(r => r.broadcasted);
+  if (only === "unbroadcasted") items = items.filter(r => !r.broadcasted);
   if (sort === "popular") items.sort((a,b)=> (b.count|0)-(a.count|0) || new Date(b.createdAt)-new Date(a.createdAt));
   else items.sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
 
@@ -627,19 +608,21 @@ app.get("/admin", requireAdmin, async (req, res) => {
     .pg-btn.current{background:#007bff;color:#fff;border-color:#007bff}
     .pg-btn.disabled{opacity:.5;pointer-events:none}
     .pg-ellipsis{padding:8px 4px}
-    .entry-container{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:8px;border:1px solid rgba(0,0,0,.1);border-radius:10px}
+    .entry-container{position:relative;display:flex;align-items:center;gap:10px;margin:0 0 10px 0;padding:8px;border:1px solid rgba(0,0,0,.1);border-radius:10px;max-width:980px;}
     .entry-container:hover{background:#fafafa}
-    .entry img{width:50px;height:50px;border-radius:5px;margin-right:10px}
+    .entry{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+    .entry img{width:50px;height:50px;border-radius:5px;margin-right:10px;flex:0 0 auto;}
+    .entry-text{min-width:0;}
+    .entry-text strong{display:inline-block;max-width:420px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
     .delete{text-decoration:none}
-    .actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-    .actions a{border:1px solid #ccc;border-radius:8px;padding:6px 8px;background:#fff;color:#333}
-    .actions a:hover{background:#f5f5f5}
-    .count-badge{background:#ff6b6b;color:#fff;font-weight:bold;padding:4px 8px;border-radius:5px;margin-right:10px}
+    .count-badge{background:#ff6b6b;color:#fff;font-weight:bold;padding:4px 8px;border-radius:5px;margin-right:10px;flex:0 0 auto;}
     .tools{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
     .tools button{padding:8px 12px}
     .sec{margin:14px 0}
     code.pwd{padding:2px 6px;background:#f5f5f5;border-radius:6px;border:1px solid #eee}
     .banner-imp{padding:8px 12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;margin:10px 0}
+    .badge{background:#10b981;color:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:6px;display:inline-block;line-height:1.3;vertical-align:middle;}
+    .badge.gray{background:#9ca3af;}
   </style>
   <body>
     <h1>✉ アンケート回答一覧</h1>
@@ -651,15 +634,18 @@ app.get("/admin", requireAdmin, async (req, res) => {
         並び替え:
         <a class="pg-btn ${sort==='newest'?'current':''}" href="?sort=newest">最新順</a>
         <a class="pg-btn ${sort==='popular'?'current':''}" href="?sort=popular">人気順</a>
-        <span style="margin-left:12px">絞り込み:
-          <a class="pg-btn ${ (req.query.only||'')==='broadcasted'?'current':''}" href="?sort=${sort}&only=broadcasted">放送済みのみ</a>
-          <a class="pg-btn ${ (req.query.only||'')==='unbroadcasted'?'current':''}" href="?sort=${sort}&only=unbroadcasted">未放送のみ</a>
-          <a class="pg-btn ${ (req.query.only||'')===''?'current':''}" href="?sort=${sort}">すべて</a>
-        </span>
+      </div>
+      <div>
+        絞り込み:
+        <a class="pg-btn ${only==='broadcasted'?'current':''}" href="?sort=${sort}&only=broadcasted">放送済みのみ</a>
+        <a class="pg-btn ${only==='unbroadcasted'?'current':''}" href="?sort=${sort}&only=unbroadcasted">未放送のみ</a>
+        <a class="pg-btn ${only==='all'?'current':''}" href="?sort=${sort}&only=all">すべて</a>
       </div>
       <div style="margin-left:auto;">
         <a class="pg-btn" href="/admin/users">ユーザー管理へ →</a>
       </div>
+    </div>
+
     </div>
 
     ${pagination(currentPage, totalPages, sort)}
@@ -667,9 +653,9 @@ app.get("/admin", requireAdmin, async (req, res) => {
     <form method="POST" action="/admin/bulk-delete-requests" id="bulkReqForm">
       <div class="tools">
         <label><input type="checkbox" id="reqSelectAll"> 全選択</label>
-        <button type="submit">選択したリクエストを削除</button>
         <button type="submit" formaction="/admin/bulk-broadcast-requests">選択を放送済みに</button>
         <button type="submit" formaction="/admin/bulk-unbroadcast-requests">選択を未放送へ</button>
+        <button type="submit">選択したリクエストを削除</button>
         <a class="pg-btn" href="/sync-requests">GitHubに同期</a>
         <a class="pg-btn" href="/fetch-requests">GitHubから取得</a>
       </div>
@@ -680,17 +666,23 @@ app.get("/admin", requireAdmin, async (req, res) => {
     html += `<li>
       <div class="entry-container">
         <input type="checkbox" name="ids" value="${e.id}" class="req-check">
-        <a href="${e.appleMusicUrl || "#"}" target="_blank" class="entry" style="display:flex;align-items:center;">
+        <a href="${e.appleMusicUrl || "#"}" target="_blank" class="entry">
           <div class="count-badge">${e.count}</div>
           <img src="${e.artworkUrl}" alt="Cover">
-          <div><strong>${e.text}</strong><br><small>${e.artist}</small></div>
+          <div class="entry-text">
+            <strong>${e.text}</strong>${e.broadcasted ? '<span class="badge">放送済み</span>' : '<span class="badge gray">未放送</span>'}<br>
+            <small>${e.artist}</small>
+          </div>
         </a>
-        ${e.broadcasted ? `<div class="actions"><a href="/unbroadcast/${e.id}">↩️ 未放送へ</a><a href="/delete/${e.id}" class="delete">🗑️</a></div>` : `<div class="actions"><a href="/broadcast/${e.id}">📻 放送済みへ</a><a href="/delete/${e.id}" class="delete">🗑️</a></div>`}
+        <div class="entry-actions" style="display:flex;gap:6px;">
+          <a href="/broadcast/${e.id}" class="delete" title="放送済みにする">📻</a>
+          <a href="/unbroadcast/${e.id}" class="delete" title="未放送に戻す">↩️</a>
+          <a href="/delete/${e.id}" class="delete" title="削除">🗑️</a>
+        </div>
       </div>
     </li>`;
   });
-
-  html += `</ul>
+html += `</ul>
       <div class="tools">
         <button type="submit">選択したリクエストを削除</button>
       </div>
@@ -724,10 +716,8 @@ app.get("/admin", requireAdmin, async (req, res) => {
         <label>月次配布数: <input type="number" min="0" name="monthlyTokens" value="${db.data.settings.monthlyTokens ?? 5}" style="width:100px;"></label>
         <button type="submit" style="margin-left:8px;">保存</button>
       </form>
-      <p><a href="/admin/users">ユーザー管理へ →</a></p>
-    
-    <div class="sec">
-      <h2>配布スケジュール</h2>
+      <div style="margin-top:14px;">
+        <h3>配布スケジュール（毎月 / Asia/Tokyo）</h3>
       <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
         <label>毎月の日: <input type="number" min="1" max="31" name="refillDay" value="${db.data.settings.refillDay ?? 1}" style="width:90px;"></label>
         <label>時: <input type="number" min="0" max="23" name="refillHour" value="${db.data.settings.refillHour ?? 0}" style="width:90px;"></label>
@@ -780,68 +770,93 @@ app.get("/admin/users", requireAdmin, async (_req, res) => {
     <tr>
       <td><input type="checkbox" name="ids" value="${u.id}" class="user-check"></td>
       <td>${u.username}</td>
-      <td>${u.id}</td>
-      <td>${u.role}</td>
+      <td><code>${u.id}</code></td>
+      <td>${u.role === "admin" ? "管理者" : "一般"}</td>
       <td>${isAdmin(u) ? "∞" : (u.tokens ?? 0)}</td>
-      <td>${u.lastRefillISO || "-"}</td>
-      <td style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <form method="POST" action="/admin/update-user" style="display:inline-flex; gap:6px; align-items:center; margin-right:8px;">
+      <td>${u.lastRefillAtISO ? new Date(u.lastRefillAtISO).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"}) : (u.lastRefillISO || "-")}</td>
+      <td class="ops">
+        <form method="POST" action="/admin/update-user" class="inline-form">
           <input type="hidden" name="id" value="${u.id}">
-          <label>tokens:<input type="number" min="0" name="tokens" value="${isAdmin(u)?0:(u.tokens??0)}" ${isAdmin(u)?'disabled':''} style="width:90px;"></label>
-          <label>role:
+          <label>トークン:
+            <input type="number" min="0" name="tokens" value="${isAdmin(u)?0:(u.tokens??0)}" ${isAdmin(u)?'disabled':''}>
+          </label>
+          <label>ロール:
             <select name="role">
-              <option value="user" ${u.role==='user'?'selected':''}>user</option>
-              <option value="admin" ${u.role==='admin'?'selected':''}>admin</option>
+              <option value="user" ${u.role==='user'?'selected':''}>一般</option>
+              <option value="admin" ${u.role==='admin'?'selected':''}>管理者</option>
             </select>
           </label>
-          <button type="submit">更新</button>
+          <button type="submit">保存</button>
         </form>
-        <form method="POST" action="/admin/delete-user" style="display:inline;">
+        <form method="POST" action="/admin/delete-user" class="inline-form">
           <input type="hidden" name="id" value="${u.id}">
-          <button type="submit" title="このユーザーを削除" style="cursor:pointer;">🗑️</button>
+          <button type="submit" title="このユーザーを削除">🗑️</button>
         </form>
-        <form method="POST" action="/admin/impersonate" style="display:inline;">
+        <form method="POST" action="/admin/impersonate" class="inline-form">
           <input type="hidden" name="id" value="${u.id}">
-          <button type="submit" title="このユーザーになりすます">👤</button>
+          <button type="submit" title="このユーザーとして見る">👤</button>
         </form>
       </td>
     </tr>`).join("");
 
-  res.send(`<!doctype html><meta charset="utf-8"><title>Admin Users</title>
+  res.send(`<!doctype html><html lang="ja"><meta charset="utf-8"><title>ユーザー管理</title>
   <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;margin:0;padding:16px;}
+    .wrap{max-width:1240px;margin:0 auto;}
+    h1{margin-bottom:6px;}
     .tools{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
-    .tools button{padding:8px 12px}
-    table{border-collapse:collapse}
-    th,td{border:1px solid #ccc;padding:6px 8px}
-    .note{margin:8px 0 0;color:#555}
+    table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(15,23,42,.06);}
+    th,td{border-bottom:1px solid #e5e7eb;padding:8px 10px;text-align:left;}
+    th{background:#f8fafc;font-weight:600;}
+    tr:last-child td{border-bottom:none;}
+    .inline-form{display:inline-flex;gap:6px;align-items:center;}
+    .inline-form input[type="number"]{width:70px;}
+    .inline-form select{padding:3px 4px;}
+    .ops{display:flex;gap:6px;flex-wrap:wrap;}
+    .back{display:inline-block;margin-bottom:10px;color:#2563eb;text-decoration:none;}
   </style>
-  <h1>Users</h1>
-  <p><a href="/admin">← Adminへ戻る</a></p>
-
-  <form method="POST" action="/admin/bulk-delete-users" id="bulkUserForm">
-    <div class="tools"><label><input type="checkbox" id="userSelectAll"> 全選択</label>
-      <button type="submit">選択したユーザーを削除</button></div>
-    <table cellpadding="6" cellspacing="0">
-      <thead><tr><th></th><th>username</th><th>deviceId</th><th>role</th><th>tokens</th><th>lastRefill</th><th>操作</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  </form>
-
-  <div class="tools">
-    <form method="POST" action="/admin/bulk-update-user-tokens" style="display:flex;gap:8px;align-items:center;">
-      <label>一般ユーザーの tokens を一括で
-        <input type="number" min="0" name="tokens" value="5" style="width:100px;"> に更新</label>
-      <button type="submit">実行</button>
+  <body>
+  <div class="wrap">
+    <a class="back" href="/admin">← 管理画面に戻る</a>
+    <h1>ユーザー管理</h1>
+    <p>登録済みのユーザーをここで編集・削除できます。なりすましを使うと、そのユーザーのマイページを確認できます。</p>
+    <form method="POST" action="/admin/bulk-delete-users" id="bulkUserForm">
+      <div class="tools">
+        <label><input type="checkbox" id="userSelectAll"> 全選択</label>
+        <button type="submit">選択したユーザーを削除</button>
+        <a href="/admin/impersonate/clear">なりすましを解除</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:34px;"></th>
+            <th>ユーザー名</th>
+            <th>デバイスID</th>
+            <th>ロール</th>
+            <th>トークン</th>
+            <th>最終配布</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
     </form>
-    <a href="/admin/impersonate/clear" class="note">なりすましを解除</a>
+    <div class="tools" style="margin-top:16px;">
+      <form method="POST" action="/admin/bulk-update-user-tokens" style="display:flex;gap:8px;align-items:center;">
+        <label>一般ユーザーのトークンを一括で
+          <input type="number" min="0" name="tokens" value="5" style="width:90px;"> に更新
+        </label>
+        <button type="submit">実行</button>
+      </form>
+    </div>
   </div>
-
   <script>
     const userAll = document.getElementById('userSelectAll');
     if (userAll) userAll.addEventListener('change', () => {
       document.querySelectorAll('.user-check').forEach(chk => chk.checked = userAll.checked);
     });
-  </script>`);
+  </script>
+  </body></html>`);
 });
 
 // 個別ユーザー更新
@@ -935,135 +950,309 @@ app.get("/preview", async (req, res) => {
 
 // ==== GitHub 同期（任意ボタン） ====
 app.get("/sync-requests", requireAdmin, async (_req, res) => {
-  try { await syncAllToGitHub(); res.redirect("/admin"); }
+  try { await syncAllToGitHub(true); res.redirect("/admin"); }
   catch { res.redirect("/admin"); }
 });
 app.get("/fetch-requests", requireAdmin, async (_req, res) => {
-  try { await fetchAllFromGitHub(); res.redirect("/admin"); }
+  try { await fetchAllFromGitHub(true); res.redirect("/admin"); }
   catch { res.redirect("/admin"); }
 });
 
 // ==== 起動時 ====
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
+
+// ==== スケジュールに従って月次トークンを配布 ====
+async function refillAllBySchedule() {
+  const s = db.data.settings || {};
+  const day = Number(s.refillDay ?? 1);
+  const hour = Number(s.refillHour ?? 0);
+  const minute = Number(s.refillMinute ?? 0);
+  // 現在のJST
+  const now = new Date();
+  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  let y = jst.getUTCFullYear();
+  let m = jst.getUTCMonth() + 1;
+  const lastDay = new Date(y, m, 0).getDate();
+  const d = Math.min(day, lastDay);
+  const scheduledJst = Date.UTC(y, m - 1, d, hour, minute, 0); // JST基準
+  const scheduledUtc = new Date(scheduledJst - 9 * 60 * 60 * 1000);
+  const lastRun = s.lastRefillRunISO ? new Date(s.lastRefillRunISO) : null;
+
+  if (now >= scheduledUtc) {
+    // 今月分が未実行なら実行
+    const monthKeyNow = `${y}-${String(m).padStart(2,"0")}`;
+    const already = lastRun && lastRun.getUTCFullYear() === scheduledUtc.getUTCFullYear()
+      && lastRun.getUTCMonth() === scheduledUtc.getUTCMonth()
+      && lastRun.getUTCDate() === scheduledUtc.getUTCDate()
+      && lastRun.getUTCHours() === scheduledUtc.getUTCHours()
+      && lastRun.getUTCMinutes() === scheduledUtc.getUTCMinutes();
+    if (!already) {
+      const monthly = Number(s.monthlyTokens ?? 5);
+      for (const u of usersDb.data.users) {
+        if (!isAdmin(u)) {
+          u.tokens = monthly;
+          u.lastRefillISO = monthKeyNow;
+          u.lastRefillAtISO = new Date().toISOString();
+        }
+      }
+      db.data.settings.lastRefillRunISO = new Date().toISOString();
+      await safeWriteDb();
+      await safeWriteUsers();
+    }
+  }
+}
 // ==== Cron ====
+
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
-cron.schedule("*/2 * * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
+cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
+cron.schedule("* * * * *", async () => { try { await refillAllBySchedule(); } catch (e) { console.error(e); } });
 
 // My Page (server-rendered)
+
 app.get("/mypage", async (req, res) => {
-  if (!req.user) return res.send(`<!doctype html><meta charset="utf-8"><p>未ログインです。<a href="/">トップへ</a></p>`);
+  if (!req.user) {
+    return res.send(`<!doctype html><meta charset="utf-8"><p>未ログインです。<a href="/">トップへ</a></p>`);
+  }
   const u = req.user;
   const sset = db.data.settings || {};
   const tz = "Asia/Tokyo";
+
+  // 管理画面に保存してある「毎月いつ配布するか」を使って次回配布日時を出す
   const day = Number(sset.refillDay ?? 1);
   const hour = Number(sset.refillHour ?? 0);
   const minute = Number(sset.refillMinute ?? 0);
 
   function nextRefillDate() {
     const now = new Date();
-    const jst = new Date(now.getTime() + 9*60*60*1000);
+    const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000); // JST
     let y = jst.getUTCFullYear();
-    let m = jst.getUTCMonth() + 1;
-    const last = new Date(y, m, 0).getDate();
-    const d = Math.min(day, last);
-    function build(y,m){ return new Date(Date.UTC(y, m-1, d, hour-9, minute, 0)); }
+    let m = jst.getUTCMonth() + 1; // 1..12
+    const lastDay = new Date(y, m, 0).getDate();
+    const d = Math.min(day, lastDay);
+
+    // JSTで y-m-d hour:minute 作ってからUTCへ戻す
+    function build(y, m) {
+      const j = Date.UTC(y, m - 1, d, hour, minute, 0);
+      return new Date(j - 9 * 60 * 60 * 1000);
+    }
+
     let target = build(y, m);
-    if (now.getTime() >= target.getTime()) {
-      if (m === 12) { y += 1; m = 1; } else { m += 1; }
+    if (now >= target) {
+      // 今月分を過ぎている → 翌月
+      if (m === 12) {
+        y += 1;
+        m = 1;
+      } else {
+        m += 1;
+      }
       const last2 = new Date(y, m, 0).getDate();
       const d2 = Math.min(day, last2);
-      target = new Date(Date.UTC(y, m-1, d2, hour-9, minute, 0));
+      const j2 = Date.UTC(y, m - 1, d2, hour, minute, 0);
+      target = new Date(j2 - 9 * 60 * 60 * 1000);
     }
     return target;
   }
+
   const nextRef = nextRefillDate();
 
-  const fmt = (iso) => { try { return iso ? new Date(iso).toLocaleString("ja-JP", { timeZone: tz }) : "-"; } catch { return iso || "-"; } };
-  const head = `<!doctype html><html lang="ja"><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>マイページ</title>
-<style>
-  :root{ --bg:#f3f4f6; --card:#ffffff; --text:#111827; --muted:#6b7280; --border:#e5e7eb; --ok:#10b981;}
-  body{margin:0;background:linear-gradient(180deg,#eef2f7 0%,#f6f7fb 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial}
-  .wrap{max-width:980px;margin:24px auto;padding:0 16px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0;box-shadow:0 6px 18px rgba(16,24,40,.06)}
-  .row{display:flex;gap:12px;align-items:center}
-  .muted{color:var(--muted)}
-  .kv{display:grid;grid-template-columns:160px 1fr;gap:8px 12px;margin-top:12px;align-items:center}
-  .list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
-  .item{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(16,24,40,.05)}
-  .item img{width:60px;height:60px;border-radius:10px}
-  .badge{background:var(--ok);color:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:8px}
-  .badge.gray{background:#9ca3af;color:#fff}
-  .btn{display:inline-block;padding:8px 12px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:#111827;background:#f9fafb}
-  .btn:hover{background:#eef2f7}
-  .btn.gray{background:#eee;border-color:#d1d5db;color:#111}
-  .btn.gray:hover{background:#e5e7eb}
-  .icon-mypage{width:24px;height:24px;margin-left:8px;vertical-align:middle}
-  .f-right{margin-left:auto}
-</style><body>`;
+  const fmt = (iso) => {
+    if (!iso) return "-";
+    try {
+      return new Date(iso).toLocaleString("ja-JP", { timeZone: tz });
+    } catch {
+      return iso;
+    }
+  };
 
-  const my = db.data.responses.filter(r => r.by?.id === u.id).sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
-  const items = (my.length===0)
+  // このユーザのリクエスト一覧
+  const my = (db.data.responses || [])
+    .filter(r => r.by?.id === u.id)
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+  const listHtml = (my.length === 0)
     ? `<p class="muted">🤫シーッ、まだここには何もないようです。</p>`
-    : `<ul class="list">${my.map(r => `
-      <li class="item">
-        <img src="${r.artworkUrl}" alt="cover">
-        <div>
-          <div><b>${r.text}</b> <small class="muted">/ ${r.artist}</small> ${r.broadcasted ? '<span class="badge">放送済み</span>' : '<span class="badge gray">未放送</span>'}</div>
-          <div class="muted">${new Date(r.createdAt).toLocaleString("ja-JP")}</div>
-        </div>
-        <a class="btn gray f-right" href="${r.appleMusicUrl || '#'}" target="_blank" rel="noopener">Apple Music ↗</a>
-      </li>`).join("")}</ul>`;
-let html = head + `<div class="wrap">
-    <div class="card">
-      <div class="row">
-        <div style="font-size:18px;font-weight:600;">${u.username} さんのマイページ <img src="/mypage.png" alt="mypage" class="icon-mypage"></div>
-        
-      </div>
-      <div class="kv">
-        <b>初回登録</b> <span>${fmt(u.registeredAt)}</span>
-        <b>残トークン</b> <span>${isAdmin(u) ? '∞' : (u.tokens ?? 0)}</span>
-        <b>最終配布</b> <span>${fmt(u.lastRefillAtISO) || (u.lastRefillISO || "-")}</span>
-        <b>次回配布予定</b> <span>${nextRef.toLocaleString("ja-JP", { timeZone: tz })} (Asia/Tokyo)</span>
-      </div>
-    </div>
-    <div class="muted" style="font-size:12px;margin-top:4px;">
-      次回配布予定: <span id="refillDate">${new Date(nextRef).toLocaleString("ja-JP", { timeZone: tz })}</span>
-      （<span id="refillCountdown"></span>）
-    </div>
-    <span id="refillTarget" data-next-ref="${nextRef.toISOString()}" style="display:none"></span>
+    : `<ul class="list">${
+        my.map(r => {
+          const state = r.broadcasted
+            ? '<span class="badge">放送済み</span>'
+            : '<span class="badge gray">未放送</span>';
+          const am = r.appleMusicUrl
+            ? `<a class="btn f-right" href="${r.appleMusicUrl}" target="_blank" rel="noopener">Apple Music ↗</a>`
+            : "";
+          const cover = r.artworkUrl
+            ? `<img src="${r.artworkUrl}" alt="cover">`
+            : `<div style="width:60px;height:60px;border-radius:10px;background:#e5e7eb;"></div>`;
+          return `
+            <li class="item">
+              ${cover}
+              <div>
+                <div><b>${r.text}</b> <small class="muted">/ ${r.artist || "アーティスト不明"}</small> ${state}</div>
+                <div class="muted">${r.createdAt ? new Date(r.createdAt).toLocaleString("ja-JP",{timeZone:tz}) : "-"}</div>
+              </div>
+              ${am}
+            </li>
+          `;
+        }).join("")
+      }</ul>`;
 
-      <h3>自分の投稿一覧</h3>
-      ${items}
+  const html = `<!doctype html><html lang="ja"><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>マイページ</title>
+  <style>
+    :root{
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --ok:#10b981;
+    }
+    body{margin:0;background:linear-gradient(180deg,#eef2f7 0%,#f6f7fb 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial}
+    .wrap{max-width:980px;margin:24px auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0;box-shadow:0 6px 18px rgba(16,24,40,.06)}
+    .row{display:flex;gap:12px;align-items:center}
+    .muted{color:var(--muted)}
+    .kv{display:grid;grid-template-columns:160px 1fr;gap:8px 12px;margin-top:12px;align-items:center}
+    .list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+    .item{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(16,24,40,.05)}
+    .item img{width:60px;height:60px;border-radius:10px;object-fit:cover}
+    .badge{background:var(--ok);color:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:8px}
+    .badge.gray{background:#9ca3af;color:#fff}
+    .btn{display:inline-block;padding:8px 12px;border:1px solid #d1d5db;border-radius:10px;text-decoration:none;color:#111827;background:#e5e7eb}
+    .btn:hover{background:#dadde2}
+    .f-right{margin-left:auto}
+    form.settings-form{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+    form.settings-form input[type="text"]{padding:6px 8px;border:1px solid #d1d5db;border-radius:8px;min-width:160px;}
+    form.settings-form button{padding:6px 12px;background:#0070c9;color:#fff;border:none;border-radius:8px;cursor:pointer;}
+    .next-remaining{font-size:12px;color:#4b5563;margin-top:2px;}
+    .page-head-icon{width:40px;height:40px;object-fit:contain;margin-right:6px;}
+    @media(max-width:560px){
+      .kv{grid-template-columns:1fr}
+      .list{grid-template-columns:1fr}
+    }
+  </style>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <div class="row">
+          <img src="/img/mypage.png" alt="mypage" class="page-head-icon" onerror="this.style.display='none'">
+          <div>
+            <div style="font-size:18px;font-weight:600;">${u.username} さんのマイページ</div>
+            <div class="muted">ID: ${u.id}</div>
+          </div>
+        </div>
+        <div class="kv">
+          <b>初回登録</b> <span>${fmt(u.registeredAt)}</span>
+          <b>残トークン</b> <span>${isAdmin(u) ? '∞' : (u.tokens ?? 0)}</span>
+          <b>最終配布</b> <span>${fmt(u.lastRefillAtISO) || (u.lastRefillISO || "-")}</span>
+          <b>次回配布予定</b>
+          <span>
+            <span id="refillDate">${nextRef.toLocaleString("ja-JP", { timeZone: tz })} (Asia/Tokyo)</span>
+            <div id="refillCountdown" class="next-remaining"></div>
+          </span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>設定</h3>
+        <p class="muted">ユーザー名など、このアカウント固有の情報だけ変更できます。</p>
+        <form class="settings-form" method="POST" action="/mypage/update">
+          <label>ユーザー名:
+            <input type="text" name="username" value="${u.username}" maxlength="40" />
+          </label>
+          <button type="submit">保存する</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>自分の投稿一覧</h3>
+        ${listHtml}
+      </div>
+
+      <p><a href="/">↩ トップへ戻る</a></p>
     </div>
-    <p><a href="/">↩ トップへ戻る</a></p>
-  </div>`;
-  html += `<script>
+    <script>
     (function(){
-      var targetEl = document.getElementById('refillTarget');
-      if(!targetEl) return;
-      var ts = targetEl.getAttribute('data-next-ref');
-      var target = ts ? new Date(ts) : null;
-      var out = document.getElementById('refillCountdown');
+      const el = document.getElementById("refillCountdown");
+      const targetIso = ${JSON.stringify(nextRef.toISOString())};
+      if (!el || !targetIso) return;
+      const target = new Date(targetIso);
       function tick(){
-        if(!target || !out) return;
-        var now = new Date();
-        var diff = Math.max(0, Math.floor((target - now)/1000));
-        var d = Math.floor(diff/86400); diff -= d*86400;
-        var h = Math.floor(diff/3600); diff -= h*3600;
-        var m = Math.floor(diff/60);
-        var s = diff - m*60;
-        var parts = [];
-        if (d) parts.push(d + "日");
-        parts.push(String(h).padStart(2,"0") + "時間", String(m).padStart(2,"0") + "分", String(s).padStart(2,"0") + "秒");
-        out.textContent = parts.join(" ");
+        const now = new Date();
+        let diff = Math.floor((target - now)/1000);
+        if (diff <= 0){
+          el.textContent = "まもなく再配布されます。";
+          return;
+        }
+        const d = Math.floor(diff / 86400); diff -= d*86400;
+        const h = Math.floor(diff / 3600); diff -= h*3600;
+        const m = Math.floor(diff / 60);
+        const s = diff - m*60;
+        el.textContent = "残り: " + (d? d+"日 " : "") + String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
         requestAnimationFrame(tick);
       }
       tick();
     })();
-  </script>`;
-  res.send(html + "</body></html>");
+    </script>
+  </body>
+  </html>`;
+
+  res.send(html);
+});
+
+
+// リクエストを放送済みに
+
+// 一括で放送済みに
+app.post("/admin/bulk-broadcast-requests", requireAdmin, async (req, res) => {
+  const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
+  const idSet = new Set(ids);
+  let touched = false;
+  for (const r of db.data.responses) {
+    if (idSet.has(r.id)) {
+      r.broadcasted = true;
+      touched = true;
+    }
+  }
+  if (touched) await db.write();
+  res.redirect("/admin");
+});
+
+// 一括で未放送へ
+app.post("/admin/bulk-unbroadcast-requests", requireAdmin, async (req, res) => {
+  const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
+  const idSet = new Set(ids);
+  let touched = false;
+  for (const r of db.data.responses) {
+    if (idSet.has(r.id)) {
+      r.broadcasted = false;
+      touched = true;
+    }
+  }
+  if (touched) await db.write();
+  res.redirect("/admin");
+});
+
+app.get("/broadcast/:id", requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  const item = db.data.responses.find(r => r.id === id);
+  if (item) {
+    item.broadcasted = true;
+    await db.write();
+  }
+  res.redirect("/admin");
+});
+
+// リクエストを未放送に戻す
+app.get("/unbroadcast/:id", requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  const item = db.data.responses.find(r => r.id === id);
+  if (item) {
+    item.broadcasted = false;
+    await db.write();
+  }
+  res.redirect("/admin");
 });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
