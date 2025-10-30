@@ -1220,11 +1220,13 @@
     "stay tune|アーティスト不明": 1
   },
   "settings": {
-    "recruiting": false,
+    "recruiting": true,
     "reason": "🔧調整中🔧",
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-10-30T16:48:00.099Z"
+    "lastRefillRunISO": "2025-10-30T16:52:00.340Z",
+    "maintenance": false,
+    "duplicateCooldownMinutes": 0
   }
 }
