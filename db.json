@@ -118,6 +118,15 @@
       "count": 1
     },
     {
+      "id": "-TTD_pwBcsICan74CqngZ",
+      "text": "クスシキ",
+      "artist": "アーティスト不明",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%AF%E3%82%B9%E3%82%B7%E3%82%AD/1804230382?i=1804230388&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f2/13/a2/f213a26f-355f-95da-c119-a0571d28cdd1/25UMGIM46524.rgb.jpg/100x100bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/bf/77/ec/bf77ecec-6e64-f0bb-37dd-c7ed51e3bc2e/mzaf_11256532349323950179.plus.aac.p.m4a",
+      "count": 4
+    },
+    {
       "id": "ffuGJKVe5AIk8XxkBwzv5",
       "text": "春雷",
       "artist": "アーティスト不明",
@@ -1070,24 +1079,6 @@
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/2f/b1/4f/2fb14f9b-3a26-a46c-d6fd-e9b158ac6aff/4538182601471_cov.jpg/100x100bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/16/92/be/1692bead-d21b-38a6-d227-f01cdeaf4240/mzaf_16841343378442696980.plus.aac.p.m4a",
       "count": 1
-    },
-    {
-      "id": "hNqq6tA4EMJ6Et50SCOq3",
-      "text": "アストロビスタ (2025 mix)",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%B9%E3%83%88%E3%83%AD%E3%83%93%E3%82%B9%E3%82%BF-2025-mix/1803574367?i=1803574584&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/fd/88/94/fd88942c-54dc-47bc-e8f0-a62af5f8e228/4525853670799.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/62/6e/d4/626ed418-6cc0-7c94-804c-43001cc35d43/mzaf_1440366012388135953.plus.aac.p.m4a",
-      "count": 1
-    },
-    {
-      "id": "_Gp-8WhidXKOMRJy2jIdf",
-      "text": "ピース",
-      "artist": "アーティスト不明",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%94%E3%83%BC%E3%82%B9/1822948725?i=1822948728&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5b/c1/5f/5bc15fbb-ca1d-c57a-b24a-32b9cbb6d08a/4517331095972.jpg/100x100bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b4/73/10/b473107a-33e8-3d59-084d-6596f83d13ac/mzaf_10093971877857087500.plus.aac.p.m4a",
-      "count": 1
     }
   ],
   "lastSubmissions": {},
@@ -1120,6 +1111,7 @@
     "ナルバキスン(look at me, gwisun)|d": 1,
     "my way|def tech": 1,
     "ハイパーベンチレイション|radwimps": 1,
+    "クスシキ|アーティスト不明": 4,
     "春雷|アーティスト不明": 1,
     "ハピチョコ|アーティスト不明": 3,
     "最上級にかわいいの! (feat. コレサワ)|アーティスト不明": 3,
@@ -1225,22 +1217,13 @@
     "vivi|アーティスト不明": 1,
     "remember me|アーティスト不明": 1,
     "くりてぃかる♡ぷりちー|ilife!": 1,
-    "stay tune|アーティスト不明": 1,
-    "アストロビスタ (2025 mix)|アーティスト不明": 1,
-    "ピース|アーティスト不明": 1
+    "stay tune|アーティスト不明": 1
   },
   "settings": {
-    "recruiting": true,
+    "recruiting": false,
     "reason": "🔧調整中🔧",
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
-    "playerControlsEnabled": true,
-    "maintenance": false,
-    "duplicateCooldownMinutes": 1,
-    "rateLimitPerMin": 2,
-    "refillHour": 0,
-    "refillMinute": 10,
-    "refillTimezone": "Asia/Tokyo",
-    "monthlyTokens": 5
+    "playerControlsEnabled": true
   }
 }
