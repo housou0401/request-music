@@ -12,6 +12,19 @@ import url from "node:url";
 dotenv.config();
 
 const app = express();
+
+const toastPage = (msg, redirect="/") => `<!doctype html><html lang="ja"><meta charset="utf-8">
+<style>
+.toast-wrap{position:fixed;right:18px;bottom:18px;z-index:9999;max-width:380px;}
+@media(max-width:720px){.toast-wrap{left:50%;transform:translateX(-50%);top:16px;bottom:auto;right:auto;max-width:92vw;}}
+.toast{background:rgba(0,0,0,.9);color:#fff;padding:16px 18px;border-radius:14px;box-shadow:0 14px 28px rgba(0,0,0,.25);font-size:15px;line-height:1.5;display:flex;gap:10px;align-items:flex-start;}
+.toast strong{display:block;font-weight:600;margin-bottom:4px;}
+</style>
+<body>
+<div class="toast-wrap"><div class="toast">${msg}</div></div>
+<script>setTimeout(function(){location.href="${redirect}";},1600);</script>
+</body></html>`;
+
 const PORT = process.env.PORT || 3000;
 
 // ==== GitHub 同期設定 ====
@@ -92,6 +105,7 @@ async function ensureMonthlyRefill(user) {
   const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
   if (user.lastRefillISO !== m) {
+    user.refillToastPending = true;
     user.tokens = monthly;
     user.lastRefillISO = m;
     user.lastRefillAtISO = new Date().toISOString();
@@ -131,6 +145,15 @@ app.use(async (req, _res, next) => {
   }
 
   if (effectiveUser) await ensureMonthlyRefill(effectiveUser);
+
+  // トークン補充の初回ログイン時トースト
+  if (effectiveUser && effectiveUser.refillToastPending) {
+    // GET のときだけトーストページへリダイレクト
+    if (req.method === "GET" && req.path !== "/refill-toast") {
+      return _res.send(toastPage("🪄トークンが補充されました！", "/"));
+    }
+    // それ以外は次のレスポンスで出すように残しておく
+  }
 
   req.user = effectiveUser || null;
   req.adminSession = !!adminSession;
@@ -367,26 +390,27 @@ app.get("/me", async (req, res) => {
 // ==== 送信 ====
 app.post("/submit", async (req, res) => {
   const user = req.user;
-  if (!user) return res.send(`<script>alert("⚠未登録です。初回登録をしてください。"); location.href="/";</script>`);
+  if (!user) return res.send(toastPage("⚠未登録です。初回登録をしてください。", "/"));
   await ensureMonthlyRefill(user);
 
-  if (db.data.settings.maintenance) return res.send(`<script>alert("⚠現在メンテナンス中です。投稿できません。"); location.href="/";</script>`);
-  if (!db.data.settings.recruiting) return res.send(`<script>alert("⚠現在は募集を終了しています。"); location.href="/";</script>`);
+  if (db.data.settings.maintenance) return res.send(toastPage("⚠現在メンテナンス中です。投稿できません。", "/"));
+  if (!db.data.settings.recruiting) return res.send(toastPage("⚠現在は募集を終了しています。", "/"));
 
   const limit = Number(db.data.settings.rateLimitPerMin ?? 5);
   if (!isAdmin(user) && !hitRate(user.id, limit)) {
-    return res.send(`<script>alert("⚠送信が多すぎます。しばらくしてからお試しください。（1分あたり最大 ${limit} 件）"); location.href="/";</script>`);
+    return res.send(toastPage(`⚠送信が多すぎます。しばらくしてからお試しください。（1分あたり最大 ${limit} 件）`, "/"));
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(toastPage(`⚠${user.username} さん、送信には今月のトークンが不足しています。`, "/"));
   }
 
-  const appleMusicUrl = req.body.appleMusicUrl?.trim();
-  const artworkUrl = req.body.artworkUrl?.trim();
-  const previewUrl = req.body.previewUrl?.trim();
+  const appleMusicUrl = (req.body.appleMusicUrl || "").trim();
+  const artworkUrl = (req.body.artworkUrl || "").trim();
+  const previewUrl = (req.body.previewUrl || "").trim();
   let responseText = (req.body.response ?? "").toString().trim();
   let artistText = (req.body.artist ?? "").toString().trim() || "アーティスト不明";
+
   if (appleMusicUrl) {
     try {
       const resolved = await tryResolveTrackByUrl(appleMusicUrl);
@@ -396,10 +420,14 @@ app.post("/submit", async (req, res) => {
       }
     } catch {}
   }
-  if (!appleMusicUrl || !artworkUrl || !previewUrl) return res.send(`<script>alert("⚠候補一覧から曲を選択してください"); location.href="/";</script>`);
-  if (!responseText) return res.send(`<script>alert("⚠入力欄が空です。"); location.href="/";</script>`);
 
-  // 同一曲連投の抑止
+  if (!appleMusicUrl || !artworkUrl || !previewUrl) {
+    return res.send(toastPage("⚠候補一覧から曲を選択してください", "/"));
+  }
+  if (!responseText) {
+    return res.send(toastPage("⚠入力欄が空です。", "/"));
+  }
+
   const cooldownMin = Number(db.data.settings.duplicateCooldownMinutes ?? 15);
   const now = Date.now();
   const keyLower = `${responseText.toLowerCase()}|${artistText.toLowerCase()}`;
@@ -408,22 +436,37 @@ app.post("/submit", async (req, res) => {
     const dt = now - new Date(recent.createdAt).getTime();
     if (dt < cooldownMin * 60 * 1000) {
       const left = Math.ceil((cooldownMin * 60 * 1000 - dt) / 60000);
-      return res.send(`<script>alert("⚠同一曲の連投は ${cooldownMin} 分間できません。あと約 ${left} 分お待ちください。"); location.href="/";</script>`);
+      return res.send(toastPage(`⚠同一曲の連投は ${cooldownMin} 分間できません。あと約 ${left} 分お待ちください。`, "/"));
     }
   }
 
   db.data.songCounts[keyLower] = (db.data.songCounts[keyLower] || 0) + 1;
   const existing = db.data.responses.find(r => r.text.toLowerCase() === responseText.toLowerCase() && r.artist.toLowerCase() === artistText.toLowerCase());
-  if (existing) existing.count = db.data.songCounts[keyLower];
-  else db.data.responses.push({
-    id: nanoid(), text: responseText, artist: artistText, appleMusicUrl, artworkUrl, previewUrl,
-    count: db.data.songCounts[keyLower], createdAt: new Date().toISOString(), by: { id: user.id, username: user.username }
-  });
+  if (existing) {
+    existing.count = db.data.songCounts[keyLower];
+  } else {
+    db.data.responses.push({
+      id: nanoid(),
+      text: responseText,
+      artist: artistText,
+      appleMusicUrl,
+      artworkUrl,
+      previewUrl,
+      count: db.data.songCounts[keyLower],
+      createdAt: new Date().toISOString(),
+      by: { id: user.id, username: user.username }
+    });
+  }
 
-  if (!isAdmin(user)) { user.tokens = Math.max(0, (user.tokens ?? 0) - 1); await usersDb.write(); }
+  if (!isAdmin(user)) {
+    user.tokens = Math.max(0, (user.tokens ?? 0) - 1);
+    await usersDb.write();
+  }
   await db.write();
-  res.send(`<script>alert("✅送信が完了しました！"); location.href="/";</script>`);
+  return res.send(toastPage("✅送信が完了しました！", "/"));
 });
+
+
 
 // ==== リクエスト削除 & まとめて削除 ====
 function safeWriteUsers() { return usersDb.write().catch(e => console.error("users.json write error:", e)); }
@@ -439,7 +482,7 @@ app.get("/delete/:id", requireAdmin, async (req, res) => {
   db.data.responses = db.data.responses.filter(e => e.id !== id);
   await safeWriteDb();
   res.set("Content-Type", "text/html");
-  res.send(`<script>alert("🗑️削除しました"); location.href="/admin";</script>`);
+  res.send(toastPage("🗑️削除しました", "/admin"));
 });
 
 app.post("/admin/bulk-delete-requests", requireAdmin, async (req, res) => {
@@ -558,13 +601,12 @@ app.post("/admin/impersonate", requireAdmin, async (req, res) => {
   const u = getUserById(id);
   if (!u) return res.status(404).send("Not found");
   res.cookie("impersonateId", u.id, COOKIE_OPTS);
-  res.redirect("/admin/users");
+  return res.send(toastPage(`✅ ${u.username} でサイトを閲覧します。`, "/admin/users"));
 });
 app.get("/admin/impersonate/clear", requireAdmin, async (_req, res) => {
   res.clearCookie("impersonateId");
-  res.redirect("/admin/users");
+  return res.send(toastPage("👥 なりすましを解除しました。", "/admin/users"));
 });
-
 // ==== 管理 UI ====
 app.get("/admin", requireAdmin, async (req, res) => {
   const sort = (req.query.sort || "newest").toString(); // newest | popular
@@ -802,7 +844,7 @@ app.get("/admin/users", requireAdmin, async (_req, res) => {
   res.send(`<!doctype html><html lang="ja"><meta charset="utf-8"><title>ユーザー管理</title>
   <style>
     body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;margin:0;padding:16px;}
-    .wrap{max-width:1240px;margin:0 auto;}
+    .wrap{max-width:1100px;margin:0 auto;}
     h1{margin-bottom:6px;}
     .tools{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
     table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(15,23,42,.06);}
@@ -820,7 +862,7 @@ app.get("/admin/users", requireAdmin, async (_req, res) => {
     <a class="back" href="/admin">← 管理画面に戻る</a>
     <h1>ユーザー管理</h1>
     <p>登録済みのユーザーをここで編集・削除できます。なりすましを使うと、そのユーザーのマイページを確認できます。</p>
-    <form method="POST" action="/admin/bulk-delete-users" id="bulkUserForm">
+    <div id="bulkUsersWrap">
       <div class="tools">
         <label><input type="checkbox" id="userSelectAll"> 全選択</label>
         <button type="submit">選択したユーザーを削除</button>
@@ -840,7 +882,7 @@ app.get("/admin/users", requireAdmin, async (_req, res) => {
         </thead>
         <tbody>${rows}</tbody>
       </table>
-    </form>
+    </div>
     <div class="tools" style="margin-top:16px;">
       <form method="POST" action="/admin/bulk-update-user-tokens" style="display:flex;gap:8px;align-items:center;">
         <label>一般ユーザーのトークンを一括で
@@ -855,6 +897,22 @@ app.get("/admin/users", requireAdmin, async (_req, res) => {
     if (userAll) userAll.addEventListener('change', () => {
       document.querySelectorAll('.user-check').forEach(chk => chk.checked = userAll.checked);
     });
+    // bulk delete trigger wire-up
+    const bulkBtn = document.querySelector('form[action="/admin/bulk-delete-users"]') ? null : (function(){
+      const btn = document.createElement('button');
+      btn.textContent = '選択したユーザーを削除';
+      btn.type = 'button';
+      btn.onclick = function(){
+        const ids = Array.from(document.querySelectorAll('.user-check:checked')).map(x=>x.value);
+        const f = document.getElementById('bulkUserForm');
+        const hid = document.getElementById('bulkUserIds');
+        hid.value = ids;
+        f.submit();
+      };
+      const tools = document.querySelector('.tools');
+      if (tools) tools.appendChild(btn);
+      return btn;
+    })();
   </script>
   </body></html>`);
 });
@@ -865,8 +923,19 @@ app.post("/admin/update-user", requireAdmin, async (req, res) => {
   const { id, tokens, role } = req.body || {};
   const u = usersDb.data.users.find(x => x.id === id);
   if (!u) return res.status(404).send("Not found");
-  if (role === "admin") { u.role = "admin"; u.tokens = null; }
-  else { u.role = "user"; const n = Number(tokens); u.tokens = Number.isFinite(n) && n >= 0 ? n : 0; }
+  if (role === "admin") {
+    u.role = "admin";
+    u.tokens = null;
+  } else {
+    u.role = "user";
+    const n = Number(tokens);
+    if (Number.isFinite(n) && n >= 0) {
+      u.tokens = n;
+    } else {
+      // 管理画面で管理者→一般にしたときにトークンが0になってしまうのを防ぐ
+      u.tokens = Number(db.data.settings.monthlyTokens ?? 5);
+    }
+  }
   await usersDb.write();
   res.redirect(`/admin/users`);
 });
