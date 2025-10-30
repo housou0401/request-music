@@ -1282,6 +1282,21 @@ app.get("/mypage", async (req, res) => {
 
   res.send(html);
 });
+app.post("/mypage/update", async (req, res) => {
+  if (!req.user) {
+    return res.send(toastPage("⚠未ログインです。", "/"));
+  }
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) {
+    return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/"));
+  }
+  const name = (req.body.username ?? "").toString().trim() || "Guest";
+  u.username = name;
+  await usersDb.write();
+  return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
+});
+
 
 
 // リクエストを放送済みに
