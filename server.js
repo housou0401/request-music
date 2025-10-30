@@ -477,7 +477,12 @@ app.get("/delete/:id", requireAdmin, async (req, res) => {
   const toDelete = db.data.responses.find(e => e.id === id);
   if (toDelete) {
     const key = `${toDelete.text.toLowerCase()}|${toDelete.artist.toLowerCase()}`;
-    delete db.data.songCounts[key];
+    const cur = db.data.songCounts[key] || 0;
+    if (cur > 1) {
+      db.data.songCounts[key] = cur - 1;
+    } else {
+      delete db.data.songCounts[key];
+    }
   }
   db.data.responses = db.data.responses.filter(e => e.id !== id);
   await safeWriteDb();
@@ -488,8 +493,16 @@ app.get("/delete/:id", requireAdmin, async (req, res) => {
 app.post("/admin/bulk-delete-requests", requireAdmin, async (req, res) => {
   const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
   const idSet = new Set(ids);
-  for (const r of db.data.responses) if (idSet.has(r.id)) {
-    const key = `${r.text.toLowerCase()}|${r.artist.toLowerCase()}`; delete db.data.songCounts[key];
+  for (const r of db.data.responses) {
+    if (idSet.has(r.id)) {
+      const key = `${r.text.toLowerCase()}|${r.artist.toLowerCase()}`;
+      const cur = db.data.songCounts[key] || 0;
+      if (cur > 1) {
+        db.data.songCounts[key] = cur - 1;
+      } else {
+        delete db.data.songCounts[key];
+      }
+    }
   }
   db.data.responses = db.data.responses.filter(r => !idSet.has(r.id));
   await safeWriteDb();
