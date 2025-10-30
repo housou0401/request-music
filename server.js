@@ -8,7 +8,7 @@ import cron from "node-cron";
 import axios from "axios";
 import dotenv from "dotenv";
 import path from "node:path";
-import * as url from "node:url";
+import url from "node:url";
 dotenv.config();
 
 const app = express();
@@ -85,19 +85,14 @@ function hitRate(userId, limitPerMin) {
 // 月次トークン配布
 async function ensureMonthlyRefill(user) {
   if (!user || isAdmin(user)) return;
+  const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
-  const tz = db.data.settings.refillTimezone || "Asia/Tokyo";
-  const dayCfg = Number(db.data.settings.refillDay ?? 1);
-  const ds = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
-  const [Y,M,D] = ds.split('-').map(Number);
-  const monthKeyNow = `${Y}-${String(M).padStart(2,"0")}`;
-  if (user.lastRefillISO !== monthKeyNow && D >= dayCfg) {
+  if (user.lastRefillISO !== m) {
     user.tokens = monthly;
-    user.lastRefillISO = monthKeyNow;
+    user.lastRefillISO = m;
     await usersDb.write();
   }
 }
-
 async function refillAllIfMonthChanged() {
   const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
@@ -361,7 +356,7 @@ app.post("/submit", async (req, res) => {
   }
 
   if (!isAdmin(user) && (!(typeof user.tokens === "number") || user.tokens <= 0)) {
-    return res.send(`<script>alert("⚠${user.username} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
+    return res.send(`<script>alert("⚠${name} さん、送信には今月のトークンが不足しています。"); location.href="/";</script>`);
   }
 
   const appleMusicUrl = req.body.appleMusicUrl?.trim();
@@ -598,10 +593,6 @@ app.get("/admin", requireAdmin, async (req, res) => {
 
     <div class="sec">
       <h2>設定</h2>
-      <form action="/admin/update-deploy-hook" method="post" style="margin:8px 0 10px;">
-        <label>Render Deploy Hook URL（任意）: <input type="url" name="deployHookUrl" value="${db.data.settings.deployHookUrl||''}" style="width:420px;padding:6px;border:1px solid #ddd;border-radius:8px"></label>
-        <button type="submit" style="margin-left:6px">保存</button>
-      </form>
       <p>現在の管理者パスワード: <code class="pwd" id="curPwd">${db.data.settings.adminPassword}</code>
         <button onclick="navigator.clipboard.writeText(document.getElementById('curPwd').textContent)">コピー</button>
       </p>
@@ -830,32 +821,3 @@ cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safe
 cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
-
-
-app.get("/admin/schedule", requireAdmin, async (_req, res) => {
-  res.send(`<!doctype html><meta charset="utf-8"><title>Refill Schedule</title>
-  <h1>トークン配布スケジュール</h1>
-  <p><a href="/admin">← Adminへ戻る</a></p>
-  <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-    <label>日:
-      <input type="number" name="day" min="1" max="31" value="${db.data.settings.refillDay ?? 1}" style="width:80px;">
-    </label>
-    <label>時刻:
-      <input type="number" name="hour" min="0" max="23" value="${db.data.settings.refillHour ?? 0}" style="width:80px;"> :
-      <input type="number" name="minute" min="0" max="59" value="${db.data.settings.refillMinute ?? 10}" style="width:80px;">
-    </label>
-    <label>Timezone:
-      <select name="timezone" style="width:220px;">
-        <option value="Asia/Tokyo">${db.data.settings.refillTimezone==="Asia/Tokyo"?"selected":""}} {tz}</option><option value="Asia/Seoul">${db.data.settings.refillTimezone==="Asia/Seoul"?"selected":""}} {tz}</option><option value="Asia/Shanghai">${db.data.settings.refillTimezone==="Asia/Shanghai"?"selected":""}} {tz}</option><option value="Asia/Taipei">${db.data.settings.refillTimezone==="Asia/Taipei"?"selected":""}} {tz}</option><option value="Asia/Hong_Kong">${db.data.settings.refillTimezone==="Asia/Hong_Kong"?"selected":""}} {tz}</option><option value="Asia/Singapore">${db.data.settings.refillTimezone==="Asia/Singapore"?"selected":""}} {tz}</option><option value="Asia/Bangkok">${db.data.settings.refillTimezone==="Asia/Bangkok"?"selected":""}} {tz}</option><option value="Australia/Sydney">${db.data.settings.refillTimezone==="Australia/Sydney"?"selected":""}} {tz}</option><option value="Europe/London">${db.data.settings.refillTimezone==="Europe/London"?"selected":""}} {tz}</option><option value="Europe/Paris">${db.data.settings.refillTimezone==="Europe/Paris"?"selected":""}} {tz}</option><option value="Europe/Berlin">${db.data.settings.refillTimezone==="Europe/Berlin"?"selected":""}} {tz}</option><option value="UTC">${db.data.settings.refillTimezone==="UTC"?"selected":""}} {tz}</option><option value="America/Los_Angeles">${db.data.settings.refillTimezone==="America/Los_Angeles"?"selected":""}} {tz}</option><option value="America/New_York">${db.data.settings.refillTimezone==="America/New_York"?"selected":""}} {tz}</option>
-      </select>
-    </label>
-    <button type="submit">保存</button>
-  </form>`);
-});
-
-
-app.post("/admin/update-deploy-hook", requireAdmin, async (req, res) => {
-  db.data.settings.deployHookUrl = (req.body.deployHookUrl || "").toString().trim();
-  await safeWriteDb();
-  res.redirect("/admin");
-});
