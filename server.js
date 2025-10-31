@@ -349,6 +349,7 @@ app.post("/register", async (req, res) => {
 
     const deviceId = nanoid(16);
     const role = adminPassword ? "admin" : "user";
+    const nowIso = new Date().toISOString();
     usersDb.data.users.push({
       id: deviceId,
       username,
@@ -356,6 +357,8 @@ app.post("/register", async (req, res) => {
       role,
       tokens: role === "admin" ? null : monthly,
       lastRefillISO: monthKey(),
+      lastRefillAtISO: nowIso,
+      registeredAt: nowIso,
     });
     await usersDb.write();
 
@@ -1097,6 +1100,18 @@ app.get("/mypage", async (req, res) => {
     return res.send(`<!doctype html><meta charset="utf-8"><p>未ログインです。<a href="/">トップへ</a></p>`);
   }
   const u = req.user;
+  // backfill missing timestamps for legacy users
+  let needWrite = false;
+  if (!u.registeredAt) { u.registeredAt = new Date().toISOString(); needWrite = true; }
+  if (!u.lastRefillAtISO && u.lastRefillISO) {
+    const [yy, mm] = String(u.lastRefillISO).split("-");
+    if (yy && mm) {
+      const d = new Date(Date.UTC(int(yy), int(mm)-1, 1, 0, 0, 0));
+      u.lastRefillAtISO = d.toISOString();
+      needWrite = true;
+    }
+  }
+  if (needWrite) { await usersDb.write(); }
   const sset = db.data.settings || {};
   const tz = "Asia/Tokyo";
 
