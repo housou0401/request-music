@@ -212,9 +212,9 @@
       if (!me || !me.loggedIn) { el.textContent = '未登録です。'; return; }
       const name = me.user?.username || 'ユーザー';
       if (me.user?.role === 'admin') {
-        el.textContent = `${name} さん 今月の残りトークン: ∞（管理者）`;
+        el.textContent = `${name} さん 今月の残りトークン: 無制限（管理者）`;
       } else {
-        el.textContent = `${name} さん 今月の残りトークン: ${me.user?.tokens ?? 0}`;
+        el.textContent = `${name} さんの今月の残りトークン: ${me.user?.tokens ?? 0}`;
       }
     }
     async function ensureRegistered() {
