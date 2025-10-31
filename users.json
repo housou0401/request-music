@@ -45,17 +45,6 @@
       "lastRefillISO": "2025-10"
     },
     {
-      "id": "8WZocJD1vk5v4pz-",
-      "username": "管理者3",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2025-10"
-    },
-    {
       "id": "zwLXNADZsqArCmYk",
       "username": "りおん",
       "deviceInfo": {
@@ -69,6 +58,17 @@
     {
       "id": "Luie3_Qlv0Is13Oc",
       "username": "Test2",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2025-10"
+    },
+    {
+      "id": "sQj0ou3mN1ICf0x8",
+      "username": "管理者3",
       "deviceInfo": {
         "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
         "ip": "::1"
