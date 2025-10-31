@@ -61,6 +61,9 @@ if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMi
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+// auth middleware must come before static & routes
+app.use(authMiddleware);
+
 
 // 静的配信 & ルート
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -127,8 +130,7 @@ async function refillAllIfMonthChanged() {
   if (touched) await usersDb.write();
 }
 
-// Cookie → user / adminSession / impersonation
-app.use(async (req, _res, next) => {
+async function authMiddleware(req, res, next) {
   const baseDeviceId = req.cookies?.deviceId || null;
   const baseUser = baseDeviceId ? getUserById(baseDeviceId) : null;
 
@@ -150,7 +152,7 @@ app.use(async (req, _res, next) => {
   if (effectiveUser && effectiveUser.refillToastPending) {
     // GET のときだけトーストページへリダイレクト
     if (req.method === "GET" && req.path !== "/refill-toast") {
-      return _res.send(toastPage("🪄トークンが補充されました！", "/"));
+      return res.send(toastPage("🪄トークンが補充されました！", "/"));
     }
     // それ以外は次のレスポンスで出すように残しておく
   }
@@ -160,6 +162,9 @@ app.use(async (req, _res, next) => {
   req.impersonating = impersonating;
   next();
 });
+
+// Cookie → user / adminSession / impersonation
+
 
 // 管理者保護
 function requireAdmin(req, res, next) {
