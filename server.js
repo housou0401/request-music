@@ -61,9 +61,6 @@ if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMi
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-// auth middleware must come before static & routes
-app.use(authMiddleware);
-
 
 // 静的配信 & ルート
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -130,7 +127,8 @@ async function refillAllIfMonthChanged() {
   if (touched) await usersDb.write();
 }
 
-async function authMiddleware(req, res, next) {
+// Cookie → user / adminSession / impersonation
+app.use(async (req, _res, next) => {
   const baseDeviceId = req.cookies?.deviceId || null;
   const baseUser = baseDeviceId ? getUserById(baseDeviceId) : null;
 
@@ -152,7 +150,7 @@ async function authMiddleware(req, res, next) {
   if (effectiveUser && effectiveUser.refillToastPending) {
     // GET のときだけトーストページへリダイレクト
     if (req.method === "GET" && req.path !== "/refill-toast") {
-      return res.send(toastPage("🪄トークンが補充されました！", "/"));
+      return _res.send(toastPage("🪄トークンが補充されました！", "/"));
     }
     // それ以外は次のレスポンスで出すように残しておく
   }
@@ -162,9 +160,6 @@ async function authMiddleware(req, res, next) {
   req.impersonating = impersonating;
   next();
 });
-
-// Cookie → user / adminSession / impersonation
-
 
 // 管理者保護
 function requireAdmin(req, res, next) {
@@ -354,7 +349,6 @@ app.post("/register", async (req, res) => {
 
     const deviceId = nanoid(16);
     const role = adminPassword ? "admin" : "user";
-    const nowIso = new Date().toISOString();
     usersDb.data.users.push({
       id: deviceId,
       username,
@@ -362,8 +356,6 @@ app.post("/register", async (req, res) => {
       role,
       tokens: role === "admin" ? null : monthly,
       lastRefillISO: monthKey(),
-      lastRefillAtISO: nowIso,
-      registeredAt: nowIso,
     });
     await usersDb.write();
 
@@ -1105,18 +1097,6 @@ app.get("/mypage", async (req, res) => {
     return res.send(`<!doctype html><meta charset="utf-8"><p>未ログインです。<a href="/">トップへ</a></p>`);
   }
   const u = req.user;
-  // backfill missing timestamps for legacy users
-  let needWrite = false;
-  if (!u.registeredAt) { u.registeredAt = new Date().toISOString(); needWrite = true; }
-  if (!u.lastRefillAtISO && u.lastRefillISO) {
-    const [yy, mm] = String(u.lastRefillISO).split("-");
-    if (yy && mm) {
-      const d = new Date(Date.UTC(int(yy), int(mm)-1, 1, 0, 0, 0));
-      u.lastRefillAtISO = d.toISOString();
-      needWrite = true;
-    }
-  }
-  if (needWrite) { await usersDb.write(); }
   const sset = db.data.settings || {};
   const tz = "Asia/Tokyo";
 
