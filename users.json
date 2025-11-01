@@ -91,7 +91,7 @@
     },
     {
       "id": "T5Kv0qRTUDXQ0t-b",
-      "username": "れいと",
+      "username": "管理者スマホ",
       "deviceInfo": {
         "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23A355 Instagram 404.0.0.27.81 (iPhone14,2; iOS 26_0_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 812595035)",
         "ip": "::1"
@@ -99,6 +99,18 @@
       "role": "admin",
       "tokens": null,
       "lastRefillISO": "2025-11"
+    },
+    {
+      "id": "VH9mNh634tnoJmt3",
+      "username": "☆",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23A355 Instagram 404.0.0.27.81 (iPhone17,1; iOS 26_0_1; ja_JP; ja; scale=3.00; 1206x2622; IABMV/1; 812595035) NW/3",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 5,
+      "lastRefillISO": "2025-11",
+      "lastRefillAtISO": "2025-11-01T12:32:00.300Z"
     }
   ]
 }
