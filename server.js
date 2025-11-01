@@ -104,13 +104,24 @@ async function ensureMonthlyRefill(user) {
   if (!user || isAdmin(user)) return;
   const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
-  if (user.lastRefillISO !== m) {
-    user.refillToastPending = true;
-    user.tokens = monthly;
-    user.lastRefillISO = m;
-    user.lastRefillAtISO = new Date().toISOString();
-    await usersDb.write();
+  const monthChanged = user.lastRefillISO !== m;
+
+  // 月が変わっておらず、トークンも数値として存在しているなら触らない
+  if (!monthChanged && typeof user.tokens === "number") {
+    return;
   }
+
+  user.tokens = monthly;
+  user.lastRefillISO = m;
+
+  // 月が変わったとき、またはまだ入っていないときだけ時刻を更新
+  if (monthChanged || !user.lastRefillAtISO) {
+    user.lastRefillAtISO = new Date().toISOString();
+  }
+
+  user.refillToastPending = true;
+  await usersDb.write();
+}
 }
 async function refillAllIfMonthChanged() {
   const m = monthKey();
@@ -349,6 +360,7 @@ app.post("/register", async (req, res) => {
 
     const deviceId = nanoid(16);
     const role = adminPassword ? "admin" : "user";
+    const nowIso = new Date().toISOString();
     usersDb.data.users.push({
       id: deviceId,
       username,
@@ -356,6 +368,8 @@ app.post("/register", async (req, res) => {
       role,
       tokens: role === "admin" ? null : monthly,
       lastRefillISO: monthKey(),
+      lastRefillAtISO: nowIso,
+      registeredAt: nowIso,
     });
     await usersDb.write();
 
@@ -1097,6 +1111,24 @@ app.get("/mypage", async (req, res) => {
     return res.send(`<!doctype html><meta charset="utf-8"><p>未ログインです。<a href="/">トップへ</a></p>`);
   }
   const u = req.user;
+  // legacy: 古いユーザーで registeredAt / lastRefillAtISO が無い場合にだけ埋める
+  let needWrite = false;
+  if (!u.registeredAt) {
+    u.registeredAt = new Date().toISOString();
+    needWrite = true;
+  }
+  if (!u.lastRefillAtISO && u.lastRefillISO) {
+    const parts = String(u.lastRefillISO).split("-");
+    const yy = Number(parts[0]) || new Date().getFullYear();
+    const mm = Number(parts[1]) || (new Date().getMonth() + 1);
+    const d = new Date(Date.UTC(yy, mm - 1, 1, 0, 0, 0));
+    u.lastRefillAtISO = d.toISOString();
+    needWrite = true;
+  }
+  if (needWrite) {
+    await usersDb.write();
+  }
+
   const sset = db.data.settings || {};
   const tz = "Asia/Tokyo";
 
