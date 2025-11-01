@@ -194,6 +194,91 @@
       "by": {
         "id": "zi7F94_CUavqYc0Y",
         "username": "スマホ管理者"
+      },
+      "broadcasted": true
+    },
+    {
+      "id": "9jHCJPCb33KVFP46f9v41",
+      "text": "延々",
+      "artist": "Mrs. GREEN APPLE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%BB%B6%E3%80%85/1627629613?i=1627629633&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/45/11/66/45116621-c965-642d-43ef-b8cf33711bde/22UMGIM58754.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cf/5c/ad/cf5caddd-4620-a0f4-89f7-c87caaf8468f/mzaf_14526042191208943106.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:18:17.844Z",
+      "by": {
+        "id": "hlJf7-Pe7efaSmSF",
+        "username": "flrh"
+      }
+    },
+    {
+      "id": "AheNWweaLQ_YT1BLpybpa",
+      "text": "GOOD DAY",
+      "artist": "Mrs. GREEN APPLE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/good-day/1841344389?i=1841344390&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/65/b9/43/65b943b4-5740-4345-9d5b-df1cd2040a52/25UM1IM36530.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/14/11/58/1411588b-1cb1-b6e2-e2af-8f0d945ffaf5/mzaf_12396536153810882053.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:18:38.028Z",
+      "by": {
+        "id": "hlJf7-Pe7efaSmSF",
+        "username": "flrh"
+      }
+    },
+    {
+      "id": "NJC9-qGPbGSxah0PKToCS",
+      "text": "look at the sea",
+      "artist": "おいしくるメロンパン",
+      "appleMusicUrl": "https://music.apple.com/jp/album/look-at-the-sea/1279610538?i=1279610815&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/c5/7e/48/c57e480b-c235-8bcd-1bd4-1d42aafa9f0d/XNRJ-10001.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/52/cb/84/52cb84a6-6088-c933-6b9c-f624b2bfaa94/mzaf_2718044732319176416.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:19:37.807Z",
+      "by": {
+        "id": "hlJf7-Pe7efaSmSF",
+        "username": "flrh"
+      }
+    },
+    {
+      "id": "9KFRmazLXXpJPzy5mhxVO",
+      "text": "愛の標識",
+      "artist": "クリープハイプ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%84%9B%E3%81%AE%E6%A8%99%E8%AD%98/518595450?i=518595454&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/5e/20/07/5e200773-e433-51b4-4aca-4701a4ab08d9/VICL-63865.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/a5/a5/3b/a5a53b75-fec2-d975-fb08-5856201f89ec/mzaf_14820515089104969475.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:20:15.873Z",
+      "by": {
+        "id": "hlJf7-Pe7efaSmSF",
+        "username": "flrh"
+      }
+    },
+    {
+      "id": "4UJF2bexFEcmrO0BUqCGE",
+      "text": "我逢人",
+      "artist": "Mrs. GREEN APPLE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%88%91%E9%80%A2%E4%BA%BA/1440794725?i=1440794901&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/c0/80/67/c08067ed-2ba4-d609-add3-7b599f47d83a/00600406565457.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/1f/4d/23/1f4d23bb-b611-3f60-0071-36637523db9a/mzaf_6834995513239026779.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:20:44.113Z",
+      "by": {
+        "id": "hlJf7-Pe7efaSmSF",
+        "username": "flrh"
+      }
+    },
+    {
+      "id": "in1Ww6EZ6CQ761FsNIarv",
+      "text": "関係のない人",
+      "artist": "カネヨリマサル",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%96%A2%E4%BF%82%E3%81%AE%E3%81%AA%E3%81%84%E4%BA%BA/1616432345?i=1616432526&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ba/a8/24/baa82460-18df-dd01-ddfc-b3f35aaf0a1a/VEATP-39815.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/bc/40/01/bc4001f3-4766-4ceb-7ec9-39f8ef3c3495/mzaf_879570786451691383.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:23:40.607Z",
+      "by": {
+        "id": "hlJf7-Pe7efaSmSF",
+        "username": "flrh"
       }
     }
   ],
@@ -238,7 +323,13 @@
     "remember the days~君との足跡~|平井大": 1,
     "手紙 〜拝啓 十五の君へ〜|アンジェラ・アキ": 1,
     "名前のない青|神様、僕は気づいてしまった": 1,
-    "one last kiss|宇多田ヒカル": 1
+    "one last kiss|宇多田ヒカル": 1,
+    "延々|mrs. green apple": 1,
+    "good day|mrs. green apple": 1,
+    "look at the sea|おいしくるメロンパン": 1,
+    "愛の標識|クリープハイプ": 1,
+    "我逢人|mrs. green apple": 1,
+    "関係のない人|カネヨリマサル": 1
   },
   "settings": {
     "recruiting": true,
@@ -246,7 +337,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T13:16:00.065Z",
+    "lastRefillRunISO": "2025-11-01T13:24:00.561Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
