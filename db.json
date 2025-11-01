@@ -1,5 +1,20 @@
 {
-  "responses": [],
+  "responses": [
+    {
+      "id": "B4Tcrn0QsY1sHA2Ii7Nl-",
+      "text": "Best Friend",
+      "artist": "西野カナ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/best-friend/1537240310?i=1537240311&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/cb/e9/7a/cbe97a8a-571b-1e74-1aa7-49dd016445d8/4547557022537.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6d/e9/ed/6de9ed45-a0bd-b138-7b28-cddf27a6793e/mzaf_7260929532031481861.plus.aac.p.m4a",
+      "count": 2,
+      "createdAt": "2025-11-01T12:34:55.832Z",
+      "by": {
+        "id": "ktDyyCNziXct9gnR",
+        "username": "sk"
+      }
+    }
+  ],
   "lastSubmissions": {},
   "songCounts": {
     "恋|アーティスト不明": 1,
@@ -27,7 +42,8 @@
     "ア・プリオリ|アーティスト不明": 1,
     "ロマンチシズム|アーティスト不明": 2,
     "wanted! wanted!|アーティスト不明": 1,
-    "懐かしい未来|上白石萌音": 1
+    "懐かしい未来|上白石萌音": 1,
+    "best friend|西野カナ": 2
   },
   "settings": {
     "recruiting": true,
@@ -35,7 +51,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T12:32:00.300Z",
+    "lastRefillRunISO": "2025-11-01T12:40:00.898Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 0
   }
