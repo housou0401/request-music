@@ -321,6 +321,76 @@
         "id": "oE2-KkGlOjeX0Tg5",
         "username": "maron"
       }
+    },
+    {
+      "id": "bvn9pV_1HImYRjRMDiuQ9",
+      "text": "Caramel Pain",
+      "artist": "ノーベル",
+      "appleMusicUrl": "https://music.apple.com/jp/album/caramel-pain/1789078173?i=1789078179&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/33/8a/cd/338acd51-fd74-ca01-474c-128f2575b753/4571696527127.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/92/bd/53/92bd5310-6532-a52c-ac4b-275883de3acf/mzaf_9386475268778549343.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T14:11:23.517Z",
+      "by": {
+        "id": "ZGglPGIFuIDFC0hv",
+        "username": "UY"
+      }
+    },
+    {
+      "id": "xsoFQt1LEIyYlfEyVSCkm",
+      "text": "*〜アスタリスク〜",
+      "artist": "ORANGE RANGE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%B9%E3%82%BF%E3%83%AA%E3%82%B9%E3%82%AF/1537418560?i=1537418569&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/6b/50/9c/6b509c4b-6550-40f7-2086-008eaed86c5f/jacket_SRCL07315B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e5/d8/92/e5d8921f-2678-d33f-6de2-4facc3ff8c16/mzaf_17700741794268941729.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T14:12:35.316Z",
+      "by": {
+        "id": "q38qPO7HGf-sw9_W",
+        "username": "mmm"
+      }
+    },
+    {
+      "id": "jzbtr_ZqRhXT3sHOvBHkk",
+      "text": "Awesome Life",
+      "artist": "Novelbright",
+      "appleMusicUrl": "https://music.apple.com/jp/album/awesome-life/1733820823?i=1733821253&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/17/34/55/17345510-84fe-43d2-ba3a-683cc0166423/24UMGIM20787.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/5f/1d/95/5f1d951f-518a-ca89-ddee-9afd29aeb47a/mzaf_4719915196411931092.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T14:13:28.627Z",
+      "by": {
+        "id": "ZGglPGIFuIDFC0hv",
+        "username": "UY"
+      }
+    },
+    {
+      "id": "c2a67HoW0XnmoLC50sa5v",
+      "text": "JANE DOE",
+      "artist": "米津玄師 & 宇多田ヒカル",
+      "appleMusicUrl": "https://music.apple.com/jp/album/jane-doe/1840081735?i=1840081736&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/73/91/aa/7391aabc-81d8-2bcb-3b0f-8e24bc855745/4547366775211.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fc/73/f7/fc73f745-266e-fc55-57e6-c3a9fe55adca/mzaf_5338479851369996476.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T14:14:41.348Z",
+      "by": {
+        "id": "q38qPO7HGf-sw9_W",
+        "username": "mmm"
+      }
+    },
+    {
+      "id": "P9aQFmavqoOak8NpRQp8o",
+      "text": "魔法のスープ",
+      "artist": "WurtS",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%AD%94%E6%B3%95%E3%81%AE%E3%82%B9%E3%83%BC%E3%83%97/1561593799?i=1561593800&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/c5/13/2d/c5132d12-3a0b-55f1-089b-242840caebbb/HLT0009.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/93/28/6b/93286b36-2f2a-c328-90e8-0c263cdc9dca/mzaf_7646557128831060869.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T14:15:55.351Z",
+      "by": {
+        "id": "q38qPO7HGf-sw9_W",
+        "username": "mmm"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -373,7 +443,12 @@
     "君の恋人になれますように|カネヨリマサル": 1,
     "鯨の子|tele": 1,
     "初恋|tele": 1,
-    "ロングスカートは靡いて|conton candy": 1
+    "ロングスカートは靡いて|conton candy": 1,
+    "caramel pain|ノーベル": 1,
+    "*〜アスタリスク〜|orange range": 1,
+    "awesome life|novelbright": 1,
+    "jane doe|米津玄師 & 宇多田ヒカル": 1,
+    "魔法のスープ|wurts": 1
   },
   "settings": {
     "recruiting": true,
@@ -381,7 +456,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T14:08:00.038Z",
+    "lastRefillRunISO": "2025-11-01T14:16:00.426Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
