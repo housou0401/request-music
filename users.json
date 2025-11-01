@@ -88,6 +88,17 @@
       "role": "admin",
       "tokens": null,
       "lastRefillISO": "2025-11"
+    },
+    {
+      "id": "T5Kv0qRTUDXQ0t-b",
+      "username": "れいと",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23A355 Instagram 404.0.0.27.81 (iPhone14,2; iOS 26_0_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 812595035)",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2025-11"
     }
   ]
 }
