@@ -181,6 +181,20 @@
         "id": "TjoSJi6HEKfzdIrQ",
         "username": "Guest"
       }
+    },
+    {
+      "id": "BRFQe02rCc-9GZSzX4-72",
+      "text": "One Last Kiss",
+      "artist": "宇多田ヒカル",
+      "appleMusicUrl": "https://music.apple.com/jp/album/one-last-kiss/1542953969?i=1542953977&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/e2/2c/0d/e22c0db8-27f6-7dc3-2d49-3a6e95e827fb/4547366488920.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/61/f6/4a/61f64a1f-48c6-9392-65ed-7d6fa8e3b339/mzaf_5486859673915829767.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:10:37.394Z",
+      "by": {
+        "id": "zi7F94_CUavqYc0Y",
+        "username": "スマホ管理者"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -223,7 +237,8 @@
     "ゲレンデがとけるほど恋したい|広瀬香美": 1,
     "remember the days~君との足跡~|平井大": 1,
     "手紙 〜拝啓 十五の君へ〜|アンジェラ・アキ": 1,
-    "名前のない青|神様、僕は気づいてしまった": 1
+    "名前のない青|神様、僕は気づいてしまった": 1,
+    "one last kiss|宇多田ヒカル": 1
   },
   "settings": {
     "recruiting": true,
@@ -231,7 +246,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T13:08:00.646Z",
+    "lastRefillRunISO": "2025-11-01T13:11:00.796Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 0
   }
