@@ -99,7 +99,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "ktDyyCNziXct9gnR",
@@ -111,7 +111,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "E10RYNN_XvnKGPHJ",
@@ -123,7 +123,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "9OkwVZfZJAHhhOKm",
@@ -135,7 +135,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "30dYCl0ZVODZumSf",
@@ -147,7 +147,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "p1KnrVbqPQ5ylXnI",
@@ -159,7 +159,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "4uxZqUuTty9G0if7",
@@ -171,7 +171,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "pi_mX_lLsL5eqiIz",
@@ -183,7 +183,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "RK_SVb3CKNbXn5Cd",
@@ -195,7 +195,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "dA7YakbKoO7qCuQQ",
@@ -207,7 +207,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "I_9_mUJH7dIXORlt",
@@ -219,7 +219,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "zi7F94_CUavqYc0Y",
@@ -231,7 +231,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     },
     {
       "id": "BWm1AemkPkRdJjtG",
@@ -243,7 +243,30 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T12:56:00.576Z"
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
+    },
+    {
+      "id": "aECtyUrrrmYNaVAl",
+      "username": "りおん",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22G100 Instagram 404.0.0.27.81 (iPhone17,1; iOS 18_6_2; ja_JP; ja; scale=3.00; 1206x2622; IABMV/1; 812595035) NW/3",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2025-11"
+    },
+    {
+      "id": "jh2VCMRS97laKDRl",
+      "username": "にっしー",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22G100 Instagram 404.0.0.27.81 (iPhone17,3; iOS 18_6_2; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 812595035)",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 5,
+      "lastRefillISO": "2025-11",
+      "lastRefillAtISO": "2025-11-01T13:00:00.781Z"
     }
   ]
 }
