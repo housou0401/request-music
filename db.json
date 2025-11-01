@@ -167,6 +167,20 @@
         "id": "BWm1AemkPkRdJjtG",
         "username": "Guest"
       }
+    },
+    {
+      "id": "JBImz1t0Kqxy4Poh-0MUU",
+      "text": "名前のない青",
+      "artist": "神様、僕は気づいてしまった",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%8D%E5%89%8D%E3%81%AE%E3%81%AA%E3%81%84%E9%9D%92/1490840445?i=1490840449&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/e9/1f/9d/e91f9d41-908c-3347-59ff-20b45ee031d1/190295293796.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/92/76/44/927644a4-ae7c-8460-eaa4-5c0fa3c70c71/mzaf_1283839971411919690.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:06:46.590Z",
+      "by": {
+        "id": "TjoSJi6HEKfzdIrQ",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -208,7 +222,8 @@
     "キスハグ侵略者!|ilife!": 1,
     "ゲレンデがとけるほど恋したい|広瀬香美": 1,
     "remember the days~君との足跡~|平井大": 1,
-    "手紙 〜拝啓 十五の君へ〜|アンジェラ・アキ": 1
+    "手紙 〜拝啓 十五の君へ〜|アンジェラ・アキ": 1,
+    "名前のない青|神様、僕は気づいてしまった": 1
   },
   "settings": {
     "recruiting": true,
@@ -216,7 +231,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T13:00:00.781Z",
+    "lastRefillRunISO": "2025-11-01T13:08:00.646Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 0
   }
