@@ -99,7 +99,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "ktDyyCNziXct9gnR",
@@ -111,7 +111,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "E10RYNN_XvnKGPHJ",
@@ -123,7 +123,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "9OkwVZfZJAHhhOKm",
@@ -135,7 +135,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "30dYCl0ZVODZumSf",
@@ -147,7 +147,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "p1KnrVbqPQ5ylXnI",
@@ -159,7 +159,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "4uxZqUuTty9G0if7",
@@ -171,7 +171,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "pi_mX_lLsL5eqiIz",
@@ -183,7 +183,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "RK_SVb3CKNbXn5Cd",
@@ -195,7 +195,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "dA7YakbKoO7qCuQQ",
@@ -207,7 +207,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "I_9_mUJH7dIXORlt",
@@ -219,19 +219,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
-    },
-    {
-      "id": "zi7F94_CUavqYc0Y",
-      "username": "スマホ管理者",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23A355 Instagram 404.0.0.27.81 (iPhone14,2; iOS 26_0_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 812595035) NW/3",
-        "ip": "::1"
-      },
-      "role": "user",
-      "tokens": 5,
-      "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "BWm1AemkPkRdJjtG",
@@ -243,7 +231,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "aECtyUrrrmYNaVAl",
@@ -266,7 +254,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "TjoSJi6HEKfzdIrQ",
@@ -278,7 +266,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "N9aV1H0C4yi8y7-u",
@@ -290,7 +278,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "BAPNiFaY8FVjQHg2",
@@ -302,7 +290,7 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     },
     {
       "id": "hlJf7-Pe7efaSmSF",
@@ -314,7 +302,31 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2025-11",
-      "lastRefillAtISO": "2025-11-01T13:32:00.038Z"
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
+    },
+    {
+      "id": "8NoxAvhYnwGQUi4z",
+      "username": "スマホ管理者",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23A355 Instagram 404.0.0.27.81 (iPhone14,2; iOS 26_0_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 812595035)",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 5,
+      "lastRefillISO": "2025-11",
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
+    },
+    {
+      "id": "oE2-KkGlOjeX0Tg5",
+      "username": "maron",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22G100 Instagram 404.0.0.27.81 (iPhone15,4; iOS 18_6_2; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 812595035) NW/3",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 5,
+      "lastRefillISO": "2025-11",
+      "lastRefillAtISO": "2025-11-01T13:40:00.463Z"
     }
   ]
 }
