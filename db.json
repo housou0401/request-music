@@ -391,6 +391,34 @@
         "id": "q38qPO7HGf-sw9_W",
         "username": "mmm"
       }
+    },
+    {
+      "id": "YiA4bvGnOoW1IfLy1PU2V",
+      "text": "BOY MEETS GIRL",
+      "artist": "Wurts",
+      "appleMusicUrl": "https://music.apple.com/jp/album/boy-meets-girl/1585616510?i=1585616511&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/00/f3/6d/00f36d10-8de0-53e4-ad8d-931a545b457a/HLT0012.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/df/b5/be/dfb5be1d-ab0b-03d2-768d-fac7bd6a3604/mzaf_17670682841295476724.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T14:18:39.467Z",
+      "by": {
+        "id": "q38qPO7HGf-sw9_W",
+        "username": "mmm"
+      }
+    },
+    {
+      "id": "lXpjTgiJjIiYqLlrdc3LU",
+      "text": "星見る頃を過ぎても",
+      "artist": "H△G",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%98%9F%E8%A6%8B%E3%82%8B%E9%A0%83%E3%82%92%E9%81%8E%E3%81%8E%E3%81%A6%E3%82%82/1060172011?i=1060172250&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f3/eb/83/f3eb839b-587f-29f0-ffe3-390225863a48/mzm.wcwxxgpj.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/19/61/09/19610979-67f5-908f-7c02-8e990e4cd329/mzaf_46250106769597309.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T14:22:30.829Z",
+      "by": {
+        "id": "KASdgXpUkvZh26Zr",
+        "username": "あいな"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -448,7 +476,9 @@
     "*〜アスタリスク〜|orange range": 1,
     "awesome life|novelbright": 1,
     "jane doe|米津玄師 & 宇多田ヒカル": 1,
-    "魔法のスープ|wurts": 1
+    "魔法のスープ|wurts": 1,
+    "boy meets girl|wurts": 1,
+    "星見る頃を過ぎても|h△g": 1
   },
   "settings": {
     "recruiting": true,
@@ -456,7 +486,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T14:16:00.426Z",
+    "lastRefillRunISO": "2025-11-01T14:24:00.830Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
