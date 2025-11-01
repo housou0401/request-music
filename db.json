@@ -280,6 +280,48 @@
         "id": "hlJf7-Pe7efaSmSF",
         "username": "flrh"
       }
+    },
+    {
+      "id": "K4LRMa5hs_BunpIXKzPYI",
+      "text": "君の恋人になれますように",
+      "artist": "カネヨリマサル",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%AE%E6%81%8B%E4%BA%BA%E3%81%AB%E3%81%AA%E3%82%8C%E3%81%BE%E3%81%99%E3%82%88%E3%81%86%E3%81%AB/1789733672?i=1789733673&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/de/17/b8/de17b871-902f-af9e-6f66-4597f58c032d/VEATP-43618.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a5/d5/ac/a5d5ac45-0a19-e7c2-f9ae-9183a3612624/mzaf_15836863654612319221.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:24:03.062Z",
+      "by": {
+        "id": "hlJf7-Pe7efaSmSF",
+        "username": "flrh"
+      }
+    },
+    {
+      "id": "D7mguZFDkmn8RzTMxXa5I",
+      "text": "鯨の子",
+      "artist": "Tele",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%AF%A8%E3%81%AE%E5%AD%90/1666485654?i=1666485655&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/67/9e/11/679e1141-77c3-fade-3606-c8798f4caaae/TFDS-00875WW.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/1b/d9/30/1bd93040-db1e-9670-6fab-c05090ede3e1/mzaf_6770232067104361425.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:24:47.904Z",
+      "by": {
+        "id": "hlJf7-Pe7efaSmSF",
+        "username": "flrh"
+      }
+    },
+    {
+      "id": "8BXNShwh7BUfnswdBAEPl",
+      "text": "初恋",
+      "artist": "Tele",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%88%9D%E6%81%8B/1715583969?i=1715583972&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/8c/74/5a/8c745ace-483b-05ae-4178-b153b7068fa9/TFDS-00969WW.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/64/7d/76/647d7653-f660-34d5-2a77-1c89a19deb5b/mzaf_233327142804342727.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T13:25:24.884Z",
+      "by": {
+        "id": "hlJf7-Pe7efaSmSF",
+        "username": "flrh"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -329,7 +371,10 @@
     "look at the sea|おいしくるメロンパン": 1,
     "愛の標識|クリープハイプ": 1,
     "我逢人|mrs. green apple": 1,
-    "関係のない人|カネヨリマサル": 1
+    "関係のない人|カネヨリマサル": 1,
+    "君の恋人になれますように|カネヨリマサル": 1,
+    "鯨の子|tele": 1,
+    "初恋|tele": 1
   },
   "settings": {
     "recruiting": true,
@@ -337,7 +382,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T13:24:00.561Z",
+    "lastRefillRunISO": "2025-11-01T13:32:00.038Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
