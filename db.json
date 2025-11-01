@@ -419,6 +419,62 @@
         "id": "KASdgXpUkvZh26Zr",
         "username": "あいな"
       }
+    },
+    {
+      "id": "6blQFV9Elqit0yIAlLO9G",
+      "text": "1991",
+      "artist": "1991",
+      "appleMusicUrl": "https://music.apple.com/jp/album/1991/1844274882?i=1844275014&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b1/32/91/b132915f-7e8b-4729-f9b1-3b4734d87269/4547366782493.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/22/0f/7d/220f7d93-abf7-4723-4a22-5fe418c91840/mzaf_14943919209364901353.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T15:16:15.051Z",
+      "by": {
+        "id": "F3wZl-lW0boMKU2Q",
+        "username": "Guest"
+      }
+    },
+    {
+      "id": "RItbXOSh8QlMGdfsS8i_c",
+      "text": "ニュー・マイ・ノーマル",
+      "artist": "MrsGreenApple",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8B%E3%83%A5%E3%83%BC-%E3%83%9E%E3%82%A4-%E3%83%8E%E3%83%BC%E3%83%9E%E3%83%AB/1627629613?i=1627629620&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/45/11/66/45116621-c965-642d-43ef-b8cf33711bde/22UMGIM58754.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e0/10/1c/e0101c60-a300-c98c-dd29-745d17e8981c/mzaf_12927202528205324292.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T15:17:14.611Z",
+      "by": {
+        "id": "F3wZl-lW0boMKU2Q",
+        "username": "Guest"
+      }
+    },
+    {
+      "id": "Hdn6hFZsJ7jhiyNqhDpd_",
+      "text": "恥ずかしいか青春は",
+      "artist": "緑黄色社会",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%81%A5%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84%E3%81%8B%E9%9D%92%E6%98%A5%E3%81%AF/1753182440?i=1753182447&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/7a/90/69/7a906962-bfef-8554-35ad-7f332f2168d7/4547366692822.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/65/92/4f/65924f13-42a8-2ba7-77d6-94321606dc14/mzaf_18402105296699253972.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T15:18:16.909Z",
+      "by": {
+        "id": "F3wZl-lW0boMKU2Q",
+        "username": "Guest"
+      }
+    },
+    {
+      "id": "eX_cHLGobfBcHEI-lhl3P",
+      "text": "恋風",
+      "artist": "YOASOBI",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%81%8B%E9%A2%A8/1805325620?i=1805325622&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/da/24/fa/da24fa87-a196-7c42-26cd-de90ef113cfc/199350193477.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/39/99/9a/39999a82-dbfb-a0a2-1eae-3dfa887c7308/mzaf_11726435724542512803.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T15:19:11.164Z",
+      "by": {
+        "id": "F3wZl-lW0boMKU2Q",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -478,7 +534,11 @@
     "jane doe|米津玄師 & 宇多田ヒカル": 1,
     "魔法のスープ|wurts": 1,
     "boy meets girl|wurts": 1,
-    "星見る頃を過ぎても|h△g": 1
+    "星見る頃を過ぎても|h△g": 1,
+    "1991|1991": 1,
+    "ニュー・マイ・ノーマル|mrsgreenapple": 1,
+    "恥ずかしいか青春は|緑黄色社会": 1,
+    "恋風|yoasobi": 1
   },
   "settings": {
     "recruiting": true,
@@ -486,7 +546,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T15:16:00.331Z",
+    "lastRefillRunISO": "2025-11-01T15:24:00.794Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
