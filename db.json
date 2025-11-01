@@ -203,7 +203,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/good-day/1841344389?i=1841344390&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/65/b9/43/65b943b4-5740-4345-9d5b-df1cd2040a52/25UM1IM36530.rgb.jpg/300x300bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/14/11/58/1411588b-1cb1-b6e2-e2af-8f0d945ffaf5/mzaf_12396536153810882053.plus.aac.p.m4a",
-      "count": 1,
+      "count": 2,
       "createdAt": "2025-11-01T13:18:38.028Z",
       "by": {
         "id": "hlJf7-Pe7efaSmSF",
@@ -463,7 +463,7 @@
     "手紙 〜拝啓 十五の君へ〜|アンジェラ・アキ": 1,
     "名前のない青|神様、僕は気づいてしまった": 1,
     "延々|mrs. green apple": 1,
-    "good day|mrs. green apple": 1,
+    "good day|mrs. green apple": 2,
     "look at the sea|おいしくるメロンパン": 1,
     "愛の標識|クリープハイプ": 1,
     "我逢人|mrs. green apple": 1,
@@ -486,7 +486,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T14:24:00.830Z",
+    "lastRefillRunISO": "2025-11-01T14:32:00.229Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
