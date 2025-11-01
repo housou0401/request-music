@@ -153,6 +153,20 @@
         "id": "pi_mX_lLsL5eqiIz",
         "username": "は"
       }
+    },
+    {
+      "id": "B2TAmuxr-cmaDkNrvfxTC",
+      "text": "手紙 〜拝啓 十五の君へ〜",
+      "artist": "アンジェラ・アキ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%89%8B%E7%B4%99-%E6%8B%9D%E5%95%93-%E5%8D%81%E4%BA%94%E3%81%AE%E5%90%9B%E3%81%B8/1536257129?i=1536257130&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/fb/48/f9/fb48f9b8-0261-7687-cefa-67a4e52679d2/jacket_ESCL03170B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/5a/f7/26/5af7262a-c47d-71ed-f555-bf988716d2af/mzaf_1200041147616814121.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-01T12:55:32.738Z",
+      "by": {
+        "id": "BWm1AemkPkRdJjtG",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -193,7 +207,8 @@
     "くりてぃかる♡ぷりちー|ilife!": 1,
     "キスハグ侵略者!|ilife!": 1,
     "ゲレンデがとけるほど恋したい|広瀬香美": 1,
-    "remember the days~君との足跡~|平井大": 1
+    "remember the days~君との足跡~|平井大": 1,
+    "手紙 〜拝啓 十五の君へ〜|アンジェラ・アキ": 1
   },
   "settings": {
     "recruiting": true,
@@ -201,7 +216,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T12:48:00.631Z",
+    "lastRefillRunISO": "2025-11-01T12:56:00.576Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 0
   }
