@@ -475,6 +475,34 @@
         "id": "F3wZl-lW0boMKU2Q",
         "username": "Guest"
       }
+    },
+    {
+      "id": "ydLpKmLng84lUDA161eC1",
+      "text": "君が好き",
+      "artist": "清水翔太",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%8C%E5%A5%BD%E3%81%8D/1537411458?i=1537411459&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/bb/4d/e2/bb4de260-cb73-8465-5b3e-54b6010e544a/jacket_SRCL07131B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a2/ef/b5/a2efb53d-063d-6ae6-26b9-aaa34dac31e6/mzaf_13981570157786282449.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-02T00:51:16.013Z",
+      "by": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      }
+    },
+    {
+      "id": "TdGUiY6LtCjsogzSQeI-h",
+      "text": "アイラブユー",
+      "artist": "西野カナ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%A4%E3%83%A9%E3%83%96%E3%83%A6%E3%83%BC/1538260449?i=1538260450&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/0f/58/88/0f588826-aa74-8fcc-9aaa-7f9990953872/jacket_SECL02281B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/10/f3/1c/10f31cac-2ca7-8bd4-bd29-11ee7ecada82/mzaf_8215258931939840570.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-02T00:51:38.670Z",
+      "by": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -538,7 +566,9 @@
     "1991|1991": 1,
     "ニュー・マイ・ノーマル|mrsgreenapple": 1,
     "恥ずかしいか青春は|緑黄色社会": 1,
-    "恋風|yoasobi": 1
+    "恋風|yoasobi": 1,
+    "君が好き|清水翔太": 1,
+    "アイラブユー|西野カナ": 1
   },
   "settings": {
     "recruiting": true,
@@ -546,7 +576,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-01T22:32:00.039Z",
+    "lastRefillRunISO": "2025-11-02T00:56:00.761Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
