@@ -573,6 +573,34 @@
         "id": "7YD0ZCCgV5yh0JKV",
         "username": "ぽちゃまる"
       }
+    },
+    {
+      "id": "caK3KNUwlq6JD3cjHha8x",
+      "text": "PARTY",
+      "artist": "Mrs. GREEN APPLE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/party/1360523851?i=1360524254&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/56/d4/1e/56d41e84-b659-a170-6712-cfc8d47691a0/00602567503408.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/36/29/f8/3629f80e-1fda-cf92-f731-51d3d93d36d8/mzaf_12181569189314885875.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-02T05:18:47.599Z",
+      "by": {
+        "id": "Q862oJ8-mHv0rdLN",
+        "username": "ちぃ"
+      }
+    },
+    {
+      "id": "UhGUFtAdH1yrFpj25OKM3",
+      "text": "Prince",
+      "artist": "すとぷり",
+      "appleMusicUrl": "https://music.apple.com/jp/album/prince/1537700813?i=1537701115&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/e7/02/9b/e7029b52-1240-a482-87c9-455062720534/20UMGIM90942.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/1c/7d/50/1c7d5099-f6f9-5d35-5fa9-cd4285d4530e/mzaf_11233595667364522752.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-02T05:20:43.360Z",
+      "by": {
+        "id": "Q862oJ8-mHv0rdLN",
+        "username": "ちぃ"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -643,7 +671,9 @@
     "the drum|alan walker": 1,
     "青い春|backnumber": 1,
     "どうしよっかな|idle": 1,
-    "hugs & kisses|jisoo": 1
+    "hugs & kisses|jisoo": 1,
+    "party|mrs. green apple": 1,
+    "prince|すとぷり": 1
   },
   "settings": {
     "recruiting": true,
@@ -651,7 +681,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-02T05:08:00.063Z",
+    "lastRefillRunISO": "2025-11-02T05:24:00.730Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
