@@ -545,6 +545,34 @@
         "id": "7YD0ZCCgV5yh0JKV",
         "username": "ぽちゃまる"
       }
+    },
+    {
+      "id": "GauY-rLQOJTfoHysGhjUc",
+      "text": "どうしよっかな",
+      "artist": "idle",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A9%E3%81%86%E3%81%97%E3%82%88%E3%81%A3%E3%81%8B%E3%81%AA/1840821658?i=1840821659&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/63/5e/58/635e5811-a857-f31a-3c08-783b010874c8/5021732985552.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/de/ab/53/deab5398-c3de-7dc0-817b-62da83d07868/mzaf_10833816252274019715.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-02T01:09:00.852Z",
+      "by": {
+        "id": "7YD0ZCCgV5yh0JKV",
+        "username": "ぽちゃまる"
+      }
+    },
+    {
+      "id": "ilbfa_PSb5ZjBmrUgbGNw",
+      "text": "Hugs & Kisses",
+      "artist": "JISOO",
+      "appleMusicUrl": "https://music.apple.com/jp/album/hugs-kisses/1795564159?i=1795564168&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/3d/56/57/3d5657d6-6a89-b280-71ff-bd98d239526c/093624833550_cover.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4c/c3/24/4cc32463-8180-7f34-0d0f-0e437c34ee28/mzaf_3557414005186527942.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-02T01:10:29.474Z",
+      "by": {
+        "id": "7YD0ZCCgV5yh0JKV",
+        "username": "ぽちゃまる"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -613,7 +641,9 @@
     "アイラブユー|西野カナ": 1,
     "秒針|和輝 & stb": 1,
     "the drum|alan walker": 1,
-    "青い春|backnumber": 1
+    "青い春|backnumber": 1,
+    "どうしよっかな|idle": 1,
+    "hugs & kisses|jisoo": 1
   },
   "settings": {
     "recruiting": true,
@@ -621,7 +651,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-02T01:08:00.347Z",
+    "lastRefillRunISO": "2025-11-02T01:16:00.789Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
