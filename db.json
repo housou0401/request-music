@@ -503,6 +503,48 @@
         "id": "sOKwseleCnAgcR1K",
         "username": "カペリート"
       }
+    },
+    {
+      "id": "ZpbiEHuqUmGCearMCoHw8",
+      "text": "秒針",
+      "artist": "和輝 & stb",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E7%A7%92%E9%87%9D/1836977766?i=1836977767&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/4d/99/e6/4d99e6c4-d005-f6cc-0d11-163012feb0ca/052599309750.png/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c3/b0/5e/c3b05e0f-4c77-9dea-d28f-1d2c33e7cb5c/mzaf_3168405799875226307.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-02T01:05:45.616Z",
+      "by": {
+        "id": "7YD0ZCCgV5yh0JKV",
+        "username": "ぽちゃまる"
+      }
+    },
+    {
+      "id": "LhAIp2LZ3cYwXFwEcyus9",
+      "text": "The Drum",
+      "artist": "Alan Walker",
+      "appleMusicUrl": "https://music.apple.com/jp/album/the-drum/1625863063?i=1625863084&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/e4/fe/18/e4fe1814-05f6-1008-6a22-c44e14bad4c8/196589204653.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/9c/04/d9/9c04d9be-2723-debb-ba50-cf486178de33/mzaf_6259601205828893149.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-02T01:06:39.995Z",
+      "by": {
+        "id": "7YD0ZCCgV5yh0JKV",
+        "username": "ぽちゃまる"
+      }
+    },
+    {
+      "id": "nUdKtVNLG8q7RLxRgiRfO",
+      "text": "青い春",
+      "artist": "backnumber",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%9D%92%E3%81%84%E6%98%A5/1451567579?i=1451567580&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/af/8a/cd/af8acd80-8c1d-2dab-4920-2e29baeb75fe/00602577303746.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/03/cf/25/03cf257f-2ef4-294a-adae-ae935e0f3db2/mzaf_6179959214625525063.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-02T01:07:50.289Z",
+      "by": {
+        "id": "7YD0ZCCgV5yh0JKV",
+        "username": "ぽちゃまる"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -568,7 +610,10 @@
     "恥ずかしいか青春は|緑黄色社会": 1,
     "恋風|yoasobi": 1,
     "君が好き|清水翔太": 1,
-    "アイラブユー|西野カナ": 1
+    "アイラブユー|西野カナ": 1,
+    "秒針|和輝 & stb": 1,
+    "the drum|alan walker": 1,
+    "青い春|backnumber": 1
   },
   "settings": {
     "recruiting": true,
@@ -576,7 +621,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-02T01:00:00.975Z",
+    "lastRefillRunISO": "2025-11-02T01:08:00.347Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
