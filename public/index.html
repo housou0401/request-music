@@ -61,7 +61,6 @@
 
   <!-- 管理者ボタン（右上固定） -->
   <button class="admin-button" onclick="goAdmin()">管理者用</button>
-  <button class="admin-button ux-hidden" id="settingsButtonTop" style="right: 120px;" onclick="goFrontSettings()">設定</button>
 
   <!-- 画面中央に配置されるメインコンテナ -->
   <div class="container" id="mainContainer">
@@ -172,7 +171,7 @@
 
   <script>
     // ------- 管理者ボタン（権限があれば即 /admin） -------
-    function goFrontSettings(){ location.href="/frontsettings"; }
+    
     async function goAdmin() {
       try {
         const me = await fetch('/me').then(r=>r.json());
@@ -242,7 +241,7 @@
     async function ensureRegistered() {
       const me = await fetchMe();
       if (!me.loggedIn) { document.getElementById('welcomeOverlay')?.classList.add('show'); }
-      else { updateTokenInfo(me); if ((me?.loggedIn && me.user?.role==="admin") || me?.adminSession===true){ document.getElementById("settingsButtonTop")?.classList.remove("ux-hidden"); } }
+      else { updateTokenInfo(me); if ((me?.loggedIn && me.user?.role==="admin") || me?.adminSession===true){ } }
     }
 
     // ------- 管理者パス残回数表示 -------
