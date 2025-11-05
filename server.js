@@ -724,7 +724,8 @@ app.get("/admin", requireAdmin, async (req, res) => {
 
     ${req.impersonating ? `<div class="banner-imp">現在 <strong>${req.user?.username || 'user'}</strong> として閲覧中（なりすまし）。 <a href="/admin/impersonate/clear">解除</a></div>` : ""}
 
-    <div>
+    <div class="tools">
+      <div>
         並び替え:
         <a class="pg-btn ${sort==='newest'?'current':''}" href="?sort=newest">最新順</a>
         <a class="pg-btn ${sort==='popular'?'current':''}" href="?sort=popular">人気順</a>
@@ -745,7 +746,7 @@ app.get("/admin", requireAdmin, async (req, res) => {
     ${pagination(currentPage, totalPages, sort)}
 
     <form method="POST" action="/admin/bulk-delete-requests" id="bulkReqForm">
-      <div class="tools"><a class="pg-btn" href="/frontsettings">フロント設定</a>  
+      <div class="tools">
         <label><input type="checkbox" id="reqSelectAll"> 全選択</label>
         <button type="submit" formaction="/admin/bulk-broadcast-requests">選択を放送済みに</button>
         <button type="submit" formaction="/admin/bulk-unbroadcast-requests">選択を未放送へ</button>
@@ -783,7 +784,44 @@ html += `</ul>
     </form>
 
     ${pagination(currentPage, totalPages, sort)}
+
+    <div class="sec">
+      <h2>設定</h2>
+      <p>現在の管理者パスワード: <code class="pwd" id="curPwd">${db.data.settings.adminPassword}</code>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('curPwd').textContent)">コピー</button>
+      </p>
+      <form action="/update-settings" method="post">
+        <div><label><input type="checkbox" name="maintenance" value="on" ${db.data.settings.maintenance ? "checked" : ""}> メンテナンス中にする</label></div>
+        <div style="margin-top:6px;"><label><input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"}> 募集を終了する</label></div>
+        <div style="margin-top:10px;"><label>理由:<br><textarea name="reason" style="width:300px;height:80px;">${db.data.settings.reason || ""}</textarea></label></div>
+        <div><label>フロントエンドタイトル:<br><textarea name="frontendTitle" style="width:300px;height:60px;">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea></label></div>
+        <div><label>管理者パスワード:<br><input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;"></label></div>
+        <div><label><input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""}> 再生・音量ボタンを表示</label></div>
+        <div style="margin-top:10px;">
+          <label>1分あたりの送信上限: <input type="number" name="rateLimitPerMin" min="1" value="${db.data.settings.rateLimitPerMin}" style="width:90px;"></label>
+          <label style="margin-left:10px;">同一曲連投クールダウン(分): <input type="number" name="duplicateCooldownMinutes" min="0" value="${db.data.settings.duplicateCooldownMinutes}" style="width:90px;"></label>
+        </div>
+        <button type="submit" style="font-size:16px; padding:8px 14px; margin-top:6px;">設定を更新</button>
+      </form>
     </div>
+
+    <div class="sec">
+      <h2>月次トークン</h2>
+      <form method="POST" action="/admin/update-monthly-tokens">
+        <label>月次配布数: <input type="number" min="0" name="monthlyTokens" value="${db.data.settings.monthlyTokens ?? 5}" style="width:100px;"></label>
+        <button type="submit" style="margin-left:8px;">保存</button>
+      </form>
+      <div style="margin-top:14px;">
+        <h3>配布スケジュール（毎月 / Asia/Tokyo）</h3>
+      <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label>毎月の日: <input type="number" min="1" max="31" name="refillDay" value="${db.data.settings.refillDay ?? 1}" style="width:90px;"></label>
+        <label>時: <input type="number" min="0" max="23" name="refillHour" value="${db.data.settings.refillHour ?? 0}" style="width:90px;"></label>
+        <label>分: <input type="number" min="0" max="59" name="refillMinute" value="${db.data.settings.refillMinute ?? 0}" style="width:90px;"></label>
+        <span class="muted">タイムゾーン: Asia/Tokyo</span>
+        <button type="submit">保存</button>
+      </form>
+    </div>
+</div>
 
     <p><a href="/" style="font-size:20px;">↵戻る</a></p>
 
@@ -1375,6 +1413,7 @@ app.get("/unbroadcast/:id", requireAdmin, async (req, res) => {
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
 // ---- Boot-time GitHub fetch & periodic persistence ----
+try { await fetchAllFromGitHub(false); } catch (e) { console.warn("initial fetchAllFromGitHub failed:", e.message); }
 setInterval(() => { syncAllToGitHub(false).catch(e=>console.warn("syncAllToGitHub:", e.message)); }, 60 * 1000); // every 1 min
 setInterval(() => { refillAllIfMonthChanged().catch?.(()=>{}); }, 60 * 60 * 1000); // hourly safety check
 
@@ -1414,6 +1453,3 @@ app.post("/frontsettings", requireAdmin, express.urlencoded({extended:true}), as
   await db.write();
   res.redirect("/frontsettings");
 });
-
-
-} catch (e) { console.warn('boot fetchAllFromGitHub failed:', e?.message || e); }
