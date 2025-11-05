@@ -1,4 +1,12 @@
 
+// === ensure loading helpers are globally reachable ===
+(function(){
+  try{
+    if (typeof showLoading === 'function' && !window.showLoading) window.showLoading = showLoading;
+    if (typeof hideLoading === 'function' && !window.hideLoading) window.hideLoading = hideLoading;
+  }catch(e){}
+})();
+
 /* =========================================================
    AudioManager で単一路線化（/preview プロキシ再生）
    - <audio id="previewAudio"> は 1 つだけ
@@ -175,7 +183,7 @@ function reSearch(){ searchSongs(); }
 
 async function searchSongs() {
   const list = document.getElementById("suggestions");
-  list.innerHTML = ""; showLoading();
+  list.innerHTML = ""; window.showLoading();
   try {
     if (searchMode === "artist") {
       const q = document.getElementById("songName").value.trim();
@@ -208,7 +216,7 @@ async function searchSongs() {
       });
     }
   } catch(e){ console.error("検索エラー:", e); }
-  finally { hideLoading(); }
+  finally { window.hideLoading(); }
 }
 
 async function selectArtist(artist) {
@@ -219,7 +227,7 @@ async function selectArtist(artist) {
 }
 
 async function fetchArtistTracksAndShow() {
-  if (!selectedArtistId) return; showLoading();
+  if (!selectedArtistId) return; window.showLoading();
   try {
     const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
     const songs = await res.json();
@@ -232,7 +240,7 @@ async function fetchArtistTracksAndShow() {
       cont.appendChild(item);
     });
   } catch(e){ console.error("アーティスト曲取得エラー:", e); }
-  finally { hideLoading(); }
+  finally { window.hideLoading(); }
 }
 
 /* ========== 曲を選択 → レガシーカードに情報を詰める ========== */
