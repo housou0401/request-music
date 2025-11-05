@@ -1,12 +1,4 @@
 
-// === ensure loading helpers are globally reachable ===
-(function(){
-  try{
-    if (typeof showLoading === 'function' && !window.showLoading) window.showLoading = showLoading;
-    if (typeof hideLoading === 'function' && !window.hideLoading) window.hideLoading = hideLoading;
-  }catch(e){}
-})();
-
 /* =========================================================
    AudioManager で単一路線化（/preview プロキシ再生）
    - <audio id="previewAudio"> は 1 つだけ
@@ -183,7 +175,7 @@ function reSearch(){ searchSongs(); }
 
 async function searchSongs() {
   const list = document.getElementById("suggestions");
-  list.innerHTML = ""; window.showLoading();
+  list.innerHTML = ""; showLoading();
   try {
     if (searchMode === "artist") {
       const q = document.getElementById("songName").value.trim();
@@ -216,7 +208,7 @@ async function searchSongs() {
       });
     }
   } catch(e){ console.error("検索エラー:", e); }
-  finally { window.hideLoading(); }
+  finally { hideLoading(); }
 }
 
 async function selectArtist(artist) {
@@ -227,7 +219,7 @@ async function selectArtist(artist) {
 }
 
 async function fetchArtistTracksAndShow() {
-  if (!selectedArtistId) return; window.showLoading();
+  if (!selectedArtistId) return; showLoading();
   try {
     const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
     const songs = await res.json();
@@ -240,7 +232,7 @@ async function fetchArtistTracksAndShow() {
       cont.appendChild(item);
     });
   } catch(e){ console.error("アーティスト曲取得エラー:", e); }
-  finally { window.hideLoading(); }
+  finally { hideLoading(); }
 }
 
 /* ========== 曲を選択 → レガシーカードに情報を詰める ========== */
@@ -364,16 +356,44 @@ function setHidden(id,name,val){
   }
   el.value = val || "";
 }
-
-
-// --- Safe playback helpers & selection clear ---
-function stopPlayback(reset=false){
-  try { AudioManager.pause(!!reset); } catch(e){}
-}
 function clearSelection(){
   stopPlayback(true);
-  const wrap = document.getElementById("selectedSong");
-  if (wrap) wrap.innerHTML = "";
-  const label = document.getElementById("selectedLabel");
-  if (label) label.textContent = "";
+  document.getElementById("selectedSong").innerHTML = "";
+  document.getElementById("selectedLabel").innerHTML = "";
+  ["previewUrlHidden","appleMusicUrlHidden","artworkUrlHidden"].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = "";
+  });
+}
+function stopPlayback(resetSrc){
+  try { AudioManager.pause(resetSrc); } catch {}
+}
+
+/* ====== 入力欄 × ボタン対策 ====== */
+function clearInput(inputId){
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  el.value = "";
+  // 入力イベントを発火してUI更新（候補リスト等）
+  el.dispatchEvent(new Event("input", { bubbles: true }));
+  el.focus();
+}
+
+/* ---- ローディング ---- */
+function showLoading(){ const el = document.getElementById("loadingIndicator"); if (el) el.style.display = "flex"; }
+function hideLoading(){ const el = document.getElementById("loadingIndicator"); if (el) el.style.display = "none"; }
+
+/* ---- 管理ログイン API（保持） ---- */
+async function adminLogin(password){
+  if (!password) return;
+  try {
+    const res = await fetch("/admin-login", {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ password })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      if (data.reason === "bad_password") alert("管理者パスワードが違います");
+      if (data.reason === "locked") alert("管理者ログイン試行の上限に達しました");
+    }
+  } catch(e){ console.error("管理者ログインエラー:", e); }
 }
