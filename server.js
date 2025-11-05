@@ -138,6 +138,8 @@ async function ensureMonthlyRefill(user) {
 
   user.refillToastPending = true;
   await usersDb.write();
+
+    try { writeTokCookie(res, user); } catch {}
 }
 async function refillAllIfMonthChanged() {
   const m = monthKey();
@@ -152,6 +154,8 @@ async function refillAllIfMonthChanged() {
     }
   }
   if (touched) await usersDb.write();
+
+    try { writeTokCookie(res, user); } catch {}
 }
 
 // Cookie → user / adminSession / impersonation
@@ -181,6 +185,8 @@ app.use(async (req, _res, next) => {
     if (tokMirror.lastRefillISO) effectiveUser.lastRefillISO = tokMirror.lastRefillISO;
     if (tokMirror.lastRefillAtISO) effectiveUser.lastRefillAtISO = tokMirror.lastRefillAtISO;
     await usersDb.write();
+  
+    try { writeTokCookie(res, user); } catch {}
 }
 // トークン補充の初回ログイン時トースト
   if (effectiveUser && effectiveUser.refillToastPending) {
@@ -398,6 +404,9 @@ app.post("/register", async (req, res) => {
       registeredAt: nowIso,
     });
     await usersDb.write();
+
+    
+    try { writeTokCookie(res, user); } catch {}
 setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
@@ -501,6 +510,8 @@ app.post("/submit", async (req, res) => {
   if (!isAdmin(user)) {
     user.tokens = Math.max(0, (user.tokens ?? 0) - 1);
     await usersDb.write();
+  
+    try { writeTokCookie(res, user); } catch {}
 }
   await db.write();
   return res.send(toastPage("✅送信が完了しました！", "/"));
@@ -990,6 +1001,8 @@ app.post("/admin/update-user", requireAdmin, async (req, res) => {
     }
   }
   await usersDb.write();
+  
+    try { writeTokCookie(res, user); } catch {}
 res.redirect(`/admin/users`);
 });
 app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
@@ -998,6 +1011,8 @@ app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
   const idSet = new Set(ids);
   usersDb.data.users = usersDb.data.users.filter(u => !idSet.has(u.id));
   await usersDb.write();
+  
+    try { writeTokCookie(res, user); } catch {}
 res.redirect(`/admin/users`);
 });
 app.post("/admin/bulk-update-user-tokens", requireAdmin, async (req, res) => {
@@ -1006,6 +1021,8 @@ app.post("/admin/bulk-update-user-tokens", requireAdmin, async (req, res) => {
   if (!Number.isFinite(n) || n < 0) return res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="2;url=/admin/users">入力が不正です`);
   for (const u of usersDb.data.users) if (!isAdmin(u)) u.tokens = n;
   await usersDb.write();
+  
+    try { writeTokCookie(res, user); } catch {}
 res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin/users">更新しました`);
 });
 app.post("/admin/delete-user", requireAdmin, async (req, res) => {
@@ -1014,6 +1031,8 @@ app.post("/admin/delete-user", requireAdmin, async (req, res) => {
   if (!id) return res.status(400).send("bad request");
   usersDb.data.users = usersDb.data.users.filter(u => u.id !== id);
   await usersDb.write();
+  
+    try { writeTokCookie(res, user); } catch {}
 res.redirect(`/admin/users`);
 });
 
@@ -1153,6 +1172,8 @@ app.get("/mypage", async (req, res) => {
   }
   if (needWrite) {
     await usersDb.write();
+  
+    try { writeTokCookie(res, user); } catch {}
 }
 
   const sset = db.data.settings || {};
@@ -1352,6 +1373,8 @@ app.post("/mypage/update", async (req, res) => {
   const name = (req.body.username ?? "").toString().trim() || "Guest";
   u.username = name;
   await usersDb.write();
+  
+    try { writeTokCookie(res, user); } catch {}
 return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
 });
 
@@ -1416,40 +1439,3 @@ app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 try { await fetchAllFromGitHub(false); } catch (e) { console.warn("initial fetchAllFromGitHub failed:", e.message); }
 setInterval(() => { syncAllToGitHub(false).catch(e=>console.warn("syncAllToGitHub:", e.message)); }, 60 * 1000); // every 1 min
 setInterval(() => { refillAllIfMonthChanged().catch?.(()=>{}); }, 60 * 60 * 1000); // hourly safety check
-
-// ==== Front Settings UI (admin) ====
-app.get("/frontsettings", requireAdmin, async (req, res) => {
-  const s = db.data.settings || {};
-  res.set("Content-Type","text/html; charset=utf-8");
-  res.send(`<!doctype html><meta charset="utf-8"><title>Front Settings</title>
-  <style>body{font-family:system-ui,Arial;margin:24px;line-height:1.6}label{display:block;margin-top:12px}input,select{padding:6px 8px;border:1px solid #ccc;border-radius:6px}button{margin-top:16px;padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer}</style>
-  <h2>Front Settings</h2>
-  <form method="post" action="/frontsettings">
-    <label>月次トークン: <input name="monthlyTokens" type="number" min="0" value="${Number(s.monthlyTokens??5)}"></label>
-    <label>1分あたりレート制限: <input name="rateLimitPerMin" type="number" min="1" value="${Number(s.rateLimitPerMin??5)}"></label>
-    <label>募集ステータス:
-      <select name="recruiting">
-        <option value="true" ${s.recruiting!==false?'selected':''}>募集</option>
-        <option value="false" ${s.recruiting===false?'selected':''}>停止</option>
-      </select>
-    </label>
-    <label>フロントタイトル: <input name="frontendTitle" type="text" value="${String(s.frontendTitle||'')}"></label>
-    <label>管理者パスワード: <input name="adminPassword" type="text" value="${String(s.adminPassword||'')}"></label>
-    <button type="submit">保存</button> <a href="/admin">戻る</a>
-  </form>`);
-});
-app.post("/frontsettings", requireAdmin, express.urlencoded({extended:true}), async (req, res) => {
-  const s = db.data.settings;
-  const clampInt = (v, min=0, max=9999) => {
-    const n = parseInt(v,10); if (!Number.isFinite(n)) return null; return Math.max(min, Math.min(max, n));
-  };
-  const mt = clampInt(req.body.monthlyTokens, 0, 999);
-  const rl = clampInt(req.body.rateLimitPerMin, 1, 999);
-  if (mt!==null) s.monthlyTokens = mt;
-  if (rl!==null) s.rateLimitPerMin = rl;
-  s.recruiting = String(req.body.recruiting) === "true";
-  if (typeof req.body.frontendTitle === "string") s.frontendTitle = req.body.frontendTitle.trim();
-  if (typeof req.body.adminPassword === "string" && req.body.adminPassword.trim()) s.adminPassword = req.body.adminPassword.trim();
-  await db.write();
-  res.redirect("/frontsettings");
-});
