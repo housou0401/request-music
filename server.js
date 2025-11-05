@@ -745,7 +745,7 @@ app.get("/admin", requireAdmin, async (req, res) => {
     ${pagination(currentPage, totalPages, sort)}
 
     <form method="POST" action="/admin/bulk-delete-requests" id="bulkReqForm">
-      <div class="tools"><a class="pg-btn" href="/frontsettings">フロント設定</a> 
+      <div class="tools"><a class="pg-btn" href="/frontsettings">フロント設定</a>  
         <label><input type="checkbox" id="reqSelectAll"> 全選択</label>
         <button type="submit" formaction="/admin/bulk-broadcast-requests">選択を放送済みに</button>
         <button type="submit" formaction="/admin/bulk-unbroadcast-requests">選択を未放送へ</button>
@@ -783,18 +783,6 @@ html += `</ul>
     </form>
 
     ${pagination(currentPage, totalPages, sort)}
-
-    <div style="margin-top:6px;"><label><input type="checkbox" name="recruiting" value="off" ${db.data.settings.recruiting ? "" : "checked"}> 募集を終了する</label></div>
-        <div style="margin-top:10px;"><label>理由:<br><textarea name="reason" style="width:300px;height:80px;">${db.data.settings.reason || ""}</textarea></label></div>
-        <div><label>フロントエンドタイトル:<br><textarea name="frontendTitle" style="width:300px;height:60px;">${db.data.settings.frontendTitle || "♬曲をリクエストする"}</textarea></label></div>
-        <div><label>管理者パスワード:<br><input type="text" name="adminPassword" placeholder="新しい管理者パスワード" style="width:300px; padding:10px;"></label></div>
-        <div><label><input type="checkbox" name="playerControlsEnabled" value="on" ${db.data.settings.playerControlsEnabled ? "checked" : ""}> 再生・音量ボタンを表示</label></div>
-        <div style="margin-top:10px;">
-          <label>1分あたりの送信上限: <input type="number" name="rateLimitPerMin" min="1" value="${db.data.settings.rateLimitPerMin}" style="width:90px;"></label>
-          <label style="margin-left:10px;">同一曲連投クールダウン(分): <input type="number" name="duplicateCooldownMinutes" min="0" value="${db.data.settings.duplicateCooldownMinutes}" style="width:90px;"></label>
-        </div>
-        <button type="submit" style="font-size:16px; padding:8px 14px; margin-top:6px;">設定を更新</button>
-      </form>
     </div>
 
     <p><a href="/" style="font-size:20px;">↵戻る</a></p>
