@@ -57,6 +57,23 @@ if (typeof db.data.settings.refillDay !== "number") db.data.settings.refillDay =
 if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
 if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 0;
 
+
+// ---- Token mirror cookie (for ephemeral disks) ----
+const TOK_COOKIE = "tok";
+function readTokCookie(req){
+  try{
+    const s = req.cookies?.[TOK_COOKIE];
+    if (!s) return null;
+    return JSON.parse(Buffer.from(s, "base64").toString("utf8"));
+  }catch{return null;}
+}
+function writeTokCookie(res, user){
+  try{
+    if (!user) return;
+    const payload = { tokens: user.tokens ?? null, lastRefillISO: user.lastRefillISO ?? null, lastRefillAtISO: user.lastRefillAtISO ?? null };
+    res.cookie(TOK_COOKIE, Buffer.from(JSON.stringify(payload)).toString("base64"), COOKIE_OPTS);
+  }catch{}
+}
 // ==== Middleware ====
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -122,7 +139,6 @@ async function ensureMonthlyRefill(user) {
   user.refillToastPending = true;
   await usersDb.write();
 }
-}
 async function refillAllIfMonthChanged() {
   const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
@@ -157,7 +173,16 @@ app.use(async (req, _res, next) => {
 
   if (effectiveUser) await ensureMonthlyRefill(effectiveUser);
 
-  // トークン補充の初回ログイン時トースト
+  
+  // Recover from mirror cookie if tokens missing (ephemeral disk cold starts)
+  const tokMirror = readTokCookie(req);
+  if (effectiveUser && (typeof effectiveUser.tokens !== "number") && tokMirror && typeof tokMirror.tokens === "number") {
+    effectiveUser.tokens = tokMirror.tokens;
+    if (tokMirror.lastRefillISO) effectiveUser.lastRefillISO = tokMirror.lastRefillISO;
+    if (tokMirror.lastRefillAtISO) effectiveUser.lastRefillAtISO = tokMirror.lastRefillAtISO;
+    await usersDb.write();
+}
+// トークン補充の初回ログイン時トースト
   if (effectiveUser && effectiveUser.refillToastPending) {
     // GET のときだけトーストページへリダイレクト
     if (req.method === "GET" && req.path !== "/refill-toast") {
@@ -169,6 +194,7 @@ app.use(async (req, _res, next) => {
   req.user = effectiveUser || null;
   req.adminSession = !!adminSession;
   req.impersonating = impersonating;
+  try { if (effectiveUser) writeTokCookie(_res, effectiveUser); } catch {}
   next();
 });
 
@@ -186,7 +212,7 @@ function requireAdmin(req, res, next) {
 
 // 共通：iTunes Search API 呼び出し（言語判定は廃止）
 async function itunesSearch(params) {
-  const qs = new URLSearchParams({ country: "JP", media: "music", limit: "75", ...params });
+  const qs = new URLSearchParams({ country: "JP", media: "music", limit: "30", ...params });
   const urlStr = `https://itunes.apple.com/search?${qs.toString()}`;
   const resp = await fetch(urlStr, { headers: { "User-Agent": "Mozilla/5.0" } });
   if (!resp.ok) return { results: [] };
@@ -286,7 +312,7 @@ app.get("/search", async (req, res) => {
     if (mode === "artist") {
       if (req.query.artistId) {
         const tracks = await itunesLookupSongsByArtist(req.query.artistId.toString().trim());
-        return res.json(sortSongs(tracks, sortKey));
+        return res.json(sortSongs(tracks, sortKey).slice(0, 30));
       }
       const q = (req.query.query || "").toString().trim();
       if (!q) return res.json([]);
@@ -305,7 +331,7 @@ app.get("/search", async (req, res) => {
           });
         }
       }
-      return res.json(sortArtists([...artistMap.values()], sortKey));
+      return res.json(sortArtists([...artistMap.values()], sortKey).slice(0, 30));
     }
 
     // mode=song
@@ -324,7 +350,7 @@ app.get("/search", async (req, res) => {
       seen.add(key);
       songs.push(normalizeSong(t));
     }
-    return res.json(sortSongs(songs, sortKey));
+    return res.json(sortSongs(songs, sortKey).slice(0, 30));
   } catch (e) {
     console.error(e);
     res.json([]);
@@ -372,10 +398,10 @@ app.post("/register", async (req, res) => {
       registeredAt: nowIso,
     });
     await usersDb.write();
-
-    setRegFails(res, 0);
+setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
+    writeTokCookie(res, usersDb.data.users.at(-1)); 
     res.json({ ok: true, role, username });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -475,7 +501,7 @@ app.post("/submit", async (req, res) => {
   if (!isAdmin(user)) {
     user.tokens = Math.max(0, (user.tokens ?? 0) - 1);
     await usersDb.write();
-  }
+}
   await db.write();
   return res.send(toastPage("✅送信が完了しました！", "/"));
 });
@@ -964,7 +990,7 @@ app.post("/admin/update-user", requireAdmin, async (req, res) => {
     }
   }
   await usersDb.write();
-  res.redirect(`/admin/users`);
+res.redirect(`/admin/users`);
 });
 app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
   await usersDb.read();
@@ -972,7 +998,7 @@ app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
   const idSet = new Set(ids);
   usersDb.data.users = usersDb.data.users.filter(u => !idSet.has(u.id));
   await usersDb.write();
-  res.redirect(`/admin/users`);
+res.redirect(`/admin/users`);
 });
 app.post("/admin/bulk-update-user-tokens", requireAdmin, async (req, res) => {
   await usersDb.read();
@@ -980,7 +1006,7 @@ app.post("/admin/bulk-update-user-tokens", requireAdmin, async (req, res) => {
   if (!Number.isFinite(n) || n < 0) return res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="2;url=/admin/users">入力が不正です`);
   for (const u of usersDb.data.users) if (!isAdmin(u)) u.tokens = n;
   await usersDb.write();
-  res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin/users">更新しました`);
+res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin/users">更新しました`);
 });
 app.post("/admin/delete-user", requireAdmin, async (req, res) => {
   await usersDb.read();
@@ -988,7 +1014,7 @@ app.post("/admin/delete-user", requireAdmin, async (req, res) => {
   if (!id) return res.status(400).send("bad request");
   usersDb.data.users = usersDb.data.users.filter(u => u.id !== id);
   await usersDb.write();
-  res.redirect(`/admin/users`);
+res.redirect(`/admin/users`);
 });
 
 // ==== 設定 ====
@@ -1127,7 +1153,7 @@ app.get("/mypage", async (req, res) => {
   }
   if (needWrite) {
     await usersDb.write();
-  }
+}
 
   const sset = db.data.settings || {};
   const tz = "Asia/Tokyo";
@@ -1326,7 +1352,7 @@ app.post("/mypage/update", async (req, res) => {
   const name = (req.body.username ?? "").toString().trim() || "Guest";
   u.username = name;
   await usersDb.write();
-  return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
+return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
 });
 
 
@@ -1385,3 +1411,45 @@ app.get("/unbroadcast/:id", requireAdmin, async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
+
+// ---- Boot-time GitHub fetch & periodic persistence ----
+try { await fetchAllFromGitHub(false); } catch (e) { console.warn("initial fetchAllFromGitHub failed:", e.message); }
+setInterval(() => { syncAllToGitHub(false).catch(e=>console.warn("syncAllToGitHub:", e.message)); }, 60 * 1000); // every 1 min
+setInterval(() => { refillAllIfMonthChanged().catch?.(()=>{}); }, 60 * 60 * 1000); // hourly safety check
+
+// ==== Front Settings UI (admin) ====
+app.get("/frontsettings", requireAdmin, async (req, res) => {
+  const s = db.data.settings || {};
+  res.set("Content-Type","text/html; charset=utf-8");
+  res.send(`<!doctype html><meta charset="utf-8"><title>Front Settings</title>
+  <style>body{font-family:system-ui,Arial;margin:24px;line-height:1.6}label{display:block;margin-top:12px}input,select{padding:6px 8px;border:1px solid #ccc;border-radius:6px}button{margin-top:16px;padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer}</style>
+  <h2>Front Settings</h2>
+  <form method="post" action="/frontsettings">
+    <label>月次トークン: <input name="monthlyTokens" type="number" min="0" value="${Number(s.monthlyTokens??5)}"></label>
+    <label>1分あたりレート制限: <input name="rateLimitPerMin" type="number" min="1" value="${Number(s.rateLimitPerMin??5)}"></label>
+    <label>募集ステータス:
+      <select name="recruiting">
+        <option value="true" ${s.recruiting!==false?'selected':''}>募集</option>
+        <option value="false" ${s.recruiting===false?'selected':''}>停止</option>
+      </select>
+    </label>
+    <label>フロントタイトル: <input name="frontendTitle" type="text" value="${String(s.frontendTitle||'')}"></label>
+    <label>管理者パスワード: <input name="adminPassword" type="text" value="${String(s.adminPassword||'')}"></label>
+    <button type="submit">保存</button> <a href="/admin">戻る</a>
+  </form>`);
+});
+app.post("/frontsettings", requireAdmin, express.urlencoded({extended:true}), async (req, res) => {
+  const s = db.data.settings;
+  const clampInt = (v, min=0, max=9999) => {
+    const n = parseInt(v,10); if (!Number.isFinite(n)) return null; return Math.max(min, Math.min(max, n));
+  };
+  const mt = clampInt(req.body.monthlyTokens, 0, 999);
+  const rl = clampInt(req.body.rateLimitPerMin, 1, 999);
+  if (mt!==null) s.monthlyTokens = mt;
+  if (rl!==null) s.rateLimitPerMin = rl;
+  s.recruiting = String(req.body.recruiting) === "true";
+  if (typeof req.body.frontendTitle === "string") s.frontendTitle = req.body.frontendTitle.trim();
+  if (typeof req.body.adminPassword === "string" && req.body.adminPassword.trim()) s.adminPassword = req.body.adminPassword.trim();
+  await db.write();
+  res.redirect("/frontsettings");
+});
