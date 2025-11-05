@@ -1413,7 +1413,6 @@ app.get("/unbroadcast/:id", requireAdmin, async (req, res) => {
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
 // ---- Boot-time GitHub fetch & periodic persistence ----
-try { await fetchAllFromGitHub(false); } catch (e) { console.warn("initial fetchAllFromGitHub failed:", e.message); }
 setInterval(() => { syncAllToGitHub(false).catch(e=>console.warn("syncAllToGitHub:", e.message)); }, 60 * 1000); // every 1 min
 setInterval(() => { refillAllIfMonthChanged().catch?.(()=>{}); }, 60 * 60 * 1000); // hourly safety check
 
@@ -1453,3 +1452,7 @@ app.post("/frontsettings", requireAdmin, express.urlencoded({extended:true}), as
   await db.write();
   res.redirect("/frontsettings");
 });
+
+
+// /* BOOT_FETCH_ONCE */
+try { await fetchAllFromGitHub(false); } catch (e) { console.warn('boot fetchAllFromGitHub failed:', e?.message || e); }
