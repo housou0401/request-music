@@ -724,7 +724,7 @@ app.get("/admin", requireAdmin, async (req, res) => {
 
     ${req.impersonating ? `<div class="banner-imp">現在 <strong>${req.user?.username || 'user'}</strong> として閲覧中（なりすまし）。 <a href="/admin/impersonate/clear">解除</a></div>` : ""}
 
-    <div class="tools">
+    \1<a class="pg-btn" href="/frontsettings">フロント設定</a> 
       <div>
         並び替え:
         <a class="pg-btn ${sort==='newest'?'current':''}" href="?sort=newest">最新順</a>
@@ -811,16 +811,6 @@ html += `</ul>
         <label>月次配布数: <input type="number" min="0" name="monthlyTokens" value="${db.data.settings.monthlyTokens ?? 5}" style="width:100px;"></label>
         <button type="submit" style="margin-left:8px;">保存</button>
       </form>
-      <div style="margin-top:14px;">
-        <h3>配布スケジュール（毎月 / Asia/Tokyo）</h3>
-      <form method="POST" action="/admin/update-refill-schedule" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <label>毎月の日: <input type="number" min="1" max="31" name="refillDay" value="${db.data.settings.refillDay ?? 1}" style="width:90px;"></label>
-        <label>時: <input type="number" min="0" max="23" name="refillHour" value="${db.data.settings.refillHour ?? 0}" style="width:90px;"></label>
-        <label>分: <input type="number" min="0" max="59" name="refillMinute" value="${db.data.settings.refillMinute ?? 0}" style="width:90px;"></label>
-        <span class="muted">タイムゾーン: Asia/Tokyo</span>
-        <button type="submit">保存</button>
-      </form>
-    </div>
 </div>
 
     <p><a href="/" style="font-size:20px;">↵戻る</a></p>
@@ -1454,5 +1444,4 @@ app.post("/frontsettings", requireAdmin, express.urlencoded({extended:true}), as
 });
 
 
-// /* BOOT_FETCH_ONCE */
-try { await fetchAllFromGitHub(false); } catch (e) { console.warn('boot fetchAllFromGitHub failed:', e?.message || e); }
+} catch (e) { console.warn('boot fetchAllFromGitHub failed:', e?.message || e); }
