@@ -57,27 +57,28 @@ if (typeof db.data.settings.refillDay !== "number") db.data.settings.refillDay =
 if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
 if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 0;
 
-
-// ---- Token mirror cookie (for ephemeral disks) ----
-const TOK_COOKIE = "tok";
-function readTokCookie(req){
-  try{
-    const s = req.cookies?.[TOK_COOKIE];
-    if (!s) return null;
-    return JSON.parse(Buffer.from(s, "base64").toString("utf8"));
-  }catch{return null;}
-}
-function writeTokCookie(res, user){
-  try{
-    if (!user) return;
-    const payload = { tokens: user.tokens ?? null, lastRefillISO: user.lastRefillISO ?? null, lastRefillAtISO: user.lastRefillAtISO ?? null };
-    res.cookie(TOK_COOKIE, Buffer.from(JSON.stringify(payload)).toString("base64"), COOKIE_OPTS);
-  }catch{}
-}
 // ==== Middleware ====
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Mirror tokens to cookie to survive ephemeral disk (Render)
+const TOKEN_COOKIE = "tok";
+function readTokenMirror(req){
+  try{
+    const raw = req.cookies?.[TOKEN_COOKIE];
+    if (!raw) return null;
+    const v = JSON.parse(raw);
+    if (!v || typeof v !== 'object') return null;
+    return { id: String(v.id||""), tokens: Number(v.tokens||0), lastRefillMonth: v.lastRefillMonth || null };
+  }catch{ return null; }
+}
+function writeTokenMirror(res, user){
+  if (!user) return;
+  const payload = { id: user.id, tokens: user.tokens, lastRefillMonth: user.lastRefillMonth || null };
+  res.cookie(TOKEN_COOKIE, JSON.stringify(payload), COOKIE_OPTS);
+}
+
 
 // 静的配信 & ルート
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -171,19 +172,24 @@ app.use(async (req, _res, next) => {
     if (target) { effectiveUser = target; impersonating = true; }
   }
 
-  if (effectiveUser) await ensureMonthlyRefill(effectiveUser);
-
   
-  // Recover from mirror cookie if tokens missing (ephemeral disk cold starts)
-  const tokMirror = readTokCookie(req);
-  if (effectiveUser && (typeof effectiveUser.tokens !== "number") && tokMirror && typeof tokMirror.tokens === "number") {
-    effectiveUser.tokens = tokMirror.tokens;
-    if (tokMirror.lastRefillISO) effectiveUser.lastRefillISO = tokMirror.lastRefillISO;
-    if (tokMirror.lastRefillAtISO) effectiveUser.lastRefillAtISO = tokMirror.lastRefillAtISO;
-    await usersDb.write();
-}
+  // reconcile tokens from cookie mirror if disk was reset (Render)
+  if (effectiveUser){
+    const mirror = readTokenMirror(req);
+    if (mirror && mirror.id === effectiveUser.id){
+      let touched = false;
+      if (typeof mirror.tokens === 'number' && mirror.tokens >= 0 && mirror.tokens !== effectiveUser.tokens){
+        effectiveUser.tokens = mirror.tokens; touched = true;
+      }
+      if (mirror.lastRefillMonth && !effectiveUser.lastRefillMonth){
+        effectiveUser.lastRefillMonth = mirror.lastRefillMonth; touched = true;
+      }
+      if (touched) await usersDb.write();
+    }
+  }
+if (effectiveUser) await ensureMonthlyRefill(effectiveUser);
 
-// トークン補充の初回ログイン時トースト
+  // トークン補充の初回ログイン時トースト
   if (effectiveUser && effectiveUser.refillToastPending) {
     // GET のときだけトーストページへリダイレクト
     if (req.method === "GET" && req.path !== "/refill-toast") {
@@ -195,7 +201,6 @@ app.use(async (req, _res, next) => {
   req.user = effectiveUser || null;
   req.adminSession = !!adminSession;
   req.impersonating = impersonating;
-  try { if (effectiveUser) writeTokCookie(_res, effectiveUser); } catch {}
   next();
 });
 
@@ -313,7 +318,7 @@ app.get("/search", async (req, res) => {
     if (mode === "artist") {
       if (req.query.artistId) {
         const tracks = await itunesLookupSongsByArtist(req.query.artistId.toString().trim());
-        return res.json(sortSongs(tracks, sortKey).slice(0, 30));
+        return res.json(sortSongs(tracks, sortKey));
       }
       const q = (req.query.query || "").toString().trim();
       if (!q) return res.json([]);
@@ -332,7 +337,7 @@ app.get("/search", async (req, res) => {
           });
         }
       }
-      return res.json(sortArtists([...artistMap.values()], sortKey).slice(0, 30));
+      return res.json(sortArtists([...artistMap.values()], sortKey));
     }
 
     // mode=song
@@ -351,7 +356,7 @@ app.get("/search", async (req, res) => {
       seen.add(key);
       songs.push(normalizeSong(t));
     }
-    return res.json(sortSongs(songs, sortKey).slice(0, 30));
+    return res.json(sortSongs(songs, sortKey));
   } catch (e) {
     console.error(e);
     res.json([]);
@@ -399,10 +404,10 @@ app.post("/register", async (req, res) => {
       registeredAt: nowIso,
     });
     await usersDb.write();
-setRegFails(res, 0);
+
+    setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
-    writeTokCookie(res, usersDb.data.users.at(-1)); 
     res.json({ ok: true, role, username });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
@@ -413,7 +418,8 @@ setRegFails(res, 0);
 app.get("/me", async (req, res) => {
   const s = db.data.settings;
   if (!req.user)
-    return res.json({
+    return writeTokenMirror(res, req.user);
+  res.json({
       loggedIn: false,
       adminSession: !!req.adminSession,
       settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
@@ -502,7 +508,7 @@ app.post("/submit", async (req, res) => {
   if (!isAdmin(user)) {
     user.tokens = Math.max(0, (user.tokens ?? 0) - 1);
     await usersDb.write();
-}
+  }
   await db.write();
   return res.send(toastPage("✅送信が完了しました！", "/"));
 });
@@ -991,7 +997,7 @@ app.post("/admin/update-user", requireAdmin, async (req, res) => {
     }
   }
   await usersDb.write();
-res.redirect(`/admin/users`);
+  res.redirect(`/admin/users`);
 });
 app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
   await usersDb.read();
@@ -999,7 +1005,7 @@ app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
   const idSet = new Set(ids);
   usersDb.data.users = usersDb.data.users.filter(u => !idSet.has(u.id));
   await usersDb.write();
-res.redirect(`/admin/users`);
+  res.redirect(`/admin/users`);
 });
 app.post("/admin/bulk-update-user-tokens", requireAdmin, async (req, res) => {
   await usersDb.read();
@@ -1007,7 +1013,7 @@ app.post("/admin/bulk-update-user-tokens", requireAdmin, async (req, res) => {
   if (!Number.isFinite(n) || n < 0) return res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="2;url=/admin/users">入力が不正です`);
   for (const u of usersDb.data.users) if (!isAdmin(u)) u.tokens = n;
   await usersDb.write();
-res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin/users">更新しました`);
+  res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin/users">更新しました`);
 });
 app.post("/admin/delete-user", requireAdmin, async (req, res) => {
   await usersDb.read();
@@ -1015,7 +1021,7 @@ app.post("/admin/delete-user", requireAdmin, async (req, res) => {
   if (!id) return res.status(400).send("bad request");
   usersDb.data.users = usersDb.data.users.filter(u => u.id !== id);
   await usersDb.write();
-res.redirect(`/admin/users`);
+  res.redirect(`/admin/users`);
 });
 
 // ==== 設定 ====
@@ -1154,7 +1160,7 @@ app.get("/mypage", async (req, res) => {
   }
   if (needWrite) {
     await usersDb.write();
-}
+  }
 
   const sset = db.data.settings || {};
   const tz = "Asia/Tokyo";
@@ -1353,7 +1359,7 @@ app.post("/mypage/update", async (req, res) => {
   const name = (req.body.username ?? "").toString().trim() || "Guest";
   u.username = name;
   await usersDb.write();
-return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
+  return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
 });
 
 
@@ -1412,8 +1418,3 @@ app.get("/unbroadcast/:id", requireAdmin, async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
-
-// ---- Boot-time GitHub fetch & periodic persistence ----
-try { await fetchAllFromGitHub(false); } catch (e) { console.warn("initial fetchAllFromGitHub failed:", e.message); }
-setInterval(() => { syncAllToGitHub(false).catch(e=>console.warn("syncAllToGitHub:", e.message)); }, 60 * 1000); // every 1 min
-setInterval(() => { refillAllIfMonthChanged().catch?.(()=>{}); }, 60 * 60 * 1000); // hourly safety check
