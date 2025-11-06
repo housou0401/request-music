@@ -43,7 +43,7 @@
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       width: min(92vw, 520px);
-      max-height: 96vh;
+      max-height: 90vh;
       overflow: auto;
     }
   
@@ -171,7 +171,6 @@
 
   <script>
     // ------- 管理者ボタン（権限があれば即 /admin） -------
-    
     async function goAdmin() {
       try {
         const me = await fetch('/me').then(r=>r.json());
@@ -241,7 +240,7 @@
     async function ensureRegistered() {
       const me = await fetchMe();
       if (!me.loggedIn) { document.getElementById('welcomeOverlay')?.classList.add('show'); }
-      else { updateTokenInfo(me); if ((me?.loggedIn && me.user?.role==="admin") || me?.adminSession===true){ } }
+      else { updateTokenInfo(me); }
     }
 
     // ------- 管理者パス残回数表示 -------

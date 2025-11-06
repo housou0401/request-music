@@ -449,7 +449,10 @@ function renderCarousel(list) {
     track.appendChild(card);
   });
 
-  // スクロール時の 3D/スケール更新
+  
+  // 端で中央に寄せられるようスペーサー
+  setTimeout(buildEdgeSpacers, 0);
+// スクロール時の 3D/スケール更新
   const wrap = $("#resultsCarousel");
   function update3D() {
     const cards = $$(".result-card");
@@ -535,7 +538,7 @@ function selectCarouselIndex(i, autoPlay=false) {
   const sel = cards[i];
   if (sel) {
     sel.classList.add("selected");
-    sel.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
+    scrollToIndex(i);
   }
 
   // hidden 入力とフォームUI更新
@@ -665,3 +668,100 @@ searchSongs = async function() {
 
 // 初期化：プレイヤーUIイベント
 window.addEventListener("DOMContentLoaded", setupPlayerControls);
+
+
+// ===== Carousel helpers =====
+function scrollToIndex(i){
+  const wrap = document.getElementById("resultsCarousel");
+  const track = document.getElementById("carouselTrack");
+  const card = track?.querySelector(`.result-card[data-index="${i}"]`);
+  if (!wrap || !track || !card) return;
+  const left = card.offsetLeft - (wrap.clientWidth/2 - card.clientWidth/2);
+  wrap.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+}
+
+function buildEdgeSpacers(){
+  const wrap = document.getElementById("resultsCarousel");
+  const track = document.getElementById("carouselTrack");
+  if (!wrap || !track) return;
+  // remove old spacers
+  track.querySelectorAll(".edge-spacer").forEach(e => e.remove());
+  const firstCard = track.querySelector(".result-card");
+  if (!firstCard) return;
+  const cardW = firstCard.clientWidth || 0;
+  const pad = Math.max(0, (wrap.clientWidth - cardW)/2);
+  const L = document.createElement("div"); L.className = "edge-spacer"; L.style.width = pad + "px";
+  const R = document.createElement("div"); R.className = "edge-spacer"; R.style.width = pad + "px";
+  track.prepend(L); track.appendChild(R);
+}
+
+function snapToNearest(){
+  const wrap = document.getElementById("resultsCarousel");
+  const cards = Array.from(document.querySelectorAll(".result-card"));
+  if (!wrap || !cards.length) return;
+  const rect = wrap.getBoundingClientRect();
+  const center = rect.left + rect.width/2;
+  let nearest = {i:-1, d:1e9};
+  cards.forEach((c, idx) => {
+    const r = c.getBoundingClientRect();
+    const mid = r.left + r.width/2;
+    const d = Math.abs(mid - center);
+    if (d < nearest.d) nearest = { i: idx, d };
+  });
+  if (nearest.i >= 0) {
+    selectCarouselIndex(nearest.i, false);
+  }
+}
+
+// ===== Long-press slider (seek/volume): iOS風のホールドで有効化 =====
+function installLongPressSlider(selector, onChange){
+  const el = document.querySelector(selector);
+  if (!el) return;
+  let holding = false, timer = null;
+
+  const computeFrac = (evt) => {
+    const r = el.getBoundingClientRect();
+    const x = (evt.clientX ?? (evt.touches && evt.touches[0]?.clientX) ?? 0) - r.left;
+    return Math.max(0, Math.min(1, x / Math.max(1, r.width)));
+  };
+
+  const updateByEvt = (evt) => {
+    const f = computeFrac(evt);
+    const val = Math.round(f * (Number(el.max||1000)));
+    el.value = String(val);
+    el.dispatchEvent(new Event("input", { bubbles:true }));
+  };
+
+  const start = (evt) => {
+    timer = setTimeout(()=>{
+      holding = True;
+      el.classList.add("active");
+      updateByEvt(evt);
+    }, 100); // ≈0.1秒
+  };
+  const move = (evt) => {
+    if (!holding) return;
+    evt.preventDefault();
+    updateByEvt(evt);
+  };
+  const end = (_evt) => {
+    clearTimeout(timer); timer = null;
+    if (holding) { holding = false; el.classList.remove("active"); }
+  };
+
+  el.addEventListener("pointerdown", start);
+  el.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", end);
+}
+
+// スクロール終了を検知して最近傍へスナップ
+let scrollTimer = null;
+document.getElementById("resultsCarousel")?.addEventListener("scroll", ()=>{
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(()=> snapToNearest(), 120);
+}, {passive:true});
+
+window.addEventListener("DOMContentLoaded", ()=>{
+  installLongPressSlider('#seekBar', 'seek');
+  installLongPressSlider('#volumeBar', 'volume');
+});

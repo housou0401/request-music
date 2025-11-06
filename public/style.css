@@ -577,3 +577,98 @@ button:hover {
 @media (max-width: 420px){
   .result-card{ width: clamp(72px, 18vw, 108px); }
 }
+
+
+/* === Carousel viewport: taller & fully centered === */
+.carousel-wrap{
+  display:grid;
+  place-items:center;
+  height: clamp(320px, 50vh, 560px); /* 縦幅をしっかり確保 */
+  padding: 8px 8px 16px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  perspective:1000px;
+  scrollbar-width:none;          /* Firefox: スクロールバー非表示 */
+  -ms-overflow-style:none;       /* IE/Edge旧: 非表示 */
+}
+.carousel-wrap::-webkit-scrollbar{ display:none; } /* WebKit: 非表示 */
+
+.carousel-track{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  scroll-snap-type:x mandatory;
+  min-height:100%;
+}
+.edge-spacer{ flex:0 0 auto; }
+
+/* --- Cards: 正方形重視・画像主役・約5枚表示 --- */
+.result-card{
+  flex:0 0 auto;
+  width: clamp(90px, 15vw, 128px);
+  scroll-snap-align:center;
+  background:transparent;
+  border:none;
+  box-shadow:none;
+  padding:0;
+  transform-origin:center bottom;
+  transform-style:preserve-3d;
+  transition: transform .25s ease, opacity .25s ease;
+  opacity:.92;
+  text-align:center;
+  user-select:none;
+}
+.result-card img.cover{
+  width:100%;
+  height:auto;
+  aspect-ratio:1/1;
+  border-radius:12px;
+  object-fit:cover;
+  display:block;
+  box-shadow:0 8px 22px rgba(0,0,0,.20);
+}
+/* タイトル・アーティスト中央寄せ控えめ */
+.result-card .title{ margin-top:6px; font-weight:700; font-size:13px; line-height:1.25; }
+.result-card .artist{ margin-top:2px; font-size:11px; color:#666; }
+
+/* 3D/スケーリング：中央(選択)は大きく、左右は小さめ */
+.result-card{ transform: perspective(1000px) rotateY(var(--ry,0deg)) scale(var(--scale,.80)); }
+.result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.12); }
+.result-card.selected img.cover{ outline:3px solid rgba(255,255,255,.9); outline-offset:-2px; }
+
+/* === Player: Apple Music風（中央揃え、同長さ） === */
+.player-controls{ background:transparent; border:none; box-shadow:none; padding: 10px 0 4px; }
+.player-top, .player-bottom{ display:flex; align-items:center; justify-content:center; gap:12px; }
+
+/* プレイ＆ボリュームアイコン：塗りつぶし廃止／同サイズ */
+#playPauseBtn, #volumeBtn{
+  width:44px; height:44px;
+  border:none; background:transparent; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:20px; line-height:1;
+}
+
+/* シーク・音量バー：同じ長さ・少し太く・サム非表示 */
+#seekBar, #volumeBar{
+  -webkit-appearance:none; appearance:none;
+  width: min(520px, 86%);
+  height: 6px; /* ほんの少し太く */
+  background:#d2d2d7;
+  border-radius:999px;
+  outline:none;
+  transition: transform .08s ease;
+}
+#seekBar.active, #volumeBar.active{ transform: scaleY(1.15); }
+
+/* つまみは視覚的に削除（可視0） */
+#seekBar::-webkit-slider-thumb, #volumeBar::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:0; height:0; background:transparent; border:none;
+}
+#seekBar::-moz-range-thumb, #volumeBar::-moz-range-thumb{
+  width:0; height:0; background:transparent; border:none;
+}
+
+.time-label{ min-width:96px; text-align:right; font-size:12px; color:#555; }
