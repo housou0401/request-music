@@ -601,6 +601,20 @@
         "id": "Q862oJ8-mHv0rdLN",
         "username": "ちぃ"
       }
+    },
+    {
+      "id": "KaYYgvg6dQNZ8zrOjtK-9",
+      "text": "恋",
+      "artist": "back number",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%81%8B/1451577721?i=1451577770&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f6/4c/e7/f64ce745-cb2a-c64c-2a18-6089665897ac/00602577303777.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/0b/a4/9a/0ba49ac8-3831-be8d-1e44-ec3869d724a4/mzaf_14989255917411754949.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-06T04:35:44.402Z",
+      "by": {
+        "id": "ISWjRw2oAjdegeqr",
+        "username": "管理者3"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -673,7 +687,8 @@
     "どうしよっかな|idle": 1,
     "hugs & kisses|jisoo": 1,
     "party|mrs. green apple": 1,
-    "prince|すとぷり": 1
+    "prince|すとぷり": 1,
+    "恋|back number": 1
   },
   "settings": {
     "recruiting": true,
@@ -681,7 +696,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-06T04:35:00.621Z",
+    "lastRefillRunISO": "2025-11-06T04:36:00.653Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
