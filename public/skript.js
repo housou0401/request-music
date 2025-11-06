@@ -765,3 +765,149 @@ window.addEventListener("DOMContentLoaded", ()=>{
   installLongPressSlider('#seekBar', 'seek');
   installLongPressSlider('#volumeBar', 'volume');
 });
+
+// === Range progress (濃い灰色で進行部分を可視化) ===
+function setRangeProgress(el, frac){
+  if (!el) return;
+  const f = Math.max(0, Math.min(1, Number(frac)||0));
+  el.style.setProperty('--prog', (Math.round(f*100)) + '%');
+}
+
+// === どの位置でもドラッグできるバー(即時) ===
+function installDragSlider(selector, onChange){
+  const el = document.querySelector(selector);
+  if (!el) return;
+  let dragging = false;
+  const getFrac = (evt)=>{
+    const r = el.getBoundingClientRect();
+    const clientX = (evt.touches && evt.touches[0]?.clientX) || evt.clientX || 0;
+    return Math.max(0, Math.min(1, (clientX - r.left)/Math.max(1, r.width)));
+  };
+  const updateFromEvt = (evt)=>{
+    const f = getFrac(evt);
+    el.value = String(Math.round(f * (Number(el.max||1000))));
+    el.dispatchEvent(new Event("input", {bubbles:true}));
+  };
+  const down = (e)=>{ dragging = true; el.classList.add("active"); updateFromEvt(e); };
+  const move = (e)=>{ if (!dragging) return; e.preventDefault(); updateFromEvt(e); };
+  const up   = (_)=>{ if (dragging){ dragging=false; el.classList.remove("active"); } };
+
+  el.addEventListener("pointerdown", down);
+  window.addEventListener("pointermove", move, {passive:false});
+  window.addEventListener("pointerup", up);
+}
+
+
+// === Hook bars to AudioManager and keep progress filled ===
+window.addEventListener('DOMContentLoaded', ()=>{
+  const seek = document.getElementById('seekBar');
+  const vol  = document.getElementById('volumeBar');
+  const playBtn = document.getElementById('playPauseBtn');
+  const volBtn  = document.getElementById('volumeBtn');
+
+  // 初期表示を揃える
+  setRangeProgress(seek, 0);
+  setRangeProgress(vol, (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4);
+
+  // ドラッグスライダー（即時）
+  installDragSlider('#seekBar');
+  installDragSlider('#volumeBar');
+
+  // 入力時
+  if (seek){
+    let seeking=false;
+    seek.addEventListener('input', ()=>{
+      const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+      const f = Number(seek.value)/Number(seek.max||1000);
+      setRangeProgress(seek, f);
+      if (el && isFinite(el.duration) && el.duration>0){
+        try{ el.currentTime = el.duration * f; }catch{}
+      }
+    });
+    // 再生側からの更新
+    const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+    if (el){
+      el.addEventListener('timeupdate', ()=>{
+        if (isFinite(el.duration) && el.duration>0){
+          const f = el.currentTime / el.duration;
+          seek.value = String(Math.round(f*(Number(seek.max||1000))));
+          setRangeProgress(seek, f);
+        }
+      });
+      el.addEventListener('loadedmetadata', ()=>{ setRangeProgress(seek, 0); seek.value = "0"; });
+      el.addEventListener('ended', ()=>{ setRangeProgress(seek, 0); seek.value = "0"; if (playBtn) playBtn.textContent='▶'; });
+    }
+  }
+  if (vol){
+    vol.addEventListener('input', ()=>{
+      const f = Number(vol.value)/Number(vol.max||100);
+      setRangeProgress(vol, f);
+      if (typeof AudioManager?.setVolume01==='function'){ AudioManager.setVolume01(f); }
+      if (volBtn) updateVolumeIcon(volBtn, f, f<=0.001);
+    });
+    // 初期反映
+    const v0 = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
+    vol.value = String(Math.round(v0*(Number(vol.max||100))));
+    setRangeProgress(vol, v0);
+  }
+
+  // ボタンの表示(灰色アイコン)はCSSで。挙動のみここで維持
+  if (playBtn){
+    playBtn.addEventListener('click', async ()=>{
+      const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+      if (!el) return;
+      if (el.paused){ try{ await AudioManager.play(); playBtn.textContent='⏸'; }catch{} }
+      else { AudioManager.pause(false); playBtn.textContent='▶'; }
+    });
+  }
+  if (volBtn){
+    volBtn.addEventListener('click', ()=>{
+      if (typeof AudioManager?.isMuted==='function' && typeof AudioManager?.mute==='function'){
+        if (AudioManager.isMuted()){ AudioManager.unmute?.(); }
+        else { AudioManager.mute(); }
+        const v = AudioManager.getVolume01?.() ?? 0;
+        if (vol){ vol.value = String(Math.round(v*(Number(vol.max||100)))); setRangeProgress(vol, v); }
+        updateVolumeIcon(volBtn, v, v<=0.001);
+      }
+    });
+  }
+});
+
+
+// === Robust snap & edge spacers ===
+function buildEdgeSpacers(){
+  const wrap = document.getElementById("resultsCarousel");
+  const track = document.getElementById("carouselTrack");
+  if (!wrap || !track) return;
+  track.querySelectorAll(".edge-spacer").forEach(n=>n.remove());
+  const card = track.querySelector(".result-card");
+  if (!card) return;
+  const pad = Math.max(0, (wrap.clientWidth - card.clientWidth)/2);
+  const L = document.createElement("div"); L.className="edge-spacer"; L.style.width = pad+"px";
+  const R = document.createElement("div"); R.className="edge-spacer"; R.style.width = pad+"px";
+  track.prepend(L); track.appendChild(R);
+}
+function snapToNearest(){
+  const wrap = document.getElementById("resultsCarousel");
+  const cards = Array.from(document.querySelectorAll(".result-card"));
+  if (!wrap || !cards.length) return;
+  const center = wrap.getBoundingClientRect().left + wrap.clientWidth/2;
+  let best=-1, bestD=1e9;
+  cards.forEach((c,i)=>{
+    const r=c.getBoundingClientRect(); const mid=r.left+r.width/2;
+    const d = Math.abs(mid-center); if (d<bestD){ bestD=d; best=i; }
+  });
+  if (best>=0){ (typeof selectCarouselIndex==='function') && selectCarouselIndex(best, false); }
+}
+(function enableDragScroll(){
+  const wrap = document.getElementById("resultsCarousel");
+  if (!wrap) return;
+  let dragging=false, startX=0, startScroll=0;
+  wrap.addEventListener("pointerdown", (e)=>{ dragging=true; startX=e.clientX; startScroll=wrap.scrollLeft; wrap.style.scrollSnapType="none"; wrap.setPointerCapture(e.pointerId); });
+  wrap.addEventListener("pointermove", (e)=>{ if(!dragging) return; e.preventDefault(); wrap.scrollLeft = startScroll + (startX - e.clientX); });
+  wrap.addEventListener("pointerup", ()=>{ dragging=false; wrap.style.scrollSnapType="x mandatory"; snapToNearest(); });
+  let t=null;
+  wrap.addEventListener("scroll", ()=>{ clearTimeout(t); t=setTimeout(snapToNearest, 120); }, {passive:true});
+  window.addEventListener("resize", ()=>{ setTimeout(buildEdgeSpacers, 0); });
+  setTimeout(buildEdgeSpacers, 0);
+})();

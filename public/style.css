@@ -672,3 +672,42 @@ button:hover {
 }
 
 .time-label{ min-width:96px; text-align:right; font-size:12px; color:#555; }
+
+
+/* === Override: Carousel height a bit smaller & center === */
+.carousel-wrap{
+  display:grid;
+  place-items:center;
+  height: clamp(260px, 46vh, 520px);
+}
+
+/* === Cards emphasis & selection ring === */
+.result-card{ transform: perspective(1000px) rotateY(var(--ry,0deg)) scale(var(--scale,.78)); }
+.result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.18); }
+.result-card.selected img.cover{ outline:3px solid rgba(255,255,255,.95); outline-offset:-2px; } /* 正方形の輪郭 */
+
+/* === Player buttons: gray & clearer, no filled circle === */
+#playPauseBtn, #volumeBtn{
+  width:44px; height:44px;
+  background: transparent !important;
+  border: none !important;
+  color: #4b5563;   /* 灰色で視認性を確保 */
+  font-size: 22px;
+}
+
+/* === Unified bars (seek & volume): same length, thicker a bit, no thumb === */
+#seekBar, #volumeBar{
+  -webkit-appearance: none; appearance: none;
+  width: min(520px, 86%);
+  height: 6px; /* 少し太く */
+  border-radius: 999px;
+  outline: none;
+  background: linear-gradient(to right, #6b7280 0%, #6b7280 var(--prog, 0%), #d2d2d7 var(--prog, 0%), #d2d2d7 100%);
+  transition: transform .08s ease;
+}
+#seekBar:active, #volumeBar:active{ transform: scaleY(1.12); }
+#seekBar::-webkit-slider-thumb, #volumeBar::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:0; height:0; background:transparent; border:none; }
+#seekBar::-moz-range-thumb,   #volumeBar::-moz-range-thumb{ width:0; height:0; background:transparent; border:none; }
+
+/* Align player rows to center and same width ends */
+.player-top, .player-bottom{ justify-content:center; }
