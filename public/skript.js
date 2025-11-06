@@ -963,3 +963,99 @@ window.addEventListener('DOMContentLoaded', ()=>{
     volBtn.style.color = '#4b5563';
   }
 });
+
+
+// === Carousel auto height & smooth snapping ===
+(function(){
+  const wrap = document.getElementById("resultsCarousel");
+  const track = document.getElementById("carouselTrack");
+  if (!wrap || !track) return;
+
+  // iOS/Android: smooth & pan-x
+  wrap.style.scrollBehavior = "smooth";
+  wrap.style.touchAction = "pan-x";
+  wrap.style.webkitOverflowScrolling = "touch";
+
+  function autoSizeCarousel(){
+    // 基本はカード幅 + 余白（タイトル/アーティスト）で高さを算出
+    const first = track.querySelector(".result-card");
+    if (!first){ wrap.style.setProperty('--carousel-h', 'auto'); return; }
+    const cardW = first.clientWidth || 160; // coverは正方形
+    const extra = 56; // タイトル/アーティスト/マージンぶんの平均
+    const computed = Math.round(cardW + extra);
+    const maxVH = Math.round(window.innerHeight * 0.55); // 画面に対して取りすぎない
+    const minH = 200;
+    const h = Math.min(Math.max(computed, minH), maxVH);
+    wrap.style.setProperty('--carousel-h', h + "px");
+  }
+
+  function buildEdgeSpacers(){
+    track.querySelectorAll(".edge-spacer").forEach(n=>n.remove());
+    const c = track.querySelector(".result-card");
+    if (!c) return;
+    const pad = Math.max(0, (wrap.clientWidth - c.clientWidth)/2);
+    const L = document.createElement("div"); L.className="edge-spacer"; L.style.width = pad+"px";
+    const R = document.createElement("div"); R.className="edge-spacer"; R.style.width = pad+"px";
+    track.prepend(L); track.appendChild(R);
+  }
+
+  function snapToNearest(){
+    const cards = Array.from(track.querySelectorAll(".result-card"));
+    if (!cards.length) return;
+    const center = wrap.getBoundingClientRect().left + wrap.clientWidth/2;
+    let best=-1, bestD=1e9;
+    cards.forEach((c,i)=>{
+      const r=c.getBoundingClientRect(); const mid=r.left+r.width/2;
+      const d=Math.abs(mid-center); if(d<bestD){bestD=d; best=i;}
+    });
+    if (best>=0 && typeof selectCarouselIndex==='function') selectCarouselIndex(best, false);
+  }
+
+  // MutationObserver で自動調節
+  const mo = new MutationObserver(()=>{ autoSizeCarousel(); buildEdgeSpacers(); });
+  mo.observe(track, { childList:true });
+
+  // スクロール終端でスナップ
+  let t=null;
+  wrap.addEventListener("scroll", ()=>{ clearTimeout(t); t=setTimeout(snapToNearest, 80); }, {passive:true});
+  window.addEventListener("resize", ()=>{ autoSizeCarousel(); buildEdgeSpacers(); });
+
+  // 初期化
+  setTimeout(()=>{ autoSizeCarousel(); buildEdgeSpacers(); }, 0);
+})();
+
+// === Controls: コピー/選択の無効化（モバイルの長押し対策） ===
+window.addEventListener('DOMContentLoaded', ()=>{
+  ['playPauseBtn','volumeBtn','timeLabel'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el){
+      el.classList.add('no-select');
+      el.addEventListener('selectstart', e=>e.preventDefault());
+      el.addEventListener('contextmenu', e=>e.preventDefault());
+    }
+  });
+
+  // シーク/音量スライダーを配線
+  const seek = document.getElementById('seekBar');
+  const vol  = document.getElementById('volumeBar');
+  if (seek){ installDragSlider('#seekBar'); }
+  if (vol){ installDragSlider('#volumeBar'); }
+
+  // 進捗の見える化
+  const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+  if (seek && el){
+    el.addEventListener('timeupdate', ()=>{
+      if (isFinite(el.duration) && el.duration>0){
+        const f = el.currentTime/el.duration;
+        seek.value = String(Math.round(f*(Number(seek.max||1000))));
+        setRangeProgress(seek, f);
+      }
+    });
+    el.addEventListener('loadedmetadata', ()=>{ setRangeProgress(seek, 0); seek.value="0"; });
+  }
+  if (vol){
+    const v0 = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
+    vol.value = String(Math.round(v0*(Number(vol.max||100))));
+    setRangeProgress(vol, v0);
+  }
+});
