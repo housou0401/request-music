@@ -711,3 +711,65 @@ button:hover {
 
 /* Align player rows to center and same width ends */
 .player-top, .player-bottom{ justify-content:center; }
+
+
+/* === Final overrides (v6) === */
+
+/* Carousel: smaller height suitable for current card size; container-centered; snap enabled */
+.carousel-wrap{
+  display:grid;
+  place-items:center;
+  height: clamp(210px, 38vh, 380px);
+  scroll-snap-type: x mandatory;
+}
+.carousel-track{ align-items:center; }
+
+/* Cards: slightly larger than before but fit ≈5, image-respecting */
+.result-card{
+  width: clamp(105px, 20vw, 150px);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: perspective(1000px) rotateY(var(--ry,0deg)) scale(var(--scale,.82));
+  opacity: .95;
+}
+.result-card img.cover{
+  box-shadow: 0 8px 22px rgba(0,0,0,.20);
+  outline: 3px solid transparent;
+  outline-offset: -2px;
+}
+.result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.22); }
+.result-card.selected img.cover{ outline-color: rgba(255,255,255,.95); }
+
+/* Player icons: gray glyph, no fill */
+#playPauseBtn, #volumeBtn{
+  background: transparent !important;
+  border: none !important;
+  color: #4b5563 !important; /* gray glyph */
+  width: 44px; height: 44px;
+  font-size: 22px;
+}
+
+/* Bars: same length & aligned; darker progress; draggable anywhere; 0.05s hold visual */
+#seekBar, #volumeBar{
+  -webkit-appearance: none; appearance: none;
+  display: block;
+  width: min(520px, 86%);
+  height: 6px;
+  margin-left: auto; margin-right: auto;
+  border-radius: 999px;
+  background: linear-gradient(to right, #6b7280 0%, #6b7280 var(--prog, 0%), #d2d2d7 var(--prog, 0%), #d2d2d7 100%);
+  outline: none;
+  transition: transform .06s ease;
+}
+#seekBar.active, #volumeBar.active{ transform: scaleY(1.12); }
+#seekBar::-webkit-slider-thumb, #volumeBar::-webkit-slider-thumb{ -webkit-appearance:none; width:0; height:0; background:transparent; border:none; }
+#seekBar::-moz-range-thumb, #volumeBar::-moz-range-thumb{ width:0; height:0; background:transparent; border:none; }
+
+.player-top, .player-bottom{ justify-content: center; }
+
+/* Mobile fine-tune */
+@media (max-width: 480px){
+  .carousel-wrap{ height: clamp(200px, 42vh, 340px); }
+  .result-card{ width: clamp(100px, 22vw, 140px); }
+}

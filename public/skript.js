@@ -734,7 +734,7 @@ function installLongPressSlider(selector, onChange){
 
   const start = (evt) => {
     timer = setTimeout(()=>{
-      holding = True;
+      holding = true;
       el.classList.add("active");
       updateByEvt(evt);
     }, 100); // ≈0.1秒
@@ -911,3 +911,55 @@ function snapToNearest(){
   window.addEventListener("resize", ()=>{ setTimeout(buildEdgeSpacers, 0); });
   setTimeout(buildEdgeSpacers, 0);
 })();
+
+// === Hook: bars install and gray glyph ===
+window.addEventListener('DOMContentLoaded', ()=>{
+  const seek = document.getElementById('seekBar');
+  const vol  = document.getElementById('volumeBar');
+  const playBtn = document.getElementById('playPauseBtn');
+  const volBtn  = document.getElementById('volumeBtn');
+
+  if (seek) {
+    installDragSlider('#seekBar');
+    seek.addEventListener('input', ()=>{
+      const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+      const f = Number(seek.value)/Number(seek.max||1000);
+      setRangeProgress(seek, f);
+      if (el && isFinite(el.duration) && el.duration>0){
+        try{ el.currentTime = el.duration * f; }catch{}
+      }
+    });
+    const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+    if (el){
+      el.addEventListener('timeupdate', ()=>{
+        if (isFinite(el.duration) && el.duration>0){
+          const f = el.currentTime / el.duration;
+          seek.value = String(Math.round(f*(Number(seek.max||1000))));
+          setRangeProgress(seek, f);
+        }
+      });
+      el.addEventListener('loadedmetadata', ()=>{ setRangeProgress(seek, 0); seek.value = "0"; });
+    }
+  }
+  if (vol) {
+    installDragSlider('#volumeBar');
+    vol.addEventListener('input', ()=>{
+      const f = Number(vol.value)/Number(vol.max||100);
+      setRangeProgress(vol, f);
+      if (typeof AudioManager?.setVolume01==='function'){ AudioManager.setVolume01(f); }
+      if (volBtn) updateVolumeIcon(volBtn, f, f<=0.001);
+    });
+    const v0 = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
+    vol.value = String(Math.round(v0*(Number(vol.max||100))));
+    setRangeProgress(vol, v0);
+  }
+
+  if (playBtn){
+    playBtn.style.color = '#4b5563';
+  }
+  if (volBtn){
+    const v = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
+    updateVolumeIcon(volBtn, v, v<=0.001);
+    volBtn.style.color = '#4b5563';
+  }
+});
