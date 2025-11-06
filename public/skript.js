@@ -65,19 +65,21 @@ const AudioManager = (() => {
     return audioEl;
   }
 
-  return {
+  function __installEndedHandler(el){ try{ el.onended = function(){ const btn=document.getElementById('playPauseBtn'); if(btn) btn.textContent='▶'; }; }catch{} }
+    return {
     load(url) {
       const el = ensureNodes();
       try { el.pause(); el.currentTime = 0; } catch {}
       // 他の audio を止める（念のため）
       document.querySelectorAll("audio").forEach(a => { if (a !== el) { try{ a.pause(); }catch{} }});
       el.src = `/preview?url=${encodeURIComponent(url)}`;
+      __installEndedHandler(el);
       try { el.load(); } catch {}
     },
     async play() {
       const el = ensureNodes();
       if (ctx && ctx.state === "suspended") await ctx.resume();
-      return el.play();
+      __installEndedHandler(el); return el.play();
     },
     pause(reset=false) {
       const el = ensureNodes();
@@ -279,8 +281,7 @@ function selectSong(song) {
 
   // 曲を読み込んで自動再生
   if (song.previewUrl) {
-    AudioManager.load(song.previewUrl);
-    AudioManager.play().then(() => {
+    loadAndAutoplayPreview(song.previewUrl).then(() => {
       playBtn.textContent = "■";
       updateVolumeIcon(volBtn, AudioManager.getVolume01(), AudioManager.isMuted());
       const nowVol = AudioManager.getVolume01();
@@ -399,275 +400,620 @@ async function adminLogin(password){
 }
 
 
-/* === Carousel UI === */
+/* =========================================================
+   新・横スクロール 3D カード表示 & プレイヤー制御
+   - 画像 → 曲名 → 小さくアーティスト名（中央ぞろえ）
+   - 横に最大5枚（カード幅で調整）
+   - スワイプ/スクロールで移動し、選択も切り替え
+   - 先頭ヒット時は 0 番目を選択し大きく表示
+   ========================================================= */
+
 let currentList = [];
-let currentIndex = 0;
+let currentIndex = -1;
 let currentPreviewUrl = "";
 
-// Build DOM nodes if missing
-function ensureCarouselDom(){
-  const wrap = document.getElementById("carouselWrap");
-  const track = document.getElementById("carouselTrack");
-  const pc = document.getElementById("playerControls");
-  if (wrap && track && pc) return { wrap, track, pc };
-  return null;
+const $ = (sel)=>document.querySelector(sel);
+const $$ = (sel)=>Array.from(document.querySelectorAll(sel));
+
+function ensurePlayerUIVisible(show) {
+  const car = $("#resultsCarousel");
+  const pc  = $("#playerControls");
+  if (car) car.classList.toggle("ux-hidden", !show);
+  if (pc)  pc.classList.toggle("ux-hidden", !show);
 }
 
-function ensurePlayerUIVisible(show){
-  const pc = document.getElementById("playerControls");
-  const wrap = document.getElementById("carouselWrap");
-  if (pc) pc.style.display = show ? "block" : "none";
-  if (wrap) wrap.style.display = show ? "grid" : "none";
+function msToLabel(ms) {
+  if (!isFinite(ms) || ms<=0) return "0:00";
+  const sec = Math.floor(ms/1000);
+  const m = Math.floor(sec/60);
+  const s = sec%60;
+  return m + ":" + String(s).padStart(2,"0");
 }
 
-function cardNode(song, idx){
-  const div = document.createElement("div");
-  div.className = "result-card";
-  div.setAttribute("data-index", String(idx));
-  div.innerHTML = `
-    <img class="cover" alt="" src="${song.artworkUrl || ""}"/>
-    <div class="title">${(song.trackName||"").replace(/</g,"&lt;")}</div>
-    <div class="artist">${(song.artistName||"").replace(/</g,"&lt;")}</div>
-  `;
-  div.addEventListener("click", ()=> selectCarouselIndex(idx, true));
-  return div;
-}
-
-function renderCarousel(list){
-  const nodes = ensureCarouselDom();
-  if (!nodes) return;
-  const { wrap, track } = nodes;
+function renderCarousel(list) {
+  currentList = Array.isArray(list) ? list.slice(0, 30) : [];
+  const track = $("#carouselTrack");
+  if (!track) return;
   track.innerHTML = "";
-  currentList = list || [];
-  currentIndex = 0;
-  currentPreviewUrl = "";
-  for (let i=0;i<currentList.length;i++){
-    track.appendChild(cardNode(currentList[i], i));
+
+  // カードDOMを生成
+  currentList.forEach((s, i)=> {
+    const card = document.createElement("div");
+    card.className = "result-card";
+    card.dataset.index = String(i);
+    card.innerHTML = `
+      <img class="cover" src="${s.artworkUrl || ""}" alt="Cover">
+      <div class="title">${s.trackName || ""}</div>
+      <div class="artist">${s.artistName || ""}</div>
+    `;
+    card.addEventListener("click", ()=> selectCarouselIndex(i, true));
+    track.appendChild(card);
+  });
+
+  
+  // 端で中央に寄せられるようスペーサー
+  setTimeout(buildEdgeSpacers, 0);
+// スクロール時の 3D/スケール更新
+  const wrap = $("#resultsCarousel");
+  function update3D() {
+    const cards = $$(".result-card");
+    const rect = wrap.getBoundingClientRect();
+    const center = rect.left + rect.width/2;
+    let nearest = {i: -1, d: 1e9};
+    cards.forEach((c, idx)=>{
+      const r = c.getBoundingClientRect();
+      const mid = r.left + r.width/2;
+      const dx = (mid - center) / rect.width; // -0.5 .. 0.5 くらい
+      const dist = Math.abs(dx);
+      const scale = 0.78 + Math.max(0, 0.30 * (1 - Math.min(1, dist*2)));
+      const ry = -16 * dx; // 左右に少し傾ける
+      c.style.setProperty("--scale", scale.toFixed(3));
+      c.style.setProperty("--ry", ry.toFixed(3) + "deg");
+      if (dist < nearest.d) nearest = {i: idx, d: dist};
+    });
+    // 選択のハイライト
+    $$(".result-card").forEach(c => c.classList.remove("selected"));
+    if (nearest.i >= 0) {
+      $$(".result-card")[nearest.i].classList.add("selected");
+    }
   }
-  updateSelection(0);
-  ensurePlayerUIVisible(currentList.length>0);
-  scrollToIndex(0, {smooth:false});
+  wrap.addEventListener("scroll", update3D, {passive:true});
+  window.addEventListener("resize", update3D);
+
+  // スワイプ操作（簡易）
+  let startX = 0, startScroll = 0, dragging=false;
+  wrap.addEventListener("pointerdown", (e)=>{
+    dragging = true;
+    startX = e.clientX;
+    startScroll = wrap.scrollLeft;
+    wrap.style.scrollSnapType = "none";
+    wrap.setPointerCapture(e.pointerId);
+  });
+  wrap.addEventListener("pointermove", (e)=>{
+    if (!dragging) return;
+    const dx = startX - e.clientX;
+    wrap.scrollLeft = startScroll + dx;
+  });
+  wrap.addEventListener("pointerup", (e)=>{
+    dragging = false;
+    wrap.style.scrollSnapType = "x mandatory";
+    // スクロール後に最も中央のカードを選択
+    setTimeout(()=> {
+      const cards = $$(".result-card");
+      if (!cards.length) return;
+      const rect = wrap.getBoundingClientRect();
+      const center = rect.left + rect.width/2;
+      let nearest = {i: -1, d: 1e9};
+      cards.forEach((c, idx)=>{
+        const r = c.getBoundingClientRect();
+        const mid = r.left + r.width/2;
+        const d = Math.abs(mid - center);
+        if (d < nearest.d) nearest = {i: idx, d};
+      });
+      if (nearest.i >= 0) selectCarouselIndex(nearest.i, true);
+    }, 30);
+  });
+
+  // 初期選択: 0 番目
+  ensurePlayerUIVisible(currentList.length > 0);
+  if (currentList.length > 0) {
+    // 先頭カードへスクロール & 選択
+    setTimeout(()=>{
+      const first = track.querySelector('.result-card[data-index="0"]');
+      if (first) {
+        first.scrollIntoView({behavior:"instant", inline:"center", block:"nearest"});
+      }
+      selectCarouselIndex(0, false);
+      update3D();
+    }, 0);
+  }
 }
 
-function updateSelection(i){
-  currentIndex = Math.max(0, Math.min(currentList.length-1, i));
-  const cards = document.querySelectorAll(".result-card");
-  cards.forEach(c => c.classList.remove("selected"));
-  const sel = document.querySelector(`.result-card[data-index="${currentIndex}"]`);
-  if (sel) sel.classList.add("selected");
+function selectCarouselIndex(i, autoPlay=false) {
+  i = Math.max(0, Math.min(i, currentList.length-1));
+  currentIndex = i;
 
-  // hidden inputs only（検索入力は変更しない）
-  const song = currentList[currentIndex] || {};
-  const hApple = document.getElementById("appleMusicUrlHidden");
-  const hArt   = document.getElementById("artworkUrlHidden");
-  const hPrev  = document.getElementById("previewUrlHidden");
+  // 見た目更新
+  const cards = $$(".result-card");
+  cards.forEach(c => c.classList.remove("selected"));
+  const sel = cards[i];
+  if (sel) {
+    sel.classList.add("selected");
+    scrollToIndex(i);
+  }
+
+  // hidden 入力とフォームUI更新
+  const song = currentList[i] || {};
+  const hApple = $("#appleMusicUrlHidden");
+  const hArt   = $("#artworkUrlHidden");
+  const hPrev  = $("#previewUrlHidden");
   if (hApple) hApple.value = song.trackViewUrl || "";
   if (hArt)   hArt.value   = song.artworkUrl || "";
   if (hPrev)  hPrev.value  = song.previewUrl || "";
+  /* 検索入力は維持するため更新しない */
 
-  // audio 準備
+  // プレーヤー準備
   currentPreviewUrl = song.previewUrl || "";
-  if (currentPreviewUrl){
-    // load して ended は選択維持
+  if (currentPreviewUrl) {
     AudioManager.load(currentPreviewUrl);
-    const el = AudioManager.element();
-    el.onended = ()=> { pauseSelected(); el.currentTime = 0; }; // 勝手に次へ送らない
+    if (autoPlay) playSelected();
   }
 }
 
-function scrollToIndex(i, {smooth=true}={}){
-  const track = document.getElementById("carouselTrack");
-  const sel = document.querySelector(`.result-card[data-index="${i}"]`);
-  if (!track || !sel) return;
-  const rect = sel.getBoundingClientRect();
-  const pr = track.getBoundingClientRect();
-  const delta = (rect.left + rect.width/2) - (pr.left + pr.width/2);
-  track.scrollBy({ left: delta, behavior: smooth ? "smooth" : "auto" });
+function playSelected() {
+  if (!currentPreviewUrl) return;
+  AudioManager.play().catch(()=>{});
+  const btn = $("#playPauseBtn");
+  if (btn) btn.textContent = "⏸";
+}
+function pauseSelected() {
+  AudioManager.pause(false);
+  const btn = $("#playPauseBtn");
+  if (btn) btn.textContent = "▶";
 }
 
-function selectCarouselIndex(i, autoPlay){
-  i = Math.max(0, Math.min(currentList.length-1, i));
-  updateSelection(i);
-  scrollToIndex(i, {smooth:true});
-  if (autoPlay && currentPreviewUrl){
-    const el = AudioManager.element();
-    const onCanPlay = ()=>{ el.removeEventListener("canplay", onCanPlay); AudioManager.play().catch(()=>{}); };
-    el.addEventListener("canplay", onCanPlay, { once: true });
-    try{ el.load(); }catch{}
-  }
-}
-
-function setupCarouselInteractions(){
-  const track = document.getElementById("carouselTrack");
-  if (!track) return;
-  let scrollTimer = null;
-  track.addEventListener("scroll", ()=>{
-    // スワイプ後に最寄りカードへスナップ（抑制）
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(()=>{
-      const cards = [...document.querySelectorAll(".result-card")];
-      if (!cards.length) return;
-      const pr = track.getBoundingClientRect();
-      // 最も中心に近いカードを選択
-      let best = 0, bestDist = 1e9;
-      cards.forEach((c, idx)=>{
-        const r = c.getBoundingClientRect();
-        const dist = Math.abs((r.left + r.width/2) - (pr.left + pr.width/2));
-        if (dist < bestDist) { bestDist = dist; best = idx; }
-      });
-      selectCarouselIndex(best, false);
-    }, 120);
-  }, { passive: true });
-}
-
-// 再生UI
-function setupPlayerControls(){
-  const playBtn = document.getElementById("playPauseBtn");
-  const volBtn  = document.getElementById("volumeBtn");
-  const volBar  = document.getElementById("volumeBar");
-  const seek    = document.getElementById("seekBar");
-  const timeLb  = document.getElementById("timeLabel");
+function setupPlayerControls() {
+  const playBtn = $("#playPauseBtn");
+  const volBtn  = $("#volumeBtn");
+  const volBar  = $("#volumeBar");
+  const seek    = $("#seekBar");
+  const timeLb  = $("#timeLabel");
   const el      = AudioManager.element();
 
-  if (playBtn){
+  if (playBtn) {
     playBtn.addEventListener("click", async ()=>{
       if (el.paused) { await AudioManager.play().catch(()=>{}); playBtn.textContent = "⏸"; }
       else { pauseSelected(); }
     });
   }
-  if (volBtn){
+  if (volBtn) {
     volBtn.addEventListener("click", ()=>{
       if (AudioManager.isMuted()) { AudioManager.unmute(); volBtn.textContent = "🔊"; }
       else { AudioManager.mute(); volBtn.textContent = "🔈"; }
     });
   }
-  // 長押し0.05秒でドラッグモード（どこでもドラッグ）
-  function attachPressDrag(rangeEl, onChange){
-    let active = false, holdTimer = null;
-    const setFrom = (clientX)=>{
-      const rc = rangeEl.getBoundingClientRect();
-      const f = Math.max(0, Math.min(1, (clientX - rc.left) / rc.width));
-      const val = Math.round(f * Number(rangeEl.max||1000));
-      rangeEl.value = String(val);
-      onChange(f);
-    };
-    rangeEl.addEventListener("pointerdown", (e)=>{
-      rangeEl.classList.add("active");
-      holdTimer = setTimeout(()=>{ active = true; }, 50);
-      setFrom(e.clientX);
-      rangeEl.setPointerCapture(e.pointerId);
-    });
-    rangeEl.addEventListener("pointermove", (e)=>{ if (active) setFrom(e.clientX); });
-    const release = ()=>{ active = false; clearTimeout(holdTimer); rangeEl.classList.remove("active"); };
-    rangeEl.addEventListener("pointerup", release);
-    rangeEl.addEventListener("pointercancel", release);
-    rangeEl.addEventListener("lostpointercapture", release);
-  }
-
-  if (volBar){
-    attachPressDrag(volBar, (f)=>{
-      const v01 = Math.max(0.01, Math.min(1, f));
+  if (volBar) {
+    volBar.addEventListener("input", ()=>{
+      const v01 = Math.max(0.01, Math.min(1, Number(volBar.value)/100));
       AudioManager.setVolume01(v01);
-      volBtn && (volBtn.textContent = (v01 <= 0.011 ? "🔈":"🔊"));
-      // 濃い灰色進捗
-      volBar.style.setProperty("--prog", (f*100)+"%");
+      if (v01 <= 0.011) { volBtn.textContent = "🔈"; } else { volBtn.textContent = "🔊"; }
     });
+    // 初期値反映
     const init = Math.round(AudioManager.getVolume01()*100);
     volBar.value = String(Math.max(1, init || 40));
-    volBar.style.setProperty("--prog", (Math.max(0.01, (init||40)/100)*100)+"%");
   }
-  if (seek){
-    attachPressDrag(seek, (f)=>{
-      try { el.currentTime = (el.duration||0) * f; } catch {}
-      seek.style.setProperty("--prog", (f*100)+"%");
-    });
+  if (seek) {
     let seeking = false;
     seek.addEventListener("input", ()=>{
       seeking = true;
-      const f = Number(seek.value)/Number(seek.max||1000);
-      try { el.currentTime = (el.duration||0) * f; } catch {}
-      seek.style.setProperty("--prog", (f*100)+"%");
+      const frac = Number(seek.value)/Number(seek.max || 1000);
+      try { el.currentTime = (el.duration||0) * frac; } catch {}
     });
     seek.addEventListener("change", ()=> seeking=false);
     el.addEventListener("timeupdate", ()=>{
-      if (!seeking && isFinite(el.duration) && el.duration>0){
-        const f = (el.currentTime / el.duration);
-        seek.value = String(Math.round(f * (Number(seek.max||1000))));
-        seek.style.setProperty("--prog", (f*100)+"%");
+      if (!seeking && isFinite(el.duration) && el.duration>0) {
+        const frac = (el.currentTime / el.duration);
+        seek.value = String(Math.round(frac * (Number(seek.max||1000))));
       }
-      if (timeLb) timeLb.textContent = msToLabel(el.currentTime*1000) + " / " + msToLabel((el.duration||0)*1000);
+      timeLb.textContent = msToLabel(el.currentTime*1000) + " / " + msToLabel((el.duration||0)*1000);
     });
-    el.addEventListener("ended", ()=>{ pauseSelected(); el.currentTime = 0; });
+    el.addEventListener("ended", ()=>{
+      pauseSelected();
+      // 自動で次へ
+      if (currentIndex+1 < currentList.length) {
+        selectCarouselIndex(currentIndex+1, true);
+      }
+    });
   }
 }
 
-function playSelected(){
-  if (!currentPreviewUrl) return;
-  AudioManager.play().catch(()=>{});
-  const btn = document.getElementById("playPauseBtn");
-  if (btn) btn.textContent = "⏸";
-}
-function pauseSelected(){
-  AudioManager.pause(false);
-  const btn = document.getElementById("playPauseBtn");
-  if (btn) btn.textContent = "▶";
-}
-
-// bootstrap after DOM ready
-document.addEventListener("DOMContentLoaded", ()=>{
-  ensureCarouselDom();
-  setupPlayerControls();
-  setupCarouselInteractions();
-});
-
-// --- search override: render carousel ---
-const __orig_searchSongs = (typeof searchSongs === "function") ? searchSongs : null;
-searchSongs = async function(){
-  const listDiv = document.getElementById("suggestions");
-  if (listDiv) listDiv.innerHTML = ""; // 旧リスト非表示
+// 検索結果の表示をカードUIへ差し替え
+const _orig_searchSongs = searchSongs;
+searchSongs = async function() {
+  const list = document.getElementById("suggestions");
+  if (list) list.innerHTML = ""; // リストは使わない
   showLoading && showLoading();
   try {
-    const artistMode = (typeof searchMode !== "undefined" && searchMode === "artist");
-    if (artistMode) {
-      const q = (document.getElementById("songName")?.value||"").trim();
-      if (!q) { ensurePlayerUIVisible(false); return; }
-      const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
-      const artists = await res.json();
-      renderCarousel(artists.map(a => ({
-        artworkUrl: a.artworkUrl,
-        trackName: a.artistName||a.trackName,
-        artistName: a.artistName||"",
-        trackViewUrl: "",
-        previewUrl: ""
-      })));
-      return;
+    if (searchMode === "artist") {
+      const q = document.getElementById("songName").value.trim();
+      if (artistPhase === 0) {
+        if (!q) { ensurePlayerUIVisible(false); return; }
+        const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
+        const artists = await res.json();
+        // アーティスト一覧をカードで
+        renderCarousel(artists.map(a => ({
+          artworkUrl: a.artworkUrl,
+          trackName: a.artistName || a.trackName,
+          artistName: a.artistName || a.trackName,
+          trackViewUrl: "", previewUrl: ""
+        })));
+      } else {
+        if (!selectedArtistId) { ensurePlayerUIVisible(false); return; }
+        const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
+        const songs = await res.json();
+        renderCarousel(songs);
+      }
+    } else {
+      const songQ = document.getElementById("songName").value.trim();
+      const artistQ = document.getElementById("artistName").value.trim();
+      if (!songQ) { ensurePlayerUIVisible(false); return; }
+      const res = await fetch(`/search?query=${encodeURIComponent(songQ)}&artist=${encodeURIComponent(artistQ)}`);
+      const songs = await res.json();
+      renderCarousel(songs);
     }
-    // mode=song
-    const q = (document.getElementById("songName")?.value||"").trim();
-    const artist = (document.getElementById("artistName")?.value||"").trim();
-    if (!q && !artist) { ensurePlayerUIVisible(false); return; }
-    const u = new URLSearchParams({ query: q, artist, limit: "30" });
-    const resp = await fetch(`/search?${u.toString()}`);
-    const songs = await resp.json();
-    renderCarousel(songs);
   } catch(e) {
-    console.error(e);
-  } finally {
-    hideLoading && hideLoading();
-  }
+    console.error("検索エラー:", e);
+    ensurePlayerUIVisible(false);
+  } finally { hideLoading && hideLoading(); }
 };
 
+// 初期化：プレイヤーUIイベント
+window.addEventListener("DOMContentLoaded", setupPlayerControls);
 
-/* === Boot /me fetch === */
-document.addEventListener("DOMContentLoaded", ()=>{
-  fetch("/me").then(r=>r.json()).then(d=>{
-    const info = document.getElementById("token-info");
-    if (info){
-      if (d && d.loggedIn && d.user){
-        info.textContent = `残りトークン: ${d.user.tokens}`;
-      }else{
-        info.textContent = `未ログイン`;
-      }
-    }
-  }).catch(()=>{});
+
+// ===== Carousel helpers =====
+function scrollToIndex(i){
+  const wrap = document.getElementById("resultsCarousel");
+  const track = document.getElementById("carouselTrack");
+  const card = track?.querySelector(`.result-card[data-index="${i}"]`);
+  if (!wrap || !track || !card) return;
+  const left = card.offsetLeft - (wrap.clientWidth/2 - card.clientWidth/2);
+  wrap.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+}
+
+function buildEdgeSpacers(){
+  const wrap = document.getElementById("resultsCarousel");
+  const track = document.getElementById("carouselTrack");
+  if (!wrap || !track) return;
+  // remove old spacers
+  track.querySelectorAll(".edge-spacer").forEach(e => e.remove());
+  const firstCard = track.querySelector(".result-card");
+  if (!firstCard) return;
+  const cardW = firstCard.clientWidth || 0;
+  const pad = Math.max(0, (wrap.clientWidth - cardW)/2);
+  const L = document.createElement("div"); L.className = "edge-spacer"; L.style.width = pad + "px";
+  const R = document.createElement("div"); R.className = "edge-spacer"; R.style.width = pad + "px";
+  track.prepend(L); track.appendChild(R);
+}
+
+function snapToNearest(){
+  const wrap = document.getElementById("resultsCarousel");
+  const cards = Array.from(document.querySelectorAll(".result-card"));
+  if (!wrap || !cards.length) return;
+  const rect = wrap.getBoundingClientRect();
+  const center = rect.left + rect.width/2;
+  let nearest = {i:-1, d:1e9};
+  cards.forEach((c, idx) => {
+    const r = c.getBoundingClientRect();
+    const mid = r.left + r.width/2;
+    const d = Math.abs(mid - center);
+    if (d < nearest.d) nearest = { i: idx, d };
+  });
+  if (nearest.i >= 0) {
+    selectCarouselIndex(nearest.i, false);
+  }
+}
+
+// ===== Long-press slider (seek/volume): iOS風のホールドで有効化 =====
+function installLongPressSlider(selector, onChange){
+  const el = document.querySelector(selector);
+  if (!el) return;
+  let holding = false, timer = null;
+
+  const computeFrac = (evt) => {
+    const r = el.getBoundingClientRect();
+    const x = (evt.clientX ?? (evt.touches && evt.touches[0]?.clientX) ?? 0) - r.left;
+    return Math.max(0, Math.min(1, x / Math.max(1, r.width)));
+  };
+
+  const updateByEvt = (evt) => {
+    const f = computeFrac(evt);
+    const val = Math.round(f * (Number(el.max||1000)));
+    el.value = String(val);
+    el.dispatchEvent(new Event("input", { bubbles:true }));
+  };
+
+  const start = (evt) => {
+    timer = setTimeout(()=>{
+      holding = true;
+      el.classList.add("active");
+      updateByEvt(evt);
+    }, 100); // ≈0.1秒
+  };
+  const move = (evt) => {
+    if (!holding) return;
+    evt.preventDefault();
+    updateByEvt(evt);
+  };
+  const end = (_evt) => {
+    clearTimeout(timer); timer = null;
+    if (holding) { holding = false; el.classList.remove("active"); }
+  };
+
+  el.addEventListener("pointerdown", start);
+  el.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", end);
+}
+
+// スクロール終了を検知して最近傍へスナップ
+let scrollTimer = null;
+document.getElementById("resultsCarousel")?.addEventListener("scroll", ()=>{
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(()=> snapToNearest(), 120);
+}, {passive:true});
+
+window.addEventListener("DOMContentLoaded", ()=>{
+  installLongPressSlider('#seekBar', 'seek');
+  installLongPressSlider('#volumeBar', 'volume');
 });
+
+// === Range progress (濃い灰色で進行部分を可視化) ===
+function setRangeProgress(el, frac){
+  if (!el) return;
+  const f = Math.max(0, Math.min(1, Number(frac)||0));
+  el.style.setProperty('--prog', (Math.round(f*100)) + '%');
+}
+
+// === どの位置でもドラッグできるバー(即時) ===
+function installDragSlider(selector, onChange){
+  const el = document.querySelector(selector);
+  if (!el) return;
+  let dragging = false;
+  const getFrac = (evt)=>{
+    const r = el.getBoundingClientRect();
+    const clientX = (evt.touches && evt.touches[0]?.clientX) || evt.clientX || 0;
+    return Math.max(0, Math.min(1, (clientX - r.left)/Math.max(1, r.width)));
+  };
+  const updateFromEvt = (evt)=>{
+    const f = getFrac(evt);
+    el.value = String(Math.round(f * (Number(el.max||1000))));
+    el.dispatchEvent(new Event("input", {bubbles:true}));
+  };
+  const down = (e)=>{ dragging = true; el.classList.add("active"); updateFromEvt(e); };
+  const move = (e)=>{ if (!dragging) return; e.preventDefault(); updateFromEvt(e); };
+  const up   = (_)=>{ if (dragging){ dragging=false; el.classList.remove("active"); } };
+
+  el.addEventListener("pointerdown", down);
+  window.addEventListener("pointermove", move, {passive:false});
+  window.addEventListener("pointerup", up);
+}
+
+
+// === Hook bars to AudioManager and keep progress filled ===
+window.addEventListener('DOMContentLoaded', ()=>{
+  const seek = document.getElementById('seekBar');
+  const vol  = document.getElementById('volumeBar');
+  const playBtn = document.getElementById('playPauseBtn');
+  const volBtn  = document.getElementById('volumeBtn');
+
+  // 初期表示を揃える
+  setRangeProgress(seek, 0);
+  setRangeProgress(vol, (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4);
+
+  // ドラッグスライダー（即時）
+  installDragSlider('#seekBar');
+  installDragSlider('#volumeBar');
+
+  // 入力時
+  if (seek){
+    let seeking=false;
+    seek.addEventListener('input', ()=>{
+      const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+      const f = Number(seek.value)/Number(seek.max||1000);
+      setRangeProgress(seek, f);
+      if (el && isFinite(el.duration) && el.duration>0){
+        try{ el.currentTime = el.duration * f; }catch{}
+      }
+    });
+    // 再生側からの更新
+    const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+    if (el){
+      el.addEventListener('timeupdate', ()=>{
+        if (isFinite(el.duration) && el.duration>0){
+          const f = el.currentTime / el.duration;
+          seek.value = String(Math.round(f*(Number(seek.max||1000))));
+          setRangeProgress(seek, f);
+        }
+      });
+      el.addEventListener('loadedmetadata', ()=>{ setRangeProgress(seek, 0); seek.value = "0"; });
+      el.addEventListener('ended', ()=>{ setRangeProgress(seek, 0); seek.value = "0"; if (playBtn) playBtn.textContent='▶'; });
+    }
+  }
+  if (vol){
+    vol.addEventListener('input', ()=>{
+      const f = Number(vol.value)/Number(vol.max||100);
+      setRangeProgress(vol, f);
+      if (typeof AudioManager?.setVolume01==='function'){ AudioManager.setVolume01(f); }
+      if (volBtn) updateVolumeIcon(volBtn, f, f<=0.001);
+    });
+    // 初期反映
+    const v0 = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
+    vol.value = String(Math.round(v0*(Number(vol.max||100))));
+    setRangeProgress(vol, v0);
+  }
+
+  // ボタンの表示(灰色アイコン)はCSSで。挙動のみここで維持
+  if (playBtn){
+    playBtn.addEventListener('click', async ()=>{
+      const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+      if (!el) return;
+      if (el.paused){ try{ await AudioManager.play(); playBtn.textContent='⏸'; }catch{} }
+      else { AudioManager.pause(false); playBtn.textContent='▶'; }
+    });
+  }
+  if (volBtn){
+    volBtn.addEventListener('click', ()=>{
+      if (typeof AudioManager?.isMuted==='function' && typeof AudioManager?.mute==='function'){
+        if (AudioManager.isMuted()){ AudioManager.unmute?.(); }
+        else { AudioManager.mute(); }
+        const v = AudioManager.getVolume01?.() ?? 0;
+        if (vol){ vol.value = String(Math.round(v*(Number(vol.max||100)))); setRangeProgress(vol, v); }
+        updateVolumeIcon(volBtn, v, v<=0.001);
+      }
+    });
+  }
+});
+
+
+// === Robust snap & edge spacers ===
+function buildEdgeSpacers(){
+  const wrap = document.getElementById("resultsCarousel");
+  const track = document.getElementById("carouselTrack");
+  if (!wrap || !track) return;
+  track.querySelectorAll(".edge-spacer").forEach(n=>n.remove());
+  const card = track.querySelector(".result-card");
+  if (!card) return;
+  const pad = Math.max(0, (wrap.clientWidth - card.clientWidth)/2);
+  const L = document.createElement("div"); L.className="edge-spacer"; L.style.width = pad+"px";
+  const R = document.createElement("div"); R.className="edge-spacer"; R.style.width = pad+"px";
+  track.prepend(L); track.appendChild(R);
+}
+function snapToNearest(){
+  const wrap = document.getElementById("resultsCarousel");
+  const cards = Array.from(document.querySelectorAll(".result-card"));
+  if (!wrap || !cards.length) return;
+  const center = wrap.getBoundingClientRect().left + wrap.clientWidth/2;
+  let best=-1, bestD=1e9;
+  cards.forEach((c,i)=>{
+    const r=c.getBoundingClientRect(); const mid=r.left+r.width/2;
+    const d = Math.abs(mid-center); if (d<bestD){ bestD=d; best=i; }
+  });
+  if (best>=0){ (typeof selectCarouselIndex==='function') && selectCarouselIndex(best, false); }
+}
+
+(function enableDragScroll(){
+  const wrap = document.getElementById("resultsCarousel");
+  if (!wrap) return;
+  const isCoarse = window.matchMedia("(pointer: coarse)").matches;
+
+  let t = null;
+  const onScroll = ()=>{ clearTimeout(t); t = setTimeout(()=> (window.snapToNearest && snapToNearest()), 80); };
+  wrap.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", ()=>{ setTimeout(window.buildEdgeSpacers||function(){}, 0); });
+
+  if (isCoarse){
+    wrap.style.touchAction = "pan-x";
+    setTimeout(window.buildEdgeSpacers||function(){}, 0);
+    return;
+  }
+
+  let dragging=false, startX=0, startScroll=0;
+  wrap.addEventListener("pointerdown", (e)=>{
+    dragging=true; startX=e.clientX; startScroll=wrap.scrollLeft;
+    wrap.style.scrollSnapType="none";
+  });
+  wrap.addEventListener("pointermove", (e)=>{
+    if(!dragging) return; e.preventDefault();
+    wrap.scrollLeft = startScroll + (startX - e.clientX);
+  }, { passive:false });
+  wrap.addEventListener("pointerup", ()=>{
+    dragging=false; wrap.style.scrollSnapType="x mandatory";
+    window.snapToNearest && snapToNearest();
+  });
+  setTimeout(window.buildEdgeSpacers||function(){}, 0);
+})();
+
+// === Hook: bars install and gray glyph ===
+window.addEventListener('DOMContentLoaded', ()=>{
+  const seek = document.getElementById('seekBar');
+  const vol  = document.getElementById('volumeBar');
+  const playBtn = document.getElementById('playPauseBtn');
+  const volBtn  = document.getElementById('volumeBtn');
+
+  if (seek) {
+    installDragSlider('#seekBar');
+    seek.addEventListener('input', ()=>{
+      const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+      const f = Number(seek.value)/Number(seek.max||1000);
+      setRangeProgress(seek, f);
+      if (el && isFinite(el.duration) && el.duration>0){
+        try{ el.currentTime = el.duration * f; }catch{}
+      }
+    });
+    const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+    if (el){
+      el.addEventListener('timeupdate', ()=>{
+        if (isFinite(el.duration) && el.duration>0){
+          const f = el.currentTime / el.duration;
+          seek.value = String(Math.round(f*(Number(seek.max||1000))));
+          setRangeProgress(seek, f);
+        }
+      });
+      el.addEventListener('loadedmetadata', ()=>{ setRangeProgress(seek, 0); seek.value = "0"; });
+    }
+  }
+  if (vol) {
+    installDragSlider('#volumeBar');
+    vol.addEventListener('input', ()=>{
+      const f = Number(vol.value)/Number(vol.max||100);
+      setRangeProgress(vol, f);
+      if (typeof AudioManager?.setVolume01==='function'){ AudioManager.setVolume01(f); }
+      if (volBtn) updateVolumeIcon(volBtn, f, f<=0.001);
+    });
+    const v0 = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
+    vol.value = String(Math.round(v0*(Number(vol.max||100))));
+    setRangeProgress(vol, v0);
+  }
+
+  if (playBtn){
+    playBtn.style.color = '#4b5563';
+  }
+  if (volBtn){
+    const v = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
+    updateVolumeIcon(volBtn, v, v<=0.001);
+    volBtn.style.color = '#4b5563';
+  }
+});
+
+/* hook-v7 */
+window.addEventListener('DOMContentLoaded', ()=>{
+  const seek = document.getElementById('seekBar');
+  const vol  = document.getElementById('volumeBar');
+  const playBtn = document.getElementById('playPauseBtn');
+  const volBtn  = document.getElementById('volumeBtn');
+
+  if (seek){ installDragSlider('#seekBar'); setRangeProgress(seek, Number(seek.value)/Number(seek.max||1000)); }
+  if (vol){  installDragSlider('#volumeBar'); setRangeProgress(vol,  Number(vol.value)/Number(vol.max||100)); }
+
+  if (playBtn){ playBtn.style.color = '#4b5563'; }
+  if (volBtn){
+    try{
+      const v = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
+      if (typeof updateVolumeIcon==='function') updateVolumeIcon(volBtn, v, v<=0.001);
+    }catch{}
+    volBtn.style.color = '#4b5563';
+  }
+});
+
+// v9 helper: load & auto-play once metadata is ready (prevents stale play when rapidly switching)
+function loadAndAutoplayPreview(url){
+  const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
+  if (!el) return;
+  try{ el.pause(); }catch{}
+  if (!url) return;
+  try{
+    AudioManager.load(url);
+    const onReady = ()=>{ el.removeEventListener('loadedmetadata', onReady); el.currentTime = 0; AudioManager.play().catch(()=>{}); };
+    el.addEventListener('loadedmetadata', onReady);
+  }catch(e){ console.warn("preview load/play error:", e); }
+}
