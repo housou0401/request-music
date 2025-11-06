@@ -13,7 +13,8 @@ const AudioManager = (() => {
   let gain = null;           // GainNode
   let useWA = false;         // WebAudio を使えているか
   let lastNonZero = 0.4;     // ミュート解除時に戻す音量(0.0-1.0)
-  let vol01 = 0.4;           // 現在の音量(0.0-1.0) 初期は控えめ
+  let vol01 = 0.4;
+  let playToken = 0;           // 現在の音量(0.0-1.0) 初期は控えめ
 
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
@@ -62,24 +63,31 @@ const AudioManager = (() => {
     } else {
       audioEl.volume = vol01;  // Fallback
     }
+    
+    /* v9-ended */
+    try {
+      audioEl.onended = () => {
+        const btn = document.getElementById('playPauseBtn');
+        if (btn) btn.textContent = '▶';
+      };
+    } catch {}
     return audioEl;
   }
 
-  function __installEndedHandler(el){ try{ el.onended = function(){ const btn=document.getElementById('playPauseBtn'); if(btn) btn.textContent='▶'; }; }catch{} }
-    return {
-    load(url) {
+  return {
+    load(url){
+      const myToken = (++playToken);
       const el = ensureNodes();
       try { el.pause(); el.currentTime = 0; } catch {}
       // 他の audio を止める（念のため）
       document.querySelectorAll("audio").forEach(a => { if (a !== el) { try{ a.pause(); }catch{} }});
       el.src = `/preview?url=${encodeURIComponent(url)}`;
-      __installEndedHandler(el);
       try { el.load(); } catch {}
     },
-    async play() {
+    async play() { /* v9-playguard */
       const el = ensureNodes();
       if (ctx && ctx.state === "suspended") await ctx.resume();
-      __installEndedHandler(el); return el.play();
+      return el.play();
     },
     pause(reset=false) {
       const el = ensureNodes();
@@ -281,7 +289,8 @@ function selectSong(song) {
 
   // 曲を読み込んで自動再生
   if (song.previewUrl) {
-    loadAndAutoplayPreview(song.previewUrl).then(() => {
+    AudioManager.load(song.previewUrl);
+    AudioManager.play().then(() => {
       playBtn.textContent = "■";
       updateVolumeIcon(volBtn, AudioManager.getVolume01(), AudioManager.isMuted());
       const nowVol = AudioManager.getVolume01();
@@ -430,7 +439,7 @@ function msToLabel(ms) {
   return m + ":" + String(s).padStart(2,"0");
 }
 
-function renderCarousel(list) {
+function renderCarousel /* v9-centerfix */(list) {
   currentList = Array.isArray(list) ? list.slice(0, 30) : [];
   const track = $("#carouselTrack");
   if (!track) return;
@@ -452,7 +461,7 @@ function renderCarousel(list) {
 
   
   // 端で中央に寄せられるようスペーサー
-  setTimeout(buildEdgeSpacers, 0);
+  setTimeout(buildEdgeSpacers, 0); setTimeout(()=>{ const t=document.getElementById('carouselTrack'); if(t){ t.style.alignItems='center'; }}, 0);
 // スクロール時の 3D/スケール更新
   const wrap = $("#resultsCarousel");
   function update3D() {
@@ -1005,15 +1014,119 @@ window.addEventListener('DOMContentLoaded', ()=>{
   }
 });
 
-// v9 helper: load & auto-play once metadata is ready (prevents stale play when rapidly switching)
-function loadAndAutoplayPreview(url){
-  const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
-  if (!el) return;
-  try{ el.pause(); }catch{}
-  if (!url) return;
+/* === v9.2: preview stability & no auto-advance on ended (minimal override) === */
+(function(){
   try{
-    AudioManager.load(url);
-    const onReady = ()=>{ el.removeEventListener('loadedmetadata', onReady); el.currentTime = 0; AudioManager.play().catch(()=>{}); };
-    el.addEventListener('loadedmetadata', onReady);
-  }catch(e){ console.warn("preview load/play error:", e); }
-}
+    if (typeof AudioManager === "object" && AudioManager && typeof AudioManager.element === "function"){
+      // 安定再生版 play を上書き：canplay を待ってから再生
+      const _el = AudioManager.element();
+      const originalPlay = AudioManager.play?.bind(AudioManager);
+      AudioManager.play = async function(){
+        const el = AudioManager.element();
+        if (!el) return;
+        try{
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (AC && this._ctx && this._ctx.state === "suspended") await this._ctx.resume();
+        }catch{}
+        if (el.readyState < 2){
+          await new Promise((resolve)=>{
+            const oncp = () => { el.removeEventListener("canplay", oncp, { once:true }); resolve(); };
+            el.addEventListener("canplay", oncp, { once:true });
+          });
+        }
+        return el.play();
+      };
+
+      // 再生終了時に勝手に次へ行くハンドラを抑止（キャプチャで先取り）
+      const guardEnded = () => {
+        const el = AudioManager.element();
+        if (!el) return;
+        const handler = (ev) => {
+          try{ ev.stopImmediatePropagation?.(); ev.stopPropagation?.(); }catch{}
+          const btn = document.getElementById('playPauseBtn');
+          if (btn) btn.textContent = '▶';
+        };
+        el.addEventListener("ended", handler, { capture: true });
+      };
+      guardEnded();
+      // src 変更などで要素が差し替わる可能性があるため、短い間隔で数回だけ再アタッチ
+      setTimeout(guardEnded, 200);
+      setTimeout(guardEnded, 800);
+    }
+  }catch(e){ console.warn("v9.2 override error", e); }
+})();
+
+/* ======================= playback-hotfix-v10 (minimal, isolated) =======================
+   目的:
+   - 選択切替の直後に別トラックが鳴る/鳴らない揺れを根絶
+   - 再生終了時に自動で右隣へ進む挙動を抑止（UIは▶に戻すのみ）
+   - 既存の AudioManager を"包む"だけ。既存実装は温存（最小変更）
+======================================================================================== */
+(function(){
+  try{
+    var AM = (typeof window !== "undefined") ? window.AudioManager : null;
+    if (!AM || typeof AM.element !== "function") return;
+
+    // ---- 単一 <audio> の徹底 ----
+    var el = AM.element();
+    if (!el) return;
+    Array.prototype.forEach.call(document.querySelectorAll("audio"), function(a){
+      if (a !== el){ try{ a.pause(); }catch(e){} }
+    });
+
+    // ---- トークン化（選択競合の根絶） ----
+    if (typeof AM._playToken !== "number") AM._playToken = 0;
+
+    // load() を薄くラップ（src 設定と token 更新のみ）
+    var _load = (typeof AM.load === "function") ? AM.load.bind(AM) : null;
+    AM.load = function(url){
+      var audio = AM.element();
+      var my = (++AM._playToken);
+      try{ audio.pause(); audio.currentTime = 0; }catch(e){}
+      // /preview プロキシ経由で読み込み
+      audio.src = "/preview?url=" + encodeURIComponent(url||"");
+      try{ audio.load(); }catch(e){}
+      audio._playTokenSnapshot = my;
+    };
+
+    // play() は canplay 待機 + token 照合
+    var _play = (typeof AM.play === "function") ? AM.play.bind(AM) : null;
+    AM.play = async function(){
+      var audio = AM.element();
+      if (!audio) return;
+      try{
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (AC && AM._ctx && AM._ctx.state === "suspended") await AM._ctx.resume();
+      }catch(e){}
+      if (audio.readyState < 2){
+        await new Promise(function(res){
+          var oncp = function(){ audio.removeEventListener("canplay", oncp); res(); };
+          audio.addEventListener("canplay", oncp, { once:true });
+        });
+      }
+      // 直近の load が自分のものか
+      if (audio._playTokenSnapshot !== AM._playToken) return;
+      try{ return await audio.play(); }catch(e){ console.warn("playback-hotfix-v10: play failed", e); }
+    };
+
+    // ---- ended の自動送りを強制ブロック（capture で先取り） ----
+    function attachEndedGuard(){
+      var a = AM.element(); if (!a) return;
+      var handler = function(ev){
+        try{
+          if (ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+          if (ev && ev.stopPropagation) ev.stopPropagation();
+        }catch(e){}
+        var btn = document.getElementById("playPauseBtn");
+        if (btn) btn.textContent = "▶";
+      };
+      a.addEventListener("ended", handler, { capture:true });
+    }
+    attachEndedGuard();
+    setTimeout(attachEndedGuard, 150);
+    setTimeout(attachEndedGuard, 600);
+  }catch(e){
+    console.warn("playback-hotfix-v10 error", e);
+  }
+})();
+/* ===================== /playback-hotfix-v10 ===================== */

@@ -834,43 +834,75 @@ button:hover {
 .carousel-wrap{ place-items:center; }
 
 
-/* === v9: center cards vertically, adjust heights from selected size, move player UI up === */
+/* === v9: vertical centering, selected-based height, player position tweak === */
 .carousel-wrap{
-  align-content: center;
-  justify-content: center;
+  --card: clamp(90px, 16vw, 130px);
+  --sel: 1.30;
+  --nsel: 0.72;
+  display:grid;
+  place-items:center;
+  height: calc(var(--card) * var(--sel) + 88px);
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+}
+.carousel-track{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  min-height:100%;
+}
+.result-card{
+  width: var(--card) !important;
+  transform-origin:center bottom;
+  transform: perspective(1000px) rotateY(var(--ry,0deg)) scale(var(--nsel));
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  scroll-snap-align:center;
+  padding:10px 10px 14px;
+  transition: transform .24s ease;
+}
+.result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(var(--sel)); }
+.result-card img.cover{ aspect-ratio:1/1; border-radius:14px; display:block; width:100%; box-shadow:0 8px 20px rgba(0,0,0,.18); }
+.result-card.selected img.cover{ box-shadow:0 0 0 3px rgba(255,255,255,.60), 0 14px 28px rgba(0,0,0,.28); }
+
+.result-card .title{ margin-top:8px; font-weight:700; font-size:14px; line-height:1.25; }
+.result-card .artist{ margin-top:4px; font-size:12px; color:#555; }
+
+@media (max-width: 600px){
+  .carousel-wrap{ --card: clamp(78px, 21vw, 112px); height: calc(var(--card) * var(--sel) + 80px); }
+}
+@media (min-width: 1024px){
+  .carousel-wrap{ --card: clamp(100px, 14vw, 144px); height: calc(var(--card) * var(--sel) + 90px); }
+}
+
+/* player a bit higher */
+.player-controls{ margin-top: 8px !important; }
+
+/* === v9.1: ensure each .result-card is vertically centered in the carousel viewport === */
+.carousel-wrap{
+  display: grid;
   place-items: center;
 }
 .carousel-track{
-  align-items: center;
-  justify-content: center;
-}
-:root{
-  --card-base: clamp(90px, 16vw, 130px);
-  --sel-scale: 1.30;
-  --nsel-scale: 0.72;
-}
-.carousel-wrap{
-  height: calc(var(--card-base) * var(--sel-scale) + 84px);
+  display: flex;
+  align-items: center !important; /* vertically center cards along cross-axis */
+  height: 100%;
+  min-height: 100%;
 }
 .result-card{
-  width: var(--card-base) !important;
-  transform: perspective(1000px) rotateY(var(--ry,0deg)) scale(var(--nsel-scale));
+  align-self: center; /* explicit per-card vertical centering within the track */
 }
-.result-card.selected{
-  transform: perspective(1000px) rotateY(0deg) scale(var(--sel-scale));
+
+/* === v9.2 selected scale tweak & stronger vertical centering === */
+.carousel-wrap .result-card.selected{
+  transform: perspective(1000px) rotateY(0deg) scale(1.24) !important; /* 以前よりほんの少しだけ小さく */
 }
-.result-card.selected img.cover{
-  box-shadow:
-    0 0 0 3px rgba(255,255,255,.60),
-    0 14px 28px rgba(0,0,0,.28);
-  border-radius: 14px;
+.carousel-track{
+  align-items: center !important; /* 各カードがトラック内で上下中央 */
 }
-@media (max-width: 600px){
-  :root{ --card-base: clamp(82px, 21vw, 114px); }
-  .carousel-wrap{ height: calc(var(--card-base) * var(--sel-scale) + 78px); }
+.result-card{
+  align-self: center; /* 念のためカード個別でも上下中央 */
 }
-@media (min-width: 1024px){
-  :root{ --card-base: clamp(98px, 14vw, 144px); }
-  .carousel-wrap{ height: calc(var(--card-base) * var(--sel-scale) + 92px); }
-}
-.player-controls{ margin-top: 6px !important; }
