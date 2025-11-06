@@ -57,13 +57,6 @@
 </head>
 
 <body>
-  <div id="loadingIndicator" class="loading-overlay" role="status" aria-live="polite" style="display:none;">
-    <div class="loading-box">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading…</div>
-    </div>
-  </div>
-
   <a id="mypage-link" class="mypage-link" href="/mypage"><img src="/img/mypage.png" alt="マイページ"><span>マイページ</span></a>
 
   <!-- 管理者ボタン（右上固定） -->
@@ -111,22 +104,21 @@
       </div>
 
       <div id="suggestions"></div>
-
-      <!-- ▼ 新・横スクロールカード型 検索結果（最大5枚表示） -->
-      <div id="resultsCarousel" class="carousel-wrap ux-hidden" aria-label="検索結果">
-        <div class="carousel-track" id="carouselTrack"></div>
+      <!-- カルーセル（カード5枚表示、上下左右中央揃え） -->
+      <div id="carouselWrap" class="carousel-wrap" style="display:none;">
+        <div id="carouselTrack" class="carousel-track"></div>
       </div>
 
-      <!-- ▼ 再生コントローラー（上:再生+シーク, 下:音量） -->
-      <div id="playerControls" class="player-controls ux-hidden">
+      <!-- Apple Music ライクの再生コントロール（中央揃え） -->
+      <div id="playerControls" class="player-controls" style="display:none;">
         <div class="player-top">
-          <button type="button" id="playPauseBtn" aria-label="再生/一時停止">▶</button>
-          <input type="range" id="seekBar" min="0" max="1000" step="1" value="0" aria-label="シークバー">
-          <span id="timeLabel" class="time-label">0:00 / 0:00</span>
+          <button id="playPauseBtn" class="noselect" aria-label="再生/一時停止">▶</button>
+          <input id="seekBar" type="range" min="0" max="1000" value="0" class="noselect" />
+          <div id="timeLabel" class="time-label noselect">0:00 / 0:00</div>
         </div>
         <div class="player-bottom">
-          <button type="button" id="volumeBtn" aria-label="ミュート/解除">🔊</button>
-          <input type="range" id="volumeBar" min="1" max="100" step="1" value="40" class="volume-slider" aria-label="音量">
+          <button id="volumeBtn" class="noselect" aria-label="ミュート切替">🔊</button>
+          <input id="volumeBar" type="range" min="1" max="100" value="40" class="noselect" />
         </div>
       </div>
 
@@ -173,7 +165,6 @@
 
   <!-- ▼ 非表示のオーディオ要素（旧UIのボタン/スライダーだけで操作） -->
   <audio id="amPreviewAudio" preload="none" style="display:none;"></audio>
-<audio id="previewAudio" preload="none" style="display:none;" crossorigin="anonymous"></audio>
   <!-- ▲ -->
 
   <script>
