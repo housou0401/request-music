@@ -138,8 +138,6 @@ async function ensureMonthlyRefill(user) {
 
   user.refillToastPending = true;
   await usersDb.write();
-
-    try { writeTokCookie(res, user); } catch {}
 }
 async function refillAllIfMonthChanged() {
   const m = monthKey();
@@ -154,8 +152,6 @@ async function refillAllIfMonthChanged() {
     }
   }
   if (touched) await usersDb.write();
-
-    try { writeTokCookie(res, user); } catch {}
 }
 
 // Cookie → user / adminSession / impersonation
@@ -185,9 +181,8 @@ app.use(async (req, _res, next) => {
     if (tokMirror.lastRefillISO) effectiveUser.lastRefillISO = tokMirror.lastRefillISO;
     if (tokMirror.lastRefillAtISO) effectiveUser.lastRefillAtISO = tokMirror.lastRefillAtISO;
     await usersDb.write();
-  
-    try { writeTokCookie(res, user); } catch {}
 }
+
 // トークン補充の初回ログイン時トースト
   if (effectiveUser && effectiveUser.refillToastPending) {
     // GET のときだけトーストページへリダイレクト
@@ -404,9 +399,6 @@ app.post("/register", async (req, res) => {
       registeredAt: nowIso,
     });
     await usersDb.write();
-
-    
-    try { writeTokCookie(res, user); } catch {}
 setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
@@ -510,8 +502,6 @@ app.post("/submit", async (req, res) => {
   if (!isAdmin(user)) {
     user.tokens = Math.max(0, (user.tokens ?? 0) - 1);
     await usersDb.write();
-  
-    try { writeTokCookie(res, user); } catch {}
 }
   await db.write();
   return res.send(toastPage("✅送信が完了しました！", "/"));
@@ -1001,8 +991,6 @@ app.post("/admin/update-user", requireAdmin, async (req, res) => {
     }
   }
   await usersDb.write();
-  
-    try { writeTokCookie(res, user); } catch {}
 res.redirect(`/admin/users`);
 });
 app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
@@ -1011,8 +999,6 @@ app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
   const idSet = new Set(ids);
   usersDb.data.users = usersDb.data.users.filter(u => !idSet.has(u.id));
   await usersDb.write();
-  
-    try { writeTokCookie(res, user); } catch {}
 res.redirect(`/admin/users`);
 });
 app.post("/admin/bulk-update-user-tokens", requireAdmin, async (req, res) => {
@@ -1021,8 +1007,6 @@ app.post("/admin/bulk-update-user-tokens", requireAdmin, async (req, res) => {
   if (!Number.isFinite(n) || n < 0) return res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="2;url=/admin/users">入力が不正です`);
   for (const u of usersDb.data.users) if (!isAdmin(u)) u.tokens = n;
   await usersDb.write();
-  
-    try { writeTokCookie(res, user); } catch {}
 res.send(`<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="1;url=/admin/users">更新しました`);
 });
 app.post("/admin/delete-user", requireAdmin, async (req, res) => {
@@ -1031,8 +1015,6 @@ app.post("/admin/delete-user", requireAdmin, async (req, res) => {
   if (!id) return res.status(400).send("bad request");
   usersDb.data.users = usersDb.data.users.filter(u => u.id !== id);
   await usersDb.write();
-  
-    try { writeTokCookie(res, user); } catch {}
 res.redirect(`/admin/users`);
 });
 
@@ -1172,8 +1154,6 @@ app.get("/mypage", async (req, res) => {
   }
   if (needWrite) {
     await usersDb.write();
-  
-    try { writeTokCookie(res, user); } catch {}
 }
 
   const sset = db.data.settings || {};
@@ -1373,8 +1353,6 @@ app.post("/mypage/update", async (req, res) => {
   const name = (req.body.username ?? "").toString().trim() || "Guest";
   u.username = name;
   await usersDb.write();
-  
-    try { writeTokCookie(res, user); } catch {}
 return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
 });
 
