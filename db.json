@@ -629,6 +629,20 @@
         "id": "RME2Jx7epmGNnT1e",
         "username": "管理者"
       }
+    },
+    {
+      "id": "8LqpjJfQfNPiiZXgloK76",
+      "text": "シャルル",
+      "artist": "バルーン",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%B7%E3%83%A3%E3%83%AB%E3%83%AB/1271271744?i=1271271759&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/06/fa/ea/06faea93-525a-ed28-5521-a3774a7afc35/4589686423939_cover.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e2/9d/2c/e29d2c3c-d14c-c2a2-7be8-e577d5ff50b6/mzaf_14180459740177537154.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-06T16:42:24.413Z",
+      "by": {
+        "id": "8NoxAvhYnwGQUi4z",
+        "username": "スマホ管理者"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -703,7 +717,8 @@
     "party|mrs. green apple": 1,
     "prince|すとぷり": 1,
     "恋|back number": 1,
-    "新宝島|サカナクション": 1
+    "新宝島|サカナクション": 1,
+    "シャルル|バルーン": 1
   },
   "settings": {
     "recruiting": true,
@@ -711,7 +726,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-06T16:41:00.290Z",
+    "lastRefillRunISO": "2025-11-06T16:42:00.325Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
