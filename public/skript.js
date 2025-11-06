@@ -449,10 +449,7 @@ function renderCarousel(list) {
     track.appendChild(card);
   });
 
-  
-  // 端で中央に寄せられるようスペーサー
-  setTimeout(buildEdgeSpacers, 0);
-// スクロール時の 3D/スケール更新
+  // スクロール時の 3D/スケール更新
   const wrap = $("#resultsCarousel");
   function update3D() {
     const cards = $$(".result-card");
@@ -538,7 +535,7 @@ function selectCarouselIndex(i, autoPlay=false) {
   const sel = cards[i];
   if (sel) {
     sel.classList.add("selected");
-    scrollToIndex(i);
+    sel.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
   }
 
   // hidden 入力とフォームUI更新
@@ -632,12 +629,17 @@ searchSongs = async function() {
   const list = document.getElementById("suggestions");
   if (list) list.innerHTML = ""; // リストは使わない
   showLoading && showLoading();
+    try { if (window._searchAbortCtl) { window._searchAbortCtl.abort(); } } catch (e) {}
+    const _ctl = new AbortController();
+    window._searchAbortCtl = _ctl;
+    let _ctlTimer = setTimeout(()=>{ try{ _ctl.abort(); }catch(_){} }, 12000);
+    const _opt = { signal: _ctl.signal };
   try {
     if (searchMode === "artist") {
       const q = document.getElementById("songName").value.trim();
       if (artistPhase === 0) {
         if (!q) { ensurePlayerUIVisible(false); return; }
-        const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
+        const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q, _opt)}`);
         const artists = await res.json();
         // アーティスト一覧をカードで
         renderCarousel(artists.map(a => ({
@@ -648,7 +650,7 @@ searchSongs = async function() {
         })));
       } else {
         if (!selectedArtistId) { ensurePlayerUIVisible(false); return; }
-        const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
+        const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId, _opt)}`);
         const songs = await res.json();
         renderCarousel(songs);
       }
@@ -656,406 +658,15 @@ searchSongs = async function() {
       const songQ = document.getElementById("songName").value.trim();
       const artistQ = document.getElementById("artistName").value.trim();
       if (!songQ) { ensurePlayerUIVisible(false); return; }
-      const res = await fetch(`/search?query=${encodeURIComponent(songQ)}&artist=${encodeURIComponent(artistQ)}`);
+      const res = await fetch(`/search?query=${encodeURIComponent(songQ, _opt)}&artist=${encodeURIComponent(artistQ)}`);
       const songs = await res.json();
       renderCarousel(songs);
     }
   } catch(e) {
     console.error("検索エラー:", e);
     ensurePlayerUIVisible(false);
-  } finally { hideLoading && hideLoading(); }
+  } finally { try{ clearTimeout(_ctlTimer); }catch(_){} hideLoading && hideLoading(); }
 };
 
 // 初期化：プレイヤーUIイベント
 window.addEventListener("DOMContentLoaded", setupPlayerControls);
-
-
-// ===== Carousel helpers =====
-function scrollToIndex(i){
-  const wrap = document.getElementById("resultsCarousel");
-  const track = document.getElementById("carouselTrack");
-  const card = track?.querySelector(`.result-card[data-index="${i}"]`);
-  if (!wrap || !track || !card) return;
-  const left = card.offsetLeft - (wrap.clientWidth/2 - card.clientWidth/2);
-  wrap.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
-}
-
-function buildEdgeSpacers(){
-  const wrap = document.getElementById("resultsCarousel");
-  const track = document.getElementById("carouselTrack");
-  if (!wrap || !track) return;
-  // remove old spacers
-  track.querySelectorAll(".edge-spacer").forEach(e => e.remove());
-  const firstCard = track.querySelector(".result-card");
-  if (!firstCard) return;
-  const cardW = firstCard.clientWidth || 0;
-  const pad = Math.max(0, (wrap.clientWidth - cardW)/2);
-  const L = document.createElement("div"); L.className = "edge-spacer"; L.style.width = pad + "px";
-  const R = document.createElement("div"); R.className = "edge-spacer"; R.style.width = pad + "px";
-  track.prepend(L); track.appendChild(R);
-}
-
-function snapToNearest(){
-  const wrap = document.getElementById("resultsCarousel");
-  const cards = Array.from(document.querySelectorAll(".result-card"));
-  if (!wrap || !cards.length) return;
-  const rect = wrap.getBoundingClientRect();
-  const center = rect.left + rect.width/2;
-  let nearest = {i:-1, d:1e9};
-  cards.forEach((c, idx) => {
-    const r = c.getBoundingClientRect();
-    const mid = r.left + r.width/2;
-    const d = Math.abs(mid - center);
-    if (d < nearest.d) nearest = { i: idx, d };
-  });
-  if (nearest.i >= 0) {
-    selectCarouselIndex(nearest.i, false);
-  }
-}
-
-// ===== Long-press slider (seek/volume): iOS風のホールドで有効化 =====
-function installLongPressSlider(selector, onChange){
-  const el = document.querySelector(selector);
-  if (!el) return;
-  let holding = false, timer = null;
-
-  const computeFrac = (evt) => {
-    const r = el.getBoundingClientRect();
-    const x = (evt.clientX ?? (evt.touches && evt.touches[0]?.clientX) ?? 0) - r.left;
-    return Math.max(0, Math.min(1, x / Math.max(1, r.width)));
-  };
-
-  const updateByEvt = (evt) => {
-    const f = computeFrac(evt);
-    const val = Math.round(f * (Number(el.max||1000)));
-    el.value = String(val);
-    el.dispatchEvent(new Event("input", { bubbles:true }));
-  };
-
-  const start = (evt) => {
-    timer = setTimeout(()=>{
-      holding = true;
-      el.classList.add("active");
-      updateByEvt(evt);
-    }, 100); // ≈0.1秒
-  };
-  const move = (evt) => {
-    if (!holding) return;
-    evt.preventDefault();
-    updateByEvt(evt);
-  };
-  const end = (_evt) => {
-    clearTimeout(timer); timer = null;
-    if (holding) { holding = false; el.classList.remove("active"); }
-  };
-
-  el.addEventListener("pointerdown", start);
-  el.addEventListener("pointermove", move);
-  window.addEventListener("pointerup", end);
-}
-
-// スクロール終了を検知して最近傍へスナップ
-let scrollTimer = null;
-document.getElementById("resultsCarousel")?.addEventListener("scroll", ()=>{
-  clearTimeout(scrollTimer);
-  scrollTimer = setTimeout(()=> snapToNearest(), 120);
-}, {passive:true});
-
-window.addEventListener("DOMContentLoaded", ()=>{
-  installLongPressSlider('#seekBar', 'seek');
-  installLongPressSlider('#volumeBar', 'volume');
-});
-
-// === Range progress (濃い灰色で進行部分を可視化) ===
-function setRangeProgress(el, frac){
-  if (!el) return;
-  const f = Math.max(0, Math.min(1, Number(frac)||0));
-  el.style.setProperty('--prog', (Math.round(f*100)) + '%');
-}
-
-// === どの位置でもドラッグできるバー(即時) ===
-function installDragSlider(selector, onChange){
-  const el = document.querySelector(selector);
-  if (!el) return;
-  let dragging = false;
-  const getFrac = (evt)=>{
-    const r = el.getBoundingClientRect();
-    const clientX = (evt.touches && evt.touches[0]?.clientX) || evt.clientX || 0;
-    return Math.max(0, Math.min(1, (clientX - r.left)/Math.max(1, r.width)));
-  };
-  const updateFromEvt = (evt)=>{
-    const f = getFrac(evt);
-    el.value = String(Math.round(f * (Number(el.max||1000))));
-    el.dispatchEvent(new Event("input", {bubbles:true}));
-  };
-  const down = (e)=>{ dragging = true; el.classList.add("active"); updateFromEvt(e); };
-  const move = (e)=>{ if (!dragging) return; e.preventDefault(); updateFromEvt(e); };
-  const up   = (_)=>{ if (dragging){ dragging=false; el.classList.remove("active"); } };
-
-  el.addEventListener("pointerdown", down);
-  window.addEventListener("pointermove", move, {passive:false});
-  window.addEventListener("pointerup", up);
-}
-
-
-// === Hook bars to AudioManager and keep progress filled ===
-window.addEventListener('DOMContentLoaded', ()=>{
-  const seek = document.getElementById('seekBar');
-  const vol  = document.getElementById('volumeBar');
-  const playBtn = document.getElementById('playPauseBtn');
-  const volBtn  = document.getElementById('volumeBtn');
-
-  // 初期表示を揃える
-  setRangeProgress(seek, 0);
-  setRangeProgress(vol, (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4);
-
-  // ドラッグスライダー（即時）
-  installDragSlider('#seekBar');
-  installDragSlider('#volumeBar');
-
-  // 入力時
-  if (seek){
-    let seeking=false;
-    seek.addEventListener('input', ()=>{
-      const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
-      const f = Number(seek.value)/Number(seek.max||1000);
-      setRangeProgress(seek, f);
-      if (el && isFinite(el.duration) && el.duration>0){
-        try{ el.currentTime = el.duration * f; }catch{}
-      }
-    });
-    // 再生側からの更新
-    const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
-    if (el){
-      el.addEventListener('timeupdate', ()=>{
-        if (isFinite(el.duration) && el.duration>0){
-          const f = el.currentTime / el.duration;
-          seek.value = String(Math.round(f*(Number(seek.max||1000))));
-          setRangeProgress(seek, f);
-        }
-      });
-      el.addEventListener('loadedmetadata', ()=>{ setRangeProgress(seek, 0); seek.value = "0"; });
-      el.addEventListener('ended', ()=>{ setRangeProgress(seek, 0); seek.value = "0"; if (playBtn) playBtn.textContent='▶'; });
-    }
-  }
-  if (vol){
-    vol.addEventListener('input', ()=>{
-      const f = Number(vol.value)/Number(vol.max||100);
-      setRangeProgress(vol, f);
-      if (typeof AudioManager?.setVolume01==='function'){ AudioManager.setVolume01(f); }
-      if (volBtn) updateVolumeIcon(volBtn, f, f<=0.001);
-    });
-    // 初期反映
-    const v0 = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
-    vol.value = String(Math.round(v0*(Number(vol.max||100))));
-    setRangeProgress(vol, v0);
-  }
-
-  // ボタンの表示(灰色アイコン)はCSSで。挙動のみここで維持
-  if (playBtn){
-    playBtn.addEventListener('click', async ()=>{
-      const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
-      if (!el) return;
-      if (el.paused){ try{ await AudioManager.play(); playBtn.textContent='⏸'; }catch{} }
-      else { AudioManager.pause(false); playBtn.textContent='▶'; }
-    });
-  }
-  if (volBtn){
-    volBtn.addEventListener('click', ()=>{
-      if (typeof AudioManager?.isMuted==='function' && typeof AudioManager?.mute==='function'){
-        if (AudioManager.isMuted()){ AudioManager.unmute?.(); }
-        else { AudioManager.mute(); }
-        const v = AudioManager.getVolume01?.() ?? 0;
-        if (vol){ vol.value = String(Math.round(v*(Number(vol.max||100)))); setRangeProgress(vol, v); }
-        updateVolumeIcon(volBtn, v, v<=0.001);
-      }
-    });
-  }
-});
-
-
-// === Robust snap & edge spacers ===
-function buildEdgeSpacers(){
-  const wrap = document.getElementById("resultsCarousel");
-  const track = document.getElementById("carouselTrack");
-  if (!wrap || !track) return;
-  track.querySelectorAll(".edge-spacer").forEach(n=>n.remove());
-  const card = track.querySelector(".result-card");
-  if (!card) return;
-  const pad = Math.max(0, (wrap.clientWidth - card.clientWidth)/2);
-  const L = document.createElement("div"); L.className="edge-spacer"; L.style.width = pad+"px";
-  const R = document.createElement("div"); R.className="edge-spacer"; R.style.width = pad+"px";
-  track.prepend(L); track.appendChild(R);
-}
-function snapToNearest(){
-  const wrap = document.getElementById("resultsCarousel");
-  const cards = Array.from(document.querySelectorAll(".result-card"));
-  if (!wrap || !cards.length) return;
-  const center = wrap.getBoundingClientRect().left + wrap.clientWidth/2;
-  let best=-1, bestD=1e9;
-  cards.forEach((c,i)=>{
-    const r=c.getBoundingClientRect(); const mid=r.left+r.width/2;
-    const d = Math.abs(mid-center); if (d<bestD){ bestD=d; best=i; }
-  });
-  if (best>=0){ (typeof selectCarouselIndex==='function') && selectCarouselIndex(best, false); }
-}
-(function enableDragScroll(){
-  const wrap = document.getElementById("resultsCarousel");
-  if (!wrap) return;
-  let dragging=false, startX=0, startScroll=0;
-  wrap.addEventListener("pointerdown", (e)=>{ dragging=true; startX=e.clientX; startScroll=wrap.scrollLeft; wrap.style.scrollSnapType="none"; wrap.setPointerCapture(e.pointerId); });
-  wrap.addEventListener("pointermove", (e)=>{ if(!dragging) return; e.preventDefault(); wrap.scrollLeft = startScroll + (startX - e.clientX); });
-  wrap.addEventListener("pointerup", ()=>{ dragging=false; wrap.style.scrollSnapType="x mandatory"; snapToNearest(); });
-  let t=null;
-  wrap.addEventListener("scroll", ()=>{ clearTimeout(t); t=setTimeout(snapToNearest, 120); }, {passive:true});
-  window.addEventListener("resize", ()=>{ setTimeout(buildEdgeSpacers, 0); });
-  setTimeout(buildEdgeSpacers, 0);
-})();
-
-// === Hook: bars install and gray glyph ===
-window.addEventListener('DOMContentLoaded', ()=>{
-  const seek = document.getElementById('seekBar');
-  const vol  = document.getElementById('volumeBar');
-  const playBtn = document.getElementById('playPauseBtn');
-  const volBtn  = document.getElementById('volumeBtn');
-
-  if (seek) {
-    installDragSlider('#seekBar');
-    seek.addEventListener('input', ()=>{
-      const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
-      const f = Number(seek.value)/Number(seek.max||1000);
-      setRangeProgress(seek, f);
-      if (el && isFinite(el.duration) && el.duration>0){
-        try{ el.currentTime = el.duration * f; }catch{}
-      }
-    });
-    const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
-    if (el){
-      el.addEventListener('timeupdate', ()=>{
-        if (isFinite(el.duration) && el.duration>0){
-          const f = el.currentTime / el.duration;
-          seek.value = String(Math.round(f*(Number(seek.max||1000))));
-          setRangeProgress(seek, f);
-        }
-      });
-      el.addEventListener('loadedmetadata', ()=>{ setRangeProgress(seek, 0); seek.value = "0"; });
-    }
-  }
-  if (vol) {
-    installDragSlider('#volumeBar');
-    vol.addEventListener('input', ()=>{
-      const f = Number(vol.value)/Number(vol.max||100);
-      setRangeProgress(vol, f);
-      if (typeof AudioManager?.setVolume01==='function'){ AudioManager.setVolume01(f); }
-      if (volBtn) updateVolumeIcon(volBtn, f, f<=0.001);
-    });
-    const v0 = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
-    vol.value = String(Math.round(v0*(Number(vol.max||100))));
-    setRangeProgress(vol, v0);
-  }
-
-  if (playBtn){
-    playBtn.style.color = '#4b5563';
-  }
-  if (volBtn){
-    const v = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
-    updateVolumeIcon(volBtn, v, v<=0.001);
-    volBtn.style.color = '#4b5563';
-  }
-});
-
-
-// === Carousel auto height & smooth snapping ===
-(function(){
-  const wrap = document.getElementById("resultsCarousel");
-  const track = document.getElementById("carouselTrack");
-  if (!wrap || !track) return;
-
-  // iOS/Android: smooth & pan-x
-  wrap.style.scrollBehavior = "smooth";
-  wrap.style.touchAction = "pan-x";
-  wrap.style.webkitOverflowScrolling = "touch";
-
-  function autoSizeCarousel(){
-    // 基本はカード幅 + 余白（タイトル/アーティスト）で高さを算出
-    const first = track.querySelector(".result-card");
-    if (!first){ wrap.style.setProperty('--carousel-h', 'auto'); return; }
-    const cardW = first.clientWidth || 160; // coverは正方形
-    const extra = 56; // タイトル/アーティスト/マージンぶんの平均
-    const computed = Math.round(cardW + extra);
-    const maxVH = Math.round(window.innerHeight * 0.55); // 画面に対して取りすぎない
-    const minH = 200;
-    const h = Math.min(Math.max(computed, minH), maxVH);
-    wrap.style.setProperty('--carousel-h', h + "px");
-  }
-
-  function buildEdgeSpacers(){
-    track.querySelectorAll(".edge-spacer").forEach(n=>n.remove());
-    const c = track.querySelector(".result-card");
-    if (!c) return;
-    const pad = Math.max(0, (wrap.clientWidth - c.clientWidth)/2);
-    const L = document.createElement("div"); L.className="edge-spacer"; L.style.width = pad+"px";
-    const R = document.createElement("div"); R.className="edge-spacer"; R.style.width = pad+"px";
-    track.prepend(L); track.appendChild(R);
-  }
-
-  function snapToNearest(){
-    const cards = Array.from(track.querySelectorAll(".result-card"));
-    if (!cards.length) return;
-    const center = wrap.getBoundingClientRect().left + wrap.clientWidth/2;
-    let best=-1, bestD=1e9;
-    cards.forEach((c,i)=>{
-      const r=c.getBoundingClientRect(); const mid=r.left+r.width/2;
-      const d=Math.abs(mid-center); if(d<bestD){bestD=d; best=i;}
-    });
-    if (best>=0 && typeof selectCarouselIndex==='function') selectCarouselIndex(best, false);
-  }
-
-  // MutationObserver で自動調節
-  const mo = new MutationObserver(()=>{ autoSizeCarousel(); buildEdgeSpacers(); });
-  mo.observe(track, { childList:true });
-
-  // スクロール終端でスナップ
-  let t=null;
-  wrap.addEventListener("scroll", ()=>{ clearTimeout(t); t=setTimeout(snapToNearest, 80); }, {passive:true});
-  window.addEventListener("resize", ()=>{ autoSizeCarousel(); buildEdgeSpacers(); });
-
-  // 初期化
-  setTimeout(()=>{ autoSizeCarousel(); buildEdgeSpacers(); }, 0);
-})();
-
-// === Controls: コピー/選択の無効化（モバイルの長押し対策） ===
-window.addEventListener('DOMContentLoaded', ()=>{
-  ['playPauseBtn','volumeBtn','timeLabel'].forEach(id=>{
-    const el = document.getElementById(id);
-    if (el){
-      el.classList.add('no-select');
-      el.addEventListener('selectstart', e=>e.preventDefault());
-      el.addEventListener('contextmenu', e=>e.preventDefault());
-    }
-  });
-
-  // シーク/音量スライダーを配線
-  const seek = document.getElementById('seekBar');
-  const vol  = document.getElementById('volumeBar');
-  if (seek){ installDragSlider('#seekBar'); }
-  if (vol){ installDragSlider('#volumeBar'); }
-
-  // 進捗の見える化
-  const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
-  if (seek && el){
-    el.addEventListener('timeupdate', ()=>{
-      if (isFinite(el.duration) && el.duration>0){
-        const f = el.currentTime/el.duration;
-        seek.value = String(Math.round(f*(Number(seek.max||1000))));
-        setRangeProgress(seek, f);
-      }
-    });
-    el.addEventListener('loadedmetadata', ()=>{ setRangeProgress(seek, 0); seek.value="0"; });
-  }
-  if (vol){
-    const v0 = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
-    vol.value = String(Math.round(v0*(Number(vol.max||100))));
-    setRangeProgress(vol, v0);
-  }
-});
