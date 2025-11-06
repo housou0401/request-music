@@ -615,6 +615,20 @@
         "id": "ISWjRw2oAjdegeqr",
         "username": "管理者3"
       }
+    },
+    {
+      "id": "RLNJUzifi2H-fllz45UBR",
+      "text": "新宝島",
+      "artist": "サカナクション",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%96%B0%E5%AE%9D%E5%B3%B6/1039793113?i=1039793121&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music6/v4/05/c2/69/05c269d6-377b-7a00-965a-215a8e51b831/VEATP-32901.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f7/ee/44/f7ee44cd-f6f9-c94e-97fc-a9b56dcd7112/mzaf_12565260254799685177.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-06T16:41:25.632Z",
+      "by": {
+        "id": "RME2Jx7epmGNnT1e",
+        "username": "管理者"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -688,7 +702,8 @@
     "hugs & kisses|jisoo": 1,
     "party|mrs. green apple": 1,
     "prince|すとぷり": 1,
-    "恋|back number": 1
+    "恋|back number": 1,
+    "新宝島|サカナクション": 1
   },
   "settings": {
     "recruiting": true,
@@ -696,7 +711,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-06T16:40:00.147Z",
+    "lastRefillRunISO": "2025-11-06T16:41:00.290Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
