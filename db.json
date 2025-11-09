@@ -643,6 +643,20 @@
         "id": "F3wZl-lW0boMKU2Q",
         "username": "Guest"
       }
+    },
+    {
+      "id": "Hzq_GO6T_n7O9pMzOPyPF",
+      "text": "jellyous",
+      "artist": "Illit",
+      "appleMusicUrl": "https://music.apple.com/jp/album/jellyous/1818938588?i=1818938591&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/26/a7/ef/26a7eff2-00b2-4bc2-c927-28e9a79e3a72/25UMGIM77402.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ca/05/d6/ca05d6e2-c39d-641b-9540-f5e51f9d16dd/mzaf_17289365920183363454.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-09T04:45:57.326Z",
+      "by": {
+        "id": "F3wZl-lW0boMKU2Q",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -718,7 +732,8 @@
     "prince|すとぷり": 1,
     "恋|back number": 1,
     "新宝島|サカナクション": 1,
-    "magnetic|illit": 1
+    "magnetic|illit": 1,
+    "jellyous|illit": 1
   },
   "settings": {
     "recruiting": true,
@@ -726,7 +741,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-09T04:45:00.540Z",
+    "lastRefillRunISO": "2025-11-09T04:46:00.576Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
