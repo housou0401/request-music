@@ -629,6 +629,20 @@
         "id": "RME2Jx7epmGNnT1e",
         "username": "管理者"
       }
+    },
+    {
+      "id": "MPFG0SM3SxpDqVXhI9AMA",
+      "text": "Magnetic",
+      "artist": "illit",
+      "appleMusicUrl": "https://music.apple.com/jp/album/magnetic/1736730528?i=1736730541&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a6/50/72/a65072ca-ed8b-baee-48ae-5fb22a25505e/24UMGIM25646.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/b4/fb/20b4fb74-33da-b19f-7dee-f5e79f34dd01/mzaf_2879364288304499832.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-09T04:42:41.450Z",
+      "by": {
+        "id": "F3wZl-lW0boMKU2Q",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -703,7 +717,8 @@
     "party|mrs. green apple": 1,
     "prince|すとぷり": 1,
     "恋|back number": 1,
-    "新宝島|サカナクション": 1
+    "新宝島|サカナクション": 1,
+    "magnetic|illit": 1
   },
   "settings": {
     "recruiting": true,
@@ -711,7 +726,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-09T04:42:00.426Z",
+    "lastRefillRunISO": "2025-11-09T04:43:00.470Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
