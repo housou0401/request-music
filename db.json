@@ -657,6 +657,20 @@
         "id": "F3wZl-lW0boMKU2Q",
         "username": "Guest"
       }
+    },
+    {
+      "id": "K7exisP_rOphHtthPokLN",
+      "text": "かわいいだけじゃだめですか?",
+      "artist": "CUTIE STREET",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%8B%E3%82%8F%E3%81%84%E3%81%84%E3%81%A0%E3%81%91%E3%81%98%E3%82%83%E3%81%A0%E3%82%81%E3%81%A7%E3%81%99%E3%81%8B/1804686355?i=1804686358&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/71/a6/91/71a691bc-b5a6-7903-4b13-608611c2f2b3/4580789670411.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9c/97/59/9c9759cb-0dc3-09b8-716c-25fc6b0c7dda/mzaf_12823870712215420577.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-09T04:47:27.357Z",
+      "by": {
+        "id": "F3wZl-lW0boMKU2Q",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -733,7 +747,8 @@
     "恋|back number": 1,
     "新宝島|サカナクション": 1,
     "magnetic|illit": 1,
-    "jellyous|illit": 1
+    "jellyous|illit": 1,
+    "かわいいだけじゃだめですか?|cutie street": 1
   },
   "settings": {
     "recruiting": true,
@@ -741,7 +756,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-09T04:46:00.576Z",
+    "lastRefillRunISO": "2025-11-09T04:47:00.679Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
