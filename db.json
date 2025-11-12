@@ -685,6 +685,20 @@
         "id": "jh2VCMRS97laKDRl",
         "username": "にっしー"
       }
+    },
+    {
+      "id": "yRA8em7I4PghjpvawREMG",
+      "text": "悪戯な天使",
+      "artist": "snowman",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%82%AA%E6%88%AF%E3%81%AA%E5%A4%A9%E4%BD%BF/1846757126?i=1846757127&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f1/50/3b/f1503bb5-ef59-d045-6ff5-b9aa1e5bbdd2/ANTCD-A0000018181.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5a/cb/52/5acb5270-473b-20f3-8d61-528efe3b0052/mzaf_8340677778238557531.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-12T09:21:31.646Z",
+      "by": {
+        "id": "jh2VCMRS97laKDRl",
+        "username": "にっしー"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -763,7 +777,8 @@
     "magnetic|illit": 1,
     "jellyous|illit": 1,
     "かわいいだけじゃだめですか?|cutie street": 3,
-    "アシンメトリー|なにわ男子": 1
+    "アシンメトリー|なにわ男子": 1,
+    "悪戯な天使|snowman": 1
   },
   "settings": {
     "recruiting": true,
@@ -771,7 +786,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-12T09:20:00.991Z",
+    "lastRefillRunISO": "2025-11-12T09:21:00.028Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
