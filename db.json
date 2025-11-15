@@ -713,6 +713,20 @@
         "id": "OhK0bsoSPxQPjVdi",
         "username": "うわああああぁ"
       }
+    },
+    {
+      "id": "HuB3AsC0EobQiFPQEReu0",
+      "text": "ナンセンス",
+      "artist": "サブリナ・カーペンター",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%8A%E3%83%B3%E3%82%BB%E3%83%B3%E3%82%B9/1800666073?i=1800666625&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/4b/d6/6d/4bd66dc2-bb64-bfb4-2cb3-5c0d69500a46/25UMGIM33115.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4e/8f/33/4e8f33e4-81d4-3f7e-7097-55e05f0116bd/mzaf_2004587789810004492.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-11-15T04:13:48.650Z",
+      "by": {
+        "id": "OhK0bsoSPxQPjVdi",
+        "username": "うわああああぁ"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -793,7 +807,8 @@
     "かわいいだけじゃだめですか?|cutie street": 3,
     "アシンメトリー|なにわ男子": 1,
     "悪戯な天使|snowman": 1,
-    "boss bitch|doja cat": 1
+    "boss bitch|doja cat": 1,
+    "ナンセンス|サブリナ・カーペンター": 1
   },
   "settings": {
     "recruiting": true,
@@ -801,7 +816,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-15T04:13:00.779Z",
+    "lastRefillRunISO": "2025-11-15T04:14:00.824Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
