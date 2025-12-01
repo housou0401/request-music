@@ -825,6 +825,20 @@
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
       }
+    },
+    {
+      "id": "oxfRkyMHQfHSI5EgY_igU",
+      "text": "Daydreamin'",
+      "artist": "アリアナ・グランデ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/daydreamin/1440849750?i=1440849947&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/02/97/59/02975971-dfb4-7aa0-7db6-82f24c53caf5/14UMGIM00298.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/66/92/db/6692db6c-0940-05f4-4126-8c8ef0e118c4/mzaf_7392921819322271030.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-12-01T15:13:25.025Z",
+      "by": {
+        "id": "Tkyb12YzgbTlmxbF",
+        "username": "a"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -913,7 +927,8 @@
     "mom returns and finale (instrumental)|ジョン・ウィリアムズ": 1,
     "ヘドウィグのテーマ(映画「ハリー・ポッター」シリーズ:メイン・テーマ曲)|ジョン・ウィリアムズ": 1,
     "a nonsense christmas|サブリナ・カーペンター": 1,
-    "no|メーガン・トレイナー": 1
+    "no|メーガン・トレイナー": 1,
+    "daydreamin'|アリアナ・グランデ": 1
   },
   "settings": {
     "recruiting": true,
@@ -921,7 +936,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-12-01T15:12:00.178Z",
+    "lastRefillRunISO": "2025-12-01T15:13:00.209Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
