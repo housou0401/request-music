@@ -741,6 +741,20 @@
         "id": "Kv_7wS7PXKpS1xni",
         "username": "aaa"
       }
+    },
+    {
+      "id": "_lHVFfP4So-A4hfYmXJw1",
+      "text": "Just the Two of Us",
+      "artist": "ビル・ウィザーズ & グローヴァー・ワシントン・Jr.",
+      "appleMusicUrl": "https://music.apple.com/jp/album/just-the-two-of-us/321974938?i=321975002&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/81/2b/74/812b74f7-060b-7386-bb02-967cd2cdd78c/mzi.yfyaqhnz.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/df/02/6e/df026e40-8e6c-09f3-e24a-9f5e6cd838ed/mzaf_18109913532380365942.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-12-01T15:04:14.616Z",
+      "by": {
+        "id": "Tkyb12YzgbTlmxbF",
+        "username": "a"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -823,7 +837,8 @@
     "悪戯な天使|snowman": 1,
     "boss bitch|doja cat": 1,
     "ナンセンス|サブリナ・カーペンター": 1,
-    "ビリラビリラ (轟はじめ solo)|regloss": 1
+    "ビリラビリラ (轟はじめ solo)|regloss": 1,
+    "just the two of us|ビル・ウィザーズ & グローヴァー・ワシントン・jr.": 1
   },
   "settings": {
     "recruiting": true,
@@ -831,7 +846,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-12-01T00:37:00.315Z",
+    "lastRefillRunISO": "2025-12-01T15:04:00.263Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
