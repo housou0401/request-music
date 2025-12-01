@@ -769,6 +769,34 @@
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
       }
+    },
+    {
+      "id": "zd_93xQYEEhnEeDNBr5pW",
+      "text": "Mom Returns and Finale (Instrumental)",
+      "artist": "ジョン・ウィリアムズ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/mom-returns-and-finale-instrumental/1049526462?i=1049529736&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9c/01/3b/9c013b6d-a316-3119-a94a-c2ef2fbfbefa/886445465518.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/45/ea/bb/45eabbf6-8aac-0f46-a9aa-7173575dd648/mzaf_9120618803482893891.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-12-01T15:06:14.461Z",
+      "by": {
+        "id": "Tkyb12YzgbTlmxbF",
+        "username": "a"
+      }
+    },
+    {
+      "id": "Ny9A1BBUa4V91TNJ_hAhU",
+      "text": "ヘドウィグのテーマ(映画「ハリー・ポッター」シリーズ:メイン・テーマ曲)",
+      "artist": "ジョン・ウィリアムズ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%98%E3%83%89%E3%82%A6%E3%82%A3%E3%82%B0%E3%81%AE%E3%83%86%E3%83%BC%E3%83%9E-%E6%98%A0%E7%94%BB-%E3%83%8F%E3%83%AA%E3%83%BC-%E3%83%9D%E3%83%83%E3%82%BF%E3%83%BC-%E3%82%B7%E3%83%AA%E3%83%BC%E3%82%BA-%E3%83%A1%E3%82%A4%E3%83%B3-%E3%83%86%E3%83%BC%E3%83%9E%E6%9B%B2/89286124?i=89285956&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/02/0c/90/020c90c5-abe9-e441-e3b6-110c51d9d0f3/mzi.odxaqexu.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/43/85/18/438518d0-8fd5-1a15-18c0-aad9f814845e/mzaf_11676418529425576487.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-12-01T15:06:35.410Z",
+      "by": {
+        "id": "Tkyb12YzgbTlmxbF",
+        "username": "a"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -853,7 +881,9 @@
     "ナンセンス|サブリナ・カーペンター": 1,
     "ビリラビリラ (轟はじめ solo)|regloss": 1,
     "just the two of us|ビル・ウィザーズ & グローヴァー・ワシントン・jr.": 1,
-    "all i want for christmas is you|マライア・キャリー": 1
+    "all i want for christmas is you|マライア・キャリー": 1,
+    "mom returns and finale (instrumental)|ジョン・ウィリアムズ": 1,
+    "ヘドウィグのテーマ(映画「ハリー・ポッター」シリーズ:メイン・テーマ曲)|ジョン・ウィリアムズ": 1
   },
   "settings": {
     "recruiting": true,
@@ -861,7 +891,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-12-01T15:05:00.541Z",
+    "lastRefillRunISO": "2025-12-01T15:06:00.643Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
