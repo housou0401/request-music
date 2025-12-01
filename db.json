@@ -727,6 +727,20 @@
         "id": "OhK0bsoSPxQPjVdi",
         "username": "うわああああぁ"
       }
+    },
+    {
+      "id": "L_vhkBE6I-U1x9Kji5cuE",
+      "text": "ビリラビリラ (轟はじめ SOLO)",
+      "artist": "ReGLOSS",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%93%E3%83%AA%E3%83%A9%E3%83%93%E3%83%AA%E3%83%A9-%E8%BD%9F%E3%81%AF%E3%81%98%E3%82%81-solo/1832665608?i=1832665609&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/af/e4/57/afe4579f-56af-aff9-5dba-ed5b87a15dd9/4573689976721_art.png/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/cb/3d/bf/cb3dbfcd-7af7-5c51-5265-17514bf29917/mzaf_5726827204724925084.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2025-12-01T00:22:09.769Z",
+      "by": {
+        "id": "Kv_7wS7PXKpS1xni",
+        "username": "aaa"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -808,7 +822,8 @@
     "アシンメトリー|なにわ男子": 1,
     "悪戯な天使|snowman": 1,
     "boss bitch|doja cat": 1,
-    "ナンセンス|サブリナ・カーペンター": 1
+    "ナンセンス|サブリナ・カーペンター": 1,
+    "ビリラビリラ (轟はじめ solo)|regloss": 1
   },
   "settings": {
     "recruiting": true,
@@ -816,7 +831,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-11-30T22:41:00.929Z",
+    "lastRefillRunISO": "2025-12-01T00:22:00.556Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
