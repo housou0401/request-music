@@ -763,7 +763,7 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/all-i-want-for-christmas-is-you/585972750?i=585972803&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/c6/b7/27/c6b727f7-3a32-6b43-cee2-05bb71daf1cf/dj.itfmdeif.jpg/300x300bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/e4/9f/ba/e49fba54-2ccb-ed76-bafa-9ba3d7fc47dc/mzaf_1978923366961931053.plus.aac.p.m4a",
-      "count": 1,
+      "count": 2,
       "createdAt": "2025-12-01T15:04:45.006Z",
       "by": {
         "id": "Tkyb12YzgbTlmxbF",
@@ -925,7 +925,7 @@
     "ナンセンス|サブリナ・カーペンター": 1,
     "ビリラビリラ (轟はじめ solo)|regloss": 1,
     "just the two of us|ビル・ウィザーズ & グローヴァー・ワシントン・jr.": 1,
-    "all i want for christmas is you|マライア・キャリー": 1,
+    "all i want for christmas is you|マライア・キャリー": 2,
     "mom returns and finale (instrumental)|ジョン・ウィリアムズ": 1,
     "ヘドウィグのテーマ(映画「ハリー・ポッター」シリーズ:メイン・テーマ曲)|ジョン・ウィリアムズ": 1,
     "a nonsense christmas|サブリナ・カーペンター": 1,
@@ -938,7 +938,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-12-23T11:57:00.774Z",
+    "lastRefillRunISO": "2025-12-23T12:22:00.154Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
