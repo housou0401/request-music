@@ -27,13 +27,13 @@ const toastPage = (msg, redirect="/") => `<!doctype html><html lang="ja"><meta c
 
 const PORT = process.env.PORT || 3000;
 
-// ==== GitHub 同期設定 ====
+// ---- GitHub 同期設定 ----
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-// ==== LowDB ====
+// ---- LowDB ----
 const db = await JSONFilePreset("db.json", {
   responses: [],
   songCounts: {},
@@ -58,7 +58,7 @@ if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour
 if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 0;
 
 
-// ---- Token mirror cookie (for ephemeral disks) ----
+// ---- cookieからトークンを取得 ----
 const TOK_COOKIE = "tok";
 function readTokCookie(req){
   try{
@@ -74,7 +74,7 @@ function writeTokCookie(res, user){
     res.cookie(TOK_COOKIE, Buffer.from(JSON.stringify(payload)).toString("base64"), COOKIE_OPTS);
   }catch{}
 }
-// ==== Middleware ====
+// ==== ミドルウェア ====
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -116,14 +116,14 @@ function hitRate(userId, limitPerMin) {
   return pruned.length <= limitPerMin;
 }
 
-// 月次トークン配布
+// ---- 月次トークン配布 ----
 async function ensureMonthlyRefill(user) {
   if (!user || isAdmin(user)) return;
   const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
   const monthChanged = user.lastRefillISO !== m;
 
-  // 月が変わっておらず、トークンも数値として存在しているなら触らない
+  // ---- 月が変わっておらず、トークンも数値として存在しているなら触らない ----
   if (!monthChanged && typeof user.tokens === "number") {
     return;
   }
@@ -131,7 +131,7 @@ async function ensureMonthlyRefill(user) {
   user.tokens = monthly;
   user.lastRefillISO = m;
 
-  // 月が変わったとき、またはまだ入っていないときだけ時刻を更新
+  // ---- 月が変わったとき、またはまだ入っていないときだけ時刻を更新----
   if (monthChanged || !user.lastRefillAtISO) {
     user.lastRefillAtISO = new Date().toISOString();
   }
@@ -154,15 +154,15 @@ async function refillAllIfMonthChanged() {
   if (touched) await usersDb.write();
 }
 
-// Cookie → user / adminSession / impersonation
+// ---- Cookie → ユーザ / アドミンセッション / なりすまし ----
 app.use(async (req, _res, next) => {
   const baseDeviceId = req.cookies?.deviceId || null;
   const baseUser = baseDeviceId ? getUserById(baseDeviceId) : null;
 
-  // admin セッションは「adminユーザー」または「adminAuthクッキー」で判定
+  // ---- admin セッションは「adminユーザー」または「adminAuthクッキー」で判定 ----
   const adminSession = (baseUser && isAdmin(baseUser)) || (req.cookies?.adminAuth === "1");
 
-  // なりすまし
+  // ---- なりすまし ----
   let effectiveUser = baseUser;
   let impersonating = false;
   const impId = req.cookies?.impersonateId;
@@ -183,13 +183,13 @@ app.use(async (req, _res, next) => {
     await usersDb.write();
 }
 
-// トークン補充の初回ログイン時トースト
+// ---- トークン補充の初回ログイン時トースト ----
   if (effectiveUser && effectiveUser.refillToastPending) {
-    // GET のときだけトーストページへリダイレクト
+    // ---- GET のときだけトーストページへリダイレクト ----
     if (req.method === "GET" && req.path !== "/refill-toast") {
       return _res.send(toastPage("🪄トークンが補充されました！", "/"));
     }
-    // それ以外は次のレスポンスで出すように残しておく
+    // ---- それ以外は次のレスポンスで出すように残しておく ----
   }
 
   req.user = effectiveUser || null;
@@ -199,7 +199,7 @@ app.use(async (req, _res, next) => {
   next();
 });
 
-// 管理者保護
+// ---- 管理者保護 ----
 function requireAdmin(req, res, next) {
   if (req.adminSession) return next();
   return res
@@ -208,10 +208,10 @@ function requireAdmin(req, res, next) {
 }
 
 // ==========================
-// Apple Music 検索（再編成）
+// Apple Music 検索
 // ==========================
 
-// 共通：iTunes Search API 呼び出し（言語判定は廃止）
+// ---- 共通：iTunes Search API 呼び出し ----
 async function itunesSearch(params) {
   const qs = new URLSearchParams({ country: "JP", media: "music", limit: "30", ...params });
   const urlStr = `https://itunes.apple.com/search?${qs.toString()}`;
@@ -222,7 +222,7 @@ async function itunesSearch(params) {
   try { return JSON.parse(text); } catch { return { results: [] }; }
 }
 
-// アーティストの楽曲一覧（lookup）
+// ---- アーティストの楽曲一覧 ----
 async function itunesLookupSongsByArtist(artistId) {
   const urlStr = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=100`;
   const r = await fetch(urlStr, { headers: { "User-Agent": "Mozilla/5.0" } });
@@ -236,7 +236,7 @@ async function itunesLookupSongsByArtist(artistId) {
   } catch { return []; }
 }
 
-// 結果の標準化
+// ---- 結果の標準化 ----
 function normalizeSong(x) {
   let artwork = x.artworkUrl100 || x.artworkUrl60 || "";
   if (artwork) artwork = artwork.replace(/\/[0-9]+x[0-9]+bb\.jpg$/, "/300x300bb.jpg");
@@ -267,7 +267,7 @@ async function tryResolveTrackByUrl(appleMusicUrl) {
   } catch { return null; }
 }
 
-// 並び替えキー取得（クッキー or クエリ）
+// ---- 並び替えキー取得（クッキー or クエリ） ----
 function getSearchSort(req) {
   const key = (req.query.sort || req.cookies?.searchSort || "relevance").toString();
   const allowed = new Set(["relevance", "release_desc", "release_asc", "name_asc", "artist_asc"]);
@@ -304,7 +304,7 @@ function sortArtists(artists, sortKey) {
   return arr;
 }
 
-// ==== 検索 API ====
+// ---- 検索 API ----
 app.get("/search", async (req, res) => {
   try {
     const mode = (req.query.mode || "song").toString();
@@ -358,14 +358,14 @@ app.get("/search", async (req, res) => {
   }
 });
 
-// ==== 認証状態 ====
+// ---- 認証状態 ----
 app.get("/auth/status", (req, res) => {
   const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
   const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
   res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem });
 });
 
-// ==== 登録 ====
+// ---- 登録 ----
 app.post("/register", async (req, res) => {
   try {
     const usernameRaw = (req.body.username ?? "").toString();
@@ -409,7 +409,7 @@ setRegFails(res, 0);
   }
 });
 
-// ==== /me ====
+// ---- /me ----
 app.get("/me", async (req, res) => {
   const s = db.data.settings;
   if (!req.user)
@@ -428,7 +428,7 @@ app.get("/me", async (req, res) => {
   });
 });
 
-// ==== 送信 ====
+// ---- 送信 ----
 app.post("/submit", async (req, res) => {
   const user = req.user;
   if (!user) return res.send(toastPage("⚠未登録です。初回登録をしてください。", "/"));
@@ -509,7 +509,7 @@ app.post("/submit", async (req, res) => {
 
 
 
-// ==== リクエスト削除 & まとめて削除 ====
+// ---- リクエスト削除 & まとめて削除 ----
 function safeWriteUsers() { return usersDb.write().catch(e => console.error("users.json write error:", e)); }
 function safeWriteDb() { return db.write().catch(e => console.error("db.json write error:", e)); }
 
@@ -550,7 +550,7 @@ app.post("/admin/bulk-delete-requests", requireAdmin, async (req, res) => {
   res.redirect(`/admin`);
 });
 
-// ==== GitHub 同期 ====
+// ---- GitHub 同期 ----
 async function getFileSha(pathname) {
   try {
     const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
@@ -624,7 +624,7 @@ async function fetchAllFromGitHub(triggerDeploy = false) {
   }
 }
 
-// ==== 管理ログイン（維持） ====
+// ---- 管理ログイン ----
 app.post("/admin-login", async (req, res) => {
   const pwd = typeof req.body.password === "string" ? req.body.password.trim() : "";
   if (!pwd) return res.json({ success: false, reason: "empty" });
@@ -649,7 +649,7 @@ app.post("/admin-login", async (req, res) => {
   return res.json({ success: true });
 });
 
-// ==== なりすまし ====
+// ---- なりすまし ----
 app.post("/admin/impersonate", requireAdmin, async (req, res) => {
   const { id } = req.body || {};
   const u = getUserById(id);
@@ -661,7 +661,7 @@ app.get("/admin/impersonate/clear", requireAdmin, async (_req, res) => {
   res.clearCookie("impersonateId");
   return res.send(toastPage("👥 なりすましを解除しました。", "/admin/users"));
 });
-// ==== 管理 UI ====
+// ---- 管理 UI ----
 app.get("/admin", requireAdmin, async (req, res) => {
   const sort = (req.query.sort || "newest").toString(); // newest | popular
   const only = (req.query.only || "all").toString();
@@ -837,7 +837,7 @@ html += `</ul>
   res.send(html);
 });
 
-// ==== 月次配布数の保存 ====
+// ---- 月次配布数の保存 ----
 app.post("/admin/update-monthly-tokens", requireAdmin, async (req, res) => {
   const n = Number(req.body.monthlyTokens);
   if (!Number.isFinite(n) || n < 0)
@@ -848,7 +848,7 @@ app.post("/admin/update-monthly-tokens", requireAdmin, async (req, res) => {
 });
 
 
-// Save refill schedule (admin)
+// ---- Save refill schedule ----
 app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
   const day = Math.max(1, Math.min(31, parseInt(req.body.refillDay, 10) || 1));
   const hour = Math.max(0, Math.min(23, parseInt(req.body.refillHour, 10) || 0));
@@ -859,7 +859,7 @@ app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
   await safeWriteDb();
   res.redirect("/admin");
 });
-// ==== Users（管理者のみ + なりすましボタン） ====
+// ---- Users ----
 app.get("/admin/users", requireAdmin, async (_req, res) => {
   await usersDb.read();
   const rows = usersDb.data.users.map(u => `
@@ -971,7 +971,7 @@ app.get("/admin/users", requireAdmin, async (_req, res) => {
   </body></html>`);
 });
 
-// 個別ユーザー更新
+// ---- 個別ユーザー更新 ----
 app.post("/admin/update-user", requireAdmin, async (req, res) => {
   await usersDb.read();
   const { id, tokens, role } = req.body || {};
@@ -1018,7 +1018,7 @@ app.post("/admin/delete-user", requireAdmin, async (req, res) => {
 res.redirect(`/admin/users`);
 });
 
-// ==== 設定 ====
+// ---- 設定 ----
 app.post("/update-settings", requireAdmin, async (req, res) => {
   db.data.settings.maintenance = !!req.body.maintenance;
   db.data.settings.recruiting = req.body.recruiting ? false : true;
@@ -1081,11 +1081,11 @@ app.get("/fetch-requests", requireAdmin, async (_req, res) => {
   catch { res.redirect("/admin"); }
 });
 
-// ==== 起動時 ====
+// ---- 起動時 ----
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
 
-// ==== スケジュールに従って月次トークンを配布 ====
+// ---- スケジュールに従って月次トークンを配布 ----
 async function refillAllBySchedule() {
   const s = db.data.settings || {};
   const day = Number(s.refillDay ?? 1);
@@ -1206,7 +1206,7 @@ app.get("/mypage", async (req, res) => {
     }
   };
 
-  // このユーザのリクエスト一覧
+  // ---- このユーザのリクエスト一覧 ----
   const my = (db.data.responses || [])
     .filter(r => r.by?.id === u.id)
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
@@ -1358,9 +1358,9 @@ return res.send(toastPage(`✅ユーザー名を「${name}」に更新しまし�
 
 
 
-// リクエストを放送済みに
+// ---- リクエストを放送済みに ----
 
-// 一括で放送済みに
+// 一括で放送済みに 
 app.post("/admin/bulk-broadcast-requests", requireAdmin, async (req, res) => {
   const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
   const idSet = new Set(ids);
