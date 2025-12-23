@@ -824,7 +824,8 @@
       "by": {
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
-      }
+      },
+      "broadcasted": false
     },
     {
       "id": "oxfRkyMHQfHSI5EgY_igU",
@@ -838,7 +839,8 @@
       "by": {
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
-      }
+      },
+      "broadcasted": false
     }
   ],
   "lastSubmissions": {},
@@ -936,7 +938,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2025-12-23T07:15:00.304Z",
+    "lastRefillRunISO": "2025-12-23T07:15:00.573Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
