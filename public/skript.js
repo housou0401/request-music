@@ -1,11 +1,3 @@
-
-/* =========================================================
-   AudioManager で単一路線化（/preview プロキシ再生）
-   - <audio id="previewAudio"> は 1 つだけ
-   - 音量は GainNode で制御（fallback: audio.volume）
-   - スライダーは 1〜100%（左=1%, 右=100%）
-   ========================================================= */
-
 const AudioManager = (() => {
   let audioEl = null;        // <audio>
   let ctx = null;            // AudioContext
@@ -14,7 +6,7 @@ const AudioManager = (() => {
   let useWA = false;         // WebAudio を使えているか
   let lastNonZero = 0.4;     // ミュート解除時に戻す音量(0.0-1.0)
   let vol01 = 0.4;
-  let playToken = 0;           // 現在の音量(0.0-1.0) 初期は控えめ
+  let playToken = 0;           // 現在の音量(0.0-1.0)
 
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
@@ -59,7 +51,7 @@ const AudioManager = (() => {
 
     // 出力経路の一本化
     if (useWA) {
-      audioEl.volume = 1.0;    // 実音量は GainNode 側で
+      audioEl.volume = 1.0;
     } else {
       audioEl.volume = vol01;  // Fallback
     }
@@ -378,12 +370,10 @@ function stopPlayback(resetSrc){
   try { AudioManager.pause(resetSrc); } catch {}
 }
 
-/* ====== 入力欄 × ボタン対策 ====== */
 function clearInput(inputId){
   const el = document.getElementById(inputId);
   if (!el) return;
   el.value = "";
-  // 入力イベントを発火してUI更新（候補リスト等）
   el.dispatchEvent(new Event("input", { bubbles: true }));
   el.focus();
 }
@@ -392,7 +382,7 @@ function clearInput(inputId){
 function showLoading(){ const el = document.getElementById("loadingIndicator"); if (el) el.style.display = "flex"; }
 function hideLoading(){ const el = document.getElementById("loadingIndicator"); if (el) el.style.display = "none"; }
 
-/* ---- 管理ログイン API（保持） ---- */
+/* ---- 管理ログイン API ---- */
 async function adminLogin(password){
   if (!password) return;
   try {
@@ -410,11 +400,7 @@ async function adminLogin(password){
 
 
 /* =========================================================
-   新・横スクロール 3D カード表示 & プレイヤー制御
-   - 画像 → 曲名 → 小さくアーティスト名（中央ぞろえ）
-   - 横に最大5枚（カード幅で調整）
-   - スワイプ/スクロールで移動し、選択も切り替え
-   - 先頭ヒット時は 0 番目を選択し大きく表示
+   横スクロール 3D カード表示 & プレイヤー制御
    ========================================================= */
 
 let currentList = [];
@@ -489,7 +475,7 @@ function renderCarousel /* v9-centerfix */(list) {
   wrap.addEventListener("scroll", update3D, {passive:true});
   window.addEventListener("resize", update3D);
 
-  // スワイプ操作（簡易）
+  // スワイプ操作
   let startX = 0, startScroll = 0, dragging=false;
   wrap.addEventListener("pointerdown", (e)=>{
     dragging = true;
@@ -723,7 +709,7 @@ function snapToNearest(){
   }
 }
 
-// ===== Long-press slider (seek/volume): iOS風のホールドで有効化 =====
+// ===== Long-press slider (seek/volume) =====
 function installLongPressSlider(selector, onChange){
   const el = document.querySelector(selector);
   if (!el) return;
@@ -776,14 +762,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
   installLongPressSlider('#volumeBar', 'volume');
 });
 
-// === Range progress (濃い灰色で進行部分を可視化) ===
+// === Range progress===
 function setRangeProgress(el, frac){
   if (!el) return;
   const f = Math.max(0, Math.min(1, Number(frac)||0));
   el.style.setProperty('--prog', (Math.round(f*100)) + '%');
 }
 
-// === どの位置でもドラッグできるバー(即時) ===
+// === 音量バー ===
 function installDragSlider(selector, onChange){
   const el = document.querySelector(selector);
   if (!el) return;
@@ -808,7 +794,7 @@ function installDragSlider(selector, onChange){
 }
 
 
-// === Hook bars to AudioManager and keep progress filled ===
+// === AudioManagerにバーをフックして進捗状況を入力し続ける ===
 window.addEventListener('DOMContentLoaded', ()=>{
   const seek = document.getElementById('seekBar');
   const vol  = document.getElementById('volumeBar');
@@ -1056,12 +1042,8 @@ window.addEventListener('DOMContentLoaded', ()=>{
   }catch(e){ console.warn("v9.2 override error", e); }
 })();
 
-/* ======================= playback-hotfix-v10 (minimal, isolated) =======================
-   目的:
-   - 選択切替の直後に別トラックが鳴る/鳴らない揺れを根絶
-   - 再生終了時に自動で右隣へ進む挙動を抑止（UIは▶に戻すのみ）
-   - 既存の AudioManager を"包む"だけ。既存実装は温存（最小変更）
-======================================================================================== */
+//======================= playback-hotfix-v10 (minimal, isolated) =======================
+
 (function(){
   try{
     var AM = (typeof window !== "undefined") ? window.AudioManager : null;
@@ -1074,10 +1056,10 @@ window.addEventListener('DOMContentLoaded', ()=>{
       if (a !== el){ try{ a.pause(); }catch(e){} }
     });
 
-    // ---- トークン化（選択競合の根絶） ----
+    // ---- トークン化 ----
     if (typeof AM._playToken !== "number") AM._playToken = 0;
 
-    // load() を薄くラップ（src 設定と token 更新のみ）
+    // load() を薄くラップ
     var _load = (typeof AM.load === "function") ? AM.load.bind(AM) : null;
     AM.load = function(url){
       var audio = AM.element();
@@ -1109,7 +1091,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       try{ return await audio.play(); }catch(e){ console.warn("playback-hotfix-v10: play failed", e); }
     };
 
-    // ---- ended の自動送りを強制ブロック（capture で先取り） ----
+    // ---- ended の自動送りを強制ブロック ----
     function attachEndedGuard(){
       var a = AM.element(); if (!a) return;
       var handler = function(ev){
