@@ -855,6 +855,20 @@
         "id": "FkDXvk5Wv8EAIZWL",
         "username": "Guest"
       }
+    },
+    {
+      "id": "o1T6-HQP22BmqSMRqFAM2",
+      "text": "Vinyl",
+      "artist": "King Gnu",
+      "appleMusicUrl": "https://music.apple.com/jp/album/vinyl/1538287743?i=1538287807&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/10/ec/43/10ec43fa-e243-2e4e-ca49-013afaa7fee5/jacket_XSXX00356B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b8/ee/4e/b8ee4e00-0054-aa41-a381-6739d2e23899/mzaf_15259036583496831262.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-08T12:14:13.200Z",
+      "by": {
+        "id": "FkDXvk5Wv8EAIZWL",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {},
@@ -945,7 +959,8 @@
     "a nonsense christmas|サブリナ・カーペンター": 1,
     "no|メーガン・トレイナー": 1,
     "daydreamin'|アリアナ・グランデ": 1,
-    "honeypie|jawny": 1
+    "honeypie|jawny": 1,
+    "vinyl|king gnu": 1
   },
   "settings": {
     "recruiting": true,
@@ -953,7 +968,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2026-01-08T12:14:00.839Z",
+    "lastRefillRunISO": "2026-01-08T12:15:00.880Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
