@@ -110,12 +110,12 @@ const AudioManager = (() => {
 let searchMode = "song";     // "song" | "artist"
 let artistPhase = 0;         // 0=アーティスト候補, 1=楽曲候補
 let selectedArtistId = null;
-let lockedArtistName = "";
 let playerControlsEnabled = true;
 
 window.onload = async function () {
   setSearchMode("song");
   await loadSettings();
+  await refreshThemeStatus();
 
   const songInput = document.getElementById("songName");
   const artistInput = document.getElementById("artistName");
@@ -145,26 +145,40 @@ async function loadSettings() {
 }
 
 
-async function updateThemeLink(){
-  const el = document.getElementById("theme-link");
-  if(!el) return;
-  try{
-    const r = await fetch("/theme/status");
-    const j = await r.json();
-    if(j && j.active){
-      el.style.display = "flex";
-      el.title = j.title || "";
-    }else{
-      el.style.display = "none";
+async function refreshThemeStatus() {
+  try {
+    const res = await fetch("/theme/status");
+    const s = await res.json();
+    const link = document.getElementById("theme-link");
+    const banner = document.getElementById("themeBanner");
+    if (!s || !s.active) {
+      if (link) link.style.display = "none";
+      if (banner) banner.style.display = "none";
+      return;
     }
-  }catch(_e){
-    el.style.display = "none";
+    if (link) link.style.display = "inline-flex";
+    if (banner) {
+      const titleEl = document.getElementById("themeTitleText");
+      const descEl = document.getElementById("themeDescText");
+      const perEl = document.getElementById("themePeriodText");
+      if (titleEl) titleEl.textContent = `🎉 テーマ開催中：${s.title || ""}`;
+      if (descEl) descEl.textContent = s.description || "";
+      if (perEl) {
+        const start = s.startAtISO ? new Date(s.startAtISO).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"}) : "";
+        const end = s.endAtISO ? new Date(s.endAtISO).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"}) : "";
+        perEl.textContent = (start && end) ? `${start} 〜 ${end}` : "";
+      }
+      banner.style.display = "block";
+    }
+  } catch (e) {
+    // fail silently
   }
 }
 
+
 /* ========== 検索 ========== */
 function setSearchMode(mode) {
-  searchMode = mode; artistPhase = 0; selectedArtistId = null; lockedArtistName = "";
+  searchMode = mode; artistPhase = 0; selectedArtistId = null;
   ["songName","artistName"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
   ["suggestions","selectedLabel","selectedSong","selectedArtist"].forEach(id => {
     const el = document.getElementById(id);
@@ -200,13 +214,6 @@ async function searchSongs() {
   try {
     if (searchMode === "artist") {
       const q = document.getElementById("songName").value.trim();
-if (artistPhase === 1 && lockedArtistName && q && q !== lockedArtistName) {
-  artistPhase = 0;
-  selectedArtistId = null;
-  lockedArtistName = "";
-  const sa = document.getElementById("selectedArtist");
-  if (sa) sa.innerHTML = "";
-}
       if (artistPhase === 0) {
         if (!q) return;
         const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
@@ -241,7 +248,6 @@ if (artistPhase === 1 && lockedArtistName && q && q !== lockedArtistName) {
 
 async function selectArtist(artist) {
   selectedArtistId = artist.artistId; artistPhase = 1;
-  lockedArtistName = document.getElementById("songName").value.trim() || artist.artistName || artist.trackName || "";
   document.getElementById("selectedArtist").innerHTML =
     `<div class="selected-artist-card"><img src="${artist.artworkUrl}" alt="Artist"><div>${artist.artistName || artist.trackName}</div></div>`;
   await fetchArtistTracksAndShow();

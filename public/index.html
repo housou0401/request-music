@@ -67,6 +67,18 @@
   <!-- 画面中央に配置されるメインコンテナ -->
   <div class="container" id="mainContainer">
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
+    <div id="themeBanner" class="theme-banner" style="display:none;">
+      <div class="theme-banner-head">
+        <div class="theme-banner-title" id="themeTitleText"></div>
+        <div class="theme-banner-period" id="themePeriodText"></div>
+      </div>
+      <div class="theme-banner-desc" id="themeDescText"></div>
+      <div class="theme-banner-actions">
+        <a class="theme-vote-btn" id="themeVoteBtn" href="/theme">投票する</a>
+        <span class="theme-banner-note">イベント期間中のリクエストは「テーマ応募」として集計されます</span>
+      </div>
+    </div>
+
 
     <!-- 検索モード切替（既存） + ソート（最小UI追加） -->
     <div id="modeToggle" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
