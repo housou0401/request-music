@@ -998,27 +998,18 @@
     "rateLimitPerMin": 2
   },
   "theme": {
-    "active": false,
-    "status": "ended",
-    "id": "l21Er05srM",
+    "active": true,
+    "status": "active",
+    "id": "9A69-aXIaD",
     "title": "ｈｈ",
-    "description": "",
-    "startAtISO": "2026-01-13T19:15:36.076Z",
+    "description": "ｈｈ",
+    "startAtISO": "2026-01-13T19:16:53.835Z",
     "endAtISO": null,
-    "winnerRequestId": "FxUjithPQttK--inQMlp5",
-    "winner": {
-      "id": "FxUjithPQttK--inQMlp5",
-      "text": "アンパンマンのマーチ",
-      "artist": "ドリーミング",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%83%B3%E3%83%91%E3%83%B3%E3%83%9E%E3%83%B3%E3%81%AE%E3%83%9E%E3%83%BC%E3%83%81/1397284478?i=1397284479&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/e5/2a/01/e52a0185-9bf0-3ad6-71ef-3c959e741188/VPCG-83529_990000.jpg/300x300bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/1f/69/1a/1f691afd-46f9-e0f2-9e71-0be422669a6b/mzaf_1131110192966584544.plus.aac.p.m4a",
-      "votes": 0,
-      "count": 1
-    },
-    "endedAtISO": "2026-01-13T19:16:09.822Z",
-    "mergedAtISO": "2026-01-13T19:16:09.823Z",
-    "endReason": "manual"
+    "winnerRequestId": null,
+    "winner": null,
+    "endedAtISO": null,
+    "mergedAtISO": null,
+    "endReason": null
   },
   "themeRequests": [],
   "themeSongCounts": {},
