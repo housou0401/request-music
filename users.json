@@ -526,19 +526,6 @@
       "registeredAt": "2026-01-08T12:09:21.393Z"
     },
     {
-      "id": "I6WSVD8BJMlbcWyk",
-      "username": "こんにちわわ",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": 1,
-      "lastRefillISO": "2026-01",
-      "lastRefillAtISO": "2026-01-13T00:56:00.114Z",
-      "registeredAt": "2026-01-13T00:55:25.426Z"
-    },
-    {
       "id": "ABdcm8dtj8M3snZ1",
       "username": "あ",
       "deviceInfo": {
