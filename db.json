@@ -998,18 +998,18 @@
     "rateLimitPerMin": 2
   },
   "theme": {
-    "active": false,
-    "status": "ended",
-    "id": "YQywB6VlJB",
+    "active": true,
+    "status": "active",
+    "id": "0yo0pr4DeQ",
     "title": "test",
     "description": "",
-    "startAtISO": "2026-01-13T08:59:25.421Z",
-    "endAtISO": "2026-01-13T09:02:00.000Z",
+    "startAtISO": "2026-01-13T18:51:07.870Z",
+    "endAtISO": "2026-01-14T18:51:00.000Z",
     "winnerRequestId": null,
     "winner": null,
-    "endedAtISO": "2026-01-13T08:59:44.346Z",
-    "mergedAtISO": "2026-01-13T08:59:44.346Z",
-    "endReason": "manual"
+    "endedAtISO": null,
+    "mergedAtISO": null,
+    "endReason": null
   },
   "themeRequests": [],
   "themeSongCounts": {},
