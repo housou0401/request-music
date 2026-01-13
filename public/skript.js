@@ -110,6 +110,7 @@ const AudioManager = (() => {
 let searchMode = "song";     // "song" | "artist"
 let artistPhase = 0;         // 0=アーティスト候補, 1=楽曲候補
 let selectedArtistId = null;
+let selectedArtistName = "";
 let playerControlsEnabled = true;
 
 window.onload = async function () {
@@ -145,7 +146,7 @@ async function loadSettings() {
 
 /* ========== 検索 ========== */
 function setSearchMode(mode) {
-  searchMode = mode; artistPhase = 0; selectedArtistId = null;
+  searchMode = mode; artistPhase = 0; selectedArtistId = null; selectedArtistName = "";
   ["songName","artistName"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
   ["suggestions","selectedLabel","selectedSong","selectedArtist"].forEach(id => {
     const el = document.getElementById(id);
@@ -441,8 +442,41 @@ function renderCarousel /* v9-centerfix */(list) {
       <div class="title">${s.trackName || ""}</div>
       <div class="artist">${s.artistName || ""}</div>
     `;
-    card.addEventListener("click", ()=> selectCarouselIndex(i, true));
-    track.appendChild(card);
+    // 曲カードの「アーティスト名」をクリックすると、そのアーティストで検索できる（表示は変えない）
+    const artistEl = card.querySelector(".artist");
+    if (artistEl && (s.artistName || "").trim() && searchMode !== "artist") {
+      artistEl.style.cursor = "pointer";
+      artistEl.title = "このアーティストで検索";
+      artistEl.addEventListener("click", (ev)=> {
+        ev.stopPropagation();
+        setSearchMode("artist");
+        const input = document.getElementById("songName");
+        if (input) input.value = (s.artistName || "").toString();
+        artistPhase = 0;
+        selectedArtistId = null;
+        selectedArtistName = "";
+        searchSongs();
+      });
+    }
+    card.addEventListener("click", (e)=> {
+      const item = currentList[i] || {};
+      // アーティスト検索モード: まずアーティストを確定させてから曲一覧へ
+      if (searchMode === "artist" && artistPhase === 0 && item.artistId) {
+        selectedArtistId = item.artistId;
+        selectedArtistName = (item.artistName || item.trackName || "").toString();
+        artistPhase = 1;
+        const sa = document.getElementById("selectedArtist");
+        if (sa) {
+          const name = selectedArtistName || "アーティスト";
+          const art = item.artworkUrl || "";
+          sa.innerHTML = `<div class="selected-artist-card"><img src="${art}" alt="Artist"><div>${name}</div></div>`;
+        }
+        searchSongs();
+        return;
+      }
+      selectCarouselIndex(i, true);
+    });
+track.appendChild(card);
   });
 
   
@@ -640,9 +674,20 @@ searchSongs = async function() {
           artworkUrl: a.artworkUrl,
           trackName: a.artistName || a.trackName,
           artistName: a.artistName || a.trackName,
-          trackViewUrl: "", previewUrl: ""
+          artistId: a.artistId,
+          trackViewUrl: "",
+          previewUrl: ""
         })));
+        selectedArtistName = ""; // 一覧表示中は未選択
+
       } else {
+        // 入力が変わったら「選択中のアーティスト」を解除して候補一覧に戻す
+        if (selectedArtistName && q && q.trim().toLowerCase() !== selectedArtistName.trim().toLowerCase()) {
+          artistPhase = 0;
+          selectedArtistId = null;
+          selectedArtistName = "";
+          return await searchSongs();
+        }
         if (!selectedArtistId) { ensurePlayerUIVisible(false); return; }
         const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
         const songs = await res.json();
@@ -1112,3 +1157,197 @@ window.addEventListener('DOMContentLoaded', ()=>{
   }
 })();
 /* ===================== /playback-hotfix-v10 ===================== */
+
+
+// ================================
+// Theme / Voting UI
+// ================================
+let __themeVoteShown = false;
+
+function fmtJst(iso){
+  try{
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (!isFinite(d.getTime())) return "";
+    return d.toLocaleString("ja-JP", {
+      timeZone: "Asia/Tokyo",
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit",
+      hour12: false
+    });
+  }catch{return "";}
+}
+
+function setThemeVisible(visible){
+  const box = document.getElementById("themeBox");
+  if (!box) return;
+  box.classList.toggle("ux-hidden", !visible);
+}
+
+function setVoteWrapVisible(visible){
+  const wrap = document.getElementById("themeSongsWrap");
+  if (!wrap) return;
+  wrap.classList.toggle("ux-hidden", !visible);
+  __themeVoteShown = visible;
+  const btn = document.getElementById("themeToggleVoteBtn");
+  if (btn) btn.textContent = visible ? "非表示" : "表示";
+}
+
+async function loadActiveThemeUI(){
+  const box = document.getElementById("themeBox");
+  if (!box) return;
+
+  try{
+    const r = await fetch("/theme/active", { cache: "no-store" });
+    const data = await r.json();
+
+    if (!data || !data.theme){
+      setThemeVisible(false);
+      return;
+    }
+    setThemeVisible(true);
+
+    const t = data.theme;
+    const titleEl = document.getElementById("themeTitle");
+    const descEl = document.getElementById("themeDesc");
+    const metaEl = document.getElementById("themeMeta");
+    if (titleEl) titleEl.textContent = t.title || "";
+    if (descEl) descEl.textContent = t.description || "";
+    if (metaEl) metaEl.textContent = `期間: ${fmtJst(t.startAt)} 〜 ${fmtJst(t.endAt)}`;
+
+    const joinCb = document.getElementById("themeJoin");
+    if (joinCb){
+      joinCb.disabled = !data.joinable;
+      if (!data.joinable) joinCb.checked = false;
+    }
+
+    const info = document.getElementById("themeVoteInfo");
+    if (info){
+      if (!data.votable){
+        info.textContent = "現在は投票期間外です。";
+      }else if (data.myVote && data.myVote.songId){
+        info.textContent = `本日の投票：${data.myVote.songTitle || "投票済み"}`;
+      }else{
+        info.textContent = "投票できます（1日1回 / JST基準）";
+      }
+    }
+
+    renderThemeSongs(data.songs || [], data.myVote?.songId || null, !!data.votable);
+
+    // 票一覧を表示中ならそのまま維持
+    setVoteWrapVisible(__themeVoteShown);
+  }catch(e){
+    console.warn("theme load failed", e);
+    setThemeVisible(false);
+  }
+}
+
+function renderThemeSongs(songs, mySongId, votable){
+  const wrap = document.getElementById("themeSongsWrap");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+
+  if (!songs.length){
+    wrap.innerHTML = `<div class="theme-vote-info">まだテーマ曲がありません。テーマに応募するとここに追加されます。</div>`;
+    return;
+  }
+
+  for (const s of songs){
+    const row = document.createElement("div");
+    row.className = "theme-song";
+
+    const art = document.createElement("img");
+    art.className = "theme-art";
+    art.alt = "";
+    art.src = s.artworkUrl || "";
+    row.appendChild(art);
+
+    const main = document.createElement("div");
+    main.className = "theme-song-main";
+
+    const title = document.createElement("div");
+    title.className = "theme-song-title";
+    title.textContent = s.text || "";
+    main.appendChild(title);
+
+    const artist = document.createElement("div");
+    artist.className = "theme-song-artist";
+    artist.textContent = s.artist || "";
+    main.appendChild(artist);
+
+    const stats = document.createElement("div");
+    stats.className = "theme-song-stats";
+    stats.textContent = `票: ${Number(s.voteCount||0)} / リクエスト: ${Number(s.count||0)}`;
+    main.appendChild(stats);
+
+    row.appendChild(main);
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "theme-vote-btn";
+    const already = !!mySongId;
+    btn.disabled = !votable || already;
+    btn.textContent = (mySongId === s.id) ? "投票済み" : "投票";
+    btn.addEventListener("click", async ()=>{
+      if (!confirm(`「${s.text} - ${s.artist}」に投票しますか？（取り消し不可）`)) return;
+      const ok = await voteThemeSong(s.id);
+      if (ok) await loadActiveThemeUI();
+    });
+    row.appendChild(btn);
+
+    // Apple Musicリンクがあるならクリックで開ける
+    if (s.appleMusicUrl){
+      row.style.cursor = "pointer";
+      row.title = "Apple Musicで開く";
+      row.addEventListener("click", (ev)=>{
+        if (ev.target === btn) return;
+        window.open(s.appleMusicUrl, "_blank");
+      });
+    }
+
+    wrap.appendChild(row);
+  }
+}
+
+async function voteThemeSong(songId){
+  try{
+    const r = await fetch("/theme/vote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ songId })
+    });
+    const data = await r.json().catch(()=> ({}));
+    if (!r.ok || !data.ok){
+      alert(data.message || "投票できませんでした");
+      return false;
+    }
+    return true;
+  }catch(e){
+    alert("通信エラーで投票できませんでした");
+    return false;
+  }
+}
+
+window.addEventListener("DOMContentLoaded", ()=>{
+  const refresh = document.getElementById("themeRefreshBtn");
+  const toggle  = document.getElementById("themeToggleVoteBtn");
+  if (refresh) refresh.addEventListener("click", ()=> loadActiveThemeUI());
+  if (toggle)  toggle.addEventListener("click", ()=> setVoteWrapVisible(!__themeVoteShown));
+
+  // 初期ロード
+  loadActiveThemeUI();
+});
+
+// index.html の onsubmit 用（未定義だと送信できない環境があるため）
+function handleSubmit(ev){
+  try{
+    const url = document.getElementById("previewUrlHidden")?.value;
+    if (!url){
+      ev?.preventDefault?.();
+      alert("候補一覧から曲を選択してください。");
+      return false;
+    }
+  }catch{}
+  return true;
+}
+

@@ -906,3 +906,153 @@ button:hover {
 .result-card{
   align-self: center; /* 念のためカード個別でも上下中央 */
 }
+
+
+/* ===== Theme / Voting ===== */
+.ux-hidden{display:none!important;}
+
+.theme-box{
+  margin: 14px 0 18px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(17,24,39,0.45);
+  border-radius: 14px;
+}
+
+.theme-head{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+
+.theme-badge{
+  flex:0 0 auto;
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(239,68,68,0.18);
+  border: 1px solid rgba(239,68,68,0.35);
+  white-space:nowrap;
+}
+
+.theme-head-text h2{
+  margin:0;
+  font-size:18px;
+  line-height:1.25;
+}
+.theme-head-text p{
+  margin:6px 0 0;
+  opacity:0.9;
+  font-size:14px;
+  line-height:1.45;
+}
+.theme-meta{
+  margin-top:6px;
+  font-size:12px;
+  opacity:0.75;
+}
+
+.theme-actions{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.theme-join{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  font-size:14px;
+}
+
+.theme-mini-btn{
+  width:auto !important;
+  padding:6px 10px !important;
+  font-size:13px !important;
+  border-radius:10px !important;
+}
+
+.theme-vote{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px dashed rgba(255,255,255,0.08);
+}
+
+.theme-vote-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.theme-vote-info{
+  margin-top:8px;
+  font-size:13px;
+  opacity:0.8;
+}
+
+.theme-songs{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.theme-song{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.18);
+}
+
+.theme-art{
+  width:46px;
+  height:46px;
+  border-radius:10px;
+  object-fit:cover;
+  background: rgba(255,255,255,0.06);
+}
+
+.theme-song-main{
+  flex:1 1 auto;
+  min-width:0;
+}
+
+.theme-song-title{
+  font-size:14px;
+  font-weight:700;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.theme-song-artist{
+  margin-top:2px;
+  font-size:12px;
+  opacity:0.8;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.theme-song-stats{
+  margin-top:4px;
+  font-size:12px;
+  opacity:0.75;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.theme-vote-btn{
+  width:auto !important;
+  padding:8px 12px !important;
+  border-radius:12px !important;
+  font-size:13px !important;
+}

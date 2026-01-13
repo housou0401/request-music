@@ -66,7 +66,36 @@
   <div class="container" id="mainContainer">
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
 
-    <!-- 検索モード切替（既存） + ソート（最小UI追加） -->
+    
+<div id="themeBox" class="theme-box ux-hidden">
+  <div class="theme-head">
+    <div class="theme-badge">テーマ募集中</div>
+    <div class="theme-head-text">
+      <h2 id="themeTitle"></h2>
+      <p id="themeDesc"></p>
+      <div id="themeMeta" class="theme-meta"></div>
+    </div>
+  </div>
+
+  <div class="theme-actions">
+    <label class="theme-join">
+      <input type="checkbox" id="themeJoin" name="themeJoin" value="1" form="requestForm">
+      この曲をテーマに応募する
+    </label>
+    <button type="button" id="themeRefreshBtn" class="theme-mini-btn">更新</button>
+  </div>
+
+  <div class="theme-vote">
+    <div class="theme-vote-head">
+      <div>テーマ曲に投票（1日1回）</div>
+      <button type="button" id="themeToggleVoteBtn" class="theme-mini-btn">表示</button>
+    </div>
+    <div id="themeVoteInfo" class="theme-vote-info"></div>
+    <div id="themeSongsWrap" class="theme-songs ux-hidden"></div>
+  </div>
+</div>
+
+<!-- 検索モード切替（既存） + ソート（最小UI追加） -->
     <div id="modeToggle" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
       <div>
         <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
