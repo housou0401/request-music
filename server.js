@@ -56,6 +56,9 @@ const usersDb = await JSONFilePreset("users.json", {
 if (typeof db.data.settings.refillDay !== "number") db.data.settings.refillDay = 1;
 if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
 if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 0;
+if (typeof db.data.settings.voteResetHour !== "number") db.data.settings.voteResetHour = 4;
+if (typeof db.data.settings.voteResetMinute !== "number") db.data.settings.voteResetMinute = 0;
+
 
 
 // ---- Theme / Vote defaults ----
@@ -118,6 +121,15 @@ const deviceInfoFromReq = (req) => ({
 
 const TZ = "Asia/Tokyo";
 const jstDateKey = (date = new Date()) =>
+
+const getVoteResetMs = () => {
+  const s = db.data.settings || {};
+  const h = Number.isFinite(Number(s.voteResetHour)) ? Number(s.voteResetHour) : 4;
+  const min = Number.isFinite(Number(s.voteResetMinute)) ? Number(s.voteResetMinute) : 0;
+  return (h * 60 + min) * 60 * 1000;
+};
+// 投票の「1日」はJSTの指定時刻で切り替える（例: 04:00）
+const voteDateKey = (date = new Date()) => jstDateKey(new Date(date.getTime() - getVoteResetMs()));
   new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
 const fmtJst = (iso) => {
   try { return new Date(iso).toLocaleString("ja-JP", { timeZone: TZ }); } catch { return "-"; }
@@ -909,7 +921,22 @@ app.get("/admin", requireAdmin, async (req, res) => {
     .badge.gray{background:#9ca3af;}
     .meta{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .meta code{padding:2px 6px;background:#f5f5f5;border:1px solid #eee;border-radius:6px;}
-  </style>
+  
+/* --- admin layout improvements (keeps request list design) --- */
+body{background:#f4f6fb;}
+.admin-wrap{max-width:1100px;margin:24px auto;padding:0 14px;}
+.admin-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px;}
+@media (min-width:980px){.admin-grid{grid-template-columns:1.2fr .8fr;}}
+.admin-card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:14px;}
+.admin-card h2{margin:0 0 10px;font-size:16px;}
+.admin-card .muted{opacity:.75;font-size:12px;}
+.admin-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.admin-row label{display:flex;gap:6px;align-items:center;font-size:13px;}
+.admin-row input[type="number"], .admin-row input[type="text"], .admin-row input[type="datetime-local"]{padding:6px 8px;border-radius:10px;border:1px solid rgba(0,0,0,.15);}
+.admin-row button{padding:8px 10px;border-radius:12px;border:none;background:#1e3a8a;color:#fff;cursor:pointer;}
+.admin-row button.secondary{background:#334155;}
+.req-time{font-size:12px;opacity:.75;margin-right:10px;}
+</style>
   <body>
     <h1>✉ アンケート回答一覧</h1>
 
@@ -966,6 +993,7 @@ app.get("/admin", requireAdmin, async (req, res) => {
             <span>${esc((e.lastBy && e.lastBy.username) || (e.by && e.by.username) || "-")}</span>
             <code>${esc((e.lastBy && e.lastBy.id) || (e.by && e.by.id) || "-")}</code>
           </span>
+          <span class="req-time" title="最終リクエスト時刻">${esc(fmtJst(e.lastRequestedAt || e.createdAt))}</span>
           <a href="/broadcast/${e.id}" class="delete" title="放送済みにする">📻</a>
           <a href="/unbroadcast/${e.id}" class="delete" title="未放送に戻す">↩️</a>
           <a href="/delete/${e.id}" class="delete" title="削除">🗑️</a>
@@ -1025,7 +1053,7 @@ html += `</ul>
       ` : `
         <form method="POST" action="/admin/theme/start" style="display:grid;gap:8px;max-width:520px;margin:10px 0;">
           <label>タイトル: <input type="text" name="title" style="width:100%;padding:10px;" placeholder="例：冬の朝に聴きたい曲"></label>
-          <label>説明: <textarea name="description" style="width:100%;height:70px;padding:10px;" placeholder="例：明日までに候補曲を集めます。投票は1日1回！"></textarea></label>
+          <label>説明: <textarea name="description" style="width:100%;height:70px;padding:10px;" placeholder="例：明日までに候補曲を集めます。投票は1日1回（毎日04:00にリセット）！"></textarea></label>
           <label>終了日時（JST）: <input type="datetime-local" name="endAtLocal" style="padding:10px;"></label>
           <button type="submit" style="padding:10px 12px;">イベントを開始</button>
           <small style="color:#555;">※ 期間中に送信された曲は「テーマ候補」に入り、イベント終了時に通常の曲一覧へ合流します。</small>
@@ -1071,6 +1099,15 @@ html += `</ul>
         <span class="muted">タイムゾーン: Asia/Tokyo</span>
         <button type="submit">保存</button>
       </form>
+        <form method="POST" action="/admin/update-vote-reset" class="admin-row" style="margin-top:10px;">
+          <label>投票リセット(JST):
+            <input type="number" name="voteResetHour" min="0" max="23" value="${Number(db.data.settings.voteResetHour ?? 4)}" style="width:70px;"> :
+            <input type="number" name="voteResetMinute" min="0" max="59" value="${Number(db.data.settings.voteResetMinute ?? 0)}" style="width:70px;">
+          </label>
+          <button type="submit" class="secondary">投票リセット時刻を更新</button>
+          <span class="muted">※ 1日1回（毎日04:00にリセット）の投票がこの時刻で切り替わります</span>
+        </form>
+
     </div>
 </div>
 
@@ -1108,6 +1145,15 @@ app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
   db.data.settings.refillMinute = minute;
   await safeWriteDb();
   res.redirect("/admin");
+});
+
+app.post("/admin/update-vote-reset", requireAdmin, bodyParser.urlencoded({ extended: true }), async (req, res) => {
+  const h = Math.max(0, Math.min(23, parseInt(req.body.voteResetHour || "4", 10)));
+  const min = Math.max(0, Math.min(59, parseInt(req.body.voteResetMinute || "0", 10)));
+  db.data.settings.voteResetHour = h;
+  db.data.settings.voteResetMinute = min;
+  await safeWriteDb();
+  return res.redirect("/admin");
 });
 // ---- Theme (admin) ----
 app.post("/admin/theme/start", requireAdmin, async (req, res) => {
@@ -1162,7 +1208,7 @@ app.get("/theme", async (req, res) => {
   const active = themeActiveNow();
   const me = req.user || null;
 
-  const today = jstDateKey();
+  const today = voteDateKey();
   const lastVoteDate = me?.themeVotes?.[t.id || ""]?.lastVoteDate || null;
   const canVote = !!me && active && lastVoteDate !== today;
 
@@ -1221,7 +1267,7 @@ app.get("/theme", async (req, res) => {
       <div class="meta">
         ${active ? `終了予定: ${t.endAtISO ? fmtJst(t.endAtISO) : "手動終了"} / 候補数: ${candidates.length}` : ""}
         ${me ? `<br>あなた: ${esc(me.username)} / 今日(${today})の投票: ${lastVoteDate === today ? "済" : "未"}` : `<br>投票するにはトップページで登録してください。`}
-        ${active && me && !canVote ? `<br><b>※投票は1日1回です。</b>` : ""}
+        ${active && me && !canVote ? `<br><b>※投票は1日1回（毎日04:00にリセット）です。</b>` : ""}
       </div>
       <div style="margin-top:10px;"><a href="/" style="text-decoration:none;">← トップへ戻る</a></div>
     </div>
@@ -1249,11 +1295,11 @@ app.post("/theme/vote", bodyParser.urlencoded({ extended: true }), async (req, r
   const target = (db.data.themeRequests || []).find(r => r.id === id);
   if (!target) return res.send(toastPage("⚠ その候補は見つかりませんでした。", "/theme"));
 
-  const today = jstDateKey();
+  const today = voteDateKey();
   user.themeVotes = user.themeVotes || {};
   const rec = user.themeVotes[t.id] || {};
   if (rec.lastVoteDate === today) {
-    return res.send(toastPage("⚠ 投票は1日1回です。明日また投票できます。", "/theme"));
+    return res.send(toastPage("⚠ 投票は1日1回（毎日04:00にリセット）です。明日また投票できます。", "/theme"));
   }
 
   user.themeVotes[t.id] = { lastVoteDate: today, votedAtISO: new Date().toISOString(), requestId: id };
@@ -1524,7 +1570,7 @@ async function refillAllBySchedule() {
           u.lastRefillAtISO = new Date().toISOString();
         }
       }
-      db.data.settings.lastRefillRunISO = new Date().toISOString();
+      db.data.settings.lastRefillRunISO = scheduledUtc.toISOString();
       await safeWriteDb();
       await safeWriteUsers();
     }
@@ -1533,7 +1579,7 @@ async function refillAllBySchedule() {
 // ==== Cron ====
 
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
-cron.schedule("10 0 * * *", async () => { try { await refillAllIfMonthChanged(); } catch (e) { console.error(e); } });
+cron.schedule("10 0 * * *", async () => { try { await refillAllBySchedule(); } catch (e) { console.error(e); } });
 cron.schedule("* * * * *", async () => { try { await refillAllBySchedule(); } catch (e) { console.error(e); } });
 
 // My Page (server-rendered)
