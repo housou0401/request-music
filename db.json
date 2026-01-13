@@ -1011,8 +1011,31 @@
     "mergedAtISO": null,
     "endReason": null
   },
-  "themeRequests": [],
-  "themeSongCounts": {},
+  "themeRequests": [
+    {
+      "id": "qczo6Nc1qAahFrfS1pL8L",
+      "text": "C.h.a.o.s.m.y.t.h.",
+      "artist": "ONE OK ROCK",
+      "appleMusicUrl": "https://music.apple.com/jp/album/c-h-a-o-s-m-y-t-h/1838917940?i=1838917947&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/70/de/4b/70de4b67-1049-388f-3c3d-079515e5eb45/25UMGIM89649.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6d/c2/f1/6dc2f141-772f-32d7-39f1-86e3367c8c40/mzaf_18446558757467566608.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-13T18:51:38.077Z",
+      "by": {
+        "id": "ABdcm8dtj8M3snZ1",
+        "username": "あ"
+      },
+      "lastRequestedAt": "2026-01-13T18:51:38.077Z",
+      "lastBy": {
+        "id": "ABdcm8dtj8M3snZ1",
+        "username": "あ"
+      },
+      "votes": 1
+    }
+  ],
+  "themeSongCounts": {
+    "c.h.a.o.s.m.y.t.h.|one ok rock": 1
+  },
   "themeHistory": [
     {
       "id": "YQywB6VlJB",
