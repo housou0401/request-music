@@ -329,20 +329,21 @@ async function selectArtist(artist) {
 
 
 async function fetchArtistTracksAndShow() {
-  if (!selectedArtistId) return; showLoading();
+  if (!selectedArtistId) { ensurePlayerUIVisible(false); return; }
+  showLoading && showLoading();
   try {
     const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
     const songs = await res.json();
-    const cont = document.getElementById("suggestions"); cont.innerHTML = "";
-    songs.forEach(s => {
-      const item = document.createElement("div");
-      item.className = "suggestion-item";
-      item.innerHTML = `<img src="${s.artworkUrl}" alt="Cover"><div><strong>${s.trackName}</strong><br><small>${s.artistName}</small></div>`;
-      item.onclick = () => selectSong(s);
-      cont.appendChild(item);
-    });
-  } catch(e){ console.error("アーティスト曲取得エラー:", e); }
-  finally { hideLoading(); }
+    const cont = document.getElementById("suggestions");
+    if (cont) cont.innerHTML = ""; // アーティスト一覧(リスト)を消して、曲一覧へ
+    // 曲一覧は従来どおりカード（Carousel）
+    renderCarousel(songs);
+  } catch (e) {
+    console.error("アーティスト曲取得エラー:", e);
+    ensurePlayerUIVisible(false);
+  } finally {
+    hideLoading && hideLoading();
+  }
 }
 
 /* ========== 曲を選択 → レガシーカードに情報を詰める ========== */
@@ -730,47 +731,110 @@ function setupPlayerControls() {
   }
 }
 
-// 検索結果の表示をカードUIへ差し替え
+// 検索結果の表示をカードUIへ差し替え（アーティスト候補はリスト、曲候補はカード）
 const _orig_searchSongs = searchSongs;
 searchSongs = async function() {
   const list = document.getElementById("suggestions");
-  if (list) list.innerHTML = ""; // リストは使わない
+  if (list) list.innerHTML = ""; // アーティスト候補フェーズのみここに描画
   showLoading && showLoading();
+
   try {
     if (searchMode === "artist") {
       const q = document.getElementById("songName").value.trim();
+
+      // アーティスト確定後に入力が変わったら、候補一覧へ戻す
+      if (artistPhase === 1 && lockedArtistQuery && q !== lockedArtistQuery) {
+        artistPhase = 0;
+        selectedArtistId = null;
+        lockedArtistQuery = "";
+        const sel = document.getElementById("selectedArtist");
+        if (sel) sel.innerHTML = "";
+        stopPlayback(true);
+      }
+
       if (artistPhase === 0) {
         if (!q) { ensurePlayerUIVisible(false); return; }
+
+        // このフェーズは「アーティスト一覧」だけリスト表示
+        ensurePlayerUIVisible(false);
+
         const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
         const artists = await res.json();
-        // アーティスト一覧をカードで
-        renderCarousel(artists.map(a => ({
-          artworkUrl: a.artworkUrl,
-          trackName: a.artistName || a.trackName,
-          artistName: a.artistName || a.trackName,
-          trackViewUrl: "", previewUrl: ""
-        })));
+
+        if (list) {
+          const wrap = document.createElement("div");
+          wrap.className = "artist-list";
+
+          artists.forEach(a => {
+            const row = document.createElement("button");
+            row.type = "button";
+            row.className = "artist-row";
+
+            if (a.artworkUrl) {
+              const img = document.createElement("img");
+              img.className = "artist-avatar";
+              img.src = a.artworkUrl;
+              img.alt = "Artist";
+              row.appendChild(img);
+            } else {
+              const ph = document.createElement("div");
+              ph.className = "artist-avatar ph";
+              ph.textContent = "🎤";
+              row.appendChild(ph);
+            }
+
+            const meta = document.createElement("div");
+            meta.className = "artist-meta";
+
+            const name = document.createElement("div");
+            name.className = "artist-name";
+            name.textContent = (a.artistName || a.trackName || "").trim() || "（アーティスト）";
+
+            const hint = document.createElement("div");
+            hint.className = "artist-hint";
+            hint.textContent = "タップして確定";
+
+            meta.appendChild(name);
+            meta.appendChild(hint);
+
+            const go = document.createElement("div");
+            go.className = "artist-go";
+            go.textContent = "›";
+
+            row.appendChild(meta);
+            row.appendChild(go);
+
+            row.onclick = () => selectArtist(a);
+            wrap.appendChild(row);
+          });
+
+          list.appendChild(wrap);
+        }
       } else {
-        if (!selectedArtistId) { ensurePlayerUIVisible(false); return; }
-        const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
-        const songs = await res.json();
-        renderCarousel(songs);
+        // 曲一覧フェーズ：従来どおりカード（Carousel）
+        await fetchArtistTracksAndShow();
       }
     } else {
+      // 曲名(アーティスト)検索：従来どおりカード（Carousel）
       const songQ = document.getElementById("songName").value.trim();
       const artistQ = document.getElementById("artistName").value.trim();
       if (!songQ) { ensurePlayerUIVisible(false); return; }
+
       const res = await fetch(`/search?query=${encodeURIComponent(songQ)}&artist=${encodeURIComponent(artistQ)}`);
       const songs = await res.json();
+      if (list) list.innerHTML = "";
       renderCarousel(songs);
     }
-  } catch(e) {
+  } catch (e) {
     console.error("検索エラー:", e);
     ensurePlayerUIVisible(false);
-  } finally { hideLoading && hideLoading(); }
+  } finally {
+    hideLoading && hideLoading();
+  }
 };
 
 // 初期化：プレイヤーUIイベント
+
 window.addEventListener("DOMContentLoaded", setupPlayerControls);
 
 
