@@ -36,6 +36,7 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 // ---- LowDB ----
 const db = await JSONFilePreset("db.json", {
   responses: [],
+  lastSubmissions: {},
   songCounts: {},
   settings: {
     recruiting: true,
@@ -86,8 +87,10 @@ app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 // ==== Helpers ====
 const monthKey = () => {
-  const d = new Date();
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+  // JST 기준の YYYY-MM（配布スケジュール/表示と揃える）
+  const now = new Date();
+  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  return `${jst.getUTCFullYear()}-${String(jst.getUTCMonth() + 1).padStart(2, "0")}`;
 };
 const isAdmin = (u) => u && u.role === "admin";
 const getUserById = (id) => usersDb.data.users.find((u) => u.id === id);
@@ -472,19 +475,33 @@ app.post("/submit", async (req, res) => {
   const cooldownMin = Number(db.data.settings.duplicateCooldownMinutes ?? 15);
   const now = Date.now();
   const keyLower = `${responseText.toLowerCase()}|${artistText.toLowerCase()}`;
-  const recent = [...db.data.responses].reverse().find(r => r.by?.id === user.id && `${r.text.toLowerCase()}|${r.artist.toLowerCase()}` === keyLower);
-  if (recent) {
-    const dt = now - new Date(recent.createdAt).getTime();
+
+  // ユーザー別の連投クールダウン（曲が重複でまとめられていても正しく効く）
+  if (!db.data.lastSubmissions) db.data.lastSubmissions = {};
+  if (!db.data.lastSubmissions[user.id]) db.data.lastSubmissions[user.id] = {};
+  const lastIso = db.data.lastSubmissions[user.id][keyLower];
+  if (lastIso) {
+    const dt = now - new Date(lastIso).getTime();
     if (dt < cooldownMin * 60 * 1000) {
       const left = Math.ceil((cooldownMin * 60 * 1000 - dt) / 60000);
       return res.send(toastPage(`⚠同一曲の連投は ${cooldownMin} 分間できません。あと約 ${left} 分お待ちください。`, "/"));
     }
   }
 
+  const nowIso = new Date().toISOString();
+
   db.data.songCounts[keyLower] = (db.data.songCounts[keyLower] || 0) + 1;
   const existing = db.data.responses.find(r => r.text.toLowerCase() === responseText.toLowerCase() && r.artist.toLowerCase() === artistText.toLowerCase());
   if (existing) {
     existing.count = db.data.songCounts[keyLower];
+
+    // 最終リクエスト情報（管理画面表示用）
+    existing.lastRequestedAt = nowIso;
+    existing.lastBy = { id: user.id, username: user.username };
+
+    // 旧データ互換
+    if (!existing.createdAt) existing.createdAt = nowIso;
+    if (!existing.by) existing.by = { id: user.id, username: user.username };
   } else {
     db.data.responses.push({
       id: nanoid(),
@@ -494,10 +511,15 @@ app.post("/submit", async (req, res) => {
       artworkUrl,
       previewUrl,
       count: db.data.songCounts[keyLower],
-      createdAt: new Date().toISOString(),
-      by: { id: user.id, username: user.username }
+      createdAt: nowIso,
+      lastRequestedAt: nowIso,
+      by: { id: user.id, username: user.username },
+      lastBy: { id: user.id, username: user.username },
     });
   }
+
+  // 最終投稿時刻（ユーザー別）を記録
+  db.data.lastSubmissions[user.id][keyLower] = nowIso;
 
   if (!isAdmin(user)) {
     user.tokens = Math.max(0, (user.tokens ?? 0) - 1);
@@ -671,8 +693,8 @@ app.get("/admin", requireAdmin, async (req, res) => {
   let items = [...db.data.responses];
   if (only === "broadcasted") items = items.filter(r => r.broadcasted);
   if (only === "unbroadcasted") items = items.filter(r => !r.broadcasted);
-  if (sort === "popular") items.sort((a,b)=> (b.count|0)-(a.count|0) || new Date(b.createdAt)-new Date(a.createdAt));
-  else items.sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+  if (sort === "popular") items.sort((a,b)=> (b.count|0)-(a.count|0) || new Date(b.lastRequestedAt || b.createdAt) - new Date(a.lastRequestedAt || a.createdAt));
+  else items.sort((a,b)=> new Date(b.lastRequestedAt || b.createdAt) - new Date(a.lastRequestedAt || a.createdAt));
 
   const total = items.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -719,6 +741,11 @@ app.get("/admin", requireAdmin, async (req, res) => {
     .banner-imp{padding:8px 12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;margin:10px 0}
     .badge{background:#10b981;color:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:6px;display:inline-block;line-height:1.3;vertical-align:middle;}
     .badge.gray{background:#9ca3af;}
+
+    .entry-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+    .req-meta{display:flex;align-items:center;gap:6px;font-size:12px;color:#555;white-space:nowrap;margin-right:6px;}
+    .req-meta .u{font-weight:600;color:#111;}
+    .req-meta code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;background:#f5f5f5;border:1px solid #eee;border-radius:6px;padding:1px 6px;}
   </style>
   <body>
     <h1>✉ アンケート回答一覧</h1>
@@ -770,7 +797,18 @@ app.get("/admin", requireAdmin, async (req, res) => {
             <small>${e.artist}</small>
           </div>
         </a>
-        <div class="entry-actions" style="display:flex;gap:6px;">
+        <div class="entry-actions">
+          <span class="req-meta" title="最終リクエスト（JST） / 送信者 / デバイスID">
+            <span class="t">${(() => { 
+              const iso = e.lastRequestedAt || e.createdAt; 
+              if (!iso) return "-";
+              try { 
+                return new Date(iso).toLocaleString("ja-JP",{ timeZone:"Asia/Tokyo", year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", hour12:false }); 
+              } catch { return iso; }
+            })()}</span>
+            <span class="u">@${(e.lastBy?.username || e.by?.username || "unknown")}</span>
+            <code>${(e.lastBy?.id || e.by?.id || "-")}</code>
+          </span>
           <a href="/broadcast/${e.id}" class="delete" title="放送済みにする">📻</a>
           <a href="/unbroadcast/${e.id}" class="delete" title="未放送に戻す">↩️</a>
           <a href="/delete/${e.id}" class="delete" title="削除">🗑️</a>
@@ -1119,7 +1157,7 @@ async function refillAllBySchedule() {
           u.lastRefillAtISO = new Date().toISOString();
         }
       }
-      db.data.settings.lastRefillRunISO = new Date().toISOString();
+      db.data.settings.lastRefillRunISO = scheduledUtc.toISOString();
       await safeWriteDb();
       await safeWriteUsers();
     }
