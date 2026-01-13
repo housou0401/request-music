@@ -537,6 +537,19 @@
       "lastRefillISO": "2026-01",
       "lastRefillAtISO": "2026-01-13T01:33:00.470Z",
       "registeredAt": "2026-01-13T01:29:04.019Z"
+    },
+    {
+      "id": "UMmiL5cW8cyc_BKs",
+      "username": "test",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-01",
+      "lastRefillAtISO": "2026-01-13T08:58:58.884Z",
+      "registeredAt": "2026-01-13T08:58:58.884Z"
     }
   ]
 }
