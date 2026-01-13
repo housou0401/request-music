@@ -63,10 +63,10 @@
         "ip": "::1"
       },
       "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2025-10",
+      "tokens": 5,
+      "lastRefillISO": "2026-01",
       "registeredAt": "2025-11-06T13:28:58.206Z",
-      "lastRefillAtISO": "2025-10-01T00:00:00.000Z"
+      "lastRefillAtISO": "2026-01-13T01:33:00.470Z"
     },
     {
       "id": "ISWjRw2oAjdegeqr",
@@ -542,6 +542,11 @@
           "lastVoteDate": "2026-01-13",
           "votedAtISO": "2026-01-13T18:51:49.585Z",
           "requestId": "qczo6Nc1qAahFrfS1pL8L"
+        },
+        "9A69-aXIaD": {
+          "lastVoteDate": "2026-01-14",
+          "votedAtISO": "2026-01-13T19:18:04.145Z",
+          "requestId": "3iOHTARVA67p7cXt9R3l1"
         }
       }
     },
