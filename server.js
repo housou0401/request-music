@@ -9,6 +9,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import path from "node:path";
 import url from "node:url";
+import fs from "node:fs";
 dotenv.config();
 
 const app = express();
@@ -27,6 +28,17 @@ const toastPage = (msg, redirect="/") => `<!doctype html><html lang="ja"><meta c
 
 const PORT = process.env.PORT || 3000;
 
+
+// ---- paths / data dir (Render 対応) ----
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+// Render の場合: 永続ディスクを使うなら環境変数 DATA_DIR を設定（例: /var/data）
+// 未設定なら一時領域 /tmp を使う（再起動で消えるが、アプリは動く）
+const DATA_DIR = process.env.DATA_DIR || (process.env.RENDER_SERVICE_ID ? "/tmp/request-music" : __dirname);
+try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {}
+const DB_PATH = path.join(DATA_DIR, "db.json");
+const USERS_PATH = path.join(DATA_DIR, "users.json");
+
+
 // ---- GitHub 同期設定 ----
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
@@ -34,7 +46,7 @@ const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 // ---- LowDB ----
-const db = await JSONFilePreset("db.json", {
+const db = await JSONFilePreset(DB_PATH, {
   responses: [],
   lastSubmissions: {},
   songCounts: {},
@@ -50,7 +62,7 @@ const db = await JSONFilePreset("db.json", {
     duplicateCooldownMinutes: 15,
   },
 });
-const usersDb = await JSONFilePreset("users.json", {
+const usersDb = await JSONFilePreset(USERS_PATH, {
   users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
 });
 // defaults for schedule
@@ -86,7 +98,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // 静的配信 & ルート
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+
 app.use(express.static("public"));
 app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
@@ -693,8 +705,8 @@ app.post("/submit", async (req, res) => {
 
 
 // ---- リクエスト削除 & まとめて削除 ----
-function safeWriteUsers() { return usersDb.write().catch(e => console.error("users.json write error:", e)); }
-function safeWriteDb() { return db.write().catch(e => console.error("db.json write error:", e)); }
+function safeWriteUsers() { return usersDb.write().catch(e => console.error("users.json write error ("+USERS_PATH+"):", e)); }
+function safeWriteDb() { return db.write().catch(e => console.error("db.json write error ("+DB_PATH+"):", e)); }
 
 app.get("/delete/:id", requireAdmin, async (req, res) => {
   const id = req.params.id;
