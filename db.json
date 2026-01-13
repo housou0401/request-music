@@ -963,12 +963,12 @@
     "vinyl|king gnu": 1
   },
   "settings": {
-    "recruiting": true,
+    "recruiting": false,
     "reason": "🔧調整中🔧",
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2026-01-13T01:00:00.294Z",
+    "lastRefillRunISO": "2026-01-13T01:01:00.341Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
