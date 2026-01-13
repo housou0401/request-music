@@ -110,6 +110,8 @@ const AudioManager = (() => {
 let searchMode = "song";     // "song" | "artist"
 let artistPhase = 0;         // 0=アーティスト候補, 1=楽曲候補
 let selectedArtistId = null;
+let lockedArtistQuery = ""; // アーティスト確定後、入力が変わったら候補一覧に戻す
+
 let playerControlsEnabled = true;
 
 window.onload = async function () {
@@ -178,7 +180,7 @@ async function refreshThemeStatus() {
 
 /* ========== 検索 ========== */
 function setSearchMode(mode) {
-  searchMode = mode; artistPhase = 0; selectedArtistId = null;
+  searchMode = mode; artistPhase = 0; selectedArtistId = null; lockedArtistQuery = "";
   ["songName","artistName"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
   ["suggestions","selectedLabel","selectedSong","selectedArtist"].forEach(id => {
     const el = document.getElementById(id);
@@ -210,21 +212,75 @@ function reSearch(){ searchSongs(); }
 
 async function searchSongs() {
   const list = document.getElementById("suggestions");
-  list.innerHTML = ""; showLoading();
+  list.innerHTML = "";
+  showLoading();
+
   try {
     if (searchMode === "artist") {
       const q = document.getElementById("songName").value.trim();
+
+      // アーティスト確定後に入力が変わったら、候補一覧へ戻す
+      if (artistPhase === 1 && lockedArtistQuery && q !== lockedArtistQuery) {
+        artistPhase = 0;
+        selectedArtistId = null;
+        lockedArtistQuery = "";
+        const sel = document.getElementById("selectedArtist");
+        if (sel) sel.innerHTML = "";
+      }
+
       if (artistPhase === 0) {
         if (!q) return;
+
         const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
         const artists = await res.json();
+
+        const wrap = document.createElement("div");
+        wrap.className = "artist-list";
+
         artists.forEach(a => {
-          const item = document.createElement("div");
-          item.className = "suggestion-item";
-          item.innerHTML = `<img src="${a.artworkUrl}" alt="Artist"><div><strong>${a.trackName}</strong></div>`;
-          item.onclick = () => selectArtist(a);
-          list.appendChild(item);
+          const row = document.createElement("button");
+          row.type = "button";
+          row.className = "artist-row";
+
+          if (a.artworkUrl) {
+            const img = document.createElement("img");
+            img.className = "artist-avatar";
+            img.src = a.artworkUrl;
+            img.alt = "Artist";
+            row.appendChild(img);
+          } else {
+            const ph = document.createElement("div");
+            ph.className = "artist-avatar ph";
+            ph.textContent = "🎤";
+            row.appendChild(ph);
+          }
+
+          const meta = document.createElement("div");
+          meta.className = "artist-meta";
+
+          const name = document.createElement("div");
+          name.className = "artist-name";
+          name.textContent = (a.artistName || a.trackName || "").trim() || "（アーティスト）";
+
+          const hint = document.createElement("div");
+          hint.className = "artist-hint";
+          hint.textContent = "タップして確定";
+
+          meta.appendChild(name);
+          meta.appendChild(hint);
+
+          const go = document.createElement("div");
+          go.className = "artist-go";
+          go.textContent = "›";
+
+          row.appendChild(meta);
+          row.appendChild(go);
+
+          row.onclick = () => selectArtist(a);
+          wrap.appendChild(row);
         });
+
+        list.appendChild(wrap);
       } else {
         await fetchArtistTracksAndShow();
       }
@@ -232,6 +288,7 @@ async function searchSongs() {
       const songQ = document.getElementById("songName").value.trim();
       const artistQ = document.getElementById("artistName").value.trim();
       if (!songQ) return;
+
       const res = await fetch(`/search?query=${encodeURIComponent(songQ)}&artist=${encodeURIComponent(artistQ)}`);
       const songs = await res.json();
       songs.forEach(s => {
@@ -242,16 +299,34 @@ async function searchSongs() {
         list.appendChild(item);
       });
     }
-  } catch(e){ console.error("検索エラー:", e); }
-  finally { hideLoading(); }
+  } catch (e) {
+    console.error("検索エラー:", e);
+  } finally {
+    hideLoading();
+  }
 }
 
+
+
 async function selectArtist(artist) {
-  selectedArtistId = artist.artistId; artistPhase = 1;
+  selectedArtistId = artist.artistId;
+  artistPhase = 1;
+
+  // 入力欄を選んだアーティスト名に揃え、以後この文字列を「確定キー」として保持
+  const input = document.getElementById("songName");
+  if (input) {
+    input.value = (artist.artistName || artist.trackName || input.value || "").trim();
+    lockedArtistQuery = input.value.trim();
+  } else {
+    lockedArtistQuery = (artist.artistName || artist.trackName || "").trim();
+  }
+
   document.getElementById("selectedArtist").innerHTML =
     `<div class="selected-artist-card"><img src="${artist.artworkUrl}" alt="Artist"><div>${artist.artistName || artist.trackName}</div></div>`;
   await fetchArtistTracksAndShow();
 }
+
+
 
 async function fetchArtistTracksAndShow() {
   if (!selectedArtistId) return; showLoading();

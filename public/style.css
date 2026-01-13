@@ -121,6 +121,36 @@ button:hover {
   margin-right: 10px;
 }
 
+/* --- Artist search: artist list (list view) --- */
+.artist-list{display:flex;flex-direction:column;gap:6px;}
+.artist-row{
+  display:flex;align-items:center;gap:10px;
+  width:100%;
+  padding:10px;
+  border:1px solid rgba(0,0,0,0.1);
+  border-radius:12px;
+  background:#fff;
+  cursor:pointer;
+  text-align:left;
+}
+.artist-row:hover{background-color:rgba(0,0,0,0.05);}
+.artist-row:active{transform:scale(.99);}
+.artist-avatar{
+  width:42px;height:42px;
+  border-radius:10px;
+  object-fit:cover;
+  background:#eee;
+  flex:0 0 auto;
+}
+.artist-avatar.ph{
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:#555;
+}
+.artist-meta{min-width:0;flex:1;}
+.artist-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.artist-hint{font-size:12px;opacity:.7;margin-top:2px;}
+.artist-go{font-size:22px;opacity:.35;flex:0 0 auto;margin-left:8px;}
+
 .selected-item {
   margin-bottom: 10px;
   font-weight: bold;
