@@ -869,9 +869,32 @@
         "id": "FkDXvk5Wv8EAIZWL",
         "username": "Guest"
       }
+    },
+    {
+      "id": "vx3nCFM-oY8a857nN45zM",
+      "text": "恋",
+      "artist": "松山千春",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%81%8B/263613681?i=263615338&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/1b/bf/bb/1bbfbb6b-cf87-9f84-37d6-250d954b2e19/mzi.nyrljwvi.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/9f/4b/2b/9f4b2bf3-14bc-ee45-6223-64bcc8a19032/mzaf_2456902632215427172.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-13T01:32:41.111Z",
+      "lastRequestedAt": "2026-01-13T01:32:41.111Z",
+      "by": {
+        "id": "ABdcm8dtj8M3snZ1",
+        "username": "あ"
+      },
+      "lastBy": {
+        "id": "ABdcm8dtj8M3snZ1",
+        "username": "あ"
+      }
     }
   ],
-  "lastSubmissions": {},
+  "lastSubmissions": {
+    "ABdcm8dtj8M3snZ1": {
+      "恋|松山千春": "2026-01-13T01:32:41.111Z"
+    }
+  },
   "songCounts": {
     "恋|アーティスト不明": 1,
     "リヴ|b'z": 1,
@@ -960,7 +983,8 @@
     "no|メーガン・トレイナー": 1,
     "daydreamin'|アリアナ・グランデ": 1,
     "honeypie|jawny": 1,
-    "vinyl|king gnu": 1
+    "vinyl|king gnu": 1,
+    "恋|松山千春": 1
   },
   "settings": {
     "recruiting": true,
@@ -968,7 +992,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2026-01-13T01:32:00.445Z",
+    "lastRefillRunISO": "2025-12-31T15:00:00.000Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
