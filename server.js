@@ -9,7 +9,6 @@ import axios from "axios";
 import dotenv from "dotenv";
 import path from "node:path";
 import url from "node:url";
-import fs from "node:fs";
 dotenv.config();
 
 const app = express();
@@ -28,17 +27,6 @@ const toastPage = (msg, redirect="/") => `<!doctype html><html lang="ja"><meta c
 
 const PORT = process.env.PORT || 3000;
 
-
-// ---- paths / data dir (Render 対応) ----
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-// Render の場合: 永続ディスクを使うなら環境変数 DATA_DIR を設定（例: /var/data）
-// 未設定なら一時領域 /tmp を使う（再起動で消えるが、アプリは動く）
-const DATA_DIR = process.env.DATA_DIR || (process.env.RENDER_SERVICE_ID ? "/tmp/request-music" : __dirname);
-try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch {}
-const DB_PATH = path.join(DATA_DIR, "db.json");
-const USERS_PATH = path.join(DATA_DIR, "users.json");
-
-
 // ---- GitHub 同期設定 ----
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
@@ -46,9 +34,8 @@ const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 // ---- LowDB ----
-const db = await JSONFilePreset(DB_PATH, {
+const db = await JSONFilePreset("db.json", {
   responses: [],
-  lastSubmissions: {},
   songCounts: {},
   settings: {
     recruiting: true,
@@ -62,7 +49,7 @@ const db = await JSONFilePreset(DB_PATH, {
     duplicateCooldownMinutes: 15,
   },
 });
-const usersDb = await JSONFilePreset(USERS_PATH, {
+const usersDb = await JSONFilePreset("users.json", {
   users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
 });
 // defaults for schedule
@@ -70,10 +57,25 @@ if (typeof db.data.settings.refillDay !== "number") db.data.settings.refillDay =
 if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
 if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 0;
 
-// defaults for theme & voting
-if (!Array.isArray(db.data.themes)) db.data.themes = [];
-if (!db.data.votesLedger || typeof db.data.votesLedger !== "object") db.data.votesLedger = {};
-if (!("activeThemeId" in db.data.settings)) db.data.settings.activeThemeId = null;
+
+// ---- Theme / Vote defaults ----
+if (!db.data.theme) db.data.theme = {
+  active: false,
+  id: null,
+  title: "",
+  description: "",
+  startAtISO: null,
+  endAtISO: null,
+  status: "inactive",
+  winnerRequestId: null,
+  winner: null,
+  endedAtISO: null,
+  mergedAtISO: null,
+  endReason: null,
+};
+if (!Array.isArray(db.data.themeRequests)) db.data.themeRequests = [];
+if (!db.data.themeSongCounts) db.data.themeSongCounts = {};
+if (!Array.isArray(db.data.themeHistory)) db.data.themeHistory = [];
 
 
 // ---- cookieからトークンを取得 ----
@@ -98,16 +100,14 @@ app.use(express.json());
 app.use(cookieParser());
 
 // 静的配信 & ルート
-
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 app.use(express.static("public"));
 app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 // ==== Helpers ====
 const monthKey = () => {
-  // JST 기준の YYYY-MM（配布スケジュール/表示と揃える）
-  const now = new Date();
-  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-  return `${jst.getUTCFullYear()}-${String(jst.getUTCMonth() + 1).padStart(2, "0")}`;
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 };
 const isAdmin = (u) => u && u.role === "admin";
 const getUserById = (id) => usersDb.data.users.find((u) => u.id === id);
@@ -116,144 +116,138 @@ const deviceInfoFromReq = (req) => ({
   ip: req.ip || req.connection?.remoteAddress || "",
 });
 
-
-const pad2 = (n) => String(n).padStart(2, "0");
-
-// JST日付キー（投票の 1日1回 判定用）
-const jstDateKey = (date = new Date()) => {
-  const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
-  return `${jst.getUTCFullYear()}-${pad2(jst.getUTCMonth() + 1)}-${pad2(jst.getUTCDate())}`;
+const TZ = "Asia/Tokyo";
+const jstDateKey = (date = new Date()) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
+const fmtJst = (iso) => {
+  try { return new Date(iso).toLocaleString("ja-JP", { timeZone: TZ }); } catch { return "-"; }
 };
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
 
-// songCounts / lastSubmissions 用のキー（通常は従来通り text|artist。テーマ曲のみ text|artist|themeId）
-const makeCountKey = (text, artist, themeId = null) => {
-  const base = `${String(text || "").toLowerCase()}|${String(artist || "").toLowerCase()}`;
-  return themeId ? `${base}|${themeId}` : base;
-};
-
-// <input type="datetime-local">（JSTで入力）を ISO(UTC) に
-const parseDatetimeLocalJstToISO = (s) => {
-  const str = (s || "").toString().trim();
-  const m = str.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+// theme helpers
+function themeActiveNow() {
+  const t = db.data.theme;
+  if (!t || !t.active) return false;
+  if (!t.endAtISO) return true;
+  const end = new Date(t.endAtISO).getTime();
+  if (!Number.isFinite(end)) return true;
+  return Date.now() < end;
+}
+function parseJstDatetimeLocalToIso(localStr) {
+  const s = String(localStr || "").trim();
+  if (!s) return null;
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
   if (!m) return null;
-  const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]), h = Number(m[4]), mi = Number(m[5]);
-  const utcMs = Date.UTC(y, mo - 1, d, h - 9, mi, 0); // JST -> UTC
+  const Y = Number(m[1]), Mo = Number(m[2]) - 1, D = Number(m[3]);
+  const H = Number(m[4]), Mi = Number(m[5]);
+  // datetime-local is interpreted as Asia/Tokyo (UTC+9)
+  const utcMs = Date.UTC(Y, Mo, D, H - 9, Mi, 0, 0);
   return new Date(utcMs).toISOString();
-};
-
-// ISO(UTC) を datetime-local(JST) に
-const isoToDatetimeLocalJst = (iso) => {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (!isFinite(d.getTime())) return "";
-  const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-  return `${jst.getUTCFullYear()}-${pad2(jst.getUTCMonth() + 1)}-${pad2(jst.getUTCDate())}T${pad2(jst.getUTCHours())}:${pad2(jst.getUTCMinutes())}`;
-};
-
-function getActiveTheme() {
-  const id = db.data.settings?.activeThemeId;
-  if (!id) return null;
-  return (db.data.themes || []).find(t => t.id === id) || null;
 }
-
-function isThemeJoinable(theme) {
-  if (!theme || theme.status !== "active") return false;
-  const now = Date.now();
-  const st = theme.startAt ? new Date(theme.startAt).getTime() : -Infinity;
-  const en = theme.endAt ? new Date(theme.endAt).getTime() : Infinity;
-  return now >= st && now <= en;
+async function ensureThemeAutoClose() {
+  const t = db.data.theme;
+  if (!t || !t.active || !t.endAtISO) return;
+  const end = new Date(t.endAtISO).getTime();
+  if (Number.isFinite(end) && Date.now() >= end) {
+    await endThemeAndMerge("auto");
+  }
 }
+async function endThemeAndMerge(reason = "manual") {
+  const t = db.data.theme;
+  if (!t || !t.active) return;
 
-function isThemeVotable(theme) {
-  // 今回は「応募期間＝投票期間」とする（必要なら別フィールドで分離可）
-  return isThemeJoinable(theme);
-}
+  t.active = false;
+  t.status = "ended";
+  t.endedAtISO = new Date().toISOString();
+  t.endReason = reason;
 
-// テーマ終了時：テーマ曲を通常一覧に“合流”（同曲が既にあれば加算して重複を消す）
-async function endThemeAndMerge(theme, endedBy = "admin") {
-  if (!theme || theme.status === "ended") return;
-  const nowIso = new Date().toISOString();
+  const candidates = Array.isArray(db.data.themeRequests) ? db.data.themeRequests : [];
 
-  theme.status = "ended";
-  theme.endedAt = nowIso;
-  theme.endedBy = endedBy;
-
-  const themeId = theme.id;
-  const themeSongs = (db.data.responses || []).filter(r => r && r.themeId === themeId);
-
-  for (const tr of themeSongs) {
-    const baseKey = makeCountKey(tr.text, tr.artist, null);
-    const themeKey = makeCountKey(tr.text, tr.artist, themeId);
-
-    const themeCount = Number(db.data.songCounts?.[themeKey] ?? tr.count ?? 0) || 0;
-    const voteCount = Number(tr.voteCount ?? 0) || 0;
-
-    // 通常曲（themeId無し）を探す
-    const normal = (db.data.responses || []).find(r =>
-      r && !r.themeId &&
-      String(r.text || "").toLowerCase() === String(tr.text || "").toLowerCase() &&
-      String(r.artist || "").toLowerCase() === String(tr.artist || "").toLowerCase()
-    );
-
-    const histEntry = { themeId, themeTitle: theme.title || "", voteCount, endedAt: nowIso };
-
-    if (normal) {
-      const normalCur = Number(db.data.songCounts?.[baseKey] ?? normal.count ?? 0) || 0;
-      db.data.songCounts[baseKey] = normalCur + themeCount;
-      normal.count = db.data.songCounts[baseKey];
-
-      // 放送済みフラグは OR 合成
-      if (tr.broadcasted) {
-        if (!normal.broadcasted) normal.broadcasted = true;
-        const nB = new Date(normal.broadcastedAt || 0).getTime();
-        const tB = new Date(tr.broadcastedAt || 0).getTime();
-        if (tB && tB > nB) normal.broadcastedAt = tr.broadcastedAt;
-      }
-
-      // 最終リクエスト情報は新しいほうを優先
-      const nLast = new Date(normal.lastRequestedAt || normal.createdAt || 0).getTime();
-      const tLast = new Date(tr.lastRequestedAt || tr.createdAt || 0).getTime();
-      if (tLast && tLast > nLast) {
-        normal.lastRequestedAt = tr.lastRequestedAt || tr.createdAt || nowIso;
-        normal.lastBy = tr.lastBy || tr.by || normal.lastBy || normal.by;
-      }
-
-      normal.themeHistory = Array.isArray(normal.themeHistory) ? normal.themeHistory : [];
-      normal.themeHistory.push(histEntry);
-
-      // テーマ側のレコードは削除して重複をなくす
-      db.data.responses = db.data.responses.filter(r => r.id !== tr.id);
-    } else {
-      // 通常曲が無いなら、このレコードを通常曲として残す
-      tr.themeHistory = Array.isArray(tr.themeHistory) ? tr.themeHistory : [];
-      tr.themeHistory.push(histEntry);
-
-      delete tr.voteCount;
-      tr.themeId = null;
-      tr.themeOnly = false;
-
-      const baseCur = Number(db.data.songCounts?.[baseKey] ?? 0) || 0;
-      db.data.songCounts[baseKey] = baseCur + themeCount;
-      tr.count = db.data.songCounts[baseKey];
+  // winner: votes desc, count desc, latest request
+  let winner = null;
+  for (const r of candidates) {
+    if (!winner) winner = r;
+    else if ((r.votes || 0) > (winner.votes || 0)) winner = r;
+    else if ((r.votes || 0) === (winner.votes || 0) && (r.count || 0) > (winner.count || 0)) winner = r;
+    else if ((r.votes || 0) === (winner.votes || 0) && (r.count || 0) === (winner.count || 0)) {
+      const ta = new Date(r.lastRequestedAt || r.createdAt || 0).getTime();
+      const tb = new Date(winner.lastRequestedAt || winner.createdAt || 0).getTime();
+      if (ta > tb) winner = r;
     }
+  }
+  t.winnerRequestId = winner?.id || null;
+  t.winner = winner ? {
+    id: winner.id,
+    text: winner.text,
+    artist: winner.artist,
+    appleMusicUrl: winner.appleMusicUrl,
+    artworkUrl: winner.artworkUrl,
+    previewUrl: winner.previewUrl,
+    votes: winner.votes || 0,
+    count: winner.count || 0,
+  } : null;
 
-    // テーマ用カウントキーは削除
-    if (db.data.songCounts && themeKey in db.data.songCounts) delete db.data.songCounts[themeKey];
+  // archive snapshot
+  db.data.themeHistory = db.data.themeHistory || [];
+  db.data.themeHistory.unshift({
+    id: t.id,
+    title: t.title,
+    description: t.description,
+    startAtISO: t.startAtISO,
+    endAtISO: t.endAtISO,
+    endedAtISO: t.endedAtISO,
+    endReason: t.endReason,
+    winner: t.winner,
+    requests: candidates,
+  });
+
+  // merge into normal list
+  db.data.songCounts = db.data.songCounts || {};
+  db.data.responses = db.data.responses || [];
+  for (const r of candidates) {
+    const keyLower = `${String(r.text || "").toLowerCase()}|${String(r.artist || "").toLowerCase()}`;
+    const add = Math.max(1, Number(r.count || 1));
+    db.data.songCounts[keyLower] = (db.data.songCounts[keyLower] || 0) + add;
+
+    const existing = db.data.responses.find(x =>
+      String(x.text || "").toLowerCase() === String(r.text || "").toLowerCase() &&
+      String(x.artist || "").toLowerCase() === String(r.artist || "").toLowerCase()
+    );
+    if (existing) {
+      existing.count = db.data.songCounts[keyLower];
+      const exT = new Date(existing.lastRequestedAt || existing.createdAt || 0).getTime();
+      const rT = new Date(r.lastRequestedAt || r.createdAt || 0).getTime();
+      if (rT > exT) {
+        existing.lastRequestedAt = r.lastRequestedAt || r.createdAt;
+        existing.lastBy = r.lastBy || r.by || null;
+      }
+      existing.appleMusicUrl = r.appleMusicUrl || existing.appleMusicUrl;
+      existing.artworkUrl = r.artworkUrl || existing.artworkUrl;
+      existing.previewUrl = r.previewUrl || existing.previewUrl;
+    } else {
+      db.data.responses.push({
+        id: nanoid(),
+        text: r.text,
+        artist: r.artist,
+        appleMusicUrl: r.appleMusicUrl,
+        artworkUrl: r.artworkUrl,
+        previewUrl: r.previewUrl,
+        count: db.data.songCounts[keyLower],
+        createdAt: r.createdAt || new Date().toISOString(),
+        by: r.by || r.lastBy || null,
+        lastRequestedAt: r.lastRequestedAt || r.createdAt || new Date().toISOString(),
+        lastBy: r.lastBy || r.by || null,
+        fromThemeId: t.id,
+      });
+    }
   }
 
-  if (db.data.settings?.activeThemeId === themeId) db.data.settings.activeThemeId = null;
+  // clear current theme pool
+  db.data.themeRequests = [];
+  db.data.themeSongCounts = {};
+  t.mergedAtISO = new Date().toISOString();
+
   await safeWriteDb();
-}
-
-// endAt を過ぎたら自動終了（アクセス時に呼ぶ）
-async function ensureThemeAutoTransition() {
-  const theme = getActiveTheme();
-  if (!theme || theme.status !== "active") return;
-  if (!theme.endAt) return;
-  const endMs = new Date(theme.endAt).getTime();
-  if (isFinite(endMs) && Date.now() > endMs) {
-    await endThemeAndMerge(theme, "auto");
-  }
 }
 
 const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 365 };
@@ -332,6 +326,8 @@ app.use(async (req, _res, next) => {
   }
 
   if (effectiveUser) await ensureMonthlyRefill(effectiveUser);
+  await ensureThemeAutoClose();
+
 
   
   // Recover from mirror cookie if tokens missing (ephemeral disk cold starts)
@@ -631,116 +627,113 @@ app.post("/submit", async (req, res) => {
 
   const cooldownMin = Number(db.data.settings.duplicateCooldownMinutes ?? 15);
   const now = Date.now();
-  await ensureThemeAutoTransition();
-  const activeTheme = getActiveTheme();
-  const wantsTheme = !!req.body.themeJoin;
-  const themeForThis = (wantsTheme && isThemeJoinable(activeTheme)) ? activeTheme : null;
-  const themeId = themeForThis ? themeForThis.id : null;
-
-  const keyLower = makeCountKey(responseText, artistText, themeId);
-
-  // ユーザー別の連投クールダウン（曲が重複でまとめられていても正しく効く）
-  if (!db.data.lastSubmissions) db.data.lastSubmissions = {};
-  if (!db.data.lastSubmissions[user.id]) db.data.lastSubmissions[user.id] = {};
-  const lastIso = db.data.lastSubmissions[user.id][keyLower];
-  if (lastIso) {
-    const dt = now - new Date(lastIso).getTime();
+  const keyLower = `${responseText.toLowerCase()}|${artistText.toLowerCase()}`;
+  const cooldownList = themeActiveNow() ? (db.data.themeRequests || []) : (db.data.responses || []);
+  const recent = [...cooldownList].reverse().find(r => r.by?.id === user.id && `${r.text.toLowerCase()}|${r.artist.toLowerCase()}` === keyLower);
+  if (recent) {
+    const dt = now - new Date(recent.createdAt).getTime();
     if (dt < cooldownMin * 60 * 1000) {
       const left = Math.ceil((cooldownMin * 60 * 1000 - dt) / 60000);
       return res.send(toastPage(`⚠同一曲の連投は ${cooldownMin} 分間できません。あと約 ${left} 分お待ちください。`, "/"));
     }
   }
 
-  const nowIso = new Date().toISOString();
+await ensureThemeAutoClose();
+const themeOn = themeActiveNow();
+const nowIso = new Date().toISOString();
 
-  db.data.songCounts[keyLower] = (db.data.songCounts[keyLower] || 0) + 1;
-  const existing = db.data.responses.find(r =>
-    String(r.text||"").toLowerCase() === responseText.toLowerCase() &&
-    String(r.artist||"").toLowerCase() === artistText.toLowerCase() &&
-    ((r.themeId || null) === (themeId || null))
-  );
-  if (existing) {
-    existing.count = db.data.songCounts[keyLower];
+const counts = themeOn ? (db.data.themeSongCounts ||= {}) : (db.data.songCounts ||= {});
+const list = themeOn ? (db.data.themeRequests ||= []) : (db.data.responses ||= []);
 
-    // 最終リクエスト情報（管理画面表示用）
-    existing.lastRequestedAt = nowIso;
-    existing.lastBy = { id: user.id, username: user.username };
-    if (themeId) {
-      existing.themeId = themeId;
-      existing.themeOnly = true;
-      if (typeof existing.voteCount !== "number") existing.voteCount = 0;
-    }
+counts[keyLower] = (counts[keyLower] || 0) + 1;
 
-    // 旧データ互換
-    if (!existing.createdAt) existing.createdAt = nowIso;
-    if (!existing.by) existing.by = { id: user.id, username: user.username };
-  } else {
-    db.data.responses.push({
-      id: nanoid(),
-      text: responseText,
-      artist: artistText,
-      appleMusicUrl,
-      artworkUrl,
-      previewUrl,
-      count: db.data.songCounts[keyLower],
-      createdAt: nowIso,
-      lastRequestedAt: nowIso,
-      by: { id: user.id, username: user.username },
-      lastBy: { id: user.id, username: user.username },
-      ...(themeId ? { themeId, themeOnly: true, voteCount: 0 } : {}),
-    });
-  }
+const existing = list.find(r =>
+  String(r.text || "").toLowerCase() === responseText.toLowerCase() &&
+  String(r.artist || "").toLowerCase() === artistText.toLowerCase()
+);
 
-  // 最終投稿時刻（ユーザー別）を記録
-  db.data.lastSubmissions[user.id][keyLower] = nowIso;
+if (existing) {
+  existing.count = counts[keyLower];
+  existing.lastRequestedAt = nowIso;
+  existing.lastBy = { id: user.id, username: user.username };
+  existing.appleMusicUrl = appleMusicUrl;
+  existing.artworkUrl = artworkUrl;
+  existing.previewUrl = previewUrl;
+} else {
+  list.push({
+    id: nanoid(),
+    text: responseText,
+    artist: artistText,
+    appleMusicUrl,
+    artworkUrl,
+    previewUrl,
+    count: counts[keyLower],
+    createdAt: nowIso,
+    by: { id: user.id, username: user.username },
+    lastRequestedAt: nowIso,
+    lastBy: { id: user.id, username: user.username },
+    ...(themeOn ? { votes: 0 } : {})
+  });
+}
 
-  if (!isAdmin(user)) {
+if (!isAdmin(user)) {
     user.tokens = Math.max(0, (user.tokens ?? 0) - 1);
     await usersDb.write();
 }
   await db.write();
-  return res.send(toastPage("✅送信が完了しました！", "/"));
+  return res.send(toastPage(themeActiveNow() ? "✅テーマ曲として応募しました！投票は「テーマ投票」からできます。" : "✅送信が完了しました！", "/"));
 });
 
 
 
 // ---- リクエスト削除 & まとめて削除 ----
-function safeWriteUsers() { return usersDb.write().catch(e => console.error("users.json write error ("+USERS_PATH+"):", e)); }
-function safeWriteDb() { return db.write().catch(e => console.error("db.json write error ("+DB_PATH+"):", e)); }
+function safeWriteUsers() { return usersDb.write().catch(e => console.error("users.json write error:", e)); }
+function safeWriteDb() { return db.write().catch(e => console.error("db.json write error:", e)); }
 
 app.get("/delete/:id", requireAdmin, async (req, res) => {
   const id = req.params.id;
-  const toDelete = db.data.responses.find(e => e.id === id);
+  const scope = (req.query.scope || "main").toString(); // main | theme
+
+  const list = scope === "theme" ? (db.data.themeRequests || []) : (db.data.responses || []);
+  const counts = scope === "theme" ? (db.data.themeSongCounts || {}) : (db.data.songCounts || {});
+
+  const toDelete = list.find(e => e.id === id);
   if (toDelete) {
-    const key = makeCountKey(toDelete.text, toDelete.artist, toDelete.themeId || null);
-    const cur = db.data.songCounts[key] || 0;
-    if (cur > 1) {
-      db.data.songCounts[key] = cur - 1;
-    } else {
-      delete db.data.songCounts[key];
-    }
+    const key = `${String(toDelete.text || "").toLowerCase()}|${String(toDelete.artist || "").toLowerCase()}`;
+    const cur = Number(counts[key] || 0);
+    const dec = Math.max(1, Number(toDelete.count || 1));
+    const next = cur - dec;
+    if (next > 0) counts[key] = next;
+    else delete counts[key];
   }
-  db.data.responses = db.data.responses.filter(e => e.id !== id);
+
+  const filtered = list.filter(e => e.id !== id);
+  if (scope === "theme") db.data.themeRequests = filtered;
+  else db.data.responses = filtered;
+
   await safeWriteDb();
   res.set("Content-Type", "text/html");
   res.send(toastPage("🗑️削除しました", "/admin"));
 });
 
+
+
 app.post("/admin/bulk-delete-requests", requireAdmin, async (req, res) => {
   const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
   const idSet = new Set(ids);
-  for (const r of db.data.responses) {
+
+  for (const r of db.data.responses || []) {
     if (idSet.has(r.id)) {
-      const key = makeCountKey(r.text, r.artist, r.themeId || null);
-      const cur = db.data.songCounts[key] || 0;
-      if (cur > 1) {
-        db.data.songCounts[key] = cur - 1;
-      } else {
-        delete db.data.songCounts[key];
-      }
+      const key = `${String(r.text || "").toLowerCase()}|${String(r.artist || "").toLowerCase()}`;
+      const cur = Number(db.data.songCounts[key] || 0);
+      const dec = Math.max(1, Number(r.count || 1));
+      const next = cur - dec;
+      if (next > 0) db.data.songCounts[key] = next;
+      else delete db.data.songCounts[key];
     }
   }
-  db.data.responses = db.data.responses.filter(r => !idSet.has(r.id));
+
+  db.data.responses = (db.data.responses || []).filter(r => !idSet.has(r.id));
   await safeWriteDb();
   res.redirect(`/admin`);
 });
@@ -858,26 +851,16 @@ app.get("/admin/impersonate/clear", requireAdmin, async (_req, res) => {
 });
 // ---- 管理 UI ----
 app.get("/admin", requireAdmin, async (req, res) => {
-  await ensureThemeAutoTransition();
-
   const sort = (req.query.sort || "newest").toString(); // newest | popular
   const only = (req.query.only || "all").toString();
-  const view = (req.query.view || "normal").toString(); // normal | theme
   const perPage = 10;
   const page = parseInt(req.query.page || "1", 10);
 
-  const activeTheme = getActiveTheme();
   let items = [...db.data.responses];
-  if (view === "theme") {
-    items = activeTheme ? items.filter(r => r && r.themeId === activeTheme.id) : [];
-  } else {
-    // 通常一覧では、進行中テーマ曲を非表示（テーマ終了時に合流される）
-    items = items.filter(r => r && !r.themeId);
-  }
   if (only === "broadcasted") items = items.filter(r => r.broadcasted);
   if (only === "unbroadcasted") items = items.filter(r => !r.broadcasted);
-  if (sort === "popular") items.sort((a,b)=> (b.count|0)-(a.count|0) || new Date(b.lastRequestedAt || b.createdAt) - new Date(a.lastRequestedAt || a.createdAt));
-  else items.sort((a,b)=> new Date(b.lastRequestedAt || b.createdAt) - new Date(a.lastRequestedAt || a.createdAt));
+  if (sort === "popular") items.sort((a,b)=> (b.count|0)-(a.count|0) || new Date(b.createdAt)-new Date(a.createdAt));
+  else items.sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
 
   const total = items.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -885,74 +868,21 @@ app.get("/admin", requireAdmin, async (req, res) => {
   const start = (currentPage - 1) * perPage;
   const pageItems = items.slice(start, start + perPage);
 
-
-const pagination = (cur, totalPages) => {
-  const qs = (p, sortKey = sort) => `?page=${p}&sort=${encodeURIComponent(sortKey)}&only=${encodeURIComponent(only)}&view=${encodeURIComponent(view)}`;
-  const btn = (p, label, disabled = false) =>
-    `<a class="pg-btn ${disabled ? "disabled" : ""}" href="${qs(p)}" ${disabled ? 'tabindex="-1"' : ""}>${label}</a>`;
-  let html = `<div class="pg-wrap">`;
-  html += btn(1, "« 最初", cur === 1);
-  html += btn(Math.max(1, cur - 1), "‹ 前へ", cur === 1);
-  for (let p = 1; p <= totalPages; p++) {
-    if (p === cur) html += `<span class="pg-btn current">${p}</span>`;
-    else if (Math.abs(p - cur) <= 2 || p === 1 || p === totalPages) html += `<a class="pg-btn" href="${qs(p)}">${p}</a>`;
-    else if (Math.abs(p - cur) === 3) html += `<span class="pg-ellipsis">…</span>`;
-  }
-  html += btn(Math.min(totalPages, cur + 1), "次へ ›", cur === totalPages);
-  html += btn(totalPages, "最後 »", cur === totalPages);
-  return html + `</div>`;
-};
-
-
-
-const themes = Array.isArray(db.data.themes) ? db.data.themes : [];
-const startDef = isoToDatetimeLocalJst(new Date().toISOString());
-const endDef = isoToDatetimeLocalJst(new Date(Date.now() + 7*24*60*60*1000).toISOString());
-const themeOptions = themes
-  .filter(t => t && t.status !== "ended")
-  .map(t => `<option value="${t.id}">${t.title} (${t.status})</option>`)
-  .join("");
-
-const activeThemeBlock = activeTheme ? `
-  <p>進行中: <strong>${activeTheme.title}</strong><br>
-    期間: ${new Date(activeTheme.startAt).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false})}
-    〜 ${new Date(activeTheme.endAt).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false})}
-  </p>
-  <div class="tools">
-    <a class="pg-btn" href="/admin?view=theme">テーマ曲一覧へ</a>
-    <form method="POST" action="/admin/theme/end" style="display:inline;">
-      <input type="hidden" name="id" value="${activeTheme.id}">
-      <button type="submit">テーマを終了（合流）</button>
-    </form>
-  </div>
-` : `<p>現在、進行中のテーマはありません。</p>`;
-
-const themeSec = `
-  <div class="sec">
-    <h2>テーマ募集 / 投票</h2>
-    ${activeThemeBlock}
-
-    <h3 style="margin-top:14px;">テーマを作成</h3>
-    <form method="POST" action="/admin/theme/create">
-      <div><label>タイトル: <input type="text" name="title" style="width:320px;"></label></div>
-      <div style="margin-top:6px;"><label>説明:<br><textarea name="description" style="width:320px;height:70px;"></textarea></label></div>
-      <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <label>開始(JST): <input type="datetime-local" name="startAt" value="${startDef}"></label>
-        <label>終了(JST): <input type="datetime-local" name="endAt" value="${endDef}"></label>
-      </div>
-      <div style="margin-top:6px;"><label><input type="checkbox" name="activate" value="1"> 作成してすぐ開始する</label></div>
-      <button type="submit" style="margin-top:6px;">保存</button>
-    </form>
-
-    <h3 style="margin-top:14px;">既存テーマを開始</h3>
-    <form method="POST" action="/admin/theme/activate" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <select name="id" style="min-width:260px;">${themeOptions || "<option value=''>（候補なし）</option>"}</select>
-      <button type="submit" ${themeOptions ? "" : "disabled"}>開始</button>
-    </form>
-
-    <p class="muted" style="margin-top:8px;">投票は「テーマ曲のみ」・「1日1回（JST基準）」です。</p>
-  </div>
-`;
+  const pagination = (cur, total, sortKey) => {
+    const btn = (p, label, disabled = false) =>
+      `<a class="pg-btn ${disabled ? "disabled" : ""}" href="?page=${p}&sort=${sortKey}" ${disabled ? 'tabindex="-1"' : ""}>${label}</a>`;
+    let html = `<div class="pg-wrap">`;
+    html += btn(1, "« 最初", cur === 1);
+    html += btn(Math.max(1, cur - 1), "‹ 前へ", cur === 1);
+    for (let p = 1; p <= total; p++) {
+      if (p === cur) html += `<span class="pg-btn current">${p}</span>`;
+      else if (Math.abs(p - cur) <= 2 || p === 1 || p === total) html += btn(p, String(p));
+      else if (Math.abs(p - cur) === 3) html += `<span class="pg-ellipsis">…</span>`;
+    }
+    html += btn(Math.min(total, cur + 1), "次へ ›", cur === total);
+    html += btn(total, "最後 »", cur === total);
+    return html + `</div>`;
+  };
 
   let html = `<!doctype html><html lang="ja"><meta charset="utf-8"><title>管理者ページ</title>
   <style>
@@ -977,42 +907,34 @@ const themeSec = `
     .banner-imp{padding:8px 12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;margin:10px 0}
     .badge{background:#10b981;color:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:6px;display:inline-block;line-height:1.3;vertical-align:middle;}
     .badge.gray{background:#9ca3af;}
-
-    .entry-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
-    .req-meta{display:flex;align-items:center;gap:6px;font-size:12px;color:#555;white-space:nowrap;margin-right:6px;}
-    .req-meta .u{font-weight:600;color:#111;}
-    .req-meta code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;background:#f5f5f5;border:1px solid #eee;border-radius:6px;padding:1px 6px;}
+    .meta{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .meta code{padding:2px 6px;background:#f5f5f5;border:1px solid #eee;border-radius:6px;}
   </style>
   <body>
-    <h1>🎧 曲リクエスト一覧 ${view==='theme'?'（テーマ曲）':''}</h1>
+    <h1>✉ アンケート回答一覧</h1>
 
     ${req.impersonating ? `<div class="banner-imp">現在 <strong>${req.user?.username || 'user'}</strong> として閲覧中（なりすまし）。 <a href="/admin/impersonate/clear">解除</a></div>` : ""}
 
     <div class="tools">
       <div>
         並び替え:
-        <a class="pg-btn ${sort==='newest'?'current':''}" href="?sort=newest&only=${only}&view=${view}">最新順</a>
-        <a class="pg-btn ${sort==='popular'?'current':''}" href="?sort=popular&only=${only}&view=${view}">人気順</a>
+        <a class="pg-btn ${sort==='newest'?'current':''}" href="?sort=newest">最新順</a>
+        <a class="pg-btn ${sort==='popular'?'current':''}" href="?sort=popular">人気順</a>
       </div>
       <div>
         絞り込み:
-        <a class="pg-btn ${only==='broadcasted'?'current':''}" href="?sort=${sort}&only=broadcasted&view=${view}">放送済みのみ</a>
-        <a class="pg-btn ${only==='unbroadcasted'?'current':''}" href="?sort=${sort}&only=unbroadcasted&view=${view}">未放送のみ</a>
-        <a class="pg-btn ${only==='all'?'current':''}" href="?sort=${sort}&only=all&view=${view}">すべて</a>
-</div>
-<div>
-  表示:
-  <a class="pg-btn ${view==='normal'?'current':''}" href="?sort=${sort}&only=${only}&view=normal">通常</a>
-  <a class="pg-btn ${view==='theme'?'current':''}" href="?sort=${sort}&only=${only}&view=theme">テーマ曲</a>
-</div>
-<div style="margin-left:auto;">
+        <a class="pg-btn ${only==='broadcasted'?'current':''}" href="?sort=${sort}&only=broadcasted">放送済みのみ</a>
+        <a class="pg-btn ${only==='unbroadcasted'?'current':''}" href="?sort=${sort}&only=unbroadcasted">未放送のみ</a>
+        <a class="pg-btn ${only==='all'?'current':''}" href="?sort=${sort}&only=all">すべて</a>
+      </div>
+      <div style="margin-left:auto;">
         <a class="pg-btn" href="/admin/users">ユーザー管理へ →</a>
       </div>
     </div>
 
     </div>
 
-    ${pagination(currentPage, totalPages)}
+    ${pagination(currentPage, totalPages, sort)}
 
     <form method="POST" action="/admin/bulk-delete-requests" id="bulkReqForm">
       <div class="tools">
@@ -1031,24 +953,18 @@ const themeSec = `
       <div class="entry-container">
         <input type="checkbox" name="ids" value="${e.id}" class="req-check">
         <a href="${e.appleMusicUrl || "#"}" target="_blank" class="entry">
-          <div class="count-badge">${e.count}</div>${view==='theme'?`<div class="count-badge" style="background:#111827;">票:${Number(e.voteCount||0)}</div>`:'' }
+          <div class="count-badge">${e.count}</div>
           <img src="${e.artworkUrl}" alt="Cover">
           <div class="entry-text">
             <strong>${e.text}</strong>${e.broadcasted ? '<span class="badge">放送済み</span>' : '<span class="badge gray">未放送</span>'}<br>
             <small>${e.artist}</small>
           </div>
         </a>
-        <div class="entry-actions">
-          <span class="req-meta" title="最終リクエスト（JST） / 送信者 / デバイスID">
-            <span class="t">${(() => { 
-              const iso = e.lastRequestedAt || e.createdAt; 
-              if (!iso) return "-";
-              try { 
-                return new Date(iso).toLocaleString("ja-JP",{ timeZone:"Asia/Tokyo", year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", hour12:false }); 
-              } catch { return iso; }
-            })()}</span>
-            <span class="u">@${(e.lastBy?.username || e.by?.username || "unknown")}</span>
-            <code>${(e.lastBy?.id || e.by?.id || "-")}</code>
+        <div class="entry-actions" style="display:flex;gap:8px;align-items:center;">
+          <span class="meta">
+            <span>${fmtJst(e.lastRequestedAt || e.createdAt)}</span>
+            <span>${esc((e.lastBy && e.lastBy.username) || (e.by && e.by.username) || "-")}</span>
+            <code>${esc((e.lastBy && e.lastBy.id) || (e.by && e.by.id) || "-")}</code>
           </span>
           <a href="/broadcast/${e.id}" class="delete" title="放送済みにする">📻</a>
           <a href="/unbroadcast/${e.id}" class="delete" title="未放送に戻す">↩️</a>
@@ -1063,9 +979,62 @@ html += `</ul>
       </div>
     </form>
 
-    ${pagination(currentPage, totalPages)}
+    ${pagination(currentPage, totalPages, sort)}
 
-    ${themeSec}
+<div class="sec">
+  <h2>🎧 テーマ曲イベント</h2>
+  ${(() => {
+    const t = db.data.theme || {};
+    const active = themeActiveNow();
+    const candidates = [...(db.data.themeRequests || [])].sort((a,b)=>
+      (b.votes||0)-(a.votes||0) || (b.count||0)-(a.count||0) || new Date(b.createdAt||0)-new Date(a.createdAt||0)
+    );
+    const candList = candidates.slice(0, 30).map(r => `
+      <li style="margin:8px 0;">
+        <div class="entry-container" style="max-width:980px;">
+          <a href="${r.appleMusicUrl || "#"}" target="_blank" class="entry">
+            <div class="count-badge">${r.count || 1}</div>
+            <img src="${r.artworkUrl}" alt="Cover">
+            <div class="entry-text">
+              <strong>${esc(r.text)}</strong><br>
+              <small>${esc(r.artist)}　/　投票: <b>${r.votes || 0}</b></small>
+            </div>
+          </a>
+          <div class="entry-actions" style="display:flex;gap:8px;align-items:center;">
+            <span class="meta">
+              <span>${fmtJst(r.lastRequestedAt || r.createdAt)}</span>
+              <span>${esc((r.lastBy && r.lastBy.username) || (r.by && r.by.username) || "-")}</span>
+              <code>${esc((r.lastBy && r.lastBy.id) || (r.by && r.by.id) || "-")}</code>
+            </span>
+            <a href="/delete/${r.id}?scope=theme" class="delete" title="候補を削除">🗑️</a>
+          </div>
+        </div>
+      </li>
+    `).join("");
+    return `
+      <div style="margin:8px 0 12px;">
+        <div><b>状態:</b> ${active ? '<span class="badge">募集中</span>' : '<span class="badge gray">停止中</span>'}</div>
+        <div style="margin-top:4px;"><b>テーマ:</b> ${esc(t.title || "（未設定）")}</div>
+        <div style="margin-top:4px;"><b>終了予定:</b> ${t.endAtISO ? fmtJst(t.endAtISO) : "手動終了"}</div>
+        <div style="margin-top:4px;"><b>候補数:</b> ${(db.data.themeRequests || []).length}　<a href="/theme" class="pg-btn" style="padding:6px 10px;">投票ページへ</a></div>
+      </div>
+      ${active ? `
+        <form method="POST" action="/admin/theme/end" style="margin:10px 0;">
+          <button type="submit" style="padding:8px 12px;">今すぐ終了して通常リストに合流</button>
+        </form>
+      ` : `
+        <form method="POST" action="/admin/theme/start" style="display:grid;gap:8px;max-width:520px;margin:10px 0;">
+          <label>タイトル: <input type="text" name="title" style="width:100%;padding:10px;" placeholder="例：冬の朝に聴きたい曲"></label>
+          <label>説明: <textarea name="description" style="width:100%;height:70px;padding:10px;" placeholder="例：明日までに候補曲を集めます。投票は1日1回！"></textarea></label>
+          <label>終了日時（JST）: <input type="datetime-local" name="endAtLocal" style="padding:10px;"></label>
+          <button type="submit" style="padding:10px 12px;">イベントを開始</button>
+          <small style="color:#555;">※ 期間中に送信された曲は「テーマ候補」に入り、イベント終了時に通常の曲一覧へ合流します。</small>
+        </form>
+      `}
+      ${candList ? `<h3 style="margin:12px 0 6px;">テーマ候補（上位30）</h3><ul style="list-style:none;padding:0;">${candList}</ul>` : `<p style="color:#666;">まだ候補曲がありません。</p>`}
+    `;
+  })()}
+</div>
 
     <div class="sec">
       <h2>設定</h2>
@@ -1140,6 +1109,161 @@ app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
   await safeWriteDb();
   res.redirect("/admin");
 });
+// ---- Theme (admin) ----
+app.post("/admin/theme/start", requireAdmin, async (req, res) => {
+  const title = (req.body.title || "").toString().trim();
+  const description = (req.body.description || "").toString().trim();
+  const endAtISO = parseJstDatetimeLocalToIso(req.body.endAtLocal);
+
+  db.data.theme = db.data.theme || {};
+  db.data.theme.active = true;
+  db.data.theme.status = "active";
+  db.data.theme.id = nanoid(10);
+  db.data.theme.title = title || "テーマ曲募集";
+  db.data.theme.description = description || "";
+  db.data.theme.startAtISO = new Date().toISOString();
+  db.data.theme.endAtISO = endAtISO;
+  db.data.theme.winnerRequestId = null;
+  db.data.theme.winner = null;
+  db.data.theme.endedAtISO = null;
+  db.data.theme.mergedAtISO = null;
+  db.data.theme.endReason = null;
+
+  db.data.themeRequests = [];
+  db.data.themeSongCounts = {};
+
+  await safeWriteDb();
+  res.redirect("/admin");
+});
+
+app.post("/admin/theme/end", requireAdmin, async (_req, res) => {
+  await endThemeAndMerge("manual");
+  res.redirect("/admin");
+});
+
+// ---- Theme (public) ----
+app.get("/theme/status", async (_req, res) => {
+  await ensureThemeAutoClose();
+  const t = db.data.theme || {};
+  res.json({
+    active: themeActiveNow(),
+    id: t.id,
+    title: t.title,
+    description: t.description,
+    startAtISO: t.startAtISO,
+    endAtISO: t.endAtISO,
+    candidates: (db.data.themeRequests || []).length
+  });
+});
+
+app.get("/theme", async (req, res) => {
+  await ensureThemeAutoClose();
+  const t = db.data.theme || {};
+  const active = themeActiveNow();
+  const me = req.user || null;
+
+  const today = jstDateKey();
+  const lastVoteDate = me?.themeVotes?.[t.id || ""]?.lastVoteDate || null;
+  const canVote = !!me && active && lastVoteDate !== today;
+
+  const candidates = [...(db.data.themeRequests || [])].sort((a,b)=>
+    (b.votes||0)-(a.votes||0) || (b.count||0)-(a.count||0) || new Date(b.createdAt||0)-new Date(a.createdAt||0)
+  );
+
+  const winner = t.winner;
+  const last = (db.data.themeHistory || [])[0] || null;
+
+  const candHtml = candidates.map(r => `
+    <div class="cand">
+      <img src="${r.artworkUrl}" alt="cover">
+      <div class="info">
+        <div class="ttl">${esc(r.text)}</div>
+        <div class="sub">${esc(r.artist)} / リクエスト: <b>${r.count || 1}</b> / 投票: <b>${r.votes || 0}</b></div>
+        <div class="sub2">最終リクエスト: ${fmtJst(r.lastRequestedAt || r.createdAt)} / ${esc((r.lastBy && r.lastBy.username) || (r.by && r.by.username) || "-")}</div>
+        <div class="ops">
+          <a href="${r.appleMusicUrl || "#"}" target="_blank">Apple Music</a>
+          ${active ? (me ? `
+            <form method="POST" action="/theme/vote" style="display:inline;">
+              <input type="hidden" name="id" value="${r.id}">
+              <button type="submit" ${canVote ? "" : "disabled"}>投票</button>
+            </form>
+          ` : `<a href="/" style="margin-left:8px;">ログインして投票</a>`) : ""}
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  res.send(`<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>テーマ投票</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;margin:0;padding:16px;}
+    .wrap{max-width:900px;margin:0 auto;}
+    .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,.06);margin:12px 0;}
+    .title{font-size:22px;font-weight:800;margin:0 0 6px;}
+    .desc{color:#444;white-space:pre-wrap;}
+    .meta{color:#666;font-size:13px;margin-top:6px;}
+    .cand{display:flex;gap:12px;padding:10px;border:1px solid rgba(0,0,0,.08);border-radius:12px;margin:10px 0;background:#fff;}
+    .cand img{width:70px;height:70px;border-radius:10px;object-fit:cover;background:#eee;flex:0 0 auto;}
+    .ttl{font-weight:800;}
+    .sub,.sub2{color:#555;font-size:13px;margin-top:2px;}
+    .ops{margin-top:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .ops a{color:#2563eb;text-decoration:none;}
+    button{padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,.15);background:#111827;color:#fff;cursor:pointer;}
+    button[disabled]{opacity:.5;cursor:not-allowed;}
+    .badge{display:inline-block;background:#10b981;color:#fff;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;vertical-align:middle;}
+    .badge.gray{background:#9ca3af;}
+  </style>
+  <body><div class="wrap">
+    <div class="card">
+      <div class="title">🎧 テーマ投票 ${active ? '<span class="badge">開催中</span>' : '<span class="badge gray">停止中</span>'}</div>
+      <div style="font-size:16px;font-weight:700;">${esc(t.title || "テーマ曲")}</div>
+      <div class="desc">${esc(t.description || "")}</div>
+      <div class="meta">
+        ${active ? `終了予定: ${t.endAtISO ? fmtJst(t.endAtISO) : "手動終了"} / 候補数: ${candidates.length}` : ""}
+        ${me ? `<br>あなた: ${esc(me.username)} / 今日(${today})の投票: ${lastVoteDate === today ? "済" : "未"}` : `<br>投票するにはトップページで登録してください。`}
+        ${active && me && !canVote ? `<br><b>※投票は1日1回です。</b>` : ""}
+      </div>
+      <div style="margin-top:10px;"><a href="/" style="text-decoration:none;">← トップへ戻る</a></div>
+    </div>
+
+    ${active ? `<div class="card"><h2 style="margin:0 0 8px;">候補曲</h2>${candHtml || "<p>まだ候補がありません。</p>"}</div>` : ""}
+
+    ${!active && (winner || last) ? `<div class="card">
+      <h2 style="margin:0 0 8px;">直近の結果</h2>
+      ${winner ? `<div style="font-weight:800;">今回のテーマ曲: ${esc(winner.text)} / ${esc(winner.artist)}（投票 ${winner.votes || 0}）</div>` : (last?.winner ? `<div style="font-weight:800;">${esc(last.winner.text)} / ${esc(last.winner.artist)}（投票 ${last.winner.votes || 0}）</div>` : `<div>（まだ結果がありません）</div>`)}
+      ${last ? `<div class="meta">終了: ${last.endedAtISO ? fmtJst(last.endedAtISO) : "-"}</div>` : ""}
+    </div>` : ""}
+
+  </div></body></html>`);
+});
+
+app.post("/theme/vote", bodyParser.urlencoded({ extended: true }), async (req, res) => {
+  await ensureThemeAutoClose();
+  const t = db.data.theme || {};
+  if (!themeActiveNow()) return res.send(toastPage("⚠ 現在、投票は行われていません。", "/theme"));
+
+  const user = req.user;
+  if (!user) return res.send(toastPage("⚠ 投票するには登録が必要です。", "/"));
+
+  const id = (req.body.id || "").toString().trim();
+  const target = (db.data.themeRequests || []).find(r => r.id === id);
+  if (!target) return res.send(toastPage("⚠ その候補は見つかりませんでした。", "/theme"));
+
+  const today = jstDateKey();
+  user.themeVotes = user.themeVotes || {};
+  const rec = user.themeVotes[t.id] || {};
+  if (rec.lastVoteDate === today) {
+    return res.send(toastPage("⚠ 投票は1日1回です。明日また投票できます。", "/theme"));
+  }
+
+  user.themeVotes[t.id] = { lastVoteDate: today, votedAtISO: new Date().toISOString(), requestId: id };
+  target.votes = (target.votes || 0) + 1;
+
+  await safeWriteUsers();
+  await safeWriteDb();
+  res.send(toastPage("✅ 投票しました！", "/theme"));
+});
+
 // ---- Users ----
 app.get("/admin/users", requireAdmin, async (_req, res) => {
   await usersDb.read();
@@ -1318,145 +1442,6 @@ app.post("/update-settings", requireAdmin, async (req, res) => {
 });
 app.get("/settings", (_req, res) => res.json(db.data.settings));
 
-
-// ==== Theme / Voting ====
-
-// 現在のテーマ情報 + テーマ曲一覧 + 本日の投票状況
-app.get("/theme/active", async (req, res) => {
-  await ensureThemeAutoTransition();
-  const theme = getActiveTheme();
-  if (!theme || theme.status !== "active") return res.json({ theme: null });
-
-  const joinable = isThemeJoinable(theme);
-  const votable = isThemeVotable(theme);
-
-  const songs = (db.data.responses || [])
-    .filter(r => r && r.themeId === theme.id)
-    .map(r => ({
-      id: r.id,
-      text: r.text,
-      artist: r.artist,
-      artworkUrl: r.artworkUrl,
-      appleMusicUrl: r.appleMusicUrl,
-      previewUrl: r.previewUrl,
-      count: Number(r.count || 0) || 0,
-      voteCount: Number(r.voteCount || 0) || 0,
-      lastRequestedAt: r.lastRequestedAt || r.createdAt || null,
-    }))
-    .sort((a, b) => (b.voteCount - a.voteCount) || (b.count - a.count));
-
-  const dayKey = jstDateKey();
-  const u = req.user;
-  const ledger = (db.data.votesLedger && db.data.votesLedger[dayKey]) ? db.data.votesLedger[dayKey] : {};
-  const my = u ? ledger[u.id] : null;
-  let myVote = null;
-  if (my && my.songId) {
-    const s = songs.find(x => x.id === my.songId);
-    myVote = { songId: my.songId, at: my.at, songTitle: s ? `${s.text} - ${s.artist}` : "" };
-  }
-
-  return res.json({
-    theme: { id: theme.id, title: theme.title, description: theme.description || "", startAt: theme.startAt || null, endAt: theme.endAt || null },
-    joinable,
-    votable,
-    todayKey: dayKey,
-    myVote,
-    songs
-  });
-});
-
-// テーマ曲に投票（1日1回）
-app.post("/theme/vote", async (req, res) => {
-  const user = req.user;
-  if (!user) return res.status(401).json({ ok: false, message: "未ログインです" });
-  if (isAdmin(user)) return res.status(403).json({ ok: false, message: "管理者は投票できません" });
-
-  await ensureThemeAutoTransition();
-  const theme = getActiveTheme();
-  if (!theme || theme.status !== "active") return res.status(400).json({ ok: false, message: "現在投票できるテーマがありません" });
-  if (!isThemeVotable(theme)) return res.status(400).json({ ok: false, message: "現在は投票期間外です" });
-
-  const songId = (req.body?.songId || "").toString();
-  const song = (db.data.responses || []).find(r => r && r.id === songId && r.themeId === theme.id);
-  if (!song) return res.status(404).json({ ok: false, message: "曲が見つかりません" });
-
-  const dayKey = jstDateKey();
-  if (!db.data.votesLedger || typeof db.data.votesLedger !== "object") db.data.votesLedger = {};
-  if (!db.data.votesLedger[dayKey]) db.data.votesLedger[dayKey] = {};
-  if (db.data.votesLedger[dayKey][user.id]) {
-    return res.status(400).json({ ok: false, message: "本日はすでに投票済みです" });
-  }
-
-  song.voteCount = Number(song.voteCount || 0) + 1;
-  db.data.votesLedger[dayKey][user.id] = { themeId: theme.id, songId: song.id, at: new Date().toISOString() };
-
-  await safeWriteDb();
-  return res.json({ ok: true });
-});
-
-// ---- Admin: Theme management ----
-
-app.post("/admin/theme/create", requireAdmin, async (req, res) => {
-  await ensureThemeAutoTransition();
-  const title = (req.body.title || "").toString().trim();
-  const description = (req.body.description || "").toString().trim();
-  if (!title) return res.send(toastPage("⚠テーマのタイトルが空です", "/admin"));
-
-  const startAt = parseDatetimeLocalJstToISO(req.body.startAt) || new Date().toISOString();
-  const endAt = parseDatetimeLocalJstToISO(req.body.endAt) || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-
-  const t = {
-    id: nanoid(8),
-    title,
-    description,
-    startAt,
-    endAt,
-    status: "draft",
-    createdAt: new Date().toISOString(),
-    createdBy: req.user?.id || null,
-  };
-  db.data.themes.push(t);
-
-  const activate = !!req.body.activate;
-  if (activate) {
-    if (db.data.settings.activeThemeId) {
-      return res.send(toastPage("⚠すでに進行中のテーマがあります。先に終了してください。", "/admin"));
-    }
-    t.status = "active";
-    db.data.settings.activeThemeId = t.id;
-  }
-
-  await safeWriteDb();
-  return res.send(toastPage("✅テーマを保存しました", "/admin"));
-});
-
-app.post("/admin/theme/activate", requireAdmin, async (req, res) => {
-  await ensureThemeAutoTransition();
-  const id = (req.body.id || "").toString().trim();
-  const t = (db.data.themes || []).find(x => x.id === id);
-  if (!t) return res.send(toastPage("⚠テーマが見つかりません", "/admin"));
-
-  if (db.data.settings.activeThemeId && db.data.settings.activeThemeId !== id) {
-    return res.send(toastPage("⚠すでに進行中のテーマがあります。先に終了してください。", "/admin"));
-  }
-
-  t.status = "active";
-  db.data.settings.activeThemeId = t.id;
-  await safeWriteDb();
-  return res.send(toastPage("✅テーマを開始しました", "/admin?view=theme"));
-});
-
-app.post("/admin/theme/end", requireAdmin, async (req, res) => {
-  await ensureThemeAutoTransition();
-  const id = (req.body.id || "").toString().trim() || db.data.settings.activeThemeId;
-  const t = (db.data.themes || []).find(x => x.id === id);
-  if (!t) return res.send(toastPage("⚠テーマが見つかりません", "/admin"));
-  if (t.status !== "active") return res.send(toastPage("⚠このテーマは進行中ではありません", "/admin"));
-
-  await endThemeAndMerge(t, req.user?.id || "admin");
-  return res.send(toastPage("✅テーマを終了し、曲一覧へ合流しました", "/admin"));
-});
-
 // ==== プレビュー用プロキシ ====
 app.get("/preview", async (req, res) => {
   try {
@@ -1539,7 +1524,7 @@ async function refillAllBySchedule() {
           u.lastRefillAtISO = new Date().toISOString();
         }
       }
-      db.data.settings.lastRefillRunISO = scheduledUtc.toISOString();
+      db.data.settings.lastRefillRunISO = new Date().toISOString();
       await safeWriteDb();
       await safeWriteUsers();
     }
