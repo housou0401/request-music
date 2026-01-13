@@ -996,5 +996,34 @@
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2
-  }
+  },
+  "theme": {
+    "active": false,
+    "status": "ended",
+    "id": "YQywB6VlJB",
+    "title": "test",
+    "description": "",
+    "startAtISO": "2026-01-13T08:59:25.421Z",
+    "endAtISO": "2026-01-13T09:02:00.000Z",
+    "winnerRequestId": null,
+    "winner": null,
+    "endedAtISO": "2026-01-13T08:59:44.346Z",
+    "mergedAtISO": "2026-01-13T08:59:44.346Z",
+    "endReason": "manual"
+  },
+  "themeRequests": [],
+  "themeSongCounts": {},
+  "themeHistory": [
+    {
+      "id": "YQywB6VlJB",
+      "title": "test",
+      "description": "",
+      "startAtISO": "2026-01-13T08:59:25.421Z",
+      "endAtISO": "2026-01-13T09:02:00.000Z",
+      "endedAtISO": "2026-01-13T08:59:44.346Z",
+      "endReason": "manual",
+      "winner": null,
+      "requests": []
+    }
+  ]
 }
