@@ -943,12 +943,36 @@ body{background:#f4f6fb;}
 .admin-row button{padding:8px 10px;border-radius:12px;border:none;background:#1e3a8a;color:#fff;cursor:pointer;}
 .admin-row button.secondary{background:#334155;}
 .req-time{font-size:12px;opacity:.75;margin-right:10px;}
+
+/* --- admin header / cards --- */
+.admin-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 12px;}
+.admin-head h1{margin:0;font-size:22px;letter-spacing:.2px;}
+.admin-head-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.admin-subtitle{margin:10px 0 8px;font-size:15px;opacity:.8;}
+/* section cards */
+.sec{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:14px;margin:14px 0;max-width:1100px;}
+.sec h2{margin:0 0 10px;font-size:16px;}
+/* request list card wrapper */
+.list-card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:12px 12px;margin:10px 0;max-width:1100px;}
+/* meta inline */
+.meta{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;max-width:380px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.meta code{padding:2px 6px;background:#f5f5f5;border:1px solid #eee;border-radius:6px;}
+
 </style>
   <body>
-    <h1>✉ アンケート回答一覧</h1>
+    <div class="admin-wrap">
+    <div class="admin-head">
+      <h1>🎛 管理者ページ</h1>
+      <div class="admin-head-actions">
+        <a class="pg-btn" href="/">トップへ</a>
+        <a class="pg-btn" href="/admin/users">ユーザー管理</a>
+      </div>
+    </div>
+    <h2 class="admin-subtitle">リクエスト曲一覧</h2>
 
     ${req.impersonating ? `<div class="banner-imp">現在 <strong>${req.user?.username || 'user'}</strong> として閲覧中（なりすまし）。 <a href="/admin/impersonate/clear">解除</a></div>` : ""}
 
+    <div class="list-card">
     <div class="tools">
       <div>
         並び替え:
@@ -965,7 +989,6 @@ body{background:#f4f6fb;}
         <a class="pg-btn" href="/admin/users">ユーザー管理へ →</a>
       </div>
     </div>
-
     </div>
 
     ${pagination(currentPage, totalPages, sort)}
@@ -1000,7 +1023,6 @@ body{background:#f4f6fb;}
             <span>${esc((e.lastBy && e.lastBy.username) || (e.by && e.by.username) || "-")}</span>
             <code>${esc((e.lastBy && e.lastBy.id) || (e.by && e.by.id) || "-")}</code>
           </span>
-          <span class="req-time" title="最終リクエスト時刻">${esc(fmtJst(e.lastRequestedAt || e.createdAt))}</span>
           <a href="/broadcast/${e.id}" class="delete" title="放送済みにする">📻</a>
           <a href="/unbroadcast/${e.id}" class="delete" title="未放送に戻す">↩️</a>
           <a href="/delete/${e.id}" class="delete" title="削除">🗑️</a>
@@ -1126,6 +1148,7 @@ html += `</ul>
         document.querySelectorAll('.req-check').forEach(chk => chk.checked = reqAll.checked);
       });
     </script>
+    </div>
   </body></html>`;
 
   res.send(html);
@@ -1218,6 +1241,7 @@ app.get("/theme", async (req, res) => {
   const today = voteDateKey();
   const lastVoteDate = me?.themeVotes?.[t.id || ""]?.lastVoteDate || null;
   const canVote = !!me && active && lastVoteDate !== today;
+  const showPrivate = !!req.adminSession; // 管理者のみ「最終リクエスト/送信者」表示
 
   const candidates = [...(db.data.themeRequests || [])].sort((a,b)=>
     (b.votes||0)-(a.votes||0) || (b.count||0)-(a.count||0) || new Date(b.createdAt||0)-new Date(a.createdAt||0)
@@ -1226,25 +1250,36 @@ app.get("/theme", async (req, res) => {
   const winner = t.winner;
   const last = (db.data.themeHistory || [])[0] || null;
 
-  const candHtml = candidates.map(r => `
+  const candHtml = candidates.map(r => {
+  const privateLine = showPrivate
+    ? `<div class="sub2">最終リクエスト: ${fmtJst(r.lastRequestedAt || r.createdAt)} / ${esc((r.lastBy && r.lastBy.username) || (r.by && r.by.username) || "-")} <code>${esc((r.lastBy && r.lastBy.id) || (r.by && r.by.id) || "-")}</code></div>`
+    : "";
+  const voteBtn = active
+    ? (me
+        ? `
+          <form method="POST" action="/theme/vote" style="display:inline;">
+            <input type="hidden" name="id" value="${r.id}">
+            <button type="submit" ${canVote ? "" : "disabled"}>投票</button>
+          </form>
+        `
+        : `<a href="/" style="margin-left:8px;">ログインして投票</a>`)
+    : "";
+  return `
     <div class="cand">
       <img src="${r.artworkUrl}" alt="cover">
       <div class="info">
         <div class="ttl">${esc(r.text)}</div>
         <div class="sub">${esc(r.artist)} / リクエスト: <b>${r.count || 1}</b> / 投票: <b>${r.votes || 0}</b></div>
-        <div class="sub2">最終リクエスト: ${fmtJst(r.lastRequestedAt || r.createdAt)} / ${esc((r.lastBy && r.lastBy.username) || (r.by && r.by.username) || "-")}</div>
+        ${privateLine}
         <div class="ops">
           <a href="${r.appleMusicUrl || "#"}" target="_blank">Apple Music</a>
-          ${active ? (me ? `
-            <form method="POST" action="/theme/vote" style="display:inline;">
-              <input type="hidden" name="id" value="${r.id}">
-              <button type="submit" ${canVote ? "" : "disabled"}>投票</button>
-            </form>
-          ` : `<a href="/" style="margin-left:8px;">ログインして投票</a>`) : ""}
+          ${voteBtn}
         </div>
       </div>
     </div>
-  `).join("");
+  `;
+}).join("");
+
 
   res.send(`<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>テーマ投票</title>
