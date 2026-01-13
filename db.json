@@ -998,8 +998,8 @@
     "rateLimitPerMin": 2
   },
   "theme": {
-    "active": true,
-    "status": "active",
+    "active": false,
+    "status": "ended",
     "id": "0yo0pr4DeQ",
     "title": "test",
     "description": "",
@@ -1007,13 +1007,24 @@
     "endAtISO": "2026-01-14T18:51:00.000Z",
     "winnerRequestId": null,
     "winner": null,
-    "endedAtISO": null,
-    "mergedAtISO": null,
-    "endReason": null
+    "endedAtISO": "2026-01-13T19:15:00.984Z",
+    "mergedAtISO": "2026-01-13T19:15:00.984Z",
+    "endReason": "manual"
   },
   "themeRequests": [],
   "themeSongCounts": {},
   "themeHistory": [
+    {
+      "id": "0yo0pr4DeQ",
+      "title": "test",
+      "description": "",
+      "startAtISO": "2026-01-13T18:51:07.870Z",
+      "endAtISO": "2026-01-14T18:51:00.000Z",
+      "endedAtISO": "2026-01-13T19:15:00.984Z",
+      "endReason": "manual",
+      "winner": null,
+      "requests": []
+    },
     {
       "id": "YQywB6VlJB",
       "title": "test",
