@@ -105,7 +105,8 @@ app.use(cookieParser());
 // 静的配信 & ルート
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 app.use(express.static("public"));
-app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
+// public/index.html をトップとして配信
+app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 
 // ==== Helpers ====
 const monthKey = () => {
@@ -120,7 +121,14 @@ const deviceInfoFromReq = (req) => ({
 });
 
 const TZ = "Asia/Tokyo";
+// JST日付キー（YYYY-MM-DD）
 const jstDateKey = (date = new Date()) =>
+  new Intl.DateTimeFormat("en-CA", {
+    timeZone: TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 
 const getVoteResetMs = () => {
   const s = db.data.settings || {};
@@ -130,7 +138,6 @@ const getVoteResetMs = () => {
 };
 // 投票の「1日」はJSTの指定時刻で切り替える（例: 04:00）
 const voteDateKey = (date = new Date()) => jstDateKey(new Date(date.getTime() - getVoteResetMs()));
-  new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
 const fmtJst = (iso) => {
   try { return new Date(iso).toLocaleString("ja-JP", { timeZone: TZ }); } catch { return "-"; }
 };
