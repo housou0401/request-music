@@ -130,6 +130,7 @@ button:hover {
   border:1px solid rgba(0,0,0,0.1);
   border-radius:12px;
   background:#fff;
+  color:#111;
   cursor:pointer;
   text-align:left;
 }
@@ -147,9 +148,15 @@ button:hover {
   font-size:18px;color:#555;
 }
 .artist-meta{min-width:0;flex:1;}
-.artist-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.artist-hint{font-size:12px;opacity:.7;margin-top:2px;}
-.artist-go{font-size:22px;opacity:.35;flex:0 0 auto;margin-left:8px;}
+.artist-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:#111;
+}
+.artist-hint{font-size:12px;opacity:.7;margin-top:2px;
+  color:#222;
+}
+.artist-go{font-size:22px;opacity:.35;flex:0 0 auto;margin-left:8px;
+  color:#666;
+}
 
 .selected-item {
   margin-bottom: 10px;
@@ -981,3 +988,9 @@ button:hover {
 .artist-list-item img{width:40px;height:40px;border-radius:10px;object-fit:cover;flex:0 0 auto;}
 .artist-list-item .name{font-weight:800;}
 .artist-list-item .sub{opacity:.75;font-size:12px;margin-top:2px;}
+
+/* artist-list readability override */
+.artist-row{ color:#111; }
+.artist-name{ color:#111; }
+.artist-hint{ color:#333; }
+.artist-go{ color:#666; }

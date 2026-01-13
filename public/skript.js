@@ -321,8 +321,9 @@ async function selectArtist(artist) {
     lockedArtistQuery = (artist.artistName || artist.trackName || "").trim();
   }
 
-  document.getElementById("selectedArtist").innerHTML =
-    `<div class="selected-artist-card"><img src="${artist.artworkUrl}" alt="Artist"><div>${artist.artistName || artist.trackName}</div></div>`;
+  // 選択アーティストの大きい表示は出さない（送信/削除ボタンの邪魔になるため）
+  const selBox = document.getElementById("selectedArtist");
+  if (selBox) selBox.innerHTML = "";
   await fetchArtistTracksAndShow();
 }
 
