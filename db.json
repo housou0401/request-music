@@ -996,9 +996,9 @@
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 2,
-    "refillDay": 14,
-    "refillHour": 10,
-    "refillMinute": 24
+    "refillDay": 1,
+    "refillHour": 0,
+    "refillMinute": 0
   },
   "theme": {
     "active": false,
