@@ -510,6 +510,19 @@
           "requestId": "3iOHTARVA67p7cXt9R3l1"
         }
       }
+    },
+    {
+      "id": "yvM68yPnFwMQHbna",
+      "username": "スマホ管理者",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23C55 Instagram 411.3.0.30.238 (iPhone14,2; iOS 26_2; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 858646473) Safari/604.1",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-01",
+      "lastRefillAtISO": "2026-01-14T12:34:54.905Z",
+      "registeredAt": "2026-01-14T12:34:54.905Z"
     }
   ]
 }
