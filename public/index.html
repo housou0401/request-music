@@ -62,7 +62,7 @@
 <a id="theme-link" class="mypage-link theme-link" href="/theme" style="display:none;"><span>🎧 テーマ投票</span></a>
 
   <!-- 管理者ボタン（右上固定） -->
-  <button class="admin-button" onclick="goAdmin()">管理者用</button>
+  <button id="adminBtn" class="admin-button ux-hidden" onclick="goAdmin()">管理者用</button>
 
   <!-- 画面中央に配置されるメインコンテナ -->
   <div class="container" id="mainContainer">
@@ -240,6 +240,13 @@
       try { const r = await fetch('/me'); return await r.json(); }
       catch { return { loggedIn:false }; }
     }
+
+    function setAdminButtonVisible(me){
+      const btn = document.getElementById('adminBtn');
+      if (!btn) return;
+      const ok = !!(me && ((me.loggedIn && me.user?.role === 'admin') || me.adminSession === true));
+      btn.classList.toggle('ux-hidden', !ok);
+    }
     function updateTokenInfo(me) {
       const el = document.getElementById('token-info');
       if (!el) return;
@@ -294,6 +301,7 @@
           alert(`✅${roleJa}でログインしました\n${nameForAlert} さんようこそ！`);
           document.getElementById('welcomeOverlay')?.classList.remove('show');
           const me = await fetchMe();
+          setAdminButtonVisible(me);
           updateTokenInfo(me);
           return;
         }
