@@ -1001,8 +1001,8 @@
     "refillMinute": 0
   },
   "theme": {
-    "active": true,
-    "status": "active",
+    "active": false,
+    "status": "ended",
     "id": "r3hm3eQMyY",
     "title": "テーマ曲募集",
     "description": "",
@@ -1010,13 +1010,24 @@
     "endAtISO": null,
     "winnerRequestId": null,
     "winner": null,
-    "endedAtISO": null,
-    "mergedAtISO": null,
-    "endReason": null
+    "endedAtISO": "2026-01-14T05:25:22.925Z",
+    "mergedAtISO": "2026-01-14T05:25:22.925Z",
+    "endReason": "manual"
   },
   "themeRequests": [],
   "themeSongCounts": {},
   "themeHistory": [
+    {
+      "id": "r3hm3eQMyY",
+      "title": "テーマ曲募集",
+      "description": "",
+      "startAtISO": "2026-01-14T05:24:53.825Z",
+      "endAtISO": null,
+      "endedAtISO": "2026-01-14T05:25:22.925Z",
+      "endReason": "manual",
+      "winner": null,
+      "requests": []
+    },
     {
       "id": "9A69-aXIaD",
       "title": "ｈｈ",
