@@ -333,7 +333,7 @@ app.use(async (req, _res, next) => {
   const baseUser = baseDeviceId ? getUserById(baseDeviceId) : null;
 
   // ---- admin セッションは「adminユーザー」または「adminAuthクッキー」で判定 ----
-  const adminSession = (baseUser && isAdmin(baseUser)) || (req.cookies?.adminAuth === "1");
+  const adminSession = !!baseUser && (isAdmin(baseUser) || (req.cookies?.adminAuth === "1"));
 
   // ---- なりすまし ----
   let effectiveUser = baseUser;
@@ -838,6 +838,9 @@ app.post("/admin-login", async (req, res) => {
 
   const fails = getLoginFails(req);
   if (fails >= MAX_TRIES) return res.json({ success: false, reason: "locked", remaining: 0 });
+
+  // 先に通常登録（deviceId cookie）が必要
+  if (!req.user) return res.json({ success: false, reason: "not_registered" });
 
   const ok = pwd === db.data.settings.adminPassword;
   if (!ok) {
@@ -1362,6 +1365,14 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
   const adminCount = usersDb.data.users.filter(u => u.role === "admin").length;
   const userCount = totalUsers - adminCount;
 
+  const classifyUa = (ua = "") => {
+    const s = String(ua || "").toLowerCase();
+    if (s.includes("android")) return { emoji: "📱", label: "Android" };
+    if (s.includes("iphone") || s.includes("ipad") || s.includes("ipod") || s.includes("ios")) return { emoji: "📱", label: "iOS" };
+    if (s.includes("windows") || s.includes("macintosh") || s.includes("mac os") || s.includes("x11") || s.includes("linux")) return { emoji: "💻", label: "PC" };
+    return { emoji: "❓", label: "不明" };
+  };
+
   const rows = usersDb.data.users.map(u => {
     const lastRefill = u.lastRefillAtISO
       ? new Date(u.lastRefillAtISO).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
@@ -1369,10 +1380,13 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     const tokenStr = isAdmin(u) ? "∞" : (u.tokens ?? 0);
     const roleLabel = u.role === "admin" ? "管理者" : "一般";
 
+    const ua = u.deviceInfo?.ua || "";
+    const dev = classifyUa(ua);
     return `
-    <tr data-search="${esc(u.username)} ${esc(u.id)} ${roleLabel}">
+    <tr data-search="${esc(u.username)} ${esc(u.id)} ${roleLabel} ${dev.label}">
       <td><input type="checkbox" name="ids" value="${u.id}" class="user-check"></td>
       <td class="uname">${esc(u.username)}</td>
+      <td class="dev"><span class="dev-pill" title="${esc(ua)}">${dev.emoji} ${dev.label}</span></td>
       <td class="uid">
         <code>${esc(u.id)}</code>
         <button type="button" class="mini-btn copy-btn" data-copy="${esc(u.id)}" title="IDをコピー">コピー</button>
@@ -1431,6 +1445,8 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:650;border:1px solid #e5e7eb;background:#f9fafb;}
     .pill-admin{background:#fff7ed;border-color:#fed7aa;color:#9a3412;}
     .pill-user{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+    .dev{white-space:nowrap}
+    .dev-pill{display:inline-flex;gap:6px;align-items:center;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:650;border:1px solid #e5e7eb;background:#f9fafb;}
     .ops{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .inline-form{display:inline-flex;gap:6px;align-items:center;}
     .inline-form.wide{flex-wrap:wrap}
@@ -1444,10 +1460,10 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     .uid{white-space:nowrap}
     .muted{color:#6b7280}
     @media(max-width:860px){
-      th:nth-child(6), td:nth-child(6){display:none;} /* 最終配布 */
+      th:nth-child(7), td:nth-child(7){display:none;} /* 最終配布 */
     }
     @media(max-width:720px){
-      th:nth-child(5), td:nth-child(5){display:none;} /* トークン */
+      th:nth-child(6), td:nth-child(6){display:none;} /* トークン */
     }
   </style>
   <body>
@@ -1481,6 +1497,7 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
           <tr>
             <th style="width:40px;"></th>
             <th>ユーザー名</th>
+            <th>端末</th>
             <th>デバイスID</th>
             <th>ロール</th>
             <th>トークン</th>
