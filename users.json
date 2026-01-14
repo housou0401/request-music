@@ -523,19 +523,6 @@
           "requestId": "3iOHTARVA67p7cXt9R3l1"
         }
       }
-    },
-    {
-      "id": "dfWYesVzZSK0qAjy",
-      "username": "test",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2026-01",
-      "lastRefillAtISO": "2026-01-14T06:04:50.622Z",
-      "registeredAt": "2026-01-14T06:04:50.622Z"
     }
   ]
 }
