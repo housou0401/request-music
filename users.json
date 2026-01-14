@@ -500,19 +500,6 @@
       "registeredAt": "2025-12-01T15:03:55.135Z"
     },
     {
-      "id": "Li91MDlvvlS4arJb",
-      "username": "sasasa",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2025-12",
-      "lastRefillAtISO": "2025-12-24T05:55:15.643Z",
-      "registeredAt": "2025-12-24T05:55:15.643Z"
-    },
-    {
       "id": "FkDXvk5Wv8EAIZWL",
       "username": "Guest",
       "deviceInfo": {
@@ -549,19 +536,6 @@
           "requestId": "3iOHTARVA67p7cXt9R3l1"
         }
       }
-    },
-    {
-      "id": "UMmiL5cW8cyc_BKs",
-      "username": "test",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2026-01",
-      "lastRefillAtISO": "2026-01-13T08:58:58.884Z",
-      "registeredAt": "2026-01-13T08:58:58.884Z"
     }
   ]
 }
