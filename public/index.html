@@ -50,7 +50,6 @@
   /* My Page link (top-right) */
   .mypage-link{position:fixed;top:12px;right:12px;z-index:1100;display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid #374151;box-shadow:0 6px 16px rgba(0,0,0,.25);font-size:14px}
   .mypage-link img{width:20px;height:20px;border-radius:50%;object-fit:cover}
-.theme-link{right:150px;}
   @media (max-width:520px){.mypage-link{padding:8px 12px}}
   /* push admin button down a bit so both are visible */
   .admin-button{top:56px !important;}
@@ -59,7 +58,6 @@
 
 <body>
   <a id="mypage-link" class="mypage-link" href="/mypage"><img src="/img/mypage.png" alt="マイページ"><span>マイページ</span></a>
-<a id="theme-link" class="mypage-link theme-link" href="/theme" style="display:none;"><span>🎧 テーマ投票</span></a>
 
   <!-- 管理者ボタン（右上固定） -->
   <button class="admin-button" onclick="goAdmin()">管理者用</button>
@@ -67,22 +65,17 @@
   <!-- 画面中央に配置されるメインコンテナ -->
   <div class="container" id="mainContainer">
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
-    <div id="themeBanner" class="theme-banner" style="display:none;">
-      <div class="theme-banner-head">
-        <div class="theme-banner-title" id="themeTitleText"></div>
-        <div class="theme-banner-period" id="themePeriodText"></div>
-      </div>
-      <div class="theme-banner-desc" id="themeDescText"></div>
-      <div class="theme-banner-actions">
-        <a class="theme-vote-btn" id="themeVoteBtn" href="/theme">投票する</a>
-        <span class="theme-banner-note">イベント期間中のリクエストは「テーマ応募」として集計されます</span>
-      </div>
-    </div>
 
+
+    <!-- 検索方式の切替（ページ全体） -->
+    <div id="searchStyleToggle" class="search-style-toggle">
+      <button type="button" id="styleClassic" onclick="setSearchStyle('classic')">通常検索</button>
+      <button type="button" id="styleFree" onclick="setSearchStyle('free')">自由検索</button>
+    </div>
 
     <!-- 検索モード切替（既存） + ソート（最小UI追加） -->
     <div id="modeToggle" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
-      <div>
+      <div id="classicModeControls">
         <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
         <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
       </div>
