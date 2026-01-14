@@ -317,7 +317,7 @@
         "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23A355 Instagram 404.0.0.27.81 (iPhone14,2; iOS 26_0_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 812595035)",
         "ip": "::1"
       },
-      "role": "user",
+      "role": "admin",
       "tokens": 5,
       "lastRefillISO": "2026-01",
       "lastRefillAtISO": "2026-01-14T01:25:00.574Z",
