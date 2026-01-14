@@ -110,73 +110,16 @@ const AudioManager = (() => {
 let searchMode = "song";     // "song" | "artist"
 let artistPhase = 0;         // 0=アーティスト候補, 1=楽曲候補
 let selectedArtistId = null;
+let lockedArtistQuery = ""; // アーティスト確定後、入力が変わったら候補一覧に戻す
+
 let playerControlsEnabled = true;
-let searchStyle = (() => { try { return localStorage.getItem("searchStyle") || "classic"; } catch { return "classic"; } })(); // 'classic' | 'free'
-let classicSearchMode = "song";
-let lockedArtistQuery = "";
-
-/* ========== 検索方式（ページ全体） ========== */
-function setSearchStyle(style) {
-  style = (style === "free") ? "free" : "classic";
-  searchStyle = style;
-  try { localStorage.setItem("searchStyle", style); } catch {}
-
-  // toggle button UI
-  const bC = document.getElementById("styleClassic");
-  const bF = document.getElementById("styleFree");
-  if (bC) bC.classList.toggle("active", style === "classic");
-  if (bF) bF.classList.toggle("active", style === "free");
-
-  // show/hide classic mode controls (曲名/アーティスト切替ボタン群)
-  const classicCtrls = document.getElementById("classicModeControls");
-  if (classicCtrls) classicCtrls.style.display = (style === "classic") ? "" : "none";
-  // wrapperが無い古いHTMLでも動くようにフォールバック
-  const bSong = document.getElementById("modeSong");
-  const bArt  = document.getElementById("modeArtist");
-  if (!classicCtrls) {
-    if (bSong) bSong.style.display = (style === "classic") ? "" : "none";
-    if (bArt)  bArt.style.display  = (style === "classic") ? "" : "none";
-  }
-
-  const artistCont = document.getElementById("artistInputContainer");
-  const songInput  = document.getElementById("songName");
-
-  if (style === "free") {
-    // 直前のクラシック検索モードを覚えておく
-    classicSearchMode = searchMode || classicSearchMode || "song";
-
-    // 自由検索は1ボックス
-    if (artistCont) artistCont.style.display = "none";
-    if (songInput) songInput.placeholder = "曲名 / アーティスト名 などで検索";
-
-    // 再検索ボタンは1つだけ
-    const rs = document.getElementById("reSearchSongMode");
-    const ra = document.getElementById("reSearchArtistMode");
-    if (rs) rs.style.display = "block";
-    if (ra) ra.style.display = "none";
-
-    // UIクリア
-    try { ensurePlayerUIVisible(false); } catch {}
-    const sugg = document.getElementById("suggestions"); if (sugg) sugg.innerHTML = "";
-    const selS = document.getElementById("selectedSong"); if (selS) selS.innerHTML = "";
-    const selL = document.getElementById("selectedLabel"); if (selL) selL.innerHTML = "";
-    const selA = document.getElementById("selectedArtist"); if (selA) selA.innerHTML = "";
-    const track = document.getElementById("carouselTrack"); if (track) track.innerHTML = "";
-    stopPlayback(true);
-  } else {
-    // クラシックに戻す
-    setSearchMode(classicSearchMode || "song");
-  }
-}
 
 window.onload = async function () {
   setSearchMode("song");
   await loadSettings();
+  await refreshThemeStatus();
 
-  
-  // 検索方式の初期化（ローカル保存）
-  setSearchStyle(searchStyle);
-const songInput = document.getElementById("songName");
+  const songInput = document.getElementById("songName");
   const artistInput = document.getElementById("artistName");
   songInput.addEventListener("input", searchSongs);
   artistInput.addEventListener("input", searchSongs);
@@ -203,12 +146,41 @@ async function loadSettings() {
   }
 }
 
+
+async function refreshThemeStatus() {
+  try {
+    const res = await fetch("/theme/status");
+    const s = await res.json();
+    const link = document.getElementById("theme-link");
+    const banner = document.getElementById("themeBanner");
+    if (!s || !s.active) {
+      if (link) link.style.display = "none";
+      if (banner) banner.style.display = "none";
+      return;
+    }
+    if (link) link.style.display = "inline-flex";
+    if (banner) {
+      const titleEl = document.getElementById("themeTitleText");
+      const descEl = document.getElementById("themeDescText");
+      const perEl = document.getElementById("themePeriodText");
+      if (titleEl) titleEl.textContent = `🎉 テーマ開催中：${s.title || ""}`;
+      if (descEl) descEl.textContent = s.description || "";
+      if (perEl) {
+        const start = s.startAtISO ? new Date(s.startAtISO).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"}) : "";
+        const end = s.endAtISO ? new Date(s.endAtISO).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"}) : "";
+        perEl.textContent = (start && end) ? `${start} 〜 ${end}` : "";
+      }
+      banner.style.display = "block";
+    }
+  } catch (e) {
+    // fail silently
+  }
+}
+
+
 /* ========== 検索 ========== */
 function setSearchMode(mode) {
-  classicSearchMode = mode;
-  // 自由検索中はUIを切り替えない（クラシックに戻した時に反映）
-  if (searchStyle === "free") { searchMode = mode; return; }
-  searchMode = mode; artistPhase = 0; selectedArtistId = null;
+  searchMode = mode; artistPhase = 0; selectedArtistId = null; lockedArtistQuery = "";
   ["songName","artistName"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
   ["suggestions","selectedLabel","selectedSong","selectedArtist"].forEach(id => {
     const el = document.getElementById(id);
@@ -240,21 +212,75 @@ function reSearch(){ searchSongs(); }
 
 async function searchSongs() {
   const list = document.getElementById("suggestions");
-  list.innerHTML = ""; showLoading();
+  list.innerHTML = "";
+  showLoading();
+
   try {
     if (searchMode === "artist") {
       const q = document.getElementById("songName").value.trim();
+
+      // アーティスト確定後に入力が変わったら、候補一覧へ戻す
+      if (artistPhase === 1 && lockedArtistQuery && q !== lockedArtistQuery) {
+        artistPhase = 0;
+        selectedArtistId = null;
+        lockedArtistQuery = "";
+        const sel = document.getElementById("selectedArtist");
+        if (sel) sel.innerHTML = "";
+      }
+
       if (artistPhase === 0) {
         if (!q) return;
+
         const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
         const artists = await res.json();
+
+        const wrap = document.createElement("div");
+        wrap.className = "artist-list";
+
         artists.forEach(a => {
-          const item = document.createElement("div");
-          item.className = "suggestion-item";
-          item.innerHTML = `<img src="${a.artworkUrl}" alt="Artist"><div><strong>${a.trackName}</strong></div>`;
-          item.onclick = () => selectArtist(a);
-          list.appendChild(item);
+          const row = document.createElement("button");
+          row.type = "button";
+          row.className = "artist-row";
+
+          if (a.artworkUrl) {
+            const img = document.createElement("img");
+            img.className = "artist-avatar";
+            img.src = a.artworkUrl;
+            img.alt = "Artist";
+            row.appendChild(img);
+          } else {
+            const ph = document.createElement("div");
+            ph.className = "artist-avatar ph";
+            ph.textContent = "🎤";
+            row.appendChild(ph);
+          }
+
+          const meta = document.createElement("div");
+          meta.className = "artist-meta";
+
+          const name = document.createElement("div");
+          name.className = "artist-name";
+          name.textContent = (a.artistName || a.trackName || "").trim() || "（アーティスト）";
+
+          const hint = document.createElement("div");
+          hint.className = "artist-hint";
+          hint.textContent = "タップして確定";
+
+          meta.appendChild(name);
+          meta.appendChild(hint);
+
+          const go = document.createElement("div");
+          go.className = "artist-go";
+          go.textContent = "›";
+
+          row.appendChild(meta);
+          row.appendChild(go);
+
+          row.onclick = () => selectArtist(a);
+          wrap.appendChild(row);
         });
+
+        list.appendChild(wrap);
       } else {
         await fetchArtistTracksAndShow();
       }
@@ -262,6 +288,7 @@ async function searchSongs() {
       const songQ = document.getElementById("songName").value.trim();
       const artistQ = document.getElementById("artistName").value.trim();
       if (!songQ) return;
+
       const res = await fetch(`/search?query=${encodeURIComponent(songQ)}&artist=${encodeURIComponent(artistQ)}`);
       const songs = await res.json();
       songs.forEach(s => {
@@ -272,42 +299,52 @@ async function searchSongs() {
         list.appendChild(item);
       });
     }
-  } catch(e){ console.error("検索エラー:", e); }
-  finally { hideLoading(); }
+  } catch (e) {
+    console.error("検索エラー:", e);
+  } finally {
+    hideLoading();
+  }
 }
+
+
 
 async function selectArtist(artist) {
   selectedArtistId = artist.artistId;
   artistPhase = 1;
 
-  // フェーズ切替：検索欄をそのアーティスト名で固定（表示カードは出さない）
-  const name = (artist.artistName || artist.trackName || "").toString();
-  const songInput = document.getElementById("songName");
-  if (songInput && name) songInput.value = name;
-  lockedArtistQuery = (songInput?.value || name || "").trim();
+  // 入力欄を選んだアーティスト名に揃え、以後この文字列を「確定キー」として保持
+  const input = document.getElementById("songName");
+  if (input) {
+    input.value = (artist.artistName || artist.trackName || input.value || "").trim();
+    lockedArtistQuery = input.value.trim();
+  } else {
+    lockedArtistQuery = (artist.artistName || artist.trackName || "").trim();
+  }
 
-  const host = document.getElementById("selectedArtist");
-  if (host) host.innerHTML = ""; // 画像などは表示しない
-
-  // 曲一覧へ（カード表示）
-  await searchSongs();
+  // 選択アーティストの大きい表示は出さない（送信/削除ボタンの邪魔になるため）
+  const selBox = document.getElementById("selectedArtist");
+  if (selBox) selBox.innerHTML = "";
+  await fetchArtistTracksAndShow();
 }
 
+
+
 async function fetchArtistTracksAndShow() {
-  if (!selectedArtistId) return; showLoading();
+  if (!selectedArtistId) { ensurePlayerUIVisible(false); return; }
+  showLoading && showLoading();
   try {
     const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
     const songs = await res.json();
-    const cont = document.getElementById("suggestions"); cont.innerHTML = "";
-    songs.forEach(s => {
-      const item = document.createElement("div");
-      item.className = "suggestion-item";
-      item.innerHTML = `<img src="${s.artworkUrl}" alt="Cover"><div><strong>${s.trackName}</strong><br><small>${s.artistName}</small></div>`;
-      item.onclick = () => selectSong(s);
-      cont.appendChild(item);
-    });
-  } catch(e){ console.error("アーティスト曲取得エラー:", e); }
-  finally { hideLoading(); }
+    const cont = document.getElementById("suggestions");
+    if (cont) cont.innerHTML = ""; // アーティスト一覧(リスト)を消して、曲一覧へ
+    // 曲一覧は従来どおりカード（Carousel）
+    renderCarousel(songs);
+  } catch (e) {
+    console.error("アーティスト曲取得エラー:", e);
+    ensurePlayerUIVisible(false);
+  } finally {
+    hideLoading && hideLoading();
+  }
 }
 
 /* ========== 曲を選択 → レガシーカードに情報を詰める ========== */
@@ -695,145 +732,98 @@ function setupPlayerControls() {
   }
 }
 
-// 検索結果の表示をカードUIへ差し替え（※自由検索はリスト）
+// 検索結果の表示をカードUIへ差し替え（アーティスト候補はリスト、曲候補はカード）
 const _orig_searchSongs = searchSongs;
 searchSongs = async function() {
-  const sugg = document.getElementById("suggestions");
-  const songInput = document.getElementById("songName");
-  const artistInput = document.getElementById("artistName");
-
-  const renderSongList = (songs) => {
-    if (!sugg) return;
-    sugg.innerHTML = "";
-    (Array.isArray(songs) ? songs : []).slice(0, 30).forEach(s => {
-      const item = document.createElement("div");
-      item.className = "suggestion-item";
-      const img = document.createElement("img");
-      img.src = s.artworkUrl || "";
-      img.alt = "Cover";
-      const box = document.createElement("div");
-      const strong = document.createElement("strong");
-      strong.textContent = s.trackName || "(曲名なし)";
-      const small = document.createElement("small");
-      small.textContent = s.artistName || "";
-      box.appendChild(strong);
-      box.appendChild(document.createElement("br"));
-      box.appendChild(small);
-      item.appendChild(img);
-      item.appendChild(box);
-      item.addEventListener("click", () => selectSong(s));
-      sugg.appendChild(item);
-    });
-  };
-
-  const renderArtistList = (artists) => {
-    if (!sugg) return;
-    sugg.innerHTML = "";
-
-    const hint = document.createElement("div");
-    hint.className = "artist-list-hint";
-    hint.textContent = "アーティストを選択してください（タップして確定）";
-    sugg.appendChild(hint);
-
-    const list = document.createElement("div");
-    list.className = "artist-list";
-
-    (Array.isArray(artists) ? artists : []).slice(0, 30).forEach(a => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "artist-row";
-
-      const img = document.createElement("img");
-      img.src = a.artworkUrl || "";
-      img.alt = "Artist";
-
-      const meta = document.createElement("div");
-      meta.className = "artist-meta";
-
-      const name = document.createElement("div");
-      name.className = "artist-name";
-      name.textContent = a.artistName || a.trackName || "";
-
-      const sub = document.createElement("div");
-      sub.className = "artist-sub";
-      sub.textContent = "タップして確定";
-
-      meta.appendChild(name);
-      meta.appendChild(sub);
-      btn.appendChild(img);
-      btn.appendChild(meta);
-
-      btn.addEventListener("click", () => selectArtist(a));
-      list.appendChild(btn);
-    });
-
-    if (!list.childElementCount) {
-      const empty = document.createElement("div");
-      empty.className = "artist-list-hint";
-      empty.textContent = "見つかりませんでした。別のキーワードで試してください。";
-      sugg.appendChild(empty);
-      return;
-    }
-
-    sugg.appendChild(list);
-  };
-
-  // ============ 自由検索 ============ 
-  if (searchStyle === "free") {
-    try { ensurePlayerUIVisible(false); } catch {}
-    if (sugg) sugg.innerHTML = "";
-    showLoading && showLoading();
-    try {
-      const q = (songInput?.value || "").trim();
-      if (!q) return;
-      // 1つの検索ボックスで、曲名/アーティスト名のどちらでもヒットさせる（iTunes song検索）
-      const res = await fetch(`/search?query=${encodeURIComponent(q)}&artist=`);
-      const songs = await res.json();
-      renderSongList(songs);
-    } catch (e) {
-      console.error("自由検索エラー:", e);
-    } finally {
-      hideLoading && hideLoading();
-    }
-    return;
-  }
-
-  // ============ クラシック検索（従来） ============ 
-  if (sugg) sugg.innerHTML = ""; // 通常はリストを使わない（アーティスト一覧の時だけ使う）
+  const list = document.getElementById("suggestions");
+  if (list) list.innerHTML = ""; // アーティスト候補フェーズのみここに描画
   showLoading && showLoading();
+
   try {
     if (searchMode === "artist") {
-      const q = (songInput?.value || "").trim();
+      const q = document.getElementById("songName").value.trim();
 
-      // アーティスト確定後に入力が変わったら、フェーズ0へ戻す
+      // アーティスト確定後に入力が変わったら、候補一覧へ戻す
       if (artistPhase === 1 && lockedArtistQuery && q !== lockedArtistQuery) {
         artistPhase = 0;
         selectedArtistId = null;
         lockedArtistQuery = "";
+        const sel = document.getElementById("selectedArtist");
+        if (sel) sel.innerHTML = "";
+        stopPlayback(true);
       }
 
       if (artistPhase === 0) {
         if (!q) { ensurePlayerUIVisible(false); return; }
 
-        // フェーズ0：アーティスト一覧はリスト表示
+        // このフェーズは「アーティスト一覧」だけリスト表示
         ensurePlayerUIVisible(false);
+
         const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
         const artists = await res.json();
-        renderArtistList(artists);
+
+        if (list) {
+          const wrap = document.createElement("div");
+          wrap.className = "artist-list";
+
+          artists.forEach(a => {
+            const row = document.createElement("button");
+            row.type = "button";
+            row.className = "artist-row";
+
+            if (a.artworkUrl) {
+              const img = document.createElement("img");
+              img.className = "artist-avatar";
+              img.src = a.artworkUrl;
+              img.alt = "Artist";
+              row.appendChild(img);
+            } else {
+              const ph = document.createElement("div");
+              ph.className = "artist-avatar ph";
+              ph.textContent = "🎤";
+              row.appendChild(ph);
+            }
+
+            const meta = document.createElement("div");
+            meta.className = "artist-meta";
+
+            const name = document.createElement("div");
+            name.className = "artist-name";
+            name.textContent = (a.artistName || a.trackName || "").trim() || "（アーティスト）";
+
+            const hint = document.createElement("div");
+            hint.className = "artist-hint";
+            hint.textContent = "タップして確定";
+
+            meta.appendChild(name);
+            meta.appendChild(hint);
+
+            const go = document.createElement("div");
+            go.className = "artist-go";
+            go.textContent = "›";
+
+            row.appendChild(meta);
+            row.appendChild(go);
+
+            row.onclick = () => selectArtist(a);
+            wrap.appendChild(row);
+          });
+
+          list.appendChild(wrap);
+        }
       } else {
-        // フェーズ1：曲一覧は従来通りカード表示
-        if (!selectedArtistId) { ensurePlayerUIVisible(false); return; }
-        const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
-        const songs = await res.json();
-        renderCarousel(songs);
+        // 曲一覧フェーズ：従来どおりカード（Carousel）
+        await fetchArtistTracksAndShow();
       }
     } else {
-      // 曲名(アーティスト)検索：従来通りカード表示
-      const songQ = (songInput?.value || "").trim();
-      const artistQ = (artistInput?.value || "").trim();
+      // 曲名(アーティスト)検索：従来どおりカード（Carousel）
+      const songQ = document.getElementById("songName").value.trim();
+      const artistQ = document.getElementById("artistName").value.trim();
       if (!songQ) { ensurePlayerUIVisible(false); return; }
+
       const res = await fetch(`/search?query=${encodeURIComponent(songQ)}&artist=${encodeURIComponent(artistQ)}`);
       const songs = await res.json();
+      if (list) list.innerHTML = "";
       renderCarousel(songs);
     }
   } catch (e) {
@@ -845,6 +835,7 @@ searchSongs = async function() {
 };
 
 // 初期化：プレイヤーUIイベント
+
 window.addEventListener("DOMContentLoaded", setupPlayerControls);
 
 
