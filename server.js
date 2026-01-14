@@ -926,6 +926,12 @@ app.get("/admin", requireAdmin, async (req, res) => {
     .banner-imp{padding:8px 12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;margin:10px 0}
     .badge{background:#10b981;color:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:6px;display:inline-block;line-height:1.3;vertical-align:middle;}
     .badge.gray{background:#9ca3af;}
+    /* Fix: prevent badge/artist from breaking into vertical text */
+    .entry-container{width:100%;box-sizing:border-box;}
+    .entry-text{flex:1;min-width:0;}
+    .badge{white-space:nowrap;word-break:keep-all;}
+    .entry-text small{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:keep-all;}
+
     .meta{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .meta code{padding:2px 6px;background:#f5f5f5;border:1px solid #eee;border-radius:6px;}
   
