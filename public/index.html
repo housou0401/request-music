@@ -35,7 +35,6 @@
       top: 12px;
       right: 12px;
       z-index: 1100;
-      display: none; /* 権限チェック後に表示 */
     }
 
     /* メインを画面中央に */
@@ -51,21 +50,44 @@
   /* My Page link (top-right) */
   .mypage-link{position:fixed;top:12px;right:12px;z-index:1100;display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid #374151;box-shadow:0 6px 16px rgba(0,0,0,.25);font-size:14px}
   .mypage-link img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+.theme-link{right:150px;}
   @media (max-width:520px){.mypage-link{padding:8px 12px}}
   /* push admin button down a bit so both are visible */
   .admin-button{top:56px !important;}
-</style>
+
+    /* account switch (admin device) */
+    .ux-account-item{width:100%;text-align:left;background:#f7f7f7;border:1px solid rgba(0,0,0,.12);border-radius:12px;padding:10px 12px;color:#111;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+    .ux-account-item:hover{background:#efefef}
+    .ux-account-item .meta{font-size:12px;color:#444}
+    .ux-account-item .btns{display:flex;gap:8px;align-items:center}
+    .ux-mini-btn{padding:6px 10px;border-radius:10px;border:1px solid rgba(0,0,0,.14);background:#fff;color:#111;cursor:pointer;font-size:12px}
+    .ux-mini-btn.danger{border-color:rgba(220,38,38,.45);color:#b91c1c;background:#fff5f5}
+
+  </style>
 </head>
 
 <body>
   <a id="mypage-link" class="mypage-link" href="/mypage"><img src="/img/mypage.png" alt="マイページ"><span>マイページ</span></a>
+<a id="theme-link" class="mypage-link theme-link" href="/theme" style="display:none;"><span>🎧 テーマ投票</span></a>
 
   <!-- 管理者ボタン（右上固定） -->
-  <button id="adminBtn" class="admin-button" onclick="goAdmin()">管理者用</button>
+  <button id="adminBtn" class="admin-button ux-hidden" onclick="goAdmin()">管理者用</button>
 
   <!-- 画面中央に配置されるメインコンテナ -->
   <div class="container" id="mainContainer">
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
+    <div id="themeBanner" class="theme-banner" style="display:none;">
+      <div class="theme-banner-head">
+        <div class="theme-banner-title" id="themeTitleText"></div>
+        <div class="theme-banner-period" id="themePeriodText"></div>
+      </div>
+      <div class="theme-banner-desc" id="themeDescText"></div>
+      <div class="theme-banner-actions">
+        <a class="theme-vote-btn" id="themeVoteBtn" href="/theme">投票する</a>
+        <span class="theme-banner-note">イベント期間中のリクエストは「テーマ応募」として集計されます</span>
+      </div>
+    </div>
+
 
     <!-- 検索モード切替（既存） + ソート（最小UI追加） -->
     <div id="modeToggle" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
@@ -148,7 +170,13 @@
       <h3 style="margin:0 0 6px;">ようこそ！</h3>
       <p style="margin:0 0 8px;">ユーザネームを入力して初回登録してください（端末ごとに1アカウント）。</p>
       <div class="ux-row"><input id="usernameInput" type="text" placeholder="ユーザネーム"></div>
-      <details style="margin-top:6px;">
+      
+      <div id="accountSwitchArea" class="ux-hidden" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08);">
+        <div style="font-weight:700;margin-bottom:6px;color:#111;">管理端末：既存アカウントでログイン</div>
+        <div style="font-size:13px;color:#444;line-height:1.4;">この端末で過去に登録したアカウント候補が表示されます（端末の localStorage のみ）。</div>
+        <div id="accountCandidates" style="margin-top:8px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+<details style="margin-top:6px;">
         <summary>管理者としてログイン（管理者のみ）</summary>
         <div class="ux-row"><input id="adminPassInput" type="password" placeholder="管理パスワード"></div>
         <div id="adminTryInfo" style="margin-top:6px; font-size:13px; color:#555;">管理者パスワード残り: 3 回</div>
@@ -175,7 +203,7 @@
     async function goAdmin() {
       try {
         const me = await fetch('/me').then(r=>r.json());
-        if ((me?.loggedIn && me.user?.role === 'admin') || me?.adminSession === true) {
+        if (me?.loggedIn && me.user?.role === 'admin') {
           location.href = '/admin';
         } else {
           alert('管理者権限がありません。');
@@ -227,6 +255,146 @@
       try { const r = await fetch('/me'); return await r.json(); }
       catch { return { loggedIn:false }; }
     }
+    // ------- 管理端末: アカウント候補（localStorage） -------
+    const ACC_STORE_KEY = "rm_known_accounts_v1";
+    function loadKnownAccounts(){
+      try{
+        const raw = localStorage.getItem(ACC_STORE_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr.filter(x => x && x.id && x.username) : [];
+      }catch{ return []; }
+    }
+    function saveKnownAccounts(arr){
+      try{
+        const cleaned = (Array.isArray(arr) ? arr : []).slice(0, 30);
+        localStorage.setItem(ACC_STORE_KEY, JSON.stringify(cleaned));
+      }catch{}
+    }
+    function rememberAccount(acc){
+      try{
+        if (!acc || !acc.id) return;
+        const username = (acc.username || "").toString().trim() || "Guest";
+        const id = acc.id.toString();
+        const now = Date.now();
+        const list = loadKnownAccounts();
+        const idx = list.findIndex(x => x.id === id);
+        if (idx >= 0){
+          list[idx] = { ...list[idx], username, lastUsedAt: now };
+        } else {
+          list.unshift({ id, username, lastUsedAt: now });
+        }
+        // uniq by id
+        const seen = new Set();
+        const uniq = [];
+        for (const x of list){
+          if (!x?.id || seen.has(x.id)) continue;
+          seen.add(x.id);
+          uniq.push(x);
+        }
+        saveKnownAccounts(uniq);
+      }catch{}
+    }
+    function forgetAccount(id){
+      try{
+        const list = loadKnownAccounts().filter(a => a.id !== String(id));
+        saveKnownAccounts(list);
+      }catch{}
+    }
+
+    async function switchToAccount(id){
+      try{
+        const r = await fetch("/admin/switch-user", {
+          method: "POST",
+          headers: { "Content-Type":"application/json" },
+          body: JSON.stringify({ id })
+        });
+        const data = await r.json().catch(()=> ({}));
+        if (!r.ok || !data.ok) {
+          alert("⚠ユーザー切替に失敗しました。");
+          return;
+        }
+        location.href = "/";
+      }catch(e){
+        alert("⚠通信エラーで切替できませんでした。");
+      }
+    }
+
+    async function purgeAccount(id){
+      if (!confirm("このアカウントを削除します。\n（この端末の候補から消え、サーバーの users からも削除されます）\nよろしいですか？")) return;
+      try{
+        const r = await fetch("/admin/device/purge-user", {
+          method: "POST",
+          headers: { "Content-Type":"application/json" },
+          body: JSON.stringify({ id })
+        });
+        const data = await r.json().catch(()=> ({}));
+        if (!r.ok || !data.ok) {
+          alert(data?.error ? String(data.error) : "⚠削除に失敗しました。");
+          return;
+        }
+        forgetAccount(id);
+        alert("✅削除しました。");
+        location.href = "/?switch=1";
+      }catch(e){
+        alert("⚠通信エラーで削除できませんでした。");
+      }
+    }
+
+    function renderAccountCandidates(me){
+      const area = document.getElementById("accountSwitchArea");
+      const listEl = document.getElementById("accountCandidates");
+      if (!area || !listEl) return;
+      const adminDevice = !!(me && me.adminSession === true);
+      if (!adminDevice) {
+        area.classList.add("ux-hidden");
+        listEl.innerHTML = "";
+        return;
+      }
+      area.classList.remove("ux-hidden");
+      const accounts = loadKnownAccounts().sort((a,b)=>(b.lastUsedAt||0)-(a.lastUsedAt||0));
+      if (!accounts.length) {
+        listEl.innerHTML = `<div style="font-size:13px;color:#444;">候補がありません。新規登録するとここに表示されます。</div>`;
+        return;
+      }
+      listEl.innerHTML = accounts.map(a => {
+        const when = a.lastUsedAt ? new Date(a.lastUsedAt).toLocaleString("ja-JP") : "";
+        return `
+          <div class="ux-account-item" data-id="${a.id}">
+            <div>
+              <div style="font-weight:700;color:#111;">👤 ${a.username}</div>
+              <div class="meta">${when ? `最終使用: ${when}` : ""}</div>
+            </div>
+            <div class="btns">
+              <button type="button" class="ux-mini-btn" data-act="switch" data-id="${a.id}">🔁 切替</button>
+              <button type="button" class="ux-mini-btn danger" data-act="del" data-id="${a.id}">🗑 削除</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      listEl.querySelectorAll("button[data-act='switch']").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.getAttribute("data-id");
+          if (!id) return;
+          switchToAccount(id);
+        });
+      });
+      listEl.querySelectorAll("button[data-act='del']").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.getAttribute("data-id");
+          if (!id) return;
+          purgeAccount(id);
+        });
+      });
+    }
+
+
+    function setAdminButtonVisible(me){
+      const btn = document.getElementById('adminBtn');
+      if (!btn) return;
+      const ok = !!(me && me.loggedIn && me.user?.role === 'admin');
+      btn.classList.toggle('ux-hidden', !ok);
+    }
     function updateTokenInfo(me) {
       const el = document.getElementById('token-info');
       if (!el) return;
@@ -240,19 +408,15 @@
     }
     async function ensureRegistered() {
       const me = await fetchMe();
-
-      // adminボタン表示制御：現在ログイン中のアカウントが管理者のときのみ表示
-      const adminBtn = document.getElementById('adminBtn');
-      if (adminBtn) {
-        const canAdmin = !!(me && me.loggedIn && (me.user?.role === 'admin' || me.adminSession === true));
-        adminBtn.style.display = canAdmin ? 'block' : 'none';
+      setAdminButtonVisible(me);
+      if (me.loggedIn) {
+        updateTokenInfo(me);
+        if (me.user?.id) rememberAccount({ id: me.user.id, username: me.user.username });
+        return;
       }
-
-      if (!me.loggedIn) { 
-        document.getElementById('welcomeOverlay')?.classList.add('show'); 
-      } else { 
-        updateTokenInfo(me); 
-      }
+      document.getElementById('welcomeOverlay')?.classList.add('show');
+      await refreshAdminTryInfo();
+      renderAccountCandidates(me);
     }
 
     // ------- 管理者パス残回数表示 -------
@@ -290,8 +454,10 @@
           const roleJa = data.role === 'admin' ? '管理者' : 'ユーザー';
           const nameForAlert = data.username || username || 'ユーザー';
           alert(`✅${roleJa}でログインしました\n${nameForAlert} さんようこそ！`);
+          if (data?.id) rememberAccount({ id: data.id, username: data.username || username });
           document.getElementById('welcomeOverlay')?.classList.remove('show');
           const me = await fetchMe();
+          setAdminButtonVisible(me);
           updateTokenInfo(me);
           return;
         }
