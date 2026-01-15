@@ -55,12 +55,16 @@
   /* push admin button down a bit so both are visible */
   .admin-button{top:56px !important;}
 
-    /* account switch (admin device) */
-    .ux-account-item{width:100%;text-align:left;background:#f7f7f7;border:1px solid rgba(0,0,0,.12);border-radius:12px;padding:10px 12px;color:#111;display:flex;justify-content:space-between;align-items:center;gap:10px;}
-    .ux-account-item:hover{background:#efefef}
-    .ux-account-item .meta{font-size:12px;color:#444}
-
-  </style>
+    /* 管理端末：アカウント候補の表示 */
+    .ux-switch-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+    .ux-switch-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid rgba(0,0,0,.12);border-radius:12px;background:#fff}
+    .ux-switch-left{min-width:0;display:flex;flex-direction:column;gap:2px}
+    .ux-switch-name{font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ux-switch-id{font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ux-switch-actions{display:flex;gap:8px;flex-shrink:0}
+    .ux-switch-actions button{padding:8px 10px;border-radius:10px;border:1px solid rgba(0,0,0,.18);background:#f8fafc;cursor:pointer}
+    .ux-switch-actions button.primary{background:#111;color:#fff;border-color:#111}
+</style>
 </head>
 
 <body>
@@ -165,20 +169,21 @@
   <div class="ux-overlay" id="welcomeOverlay" aria-hidden="true">
     <div class="ux-modal">
       <h3 style="margin:0 0 6px;">ようこそ！</h3>
-      <p style="margin:0 0 8px;">ユーザネームを入力して初回登録してください。</p>
+      <p style="margin:0 0 8px;">ユーザネームを入力して初回登録してください（端末ごとに1アカウント）。</p>
       <div class="ux-row"><input id="usernameInput" type="text" placeholder="ユーザネーム"></div>
-      <div id="accountSwitchArea" class="ux-hidden" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08);">
-        <div style="font-weight:700;margin-bottom:6px;color:#111;">管理端末：既存アカウントでログイン</div>
-        <div style="font-size:13px;color:#444;line-height:1.4;">この端末で過去に登録したアカウント候補が表示されます（端末の localStorage のみ）。</div>
-        <div id="accountCandidates" style="margin-top:8px;display:flex;flex-direction:column;gap:8px;"></div>
-      </div>
-
       <details style="margin-top:6px;">
         <summary>管理者としてログイン（管理者のみ）</summary>
         <div class="ux-row"><input id="adminPassInput" type="password" placeholder="管理パスワード"></div>
         <div id="adminTryInfo" style="margin-top:6px; font-size:13px; color:#555;">管理者パスワード残り: 3 回</div>
       </details>
       <div class="ux-row" style="justify-content:flex-end;"><button id="registerBtn" type="button">登録</button></div>
+
+      <div id="accountSwitchArea" class="ux-hidden" style="margin-top:14px; border-top:1px solid rgba(0,0,0,.08); padding-top:12px;">
+        <div style="font-weight:700; margin:0 0 6px;">この端末のアカウント候補</div>
+        <div id="knownAccountList" class="ux-switch-list"></div>
+        <div style="font-size:12px; color:#555; margin-top:6px;">※この一覧と「切替ログイン」は管理端末（管理者権限が残っている端末）でのみ表示されます。</div>
+      </div>
+
     </div>
   </div>
 
@@ -200,13 +205,14 @@
     async function goAdmin() {
       try {
         const me = await fetch('/me').then(r=>r.json());
-        if ((me?.loggedIn && me.user?.role === 'admin') || me?.adminSession === true) {
+        // 権限は「現在ログイン中のアカウント」のroleを参照
+        if (me?.loggedIn && me.user?.role === 'admin') {
           location.href = '/admin';
         } else {
-          alert('管理者権限がありません。');
+          alert('管理者のみアクセスできます。');
         }
-      } catch {
-        alert('状態を確認できませんでした。');
+      } catch (e) {
+        alert('通信エラー: ' + e.message);
       }
     }
 
@@ -253,10 +259,94 @@
       catch { return { loggedIn:false }; }
     }
 
+
+    function escapeHtml(s){ return String(s).replace(/[&<>\"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+    // ===== 管理端末：端末内アカウント候補（localStorage） =====
+    const ACC_STORE_KEY = 'rm_known_accounts_v1';
+    function loadKnownAccounts(){
+      try{
+        const raw = localStorage.getItem(ACC_STORE_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(arr)) return [];
+        return arr
+          .filter(x => x && typeof x.id === 'string' && x.id.length >= 6)
+          .map(x => ({ id: x.id, username: (x.username||'').toString() || 'Guest', lastUsedAt: Number(x.lastUsedAt||0) }))
+          .slice(0, 30);
+      }catch{ return []; }
+    }
+    function saveKnownAccounts(arr){
+      try{
+        const cleaned = (Array.isArray(arr) ? arr : []).slice(0, 30);
+        localStorage.setItem(ACC_STORE_KEY, JSON.stringify(cleaned));
+      }catch{}
+    }
+    function rememberAccount(acc){
+      try{
+        if (!acc || !acc.id) return;
+        const id = String(acc.id);
+        const username = (acc.username || '').toString().trim() || 'Guest';
+        const now = Date.now();
+        const cur = loadKnownAccounts();
+        const next = [{ id, username, lastUsedAt: now }, ...cur.filter(x => x.id !== id)];
+        saveKnownAccounts(next);
+      }catch{}
+    }
+    async function switchToAccount(id){
+      try{
+        const res = await fetch('/admin/switch-user', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json().catch(()=>({ok:false}));
+        if (!data.ok){
+          alert('切替に失敗しました。');
+          return;
+        }
+        location.href = '/';
+      }catch(e){
+        alert('通信エラー: ' + e.message);
+      }
+    }
+    function renderKnownAccounts(me){
+      const area = document.getElementById('accountSwitchArea');
+      const list = document.getElementById('knownAccountList');
+      if (!area || !list) return;
+
+      // 管理端末（adminSession）かつ未ログインの時のみ表示
+      const show = !!(me && me.adminSession === true && me.loggedIn === false);
+      area.classList.toggle('ux-hidden', !show);
+      if (!show) return;
+
+      const arr = loadKnownAccounts().sort((a,b)=> (b.lastUsedAt||0)-(a.lastUsedAt||0));
+      if (!arr.length){
+        list.innerHTML = '<div style="font-size:13px;color:#666;">候補がまだありません（この端末で登録/ログインしたことがあるアカウントが表示されます）。</div>';
+        return;
+      }
+      list.innerHTML = arr.map(a => `
+        <div class="ux-switch-item">
+          <div class="ux-switch-left">
+            <div class="ux-switch-name">${escapeHtml(a.username)}</div>
+            <div class="ux-switch-id">${escapeHtml(a.id)}</div>
+          </div>
+          <div class="ux-switch-actions">
+            <button class="primary" type="button" data-switch-id="${escapeHtml(a.id)}">ログイン</button>
+          </div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('button[data-switch-id]').forEach(btn=>{
+        btn.addEventListener('click', ()=> switchToAccount(btn.getAttribute('data-switch-id')));
+      });
+    }
+
+
     function setAdminButtonVisible(me){
       const btn = document.getElementById('adminBtn');
       if (!btn) return;
-      const ok = !!(me && ((me.loggedIn && me.user?.role === 'admin') || me.adminSession === true));
+      // 権限は「現在ログイン中のアカウント」に従う（adminSessionだけでは表示しない）
+      const ok = !!(me && me.loggedIn && me.user?.role === 'admin');
       btn.classList.toggle('ux-hidden', !ok);
     }
     function updateTokenInfo(me) {
@@ -269,114 +359,17 @@
       } else {
         el.textContent = `${name} さんの今月の残りトークン: ${me.user?.tokens ?? 0}`;
       }
-
-
-    // ------- 管理端末: アカウント候補（localStorage） -------
-    const ACC_STORE_KEY = "rm_known_accounts_v1";
-    function loadKnownAccounts(){
-      try{
-        const raw = localStorage.getItem(ACC_STORE_KEY);
-        const arr = raw ? JSON.parse(raw) : [];
-        return Array.isArray(arr) ? arr.filter(x => x && x.id && x.username) : [];
-      }catch{ return []; }
-    }
-    function saveKnownAccounts(arr){
-      try{
-        const cleaned = (Array.isArray(arr) ? arr : []).slice(0, 30);
-        localStorage.setItem(ACC_STORE_KEY, JSON.stringify(cleaned));
-      }catch{}
-    }
-    function rememberAccount(acc){
-      try{
-        if (!acc || !acc.id) return;
-        const username = (acc.username || "").toString().trim() || "Guest";
-        const id = acc.id.toString();
-        const now = Date.now();
-        const list = loadKnownAccounts();
-        const idx = list.findIndex(x => x.id === id);
-        if (idx >= 0){
-          list[idx] = { ...list[idx], username, lastUsedAt: now };
-        } else {
-          list.unshift({ id, username, lastUsedAt: now });
-        }
-        const seen = new Set();
-        const uniq = [];
-        for (const x of list){
-          if (!x?.id || seen.has(x.id)) continue;
-          seen.add(x.id);
-          uniq.push(x);
-        }
-        saveKnownAccounts(uniq);
-      }catch{}
-    }
-    async function switchToAccount(id){
-      try{
-        const r = await fetch("/admin/switch-user", {
-          method: "POST",
-          headers: { "Content-Type":"application/json" },
-          body: JSON.stringify({ id })
-        });
-        const data = await r.json().catch(()=> ({}));
-        if (!r.ok || !data.ok) {
-          alert("⚠ユーザー切替に失敗しました。");
-          return;
-        }
-        location.href = "/";
-      }catch(e){
-        alert("⚠通信エラーで切替できませんでした。");
-      }
-    }
-    function renderAccountCandidates(me){
-      const area = document.getElementById("accountSwitchArea");
-      const listEl = document.getElementById("accountCandidates");
-      if (!area || !listEl) return;
-      const adminDevice = !!(me && me.adminSession === true);
-      if (!adminDevice) {
-        area.classList.add("ux-hidden");
-        listEl.innerHTML = "";
-        return;
-      }
-      area.classList.remove("ux-hidden");
-      const accounts = loadKnownAccounts().sort((a,b)=>(b.lastUsedAt||0)-(a.lastUsedAt||0));
-      if (!accounts.length) {
-        listEl.innerHTML = `<div style="font-size:13px;color:#444;">候補がありません。新規登録するとここに表示されます。</div>`;
-        return;
-      }
-      const nowId = me?.user?.id || null;
-      listEl.innerHTML = accounts.map(a => {
-        const active = nowId && a.id === nowId;
-        const label = active ? `${a.username}（現在）` : a.username;
-        const when = a.lastUsedAt ? new Date(a.lastUsedAt).toLocaleString("ja-JP") : "";
-        return `
-          <button type="button" class="ux-account-item" data-id="${a.id}">
-            <div>
-              <div style="font-weight:700;color:#111;">👤 ${label}</div>
-              <div class="meta">${when ? `最終使用: ${when}` : ""}</div>
-            </div>
-            <div style="font-size:12px;color:#111;">🔁 切替</div>
-          </button>
-        `;
-      }).join("");
-      listEl.querySelectorAll("button[data-id]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const id = btn.getAttribute("data-id");
-          if (!id) return;
-          switchToAccount(id);
-        });
-      });
-    }
     }
     async function ensureRegistered() {
       const me = await fetchMe();
       setAdminButtonVisible(me);
-      if (me.loggedIn) {
+      if (!me.loggedIn) {
+        document.getElementById('welcomeOverlay')?.classList.add('show');
+        renderKnownAccounts(me);
+      } else {
         updateTokenInfo(me);
         if (me.user?.id) rememberAccount({ id: me.user.id, username: me.user.username });
-        return;
       }
-      document.getElementById('welcomeOverlay')?.classList.add('show');
-      await refreshAdminTryInfo();
-      renderAccountCandidates(me);
     }
 
     // ------- 管理者パス残回数表示 -------
@@ -416,9 +409,9 @@
           alert(`✅${roleJa}でログインしました\n${nameForAlert} さんようこそ！`);
           document.getElementById('welcomeOverlay')?.classList.remove('show');
           const me = await fetchMe();
-          if (data.id) rememberAccount({ id: data.id, username: nameForAlert });
           setAdminButtonVisible(me);
           updateTokenInfo(me);
+          if (data.id) rememberAccount({ id: data.id, username: nameForAlert });
           return;
         }
 
