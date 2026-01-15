@@ -333,7 +333,7 @@ app.use(async (req, _res, next) => {
   const baseUser = baseDeviceId ? getUserById(baseDeviceId) : null;
 
   // ---- admin セッションは「adminユーザー」または「adminAuthクッキー」で判定 ----
-  const adminSession = !!baseUser && (isAdmin(baseUser) || (req.cookies?.adminAuth === "1"));
+  const adminSession = (baseUser && isAdmin(baseUser)) || (req.cookies?.adminAuth === "1");
 
   // ---- なりすまし ----
   let effectiveUser = baseUser;
@@ -381,6 +381,35 @@ function requireAdmin(req, res, next) {
     .status(403)
     .send(`<!doctype html><meta charset="utf-8"><title>403</title><p>管理者のみアクセスできます。</p><p><a href="/">トップへ</a></p>`);
 }
+// ---- 管理端末: ログアウト / ユーザー切替 ----
+function clearDeviceSession(res){
+  try { res.clearCookie("deviceId"); } catch {}
+  try { res.clearCookie("impersonateId"); } catch {}
+  try { res.clearCookie(TOK_COOKIE); } catch {}
+}
+app.post("/admin/device/logout", requireAdmin, async (_req, res) => {
+  clearDeviceSession(res);
+  return res.json({ ok: true });
+});
+app.get("/admin/device/logout", requireAdmin, async (_req, res) => {
+  clearDeviceSession(res);
+  return res.send(toastPage("🚪ログアウトしました。", "/?switch=1"));
+});
+app.post("/admin/switch-user", requireAdmin, async (req, res) => {
+  try {
+    await usersDb.read();
+    const id = (req.body?.id || "").toString();
+    const u = getUserById(id);
+    if (!u) return res.status(404).json({ ok: false, error: "not_found" });
+    res.cookie("deviceId", u.id, COOKIE_OPTS);
+    try { res.clearCookie("impersonateId"); } catch {}
+    writeTokCookie(res, u);
+    return res.json({ ok: true, user: { id: u.id, username: u.username, role: u.role } });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 
 // ==========================
 // Apple Music 検索
@@ -578,7 +607,7 @@ setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
     writeTokCookie(res, usersDb.data.users.at(-1)); 
-    res.json({ ok: true, role, username });
+    res.json({ ok: true, role, username, id: deviceId });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
@@ -838,9 +867,6 @@ app.post("/admin-login", async (req, res) => {
 
   const fails = getLoginFails(req);
   if (fails >= MAX_TRIES) return res.json({ success: false, reason: "locked", remaining: 0 });
-
-  // 先に通常登録（deviceId cookie）が必要
-  if (!req.user) return res.json({ success: false, reason: "not_registered" });
 
   const ok = pwd === db.data.settings.adminPassword;
   if (!ok) {
@@ -1365,14 +1391,6 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
   const adminCount = usersDb.data.users.filter(u => u.role === "admin").length;
   const userCount = totalUsers - adminCount;
 
-  const classifyUa = (ua = "") => {
-    const s = String(ua || "").toLowerCase();
-    if (s.includes("android")) return { emoji: "📱", label: "Android" };
-    if (s.includes("iphone") || s.includes("ipad") || s.includes("ipod") || s.includes("ios")) return { emoji: "📱", label: "iOS" };
-    if (s.includes("windows") || s.includes("macintosh") || s.includes("mac os") || s.includes("x11") || s.includes("linux")) return { emoji: "💻", label: "PC" };
-    return { emoji: "❓", label: "不明" };
-  };
-
   const rows = usersDb.data.users.map(u => {
     const lastRefill = u.lastRefillAtISO
       ? new Date(u.lastRefillAtISO).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
@@ -1380,13 +1398,10 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     const tokenStr = isAdmin(u) ? "∞" : (u.tokens ?? 0);
     const roleLabel = u.role === "admin" ? "管理者" : "一般";
 
-    const ua = u.deviceInfo?.ua || "";
-    const dev = classifyUa(ua);
     return `
-    <tr data-search="${esc(u.username)} ${esc(u.id)} ${roleLabel} ${dev.label}">
+    <tr data-search="${esc(u.username)} ${esc(u.id)} ${roleLabel}">
       <td><input type="checkbox" name="ids" value="${u.id}" class="user-check"></td>
       <td class="uname">${esc(u.username)}</td>
-      <td class="dev"><span class="dev-pill" title="${esc(ua)}">${dev.emoji} ${dev.label}</span></td>
       <td class="uid">
         <code>${esc(u.id)}</code>
         <button type="button" class="mini-btn copy-btn" data-copy="${esc(u.id)}" title="IDをコピー">コピー</button>
@@ -1445,8 +1460,6 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:650;border:1px solid #e5e7eb;background:#f9fafb;}
     .pill-admin{background:#fff7ed;border-color:#fed7aa;color:#9a3412;}
     .pill-user{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
-    .dev{white-space:nowrap}
-    .dev-pill{display:inline-flex;gap:6px;align-items:center;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:650;border:1px solid #e5e7eb;background:#f9fafb;}
     .ops{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .inline-form{display:inline-flex;gap:6px;align-items:center;}
     .inline-form.wide{flex-wrap:wrap}
@@ -1460,10 +1473,10 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     .uid{white-space:nowrap}
     .muted{color:#6b7280}
     @media(max-width:860px){
-      th:nth-child(7), td:nth-child(7){display:none;} /* 最終配布 */
+      th:nth-child(6), td:nth-child(6){display:none;} /* 最終配布 */
     }
     @media(max-width:720px){
-      th:nth-child(6), td:nth-child(6){display:none;} /* トークン */
+      th:nth-child(5), td:nth-child(5){display:none;} /* トークン */
     }
   </style>
   <body>
@@ -1497,7 +1510,6 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
           <tr>
             <th style="width:40px;"></th>
             <th>ユーザー名</th>
-            <th>端末</th>
             <th>デバイスID</th>
             <th>ロール</th>
             <th>トークン</th>
@@ -1741,6 +1753,20 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
       }
       tick();
     })();
+
+    ${req.adminSession ? `
+    (function(){
+      const doLogout = async () => {
+        try { await fetch("/admin/device/logout", { method:"POST" }); } catch {}
+        location.href = "/?switch=1";
+      };
+      const bL = document.getElementById("btnDeviceLogout");
+      const bS = document.getElementById("btnDeviceSwitch");
+      if (bL) bL.addEventListener("click", ()=>{ if (confirm("ログアウトしますか？")) doLogout(); });
+      if (bS) bS.addEventListener("click", ()=>{ doLogout(); });
+    })();
+    ` : ``}
+
     </script>
   </body>
   </html>`;
@@ -2089,6 +2115,17 @@ app.get("/mypage", async (req, res) => {
         ${listHtml}
       </div>
 
+      ${req.adminSession ? `
+      <div class="card">
+        <h3>管理端末</h3>
+        <p class="muted" style="margin-top:4px;">この端末ではユーザー切替ができます。ログアウトすると、次回ログイン時に候補が表示されます。</p>
+        <div class="row" style="justify-content:flex-end;flex-wrap:wrap;">
+          <button class="btn" type="button" id="btnDeviceSwitch">ユーザー切替</button>
+          <button class="btn" type="button" id="btnDeviceLogout" style="border-color:#fecaca;background:#fff5f5;color:#b91c1c;">ログアウト</button>
+        </div>
+      </div>
+      ` : ``}
+
       <p><a href="/">↩ トップへ戻る</a></p>
     </div>
     <script>
@@ -2113,6 +2150,20 @@ app.get("/mypage", async (req, res) => {
       }
       tick();
     })();
+
+    ${req.adminSession ? `
+    (function(){
+      const doLogout = async () => {
+        try { await fetch("/admin/device/logout", { method:"POST" }); } catch {}
+        location.href = "/?switch=1";
+      };
+      const bL = document.getElementById("btnDeviceLogout");
+      const bS = document.getElementById("btnDeviceSwitch");
+      if (bL) bL.addEventListener("click", ()=>{ if (confirm("ログアウトしますか？")) doLogout(); });
+      if (bS) bS.addEventListener("click", ()=>{ doLogout(); });
+    })();
+    ` : ``}
+
     </script>
   </body>
   </html>`;
