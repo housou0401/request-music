@@ -376,20 +376,12 @@ app.use(async (req, _res, next) => {
 
 // ---- 管理者保護 ----
 function requireAdmin(req, res, next) {
-  // 権限は「現在ログイン中のアカウント」を参照（adminSession だけでは通さない）
-  if (req.adminSession && req.user && req.user.role === "admin" && !req.impersonating) return next();
+  if (req.adminSession) return next();
   return res
     .status(403)
     .send(`<!doctype html><meta charset="utf-8"><title>403</title><p>管理者のみアクセスできます。</p><p><a href="/">トップへ</a></p>`);
 }
 
-function requireAdminDevice(req, res, next) {
-  // 端末に adminAuth（管理者権限）が残っているか（ユーザー切替/ログアウト用）
-  if (req.adminSession) return next();
-  return res
-    .status(403)
-    .send(`<!doctype html><meta charset="utf-8"><title>403</title><p>管理端末のみ利用できます。</p><p><a href="/">トップへ</a></p>`);
-}
 // ==========================
 // Apple Music 検索
 // ==========================
@@ -586,7 +578,7 @@ setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
     if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
     writeTokCookie(res, usersDb.data.users.at(-1)); 
-    res.json({ ok: true, role, username, id: deviceId });
+    res.json({ ok: true, role, username });
   } catch (e) {
     res.status(500).json({ ok: false, error: e.message });
   }
@@ -610,37 +602,6 @@ app.get("/me", async (req, res) => {
     settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
   });
 });
-
-// ---- 管理端末：ログアウト（deviceIdだけ消す / adminAuthは残す） ----
-app.get("/admin/device/logout", requireAdminDevice, async (req, res) => {
-  try {
-    res.clearCookie("deviceId", { ...COOKIE_OPTS, maxAge: 0 });
-    res.clearCookie(TOK_COOKIE, { ...COOKIE_OPTS, maxAge: 0 });
-    res.clearCookie("impersonateId", { ...COOKIE_OPTS, maxAge: 0 });
-    const to = (req.query?.redirect || "/").toString();
-    return res.redirect(to);
-  } catch {
-    return res.redirect("/");
-  }
-});
-
-// ---- 管理端末：ユーザー切替（deviceIdを書き換え） ----
-app.post("/admin/switch-user", requireAdminDevice, async (req, res) => {
-  try {
-    const id = (req.body?.id || "").toString().trim();
-    if (!id) return res.status(400).json({ ok: false, error: "missing_id" });
-
-    const u = getUserById(id);
-    if (!u) return res.status(404).json({ ok: false, error: "not_found" });
-
-    res.cookie("deviceId", u.id, COOKIE_OPTS);
-    writeTokCookie(res, u);
-    return res.json({ ok: true });
-  } catch (e) {
-    return res.status(500).json({ ok: false, error: e.message });
-  }
-});
-
 
 // ---- 送信 ----
 app.post("/submit", async (req, res) => {
@@ -982,36 +943,12 @@ body{background:#f4f6fb;}
 .admin-row button{padding:8px 10px;border-radius:12px;border:none;background:#1e3a8a;color:#fff;cursor:pointer;}
 .admin-row button.secondary{background:#334155;}
 .req-time{font-size:12px;opacity:.75;margin-right:10px;}
-
-/* --- admin header / cards --- */
-.admin-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 12px;}
-.admin-head h1{margin:0;font-size:22px;letter-spacing:.2px;}
-.admin-head-actions{display:flex;gap:8px;flex-wrap:wrap;}
-.admin-subtitle{margin:10px 0 8px;font-size:15px;opacity:.8;}
-/* section cards */
-.sec{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:14px;margin:14px 0;max-width:1100px;}
-.sec h2{margin:0 0 10px;font-size:16px;}
-/* request list card wrapper */
-.list-card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:12px 12px;margin:10px 0;max-width:1100px;}
-/* meta inline */
-.meta{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;max-width:380px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.meta code{padding:2px 6px;background:#f5f5f5;border:1px solid #eee;border-radius:6px;}
-
 </style>
   <body>
-    <div class="admin-wrap">
-    <div class="admin-head">
-      <h1>🎛 管理者ページ</h1>
-      <div class="admin-head-actions">
-        <a class="pg-btn" href="/">トップへ</a>
-        <a class="pg-btn" href="/admin/users">ユーザー管理</a>
-      </div>
-    </div>
-    <h2 class="admin-subtitle">リクエスト曲一覧</h2>
+    <h1>✉ アンケート回答一覧</h1>
 
     ${req.impersonating ? `<div class="banner-imp">現在 <strong>${req.user?.username || 'user'}</strong> として閲覧中（なりすまし）。 <a href="/admin/impersonate/clear">解除</a></div>` : ""}
 
-    <div class="list-card">
     <div class="tools">
       <div>
         並び替え:
@@ -1025,8 +962,10 @@ body{background:#f4f6fb;}
         <a class="pg-btn ${only==='all'?'current':''}" href="?sort=${sort}&only=all">すべて</a>
       </div>
       <div style="margin-left:auto;">
-        <a class="pg-btn" href="/admin/users">👥 ユーザー管理</a>
+        <a class="pg-btn" href="/admin/users">ユーザー管理へ →</a>
       </div>
+    </div>
+
     </div>
 
     ${pagination(currentPage, totalPages, sort)}
@@ -1055,17 +994,13 @@ body{background:#f4f6fb;}
             <small>${e.artist}</small>
           </div>
         </a>
-        <div class="req-meta">
-          <small>🕒 ${e.createdAt ? fmtJst(e.createdAt) : "-"}</small>
-          <small>👤 ${esc(e.by?.username || "-")}</small>
-          <small>🆔 ${esc(e.by?.id || "-")}</small>
-        </div>
         <div class="entry-actions" style="display:flex;gap:8px;align-items:center;">
           <span class="meta">
             <span>${fmtJst(e.lastRequestedAt || e.createdAt)}</span>
             <span>${esc((e.lastBy && e.lastBy.username) || (e.by && e.by.username) || "-")}</span>
             <code>${esc((e.lastBy && e.lastBy.id) || (e.by && e.by.id) || "-")}</code>
           </span>
+          <span class="req-time" title="最終リクエスト時刻">${esc(fmtJst(e.lastRequestedAt || e.createdAt))}</span>
           <a href="/broadcast/${e.id}" class="delete" title="放送済みにする">📻</a>
           <a href="/unbroadcast/${e.id}" class="delete" title="未放送に戻す">↩️</a>
           <a href="/delete/${e.id}" class="delete" title="削除">🗑️</a>
@@ -1191,7 +1126,6 @@ html += `</ul>
         document.querySelectorAll('.req-check').forEach(chk => chk.checked = reqAll.checked);
       });
     </script>
-    </div>
   </body></html>`;
 
   res.send(html);
@@ -1284,7 +1218,6 @@ app.get("/theme", async (req, res) => {
   const today = voteDateKey();
   const lastVoteDate = me?.themeVotes?.[t.id || ""]?.lastVoteDate || null;
   const canVote = !!me && active && lastVoteDate !== today;
-  const showPrivate = !!req.adminSession; // 管理者のみ「最終リクエスト/送信者」表示
 
   const candidates = [...(db.data.themeRequests || [])].sort((a,b)=>
     (b.votes||0)-(a.votes||0) || (b.count||0)-(a.count||0) || new Date(b.createdAt||0)-new Date(a.createdAt||0)
@@ -1293,36 +1226,25 @@ app.get("/theme", async (req, res) => {
   const winner = t.winner;
   const last = (db.data.themeHistory || [])[0] || null;
 
-  const candHtml = candidates.map(r => {
-  const privateLine = showPrivate
-    ? `<div class="sub2">最終リクエスト: ${fmtJst(r.lastRequestedAt || r.createdAt)} / ${esc((r.lastBy && r.lastBy.username) || (r.by && r.by.username) || "-")} <code>${esc((r.lastBy && r.lastBy.id) || (r.by && r.by.id) || "-")}</code></div>`
-    : "";
-  const voteBtn = active
-    ? (me
-        ? `
-          <form method="POST" action="/theme/vote" style="display:inline;">
-            <input type="hidden" name="id" value="${r.id}">
-            <button type="submit" ${canVote ? "" : "disabled"}>投票</button>
-          </form>
-        `
-        : `<a href="/" style="margin-left:8px;">ログインして投票</a>`)
-    : "";
-  return `
+  const candHtml = candidates.map(r => `
     <div class="cand">
       <img src="${r.artworkUrl}" alt="cover">
       <div class="info">
         <div class="ttl">${esc(r.text)}</div>
         <div class="sub">${esc(r.artist)} / リクエスト: <b>${r.count || 1}</b> / 投票: <b>${r.votes || 0}</b></div>
-        ${privateLine}
+        <div class="sub2">最終リクエスト: ${fmtJst(r.lastRequestedAt || r.createdAt)} / ${esc((r.lastBy && r.lastBy.username) || (r.by && r.by.username) || "-")}</div>
         <div class="ops">
           <a href="${r.appleMusicUrl || "#"}" target="_blank">Apple Music</a>
-          ${voteBtn}
+          ${active ? (me ? `
+            <form method="POST" action="/theme/vote" style="display:inline;">
+              <input type="hidden" name="id" value="${r.id}">
+              <button type="submit" ${canVote ? "" : "disabled"}>投票</button>
+            </form>
+          ` : `<a href="/" style="margin-left:8px;">ログインして投票</a>`) : ""}
         </div>
       </div>
     </div>
-  `;
-}).join("");
-
+  `).join("");
 
   res.send(`<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>テーマ投票</title>
@@ -1343,10 +1265,6 @@ app.get("/theme", async (req, res) => {
     button[disabled]{opacity:.5;cursor:not-allowed;}
     .badge{display:inline-block;background:#10b981;color:#fff;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;vertical-align:middle;}
     .badge.gray{background:#9ca3af;}
-
-    .req-meta{display:flex;flex-direction:column;gap:2px;align-items:flex-start;color:#4b5563;font-size:12px;min-width:200px;line-height:1.25;}
-    .req-meta small{white-space:nowrap;}
-    @media(max-width:860px){.req-meta{display:none;}}
   </style>
   <body><div class="wrap">
     <div class="card">
@@ -1400,131 +1318,72 @@ app.post("/theme/vote", bodyParser.urlencoded({ extended: true }), async (req, r
 });
 
 // ---- Users ----
-app.get("/admin/users", requireAdmin, async (req, res) => {
+app.get("/admin/users", requireAdmin, async (_req, res) => {
   await usersDb.read();
-
-  const totalUsers = usersDb.data.users.length;
-  const adminCount = usersDb.data.users.filter(u => u.role === "admin").length;
-  const userCount = totalUsers - adminCount;
-
-  const rows = usersDb.data.users.map(u => {
-    const lastRefill = u.lastRefillAtISO
-      ? new Date(u.lastRefillAtISO).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
-      : (u.lastRefillISO || "-");
-    const tokenStr = isAdmin(u) ? "∞" : (u.tokens ?? 0);
-    const roleLabel = u.role === "admin" ? "管理者" : "一般";
-
-    return `
-    <tr data-search="${esc(u.username)} ${esc(u.id)} ${roleLabel}">
+  const rows = usersDb.data.users.map(u => `
+    <tr>
       <td><input type="checkbox" name="ids" value="${u.id}" class="user-check"></td>
-      <td class="uname">${esc(u.username)}</td>
-      <td class="uid">
-        <code>${esc(u.id)}</code>
-        <button type="button" class="mini-btn copy-btn" data-copy="${esc(u.id)}" title="IDをコピー">コピー</button>
-      </td>
-      <td><span class="pill ${u.role === "admin" ? "pill-admin" : "pill-user"}">${roleLabel}</span></td>
-      <td>${tokenStr}</td>
-      <td>${lastRefill}</td>
+      <td>${u.username}</td>
+      <td><code>${u.id}</code></td>
+      <td>${u.role === "admin" ? "管理者" : "一般"}</td>
+      <td>${isAdmin(u) ? "∞" : (u.tokens ?? 0)}</td>
+      <td>${u.lastRefillAtISO ? new Date(u.lastRefillAtISO).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"}) : (u.lastRefillISO || "-")}</td>
       <td class="ops">
-        <a class="icon-btn" href="/admin/mypage/${u.id}" target="_blank" rel="noopener" title="マイページを閲覧">🔍</a>
-
-        <form method="POST" action="/admin/impersonate" class="inline-form">
-          <input type="hidden" name="id" value="${u.id}">
-          <button type="submit" class="icon-btn" title="このユーザーとして見る（なりすまし）">👤</button>
-        </form>
-
-        <form method="POST" action="/admin/update-user" class="inline-form wide">
+        <form method="POST" action="/admin/update-user" class="inline-form">
           <input type="hidden" name="id" value="${u.id}">
           <label>トークン:
-            <input type="number" min="0" name="tokens" value="${isAdmin(u) ? 0 : (u.tokens ?? 0)}" ${isAdmin(u) ? 'disabled' : ''}>
+            <input type="number" min="0" name="tokens" value="${isAdmin(u)?0:(u.tokens??0)}" ${isAdmin(u)?'disabled':''}>
           </label>
           <label>ロール:
             <select name="role">
-              <option value="user" ${u.role === 'user' ? 'selected' : ''}>一般</option>
-              <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>管理者</option>
+              <option value="user" ${u.role==='user'?'selected':''}>一般</option>
+              <option value="admin" ${u.role==='admin'?'selected':''}>管理者</option>
             </select>
           </label>
-          <button type="submit" class="mini-btn">保存</button>
+          <button type="submit">保存</button>
         </form>
-
         <form method="POST" action="/admin/delete-user" class="inline-form">
           <input type="hidden" name="id" value="${u.id}">
-          <button type="submit" class="icon-btn danger" title="このユーザーを削除" onclick="return confirm('このユーザーを削除します。よろしいですか？')">🗑️</button>
+          <button type="submit" title="このユーザーを削除">🗑️</button>
+        </form>
+        <form method="POST" action="/admin/impersonate" class="inline-form">
+          <input type="hidden" name="id" value="${u.id}">
+          <button type="submit" title="このユーザーとして見る">👤</button>
         </form>
       </td>
-    </tr>`;
-  }).join("");
+    </tr>`).join("");
 
-  res.send(`<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ユーザー管理</title>
+  res.send(`<!doctype html><html lang="ja"><meta charset="utf-8"><title>ユーザー管理</title>
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;margin:0;padding:16px;color:#111827;}
-    .wrap{max-width:1200px;margin:0 auto;}
-    h1{margin:6px 0 0 0;}
-    p{margin:6px 0 12px 0;color:#4b5563;}
-    .topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0;}
-    .back{display:inline-block;color:#2563eb;text-decoration:none;}
-    .stats{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-    .stat{background:#fff;border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;font-size:13px;box-shadow:0 2px 8px rgba(15,23,42,.05);}
-    .tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0;}
-    .search{flex:1;min-width:220px;}
-    .search input{width:100%;max-width:520px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;background:#fff;box-shadow:0 2px 10px rgba(15,23,42,.04);}
-    table{border-collapse:collapse;width:100%;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 10px 24px rgba(15,23,42,.08);}
-    th,td{border-bottom:1px solid #e5e7eb;padding:10px 12px;text-align:left;vertical-align:top;}
-    th{background:#f8fafc;font-weight:650;color:#111827;}
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;margin:0;padding:16px;}
+    .wrap{max-width:1100px;margin:0 auto;}
+    h1{margin-bottom:6px;}
+    .tools{display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap}
+    table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 12px rgba(15,23,42,.06);}
+    th,td{border-bottom:1px solid #e5e7eb;padding:8px 10px;text-align:left;}
+    th{background:#f8fafc;font-weight:600;}
     tr:last-child td{border-bottom:none;}
-    code{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:2px 6px;}
-    .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:650;border:1px solid #e5e7eb;background:#f9fafb;}
-    .pill-admin{background:#fff7ed;border-color:#fed7aa;color:#9a3412;}
-    .pill-user{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
-    .ops{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .inline-form{display:inline-flex;gap:6px;align-items:center;}
-    .inline-form.wide{flex-wrap:wrap}
-    .inline-form input[type="number"]{width:78px;padding:6px 8px;border:1px solid #d1d5db;border-radius:10px;}
-    .inline-form select{padding:6px 8px;border:1px solid #d1d5db;border-radius:10px;background:#fff;}
-    .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;text-decoration:none;color:#111827;box-shadow:0 2px 8px rgba(15,23,42,.05);}
-    .icon-btn:hover{background:#f9fafb}
-    .icon-btn.danger:hover{background:#fff1f2;border-color:#fecdd3}
-    .mini-btn{padding:8px 10px;border-radius:10px;border:1px solid #e5e7eb;background:#f3f4f6;cursor:pointer;text-decoration:none;color:#111827;display:inline-flex;align-items:center;justify-content:center;}
-    .mini-btn:hover{background:#e5e7eb}
-    .uid{white-space:nowrap}
-    .muted{color:#6b7280}
-    @media(max-width:860px){
-      th:nth-child(6), td:nth-child(6){display:none;} /* 最終配布 */
-    }
-    @media(max-width:720px){
-      th:nth-child(5), td:nth-child(5){display:none;} /* トークン */
-    }
+    .inline-form input[type="number"]{width:70px;}
+    .inline-form select{padding:3px 4px;}
+    .ops{display:flex;gap:6px;flex-wrap:wrap;}
+    .back{display:inline-block;margin-bottom:10px;color:#2563eb;text-decoration:none;}
   </style>
   <body>
   <div class="wrap">
-    <div class="topbar">
-      <a class="back" href="/admin">← 管理画面に戻る</a>
-      <div class="stats">
-        <span class="stat">合計: <b id="statAll">${totalUsers}</b></span>
-        <span class="stat">一般: <b id="statUser">${userCount}</b></span>
-        <span class="stat">管理者: <b id="statAdmin">${adminCount}</b></span>
-        ${req.impersonating ? `<span class="stat" style="background:#fff3cd;border-color:#ffeeba;">なりすまし中: <b>${esc(req.user?.username || "user")}</b></span>` : ``}
-      </div>
-    </div>
-
+    <a class="back" href="/admin">← 管理画面に戻る</a>
     <h1>ユーザー管理</h1>
-    <p>🔍=マイページ閲覧（読み取り） / 👤=なりすまし（実際の動作確認）</p>
-
-    <div class="tools">
-      <div class="search">
-        <input id="userFilter" type="text" placeholder="ユーザー名 / デバイスID / ロールで検索…">
+    <p>登録済みのユーザーをここで編集・削除できます。なりすましを使うと、そのユーザーのマイページを確認できます。</p>
+    <div id="bulkUsersWrap">
+      <div class="tools">
+        <label><input type="checkbox" id="userSelectAll"> 全選択</label>
+        <button type="submit">選択したユーザーを削除</button>
+        <a href="/admin/impersonate/clear">なりすましを解除</a>
       </div>
-
-      <label class="muted"><input type="checkbox" id="userSelectAll"> 全選択</label>
-      <button form="bulkUserForm" type="submit" class="mini-btn" onclick="return confirm('選択したユーザーを削除します。よろしいですか？')">選択したユーザーを削除</button>
-      <a class="mini-btn" href="/admin/impersonate/clear">なりすまし解除</a>
-    </div>
-
-    <form method="POST" action="/admin/bulk-delete-users" id="bulkUserForm">
       <table>
         <thead>
           <tr>
-            <th style="width:40px;"></th>
+            <th style="width:34px;"></th>
             <th>ユーザー名</th>
             <th>デバイスID</th>
             <th>ロール</th>
@@ -1533,249 +1392,42 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
             <th>操作</th>
           </tr>
         </thead>
-        <tbody id="userTbody">${rows}</tbody>
+        <tbody>${rows}</tbody>
       </table>
-    </form>
-
+    </div>
     <div class="tools" style="margin-top:16px;">
-      <form method="POST" action="/admin/bulk-update-user-tokens" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <form method="POST" action="/admin/bulk-update-user-tokens" style="display:flex;gap:8px;align-items:center;">
         <label>一般ユーザーのトークンを一括で
-          <input type="number" min="0" name="tokens" value="${Number(db.data.settings.monthlyTokens ?? 5)}" style="width:110px;padding:8px 10px;border:1px solid #d1d5db;border-radius:10px;"> に更新
+          <input type="number" min="0" name="tokens" value="5" style="width:90px;"> に更新
         </label>
-        <button type="submit" class="mini-btn" onclick="return confirm('一般ユーザー全員のトークンを更新します。よろしいですか？')">実行</button>
+        <button type="submit">実行</button>
       </form>
     </div>
   </div>
-
   <script>
-    // select all
     const userAll = document.getElementById('userSelectAll');
-    const tbody = document.getElementById('userTbody');
     if (userAll) userAll.addEventListener('change', () => {
       document.querySelectorAll('.user-check').forEach(chk => chk.checked = userAll.checked);
     });
-
-    // filter
-    const filter = document.getElementById('userFilter');
-    function applyFilter(){
-      const q = (filter?.value || '').trim().toLowerCase();
-      const rows = tbody ? Array.from(tbody.querySelectorAll('tr')) : [];
-      let visibleAll=0, visibleAdmin=0;
-      for (const tr of rows){
-        const hay = (tr.getAttribute('data-search') || tr.textContent || '').toLowerCase();
-        const ok = !q || hay.includes(q);
-        tr.style.display = ok ? '' : 'none';
-        if (ok){
-          visibleAll++;
-          if (hay.includes('管理者')) visibleAdmin++;
-        }
-      }
-      const statAll = document.getElementById('statAll');
-      const statAdmin = document.getElementById('statAdmin');
-      const statUser = document.getElementById('statUser');
-      if (q){
-        if (statAll) statAll.textContent = String(visibleAll);
-        if (statAdmin) statAdmin.textContent = String(visibleAdmin);
-        if (statUser) statUser.textContent = String(Math.max(0, visibleAll - visibleAdmin));
-      }else{
-        if (statAll) statAll.textContent = ${totalUsers};
-        if (statAdmin) statAdmin.textContent = ${adminCount};
-        if (statUser) statUser.textContent = ${userCount};
-      }
-    }
-    if (filter) filter.addEventListener('input', applyFilter);
-
-    // copy buttons
-    document.addEventListener('click', async (e) => {
-      const btn = e.target && e.target.closest && e.target.closest('.copy-btn');
-      if (!btn) return;
-      const text = btn.getAttribute('data-copy') || '';
-      try{
-        await navigator.clipboard.writeText(text);
-        btn.textContent = 'OK';
-        setTimeout(()=>btn.textContent='コピー', 900);
-      }catch{
-        alert('コピーに失敗しました');
-      }
-    });
+    // bulk delete trigger wire-up
+    const bulkBtn = document.querySelector('form[action="/admin/bulk-delete-users"]') ? null : (function(){
+      const btn = document.createElement('button');
+      btn.textContent = '選択したユーザーを削除';
+      btn.type = 'button';
+      btn.onclick = function(){
+        const ids = Array.from(document.querySelectorAll('.user-check:checked')).map(x=>x.value);
+        const f = document.getElementById('bulkUserForm');
+        const hid = document.getElementById('bulkUserIds');
+        hid.value = ids;
+        f.submit();
+      };
+      const tools = document.querySelector('.tools');
+      if (tools) tools.appendChild(btn);
+      return btn;
+    })();
   </script>
   </body></html>`);
 });
-
-// ---- Admin view: user's mypage (read-only) ----
-app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
-  await usersDb.read();
-  const u = getUserById(req.params.id);
-  if (!u) return res.status(404).send("Not found");
-
-  const tz = "Asia/Tokyo";
-  const sset = db.data.settings || {};
-
-  const day = Number(sset.refillDay ?? 1);
-  const hour = Number(sset.refillHour ?? 0);
-  const minute = Number(sset.refillMinute ?? 0);
-
-  function nextRefillDate() {
-    const now = new Date();
-    const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000); // JST
-    let y = jst.getUTCFullYear();
-    let m = jst.getUTCMonth() + 1; // 1..12
-    const lastDay = new Date(y, m, 0).getDate();
-    const d = Math.min(day, lastDay);
-
-    function build(y, m) {
-      const j = Date.UTC(y, m - 1, d, hour, minute, 0);
-      return new Date(j - 9 * 60 * 60 * 1000);
-    }
-
-    let target = build(y, m);
-    if (now >= target) {
-      if (m === 12) { y += 1; m = 1; } else { m += 1; }
-      const last2 = new Date(y, m, 0).getDate();
-      const d2 = Math.min(day, last2);
-      const j2 = Date.UTC(y, m - 1, d2, hour, minute, 0);
-      target = new Date(j2 - 9 * 60 * 60 * 1000);
-    }
-    return target;
-  }
-  const nextRef = nextRefillDate();
-
-  const fmt = (iso) => {
-    if (!iso) return "-";
-    try { return new Date(iso).toLocaleString("ja-JP", { timeZone: tz }); }
-    catch { return iso; }
-  };
-
-  const my = (db.data.responses || [])
-    .filter(r => r.by?.id === u.id)
-    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-
-  const listHtml = (my.length === 0)
-    ? `<p class="muted">🤫 このユーザーの投稿はまだありません。</p>`
-    : `<ul class="list">${
-        my.map(r => {
-          const state = r.broadcasted
-            ? '<span class="badge">放送済み</span>'
-            : '<span class="badge gray">未放送</span>';
-          const am = r.appleMusicUrl
-            ? `<a class="btn f-right" href="${r.appleMusicUrl}" target="_blank" rel="noopener">Apple Music ↗</a>`
-            : "";
-          const cover = r.artworkUrl
-            ? `<img src="${r.artworkUrl}" alt="cover">`
-            : `<div style="width:60px;height:60px;border-radius:10px;background:#e5e7eb;"></div>`;
-          return `
-            <li class="item">
-              ${cover}
-              <div>
-                <div><b>${esc(r.text)}</b> <small class="muted">/ ${esc(r.artist || "アーティスト不明")}</small> ${state}</div>
-                <div class="muted">${r.createdAt ? new Date(r.createdAt).toLocaleString("ja-JP",{timeZone:tz}) : "-"}</div>
-              </div>
-              ${am}
-            </li>
-          `;
-        }).join("")
-      }</ul>`;
-
-  const html = `<!doctype html><html lang="ja"><meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>マイページ（管理者閲覧）</title>
-  <style>
-    :root{
-      --bg:#f3f4f6;
-      --card:#ffffff;
-      --text:#111827;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --ok:#10b981;
-    }
-    body{margin:0;background:linear-gradient(180deg,#eef2f7 0%,#f6f7fb 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial}
-    .wrap{max-width:980px;margin:24px auto;padding:0 16px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0;box-shadow:0 6px 18px rgba(16,24,40,.06)}
-    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .muted{color:var(--muted)}
-    .kv{display:grid;grid-template-columns:160px 1fr;gap:8px 12px;margin-top:12px;align-items:center}
-    .list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
-    .item{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(16,24,40,.05)}
-    .item img{width:60px;height:60px;border-radius:10px;object-fit:cover}
-    .badge{background:var(--ok);color:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:8px}
-    .badge.gray{background:#9ca3af;color:#fff}
-    .btn{display:inline-block;padding:8px 12px;border:1px solid #d1d5db;border-radius:10px;text-decoration:none;color:#111827;background:#e5e7eb}
-    .btn:hover{background:#dadde2}
-    .f-right{margin-left:auto}
-    .top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-    .warn{padding:10px 12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:12px;color:#92400e}
-    .next-remaining{font-size:12px;color:#4b5563;margin-top:2px;}
-    .page-head-icon{width:40px;height:40px;object-fit:contain;margin-right:6px;}
-    @media(max-width:560px){
-      .kv{grid-template-columns:1fr}
-      .list{grid-template-columns:1fr}
-    }
-  </style>
-  <body>
-    <div class="wrap">
-      <div class="top-actions">
-        <a class="btn" href="/admin/users">← ユーザー管理へ戻る</a>
-        <a class="btn" href="/admin">← 管理画面へ戻る</a>
-        <form method="POST" action="/admin/impersonate" style="margin:0;">
-          <input type="hidden" name="id" value="${u.id}">
-          <button class="btn" type="submit">👤 なりすましして確認</button>
-        </form>
-      </div>
-
-      <div class="warn">これは <b>管理者のみ</b> が見られる閲覧ページです（読み取り）。ユーザー名の変更などは「ユーザー管理」から行ってください。</div>
-
-      <div class="card">
-        <div class="row">
-          <img src="/img/mypage.png" alt="mypage" class="page-head-icon" onerror="this.style.display='none'">
-          <div>
-            <div style="font-size:18px;font-weight:600;">${esc(u.username)} さんのマイページ（管理者閲覧）</div>
-            <div class="muted">ID: ${esc(u.id)} / ロール: ${u.role === "admin" ? "管理者" : "一般"}</div>
-          </div>
-        </div>
-        <div class="kv">
-          <b>初回登録</b> <span>${fmt(u.registeredAt)}</span>
-          <b>残トークン</b> <span>${isAdmin(u) ? '∞' : (u.tokens ?? 0)}</span>
-          <b>最終配布</b> <span>${fmt(u.lastRefillAtISO) || (u.lastRefillISO || "-")}</span>
-          <b>次回配布予定</b>
-          <span>
-            <span id="refillDate">${nextRef.toLocaleString("ja-JP", { timeZone: tz })} (Asia/Tokyo)</span>
-            <div id="refillCountdown" class="next-remaining"></div>
-          </span>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>このユーザーの投稿一覧</h3>
-        ${listHtml}
-      </div>
-    </div>
-
-    <script>
-    (function(){
-      const el = document.getElementById("refillCountdown");
-      const targetIso = ${JSON.stringify(nextRef.toISOString())};
-      if (!el || !targetIso) return;
-      const target = new Date(targetIso);
-      function tick(){
-        const now = new Date();
-        let diff = Math.floor((target - now)/1000);
-        if (diff <= 0){ el.textContent = "まもなく再配布されます。"; return; }
-        const d = Math.floor(diff / 86400); diff -= d*86400;
-        const h = Math.floor(diff / 3600); diff -= h*3600;
-        const m = Math.floor(diff / 60);
-        const s = diff - m*60;
-        el.textContent = "残り: " + (d? d+"日 " : "") + String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
-        requestAnimationFrame(tick);
-      }
-      tick();
-    })();
-    </script>
-  </body>
-  </html>`;
-
-  res.send(html);
-});
-
 
 // ---- 個別ユーザー更新 ----
 app.post("/admin/update-user", requireAdmin, async (req, res) => {
@@ -2043,6 +1695,20 @@ app.get("/mypage", async (req, res) => {
         }).join("")
       }</ul>`;
 
+  // ---- 管理者権限の履歴がある端末だけに「ログアウト / ユーザー切替」を表示 ----
+  // ※ 現在ログイン中ユーザーの role は問わない（端末側の adminAuth / adminSession で判定）
+  const deviceTools = req.adminSession ? `
+      <div class="card">
+        <h3>管理端末メニュー</h3>
+        <p class="muted">この端末は管理者としてログインした履歴があるため、ログアウト・ユーザー切替が利用できます。</p>
+        <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px;">
+          <a class="btn" href="/admin/device/logout?redirect=/">ログアウト</a>
+          <a class="btn" href="/admin/device/logout?redirect=/?switch=1">ユーザー切替</a>
+        </div>
+        <p class="muted" style="font-size:12px;margin-top:10px;">※ログアウト後はトップページで候補アカウントから再ログインできます。</p>
+      </div>
+  ` : "";
+
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>マイページ</title>
@@ -2117,7 +1783,9 @@ app.get("/mypage", async (req, res) => {
         ${listHtml}
       </div>
 
-      <p><a href="/">↩ トップへ戻る</a></p>
+      ${deviceTools}
+
+      <p><a href=\"/\">↩ トップへ戻る</a></p>
     </div>
     <script>
     (function(){
