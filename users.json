@@ -523,6 +523,32 @@
       "lastRefillISO": "2026-01",
       "lastRefillAtISO": "2026-01-14T12:34:54.905Z",
       "registeredAt": "2026-01-14T12:34:54.905Z"
+    },
+    {
+      "id": "CMGf-3V-p4YZ569g",
+      "username": "test",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-01",
+      "lastRefillAtISO": "2026-01-15T14:35:04.423Z",
+      "registeredAt": "2026-01-15T14:35:04.423Z"
+    },
+    {
+      "id": "yNpPEKSGYtwJdZ-3",
+      "username": "test",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 5,
+      "lastRefillISO": "2026-01",
+      "lastRefillAtISO": "2026-01-15T14:35:18.129Z",
+      "registeredAt": "2026-01-15T14:35:18.129Z"
     }
   ]
 }
