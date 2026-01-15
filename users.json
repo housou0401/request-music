@@ -426,17 +426,17 @@
       "registeredAt": "2026-01-08T12:09:21.393Z"
     },
     {
-      "id": "yNpPEKSGYtwJdZ-3",
+      "id": "2LpyCskbOJ5nxyC7",
       "username": "test",
       "deviceInfo": {
         "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0",
         "ip": "::1"
       },
-      "role": "user",
-      "tokens": 5,
+      "role": "admin",
+      "tokens": null,
       "lastRefillISO": "2026-01",
-      "lastRefillAtISO": "2026-01-15T14:35:18.129Z",
-      "registeredAt": "2026-01-15T14:35:18.129Z"
+      "lastRefillAtISO": "2026-01-15T15:33:33.795Z",
+      "registeredAt": "2026-01-15T15:33:33.795Z"
     }
   ]
 }
