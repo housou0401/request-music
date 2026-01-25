@@ -854,7 +854,8 @@
       "by": {
         "id": "FkDXvk5Wv8EAIZWL",
         "username": "Guest"
-      }
+      },
+      "broadcasted": false
     },
     {
       "id": "o1T6-HQP22BmqSMRqFAM2",
@@ -868,7 +869,8 @@
       "by": {
         "id": "FkDXvk5Wv8EAIZWL",
         "username": "Guest"
-      }
+      },
+      "broadcasted": false
     },
     {
       "id": "vx3nCFM-oY8a857nN45zM",
@@ -887,7 +889,8 @@
       "lastBy": {
         "id": "ABdcm8dtj8M3snZ1",
         "username": "あ"
-      }
+      },
+      "broadcasted": false
     }
   ],
   "lastSubmissions": {
