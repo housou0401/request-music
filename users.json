@@ -79,7 +79,8 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-01",
-      "lastRefillAtISO": "2026-01-14T01:25:00.574Z"
+      "lastRefillAtISO": "2026-01-14T01:25:00.574Z",
+      "registeredAt": "2026-01-25T13:55:57.167Z"
     },
     {
       "id": "30dYCl0ZVODZumSf",
