@@ -434,9 +434,9 @@
         "ip": "::1"
       },
       "role": "admin",
-      "tokens": null,
+      "tokens": 5,
       "lastRefillISO": "2026-01",
-      "lastRefillAtISO": "2026-01-25T13:45:29.919Z",
+      "lastRefillAtISO": "2026-01-14T01:25:00.574Z",
       "registeredAt": "2026-01-25T13:45:29.919Z"
     }
   ]
