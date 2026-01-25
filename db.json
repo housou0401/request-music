@@ -1001,18 +1001,18 @@
     "refillMinute": 0
   },
   "theme": {
-    "active": false,
-    "status": "ended",
-    "id": "r3hm3eQMyY",
-    "title": "テーマ曲募集",
-    "description": "",
-    "startAtISO": "2026-01-14T05:24:53.825Z",
-    "endAtISO": null,
+    "active": true,
+    "status": "active",
+    "id": "bXB8JhoH3p",
+    "title": "テスト募集",
+    "description": "テーマ曲募集",
+    "startAtISO": "2026-01-25T13:47:35.861Z",
+    "endAtISO": "2026-01-25T15:00:00.000Z",
     "winnerRequestId": null,
     "winner": null,
-    "endedAtISO": "2026-01-14T05:25:22.925Z",
-    "mergedAtISO": "2026-01-14T05:25:22.925Z",
-    "endReason": "manual"
+    "endedAtISO": null,
+    "mergedAtISO": null,
+    "endReason": null
   },
   "themeRequests": [],
   "themeSongCounts": {},
