@@ -1001,45 +1001,72 @@
     "refillMinute": 0
   },
   "theme": {
-    "active": true,
-    "status": "active",
+    "active": false,
+    "status": "ended",
     "id": "bXB8JhoH3p",
     "title": "テスト募集",
     "description": "テーマ曲募集",
     "startAtISO": "2026-01-25T13:47:35.861Z",
     "endAtISO": "2026-01-25T15:00:00.000Z",
-    "winnerRequestId": null,
-    "winner": null,
-    "endedAtISO": null,
-    "mergedAtISO": null,
-    "endReason": null
-  },
-  "themeRequests": [
-    {
+    "winnerRequestId": "QAfNcJcAB2cYbFwmLkRoh",
+    "winner": {
       "id": "QAfNcJcAB2cYbFwmLkRoh",
       "text": "AIZO",
       "artist": "King Gnu",
       "appleMusicUrl": "https://music.apple.com/jp/album/aizo/1860538546?i=1860538548&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/9f/8a/0b/9f8a0bc1-e6ee-5873-4fc9-9a75b0d58e2a/4547366794816.jpg/300x300bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/29/a2/1a/29a21ac0-9c04-75cc-4b46-d1ec4168c0f0/mzaf_15133126017791169575.plus.aac.p.m4a",
-      "count": 1,
-      "createdAt": "2026-01-25T13:48:23.818Z",
-      "by": {
-        "id": "WUU1ApWPSQ8TmpCn",
-        "username": "test"
-      },
-      "lastRequestedAt": "2026-01-25T13:48:23.818Z",
-      "lastBy": {
-        "id": "WUU1ApWPSQ8TmpCn",
-        "username": "test"
-      },
-      "votes": 0
-    }
-  ],
-  "themeSongCounts": {
-    "aizo|king gnu": 1
+      "votes": 0,
+      "count": 1
+    },
+    "endedAtISO": "2026-01-25T13:56:40.850Z",
+    "mergedAtISO": "2026-01-25T13:56:40.851Z",
+    "endReason": "manual"
   },
+  "themeRequests": [],
+  "themeSongCounts": {},
   "themeHistory": [
+    {
+      "id": "bXB8JhoH3p",
+      "title": "テスト募集",
+      "description": "テーマ曲募集",
+      "startAtISO": "2026-01-25T13:47:35.861Z",
+      "endAtISO": "2026-01-25T15:00:00.000Z",
+      "endedAtISO": "2026-01-25T13:56:40.850Z",
+      "endReason": "manual",
+      "winner": {
+        "id": "QAfNcJcAB2cYbFwmLkRoh",
+        "text": "AIZO",
+        "artist": "King Gnu",
+        "appleMusicUrl": "https://music.apple.com/jp/album/aizo/1860538546?i=1860538548&uo=4",
+        "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/9f/8a/0b/9f8a0bc1-e6ee-5873-4fc9-9a75b0d58e2a/4547366794816.jpg/300x300bb.jpg",
+        "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/29/a2/1a/29a21ac0-9c04-75cc-4b46-d1ec4168c0f0/mzaf_15133126017791169575.plus.aac.p.m4a",
+        "votes": 0,
+        "count": 1
+      },
+      "requests": [
+        {
+          "id": "QAfNcJcAB2cYbFwmLkRoh",
+          "text": "AIZO",
+          "artist": "King Gnu",
+          "appleMusicUrl": "https://music.apple.com/jp/album/aizo/1860538546?i=1860538548&uo=4",
+          "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/9f/8a/0b/9f8a0bc1-e6ee-5873-4fc9-9a75b0d58e2a/4547366794816.jpg/300x300bb.jpg",
+          "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/29/a2/1a/29a21ac0-9c04-75cc-4b46-d1ec4168c0f0/mzaf_15133126017791169575.plus.aac.p.m4a",
+          "count": 1,
+          "createdAt": "2026-01-25T13:48:23.818Z",
+          "by": {
+            "id": "WUU1ApWPSQ8TmpCn",
+            "username": "test"
+          },
+          "lastRequestedAt": "2026-01-25T13:48:23.818Z",
+          "lastBy": {
+            "id": "WUU1ApWPSQ8TmpCn",
+            "username": "test"
+          },
+          "votes": 0
+        }
+      ]
+    },
     {
       "id": "r3hm3eQMyY",
       "title": "テーマ曲募集",
