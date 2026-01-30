@@ -1476,6 +1476,25 @@
         "id": "fBdfRvhlgor2GhEY",
         "username": "ぬ"
       }
+    },
+    {
+      "id": "hi1RgAWM9WTifLfavL5jS",
+      "text": "君と癖",
+      "artist": "yutori",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%A8%E7%99%96/1579073473?i=1579073485&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/98/93/91/989391e4-33c1-7473-7bc6-fbcb0aeb55bb/196292191998.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/f0/d3/69/f0d36913-89e3-9bb1-3d0c-38ede11be81c/mzaf_4394245447809085292.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T18:51:00.364Z",
+      "by": {
+        "id": "p1KnrVbqPQ5ylXnI",
+        "username": "ゆっけ"
+      },
+      "lastRequestedAt": "2026-01-30T18:51:00.364Z",
+      "lastBy": {
+        "id": "p1KnrVbqPQ5ylXnI",
+        "username": "ゆっけ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1602,7 +1621,8 @@
     "y qué fue?|don miguelo": 1,
     "nonsense|サブリナ・カーペンター": 1,
     "rock that body|black eyed peas": 1,
-    "好きすぎて滅!|m!lk": 1
+    "好きすぎて滅!|m!lk": 1,
+    "君と癖|yutori": 1
   },
   "settings": {
     "recruiting": true,
