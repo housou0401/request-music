@@ -910,6 +910,25 @@
         "id": "cx0DQLnPvCMVLn13",
         "username": "びー"
       }
+    },
+    {
+      "id": "ABccUK693ktkunwutw_yS",
+      "text": "冷たい渦",
+      "artist": "キタニタツヤ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%86%B7%E3%81%9F%E3%81%84%E6%B8%A6/1607079681?i=1607080033&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5d/f1/3a/5df13a21-9681-4e83-7e39-226997803897/4547366550764.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/1c/53/b4/1c53b46d-3619-47bc-a944-8b317d6398bb/mzaf_10795715218834207547.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T08:17:05.297Z",
+      "by": {
+        "id": "LKkvlZvfhgly0EGm",
+        "username": "犬の骨"
+      },
+      "lastRequestedAt": "2026-01-30T08:17:05.297Z",
+      "lastBy": {
+        "id": "LKkvlZvfhgly0EGm",
+        "username": "犬の骨"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1007,7 +1026,8 @@
     "honeypie|jawny": 1,
     "vinyl|king gnu": 1,
     "恋|松山千春": 1,
-    "ブルーシフト|tele": 1
+    "ブルーシフト|tele": 1,
+    "冷たい渦|キタニタツヤ": 1
   },
   "settings": {
     "recruiting": true,
