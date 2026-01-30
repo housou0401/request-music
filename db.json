@@ -1457,6 +1457,25 @@
         "id": "fBdfRvhlgor2GhEY",
         "username": "ぬ"
       }
+    },
+    {
+      "id": "Y9tfYLENbkuXYTfnhdXyA",
+      "text": "好きすぎて滅!",
+      "artist": "M!LK",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%A5%BD%E3%81%8D%E3%81%99%E3%81%8E%E3%81%A6%E6%BB%85/1846753945?i=1846753946&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d4/f9/1b/d4f91bfd-6176-4733-113f-b72f6095d5df/VEATP-44481.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/77/de/c4/77dec4c2-6f77-4fb6-49f6-6000e8ee660c/mzaf_2535713996101342949.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T16:00:28.940Z",
+      "by": {
+        "id": "fBdfRvhlgor2GhEY",
+        "username": "ぬ"
+      },
+      "lastRequestedAt": "2026-01-30T16:00:28.940Z",
+      "lastBy": {
+        "id": "fBdfRvhlgor2GhEY",
+        "username": "ぬ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1582,7 +1601,8 @@
     "favorite song|ふみの": 1,
     "y qué fue?|don miguelo": 1,
     "nonsense|サブリナ・カーペンター": 1,
-    "rock that body|black eyed peas": 1
+    "rock that body|black eyed peas": 1,
+    "好きすぎて滅!|m!lk": 1
   },
   "settings": {
     "recruiting": true,
