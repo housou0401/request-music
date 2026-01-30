@@ -1214,6 +1214,25 @@
         "id": "H2pyACUwI2vZFbaI",
         "username": "あああ"
       }
+    },
+    {
+      "id": "AgG5lChwr1u0LJRFiya1P",
+      "text": "1000年生きてる",
+      "artist": "いよわ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/1000%E5%B9%B4%E7%94%9F%E3%81%8D%E3%81%A6%E3%82%8B/1544898228?i=1544898233&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/22/53/51/2253510d-a6aa-edb2-c309-a3a6ee6a13da/859756428534_cover.png/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b6/75/22/b67522fe-f8ec-957f-0043-bb79a22622d5/mzaf_15147391622100209458.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T10:13:00.517Z",
+      "by": {
+        "id": "H2pyACUwI2vZFbaI",
+        "username": "あああ"
+      },
+      "lastRequestedAt": "2026-01-30T10:13:00.517Z",
+      "lastBy": {
+        "id": "H2pyACUwI2vZFbaI",
+        "username": "あああ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1327,7 +1346,8 @@
     "woke up remixx (feat. jay park, ozworld, aklo, paloalto, verbal, awich, tak, dok2)|xg": 1,
     "cheer up -japanese ver.-|twice": 1,
     "魔法にかけられて|saucy dog": 1,
-    "メランコリーキッチン|米津玄師": 1
+    "メランコリーキッチン|米津玄師": 1,
+    "1000年生きてる|いよわ": 1
   },
   "settings": {
     "recruiting": true,
