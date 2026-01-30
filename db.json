@@ -1252,6 +1252,25 @@
         "id": "H2pyACUwI2vZFbaI",
         "username": "あああ"
       }
+    },
+    {
+      "id": "GnTEG4ot3SLevJdCCmn6o",
+      "text": "エアーマンが倒せない",
+      "artist": "Team.ねこかん[猫]",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A8%E3%82%A2%E3%83%BC%E3%83%9E%E3%83%B3%E3%81%8C%E5%80%92%E3%81%9B%E3%81%AA%E3%81%84/280693606?i=280693673&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/78/ed/6b/78ed6bfd-396b-cde4-e736-390e73f3b2ef/mzi.wbivsynh.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/ac/ba/34/acba3452-9352-8987-3732-091ed313f418/mzaf_13643270484898987731.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T10:22:44.209Z",
+      "by": {
+        "id": "B4d8aZ3P0nXtIuHf",
+        "username": "ニートになりたい"
+      },
+      "lastRequestedAt": "2026-01-30T10:22:44.209Z",
+      "lastBy": {
+        "id": "B4d8aZ3P0nXtIuHf",
+        "username": "ニートになりたい"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1367,7 +1386,8 @@
     "魔法にかけられて|saucy dog": 1,
     "メランコリーキッチン|米津玄師": 1,
     "1000年生きてる|いよわ": 1,
-    "プラネタリウム|大塚 愛": 1
+    "プラネタリウム|大塚 愛": 1,
+    "エアーマンが倒せない|team.ねこかん[猫]": 1
   },
   "settings": {
     "recruiting": true,
