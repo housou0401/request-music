@@ -967,6 +967,25 @@
         "id": "sOKwseleCnAgcR1K",
         "username": "カペリート"
       }
+    },
+    {
+      "id": "MTmZJkOrmin_m2oRYUbbi",
+      "text": "パズル",
+      "artist": "幾田りら",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%91%E3%82%BA%E3%83%AB/1861508532?i=1861508535&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/9f/f1/b6/9ff1b67e-35ad-a034-149b-4ad889bc00fa/199806749241.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/51/1f/db/511fdbc0-8933-30d2-a20c-655a204b3cb5/mzaf_13234206487400374210.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T08:22:00.562Z",
+      "by": {
+        "id": "F3wZl-lW0boMKU2Q",
+        "username": "Guest"
+      },
+      "lastRequestedAt": "2026-01-30T08:22:00.562Z",
+      "lastBy": {
+        "id": "F3wZl-lW0boMKU2Q",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1067,7 +1086,8 @@
     "ブルーシフト|tele": 1,
     "冷たい渦|キタニタツヤ": 1,
     "don't worry be happy|mongol800": 1,
-    "innocent world|mr.children": 1
+    "innocent world|mr.children": 1,
+    "パズル|幾田りら": 1
   },
   "settings": {
     "recruiting": true,
