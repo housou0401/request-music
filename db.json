@@ -1043,6 +1043,25 @@
         "id": "RK_SVb3CKNbXn5Cd",
         "username": "ひず"
       }
+    },
+    {
+      "id": "EA4i67og2-1ltlIEbLlGO",
+      "text": "雪月花",
+      "artist": "ヤングスキニー",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%9B%AA%E6%9C%88%E8%8A%B1/1733584283?i=1733584284&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/7a/42/e7/7a42e713-738d-2a21-52e4-1b1414c0f830/VEATP-42540.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/50/eb/64/50eb649f-353e-2dff-9eb3-07c7be8dffb9/mzaf_12748663439755313343.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T08:43:50.798Z",
+      "by": {
+        "id": "ugnGYohZcqc8o-l_",
+        "username": "あ"
+      },
+      "lastRequestedAt": "2026-01-30T08:43:50.798Z",
+      "lastBy": {
+        "id": "ugnGYohZcqc8o-l_",
+        "username": "あ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1147,7 +1166,8 @@
     "パズル|幾田りら": 1,
     "恋するフォーチュンクッキー|akb48": 1,
     "雨音子|radwimps": 1,
-    "darling|西野カナ": 1
+    "darling|西野カナ": 1,
+    "雪月花|ヤングスキニー": 1
   },
   "settings": {
     "recruiting": true,
