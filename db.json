@@ -1233,6 +1233,25 @@
         "id": "H2pyACUwI2vZFbaI",
         "username": "あああ"
       }
+    },
+    {
+      "id": "xc1puRM0d0RBjbrkGbbzc",
+      "text": "プラネタリウム",
+      "artist": "大塚 愛",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%97%E3%83%A9%E3%83%8D%E3%82%BF%E3%83%AA%E3%82%A6%E3%83%A0/219766246?i=219766342&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/c7/16/ce/c716ceb8-53fc-49ce-80e4-fc60e0674ad9/mzi.dvrqdwvh.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/05/e2/4a/05e24ad0-0448-985c-2a6d-9f89b5977c13/mzaf_16226648446934749879.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T10:14:03.078Z",
+      "by": {
+        "id": "H2pyACUwI2vZFbaI",
+        "username": "あああ"
+      },
+      "lastRequestedAt": "2026-01-30T10:14:03.078Z",
+      "lastBy": {
+        "id": "H2pyACUwI2vZFbaI",
+        "username": "あああ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1347,7 +1366,8 @@
     "cheer up -japanese ver.-|twice": 1,
     "魔法にかけられて|saucy dog": 1,
     "メランコリーキッチン|米津玄師": 1,
-    "1000年生きてる|いよわ": 1
+    "1000年生きてる|いよわ": 1,
+    "プラネタリウム|大塚 愛": 1
   },
   "settings": {
     "recruiting": true,
