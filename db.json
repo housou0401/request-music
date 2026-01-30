@@ -1371,6 +1371,25 @@
         "id": "6TRidc8_UWTmoHZ0",
         "username": "Guest"
       }
+    },
+    {
+      "id": "AkQVu-1eeNqBtW-hTRcew",
+      "text": "favorite song",
+      "artist": "ふみの",
+      "appleMusicUrl": "https://music.apple.com/jp/album/favorite-song/1867140766?i=1867140767&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/c5/eb/88/c5eb88ed-af9c-0676-6b58-c6333f00fc88/25UM2IM06463.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3f/0a/23/3f0a238e-7247-07bf-2b48-33f3c74a46fb/mzaf_12278751336598755710.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T12:19:45.627Z",
+      "by": {
+        "id": "HHKFX1_D0OKkA3Vu",
+        "username": "あ"
+      },
+      "lastRequestedAt": "2026-01-30T12:19:45.627Z",
+      "lastBy": {
+        "id": "HHKFX1_D0OKkA3Vu",
+        "username": "あ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1492,7 +1511,8 @@
     "unpresent|嚩ᴴᴬᴷᵁ": 1,
     "lulu.|mrs. green apple": 1,
     "スーパーヒロイン|平成フラミンゴ": 1,
-    "セレナーデ|なとり": 1
+    "セレナーデ|なとり": 1,
+    "favorite song|ふみの": 1
   },
   "settings": {
     "recruiting": true,
