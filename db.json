@@ -929,6 +929,25 @@
         "id": "LKkvlZvfhgly0EGm",
         "username": "犬の骨"
       }
+    },
+    {
+      "id": "8etcolLTkxm13hgSrO1yS",
+      "text": "DON'T WORRY BE HAPPY",
+      "artist": "MONGOL800",
+      "appleMusicUrl": "https://music.apple.com/jp/album/dont-worry-be-happy/273157379?i=273157395&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/6a/67/26/mzi.ucmiwoik.tif/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/fb/52/39/fb523946-09f8-5524-13c8-ebf714dd29cb/mzaf_8169012680857169278.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T08:19:29.716Z",
+      "by": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      },
+      "lastRequestedAt": "2026-01-30T08:19:29.716Z",
+      "lastBy": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1027,7 +1046,8 @@
     "vinyl|king gnu": 1,
     "恋|松山千春": 1,
     "ブルーシフト|tele": 1,
-    "冷たい渦|キタニタツヤ": 1
+    "冷たい渦|キタニタツヤ": 1,
+    "don't worry be happy|mongol800": 1
   },
   "settings": {
     "recruiting": true,
