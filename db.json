@@ -948,6 +948,25 @@
         "id": "sOKwseleCnAgcR1K",
         "username": "カペリート"
       }
+    },
+    {
+      "id": "0-qHcXeKgnhX1U0KNgQxT",
+      "text": "innocent world",
+      "artist": "Mr.Children",
+      "appleMusicUrl": "https://music.apple.com/jp/album/innocent-world/1374994303?i=1374994314&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/58/72/33/587233f4-daeb-7819-e8e6-6558517ffe15/dj.jamqsvjt.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/8a/a1/af/8aa1afed-1596-eee9-852e-6a7c3bc3b394/mzaf_6694600219077379822.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T08:21:31.208Z",
+      "by": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      },
+      "lastRequestedAt": "2026-01-30T08:21:31.208Z",
+      "lastBy": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1047,7 +1066,8 @@
     "恋|松山千春": 1,
     "ブルーシフト|tele": 1,
     "冷たい渦|キタニタツヤ": 1,
-    "don't worry be happy|mongol800": 1
+    "don't worry be happy|mongol800": 1,
+    "innocent world|mr.children": 1
   },
   "settings": {
     "recruiting": true,
