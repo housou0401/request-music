@@ -1100,6 +1100,25 @@
         "id": "rlgc3bNg56K4QbqH",
         "username": "ががが"
       }
+    },
+    {
+      "id": "gO5NoQk7P4Y8Fbi4P60es",
+      "text": "Rainy (feat. Bene Baby)",
+      "artist": "X 1",
+      "appleMusicUrl": "https://music.apple.com/jp/album/rainy-feat-bene-baby/1857291931?i=1857291932&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/4a/8a/27/4a8a2788-a320-6876-087b-e690fdb91be1/artwork.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/04/1c/98041c69-4e7f-1cdc-6115-e18e9f2a8476/mzaf_11455921698783717121.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T09:11:52.265Z",
+      "by": {
+        "id": "56OTSMH7UBe9t2fS",
+        "username": "リアルコイキング"
+      },
+      "lastRequestedAt": "2026-01-30T09:11:52.265Z",
+      "lastBy": {
+        "id": "56OTSMH7UBe9t2fS",
+        "username": "リアルコイキング"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1207,7 +1226,8 @@
     "darling|西野カナ": 1,
     "雪月花|ヤングスキニー": 1,
     "i was king|oneokrock": 1,
-    "if i can't have you|ショーン・メンデス": 1
+    "if i can't have you|ショーン・メンデス": 1,
+    "rainy (feat. bene baby)|x 1": 1
   },
   "settings": {
     "recruiting": true,
