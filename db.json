@@ -1081,6 +1081,25 @@
         "id": "ugnGYohZcqc8o-l_",
         "username": "あ"
       }
+    },
+    {
+      "id": "lKRUKqIb8aLRLAYawpZhK",
+      "text": "If I Can't Have You",
+      "artist": "ショーン・メンデス",
+      "appleMusicUrl": "https://music.apple.com/jp/album/if-i-cant-have-you/1460840847?i=1460840853&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/41/21/8b/41218bcb-7f2f-031f-482a-1ce03757a4ab/19UMGIM38577.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c1/7e/a0/c17ea021-434f-6708-b86c-d30e29b64a8b/mzaf_16635590566912733313.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T08:54:41.335Z",
+      "by": {
+        "id": "rlgc3bNg56K4QbqH",
+        "username": "ががが"
+      },
+      "lastRequestedAt": "2026-01-30T08:54:41.335Z",
+      "lastBy": {
+        "id": "rlgc3bNg56K4QbqH",
+        "username": "ががが"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1187,7 +1206,8 @@
     "雨音子|radwimps": 1,
     "darling|西野カナ": 1,
     "雪月花|ヤングスキニー": 1,
-    "i was king|oneokrock": 1
+    "i was king|oneokrock": 1,
+    "if i can't have you|ショーン・メンデス": 1
   },
   "settings": {
     "recruiting": true,
