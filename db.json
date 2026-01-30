@@ -1157,6 +1157,25 @@
         "id": "YEUK7R7d-G82liDS",
         "username": "あ"
       }
+    },
+    {
+      "id": "UPGpfZ0ufemq1CkttmqAe",
+      "text": "CHEER UP -Japanese ver.-",
+      "artist": "TWICE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/cheer-up-japanese-ver/1242966871?i=1242967504&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/ec/5d/d5/ec5dd57e-5575-0a52-a1ab-23daf2dd67eb/190295788520.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/69/60/2d/69602de3-3210-8b7e-19d9-0fcdf7be4e3e/mzaf_11864983947470688449.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T10:02:27.241Z",
+      "by": {
+        "id": "4En6Gu5WMaY5aDiu",
+        "username": "なな"
+      },
+      "lastRequestedAt": "2026-01-30T10:02:27.241Z",
+      "lastBy": {
+        "id": "4En6Gu5WMaY5aDiu",
+        "username": "なな"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1267,7 +1286,8 @@
     "if i can't have you|ショーン・メンデス": 1,
     "rainy (feat. bene baby)|x 1": 1,
     "test me|ちゃんみな": 1,
-    "woke up remixx (feat. jay park, ozworld, aklo, paloalto, verbal, awich, tak, dok2)|xg": 1
+    "woke up remixx (feat. jay park, ozworld, aklo, paloalto, verbal, awich, tak, dok2)|xg": 1,
+    "cheer up -japanese ver.-|twice": 1
   },
   "settings": {
     "recruiting": true,
