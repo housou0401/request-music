@@ -551,7 +551,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 5,
+      "tokens": 4,
       "lastRefillISO": "2026-01",
       "lastRefillAtISO": "2026-01-30T09:07:44.288Z",
       "registeredAt": "2026-01-30T09:07:44.288Z"
@@ -568,6 +568,19 @@
       "lastRefillISO": "2026-01",
       "lastRefillAtISO": "2026-01-30T09:10:12.216Z",
       "registeredAt": "2026-01-30T09:10:12.216Z"
+    },
+    {
+      "id": "no74OLv4iImrpH6O",
+      "username": "りりあ",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22H31 Instagram 408.0.0.32.70 (iPhone14,6; iOS 18_7_1; ja_JP; ja; scale=2.00; 750x1334; IABMV/1; 830715757) Safari/604.1",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 5,
+      "lastRefillISO": "2026-01",
+      "lastRefillAtISO": "2026-01-30T09:11:54.918Z",
+      "registeredAt": "2026-01-30T09:11:54.918Z"
     }
   ]
 }
