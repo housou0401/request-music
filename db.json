@@ -1024,6 +1024,25 @@
         "id": "e20A8xHIZxD2TOOX",
         "username": "むみ"
       }
+    },
+    {
+      "id": "ka7VEiLe5uuz7EK8bK78O",
+      "text": "Darling",
+      "artist": "西野カナ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/darling/1537252612?i=1537252613&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/20/54/40/20544014-827f-12b0-49ba-4c2582238fd8/jacket_SECL01551B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c7/45/a4/c745a42d-15a8-6089-f40c-cc1df26d3f4b/mzaf_2877915312969089482.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T08:40:40.026Z",
+      "by": {
+        "id": "RK_SVb3CKNbXn5Cd",
+        "username": "ひず"
+      },
+      "lastRequestedAt": "2026-01-30T08:40:40.026Z",
+      "lastBy": {
+        "id": "RK_SVb3CKNbXn5Cd",
+        "username": "ひず"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1127,7 +1146,8 @@
     "innocent world|mr.children": 1,
     "パズル|幾田りら": 1,
     "恋するフォーチュンクッキー|akb48": 1,
-    "雨音子|radwimps": 1
+    "雨音子|radwimps": 1,
+    "darling|西野カナ": 1
   },
   "settings": {
     "recruiting": true,
