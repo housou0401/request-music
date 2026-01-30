@@ -1062,6 +1062,25 @@
         "id": "ugnGYohZcqc8o-l_",
         "username": "あ"
       }
+    },
+    {
+      "id": "i6Y_NszbMAnWRDZ-T_662",
+      "text": "I was King",
+      "artist": "ONEOKROCK",
+      "appleMusicUrl": "https://music.apple.com/jp/album/i-was-king/1839433615?i=1839433964&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/29/cb/32/29cb32fb-1987-edbf-2ac9-18593a0c8ab8/25UMGIM89655.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d0/1f/74/d01f74a0-a5dc-e493-5e67-f6815a6491fd/mzaf_5006183444310262721.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T08:45:09.602Z",
+      "by": {
+        "id": "ugnGYohZcqc8o-l_",
+        "username": "あ"
+      },
+      "lastRequestedAt": "2026-01-30T08:45:09.602Z",
+      "lastBy": {
+        "id": "ugnGYohZcqc8o-l_",
+        "username": "あ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1167,7 +1186,8 @@
     "恋するフォーチュンクッキー|akb48": 1,
     "雨音子|radwimps": 1,
     "darling|西野カナ": 1,
-    "雪月花|ヤングスキニー": 1
+    "雪月花|ヤングスキニー": 1,
+    "i was king|oneokrock": 1
   },
   "settings": {
     "recruiting": true,
