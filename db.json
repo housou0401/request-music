@@ -891,6 +891,25 @@
         "username": "あ"
       },
       "broadcasted": false
+    },
+    {
+      "id": "M6YFMBb7-_wUOXF9eAo2o",
+      "text": "ブルーシフト",
+      "artist": "Tele",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%96%E3%83%AB%E3%83%BC%E3%82%B7%E3%83%95%E3%83%88/1787367334?i=1787367335&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/34/85/50/3485501e-b7cb-3942-07c6-9594ab3fb655/TFDS-01143.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9e/36/e5/9e36e52a-8a2c-ddf2-4c5c-16121a408fdd/mzaf_14564252149453335619.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T08:14:06.294Z",
+      "by": {
+        "id": "cx0DQLnPvCMVLn13",
+        "username": "びー"
+      },
+      "lastRequestedAt": "2026-01-30T08:14:06.294Z",
+      "lastBy": {
+        "id": "cx0DQLnPvCMVLn13",
+        "username": "びー"
+      }
     }
   ],
   "lastSubmissions": {
@@ -987,7 +1006,8 @@
     "daydreamin'|アリアナ・グランデ": 1,
     "honeypie|jawny": 1,
     "vinyl|king gnu": 1,
-    "恋|松山千春": 1
+    "恋|松山千春": 1,
+    "ブルーシフト|tele": 1
   },
   "settings": {
     "recruiting": true,
