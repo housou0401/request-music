@@ -633,6 +633,19 @@
       "lastRefillISO": "2026-01",
       "lastRefillAtISO": "2026-01-30T10:14:01.084Z",
       "registeredAt": "2026-01-30T10:14:01.084Z"
+    },
+    {
+      "id": "B4d8aZ3P0nXtIuHf",
+      "username": "ニートになりたい",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Linux; Android 14; A301OP Build/UKQ1.230924.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/144.0.7559.87 Mobile Safari/537.36 Instagram 413.0.0.41.84 Android (34/14; 408dpi; 1080x2400; OPPO; A301OP; OP5701L1; qcom; ja_JP; 865356678; IABMV/1)",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 5,
+      "lastRefillISO": "2026-01",
+      "lastRefillAtISO": "2026-01-30T10:21:42.898Z",
+      "registeredAt": "2026-01-30T10:21:42.898Z"
     }
   ]
 }
