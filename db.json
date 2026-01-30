@@ -1352,6 +1352,25 @@
         "id": "4uxZqUuTty9G0if7",
         "username": "babyon"
       }
+    },
+    {
+      "id": "dq0Ri9M1X5YZOucmFrz67",
+      "text": "セレナーデ",
+      "artist": "なとり",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%BB%E3%83%AC%E3%83%8A%E3%83%BC%E3%83%87/1858168828?i=1858168846&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/03/6f/32/036f32e4-5245-9f28-77ff-c5313341c7e0/4547366794519.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/84/5f/5b/845f5b45-0f58-27c0-01ac-7250a67ca46e/mzaf_5054844089908243720.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-01-30T11:14:52.615Z",
+      "by": {
+        "id": "6TRidc8_UWTmoHZ0",
+        "username": "Guest"
+      },
+      "lastRequestedAt": "2026-01-30T11:14:52.615Z",
+      "lastBy": {
+        "id": "6TRidc8_UWTmoHZ0",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1472,7 +1491,8 @@
     "sun|星野源": 1,
     "unpresent|嚩ᴴᴬᴷᵁ": 1,
     "lulu.|mrs. green apple": 1,
-    "スーパーヒロイン|平成フラミンゴ": 1
+    "スーパーヒロイン|平成フラミンゴ": 1,
+    "セレナーデ|なとり": 1
   },
   "settings": {
     "recruiting": true,
