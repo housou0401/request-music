@@ -594,6 +594,19 @@
       "lastRefillISO": "2026-01",
       "lastRefillAtISO": "2026-01-30T10:01:25.231Z",
       "registeredAt": "2026-01-30T10:01:25.231Z"
+    },
+    {
+      "id": "fz-tZmqeU0c2vpLg",
+      "username": "さな",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23C55 Instagram 412.0.0.17.89 (iPhone15,4; iOS 26_2; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 859471633) Safari/604.1",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 5,
+      "lastRefillISO": "2026-01",
+      "lastRefillAtISO": "2026-01-30T10:05:34.315Z",
+      "registeredAt": "2026-01-30T10:05:34.315Z"
     }
   ]
 }
