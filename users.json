@@ -733,7 +733,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 5,
+      "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T02:57:42.842Z",
       "registeredAt": "2026-02-01T02:57:42.842Z"
