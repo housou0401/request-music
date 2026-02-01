@@ -1495,6 +1495,25 @@
         "id": "p1KnrVbqPQ5ylXnI",
         "username": "ゆっけ"
       }
+    },
+    {
+      "id": "ScVtFaXItZyBd-q2fJRE7",
+      "text": "怪獣",
+      "artist": "サカナクション",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%80%AA%E7%8D%A3/1795905599?i=1795905600&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/44/35/c7/4435c703-3647-654b-16a7-ab74885f71da/VEATP-43484.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/06/6d/74/066d7479-0637-3ca1-5cae-b6c02c05f37c/mzaf_12516734130021276373.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-01T02:58:19.546Z",
+      "by": {
+        "id": "cgscUx2hpR6oxa8M",
+        "username": "柚"
+      },
+      "lastRequestedAt": "2026-02-01T02:58:19.546Z",
+      "lastBy": {
+        "id": "cgscUx2hpR6oxa8M",
+        "username": "柚"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1622,7 +1641,8 @@
     "nonsense|サブリナ・カーペンター": 1,
     "rock that body|black eyed peas": 1,
     "好きすぎて滅!|m!lk": 1,
-    "君と癖|yutori": 1
+    "君と癖|yutori": 1,
+    "怪獣|サカナクション": 1
   },
   "settings": {
     "recruiting": true,
