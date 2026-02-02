@@ -35,11 +35,16 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%82%BB%E3%83%B3/1661267593?i=1661267988&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/91/9f/c8/919fc8d1-eab5-894a-eb24-7929d17cae83/4582648959842.jpg/300x300bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/30/01/c2/3001c2e0-29c9-5b07-8ba5-b5fc2be5f41f/mzaf_18000113658947575651.plus.aac.p.m4a",
-      "count": 1,
+      "count": 2,
       "createdAt": "2025-11-01T12:42:35.404Z",
       "by": {
         "id": "30dYCl0ZVODZumSf",
         "username": "よ"
+      },
+      "lastRequestedAt": "2026-02-02T15:03:12.628Z",
+      "lastBy": {
+        "id": "Jsl0TOPrh4yfPPhd",
+        "username": "あ"
       }
     },
     {
@@ -1552,6 +1557,25 @@
         "id": "Jsl0TOPrh4yfPPhd",
         "username": "あ"
       }
+    },
+    {
+      "id": "L1GqKGQNOcLYf8wjrXPC2",
+      "text": "Pale Blue",
+      "artist": "米津玄師",
+      "appleMusicUrl": "https://music.apple.com/jp/album/pale-blue/1568993234?i=1568993237&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/7b/8f/5e/7b8f5e3b-17f0-4b0c-8c80-c4491a5991a7/4547366515183.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/27/4e/76/274e7650-42bb-af1d-ee1e-3b09d3223b46/mzaf_16742189625222262270.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-02T15:03:34.849Z",
+      "by": {
+        "id": "Jsl0TOPrh4yfPPhd",
+        "username": "あ"
+      },
+      "lastRequestedAt": "2026-02-02T15:03:34.849Z",
+      "lastBy": {
+        "id": "Jsl0TOPrh4yfPPhd",
+        "username": "あ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1588,7 +1612,7 @@
     "懐かしい未来|上白石萌音": 1,
     "best friend|西野カナ": 2,
     "yes i am|one ok rock": 1,
-    "君セン!|ilife!": 1,
+    "君セン!|ilife!": 2,
     "世界は恋に落ちている(bible version) [mixed]|chico with honeyworks": 1,
     "クリスマスソング|back number": 1,
     "action|eill": 1,
@@ -1682,7 +1706,8 @@
     "君と癖|yutori": 1,
     "怪獣|サカナクション": 1,
     "君の恋人になったら|back number": 1,
-    "アラビアン・ナイト (2019) [『アラジン』より]|ウィル・スミス": 1
+    "アラビアン・ナイト (2019) [『アラジン』より]|ウィル・スミス": 1,
+    "pale blue|米津玄師": 1
   },
   "settings": {
     "recruiting": true,
