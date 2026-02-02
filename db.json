@@ -633,7 +633,8 @@
       "by": {
         "id": "RME2Jx7epmGNnT1e",
         "username": "管理者"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "MPFG0SM3SxpDqVXhI9AMA",
@@ -647,7 +648,8 @@
       "by": {
         "id": "F3wZl-lW0boMKU2Q",
         "username": "Guest"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "Hzq_GO6T_n7O9pMzOPyPF",
@@ -661,7 +663,8 @@
       "by": {
         "id": "F3wZl-lW0boMKU2Q",
         "username": "Guest"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "K7exisP_rOphHtthPokLN",
@@ -675,7 +678,8 @@
       "by": {
         "id": "F3wZl-lW0boMKU2Q",
         "username": "Guest"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "nRqk5Owy6vECbG2L_L9SU",
@@ -694,7 +698,8 @@
       "lastBy": {
         "id": "jh2VCMRS97laKDRl",
         "username": "にっしー"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "yRA8em7I4PghjpvawREMG",
@@ -708,7 +713,8 @@
       "by": {
         "id": "jh2VCMRS97laKDRl",
         "username": "にっしー"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "Oa3SKdhD5PC5jKhYz8Dzv",
@@ -727,7 +733,8 @@
       "lastBy": {
         "id": "fBdfRvhlgor2GhEY",
         "username": "ぬ"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "HuB3AsC0EobQiFPQEReu0",
@@ -741,7 +748,8 @@
       "by": {
         "id": "OhK0bsoSPxQPjVdi",
         "username": "うわああああぁ"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "L_vhkBE6I-U1x9Kji5cuE",
@@ -755,7 +763,8 @@
       "by": {
         "id": "Kv_7wS7PXKpS1xni",
         "username": "aaa"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "_lHVFfP4So-A4hfYmXJw1",
@@ -769,7 +778,8 @@
       "by": {
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "zLfHvD7Kk9N1H3C9Agy7v",
@@ -783,7 +793,8 @@
       "by": {
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "zd_93xQYEEhnEeDNBr5pW",
@@ -797,7 +808,8 @@
       "by": {
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "Ny9A1BBUa4V91TNJ_hAhU",
@@ -811,7 +823,8 @@
       "by": {
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "QNEJ5NBrqS3boshQk-oPa",
@@ -825,7 +838,8 @@
       "by": {
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "dULGJUS63kF3ZX9-htyff",
@@ -840,7 +854,7 @@
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
       },
-      "broadcasted": false,
+      "broadcasted": true,
       "lastRequestedAt": "2026-02-02T15:00:36.753Z",
       "lastBy": {
         "id": "Jsl0TOPrh4yfPPhd",
@@ -860,7 +874,7 @@
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "AX06VKNdDpIKLnBrsMhSb",
@@ -875,7 +889,7 @@
         "id": "FkDXvk5Wv8EAIZWL",
         "username": "Guest"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "o1T6-HQP22BmqSMRqFAM2",
@@ -890,7 +904,7 @@
         "id": "FkDXvk5Wv8EAIZWL",
         "username": "Guest"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "vx3nCFM-oY8a857nN45zM",
@@ -910,7 +924,7 @@
         "id": "ABdcm8dtj8M3snZ1",
         "username": "あ"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "M6YFMBb7-_wUOXF9eAo2o",
@@ -929,7 +943,8 @@
       "lastBy": {
         "id": "cx0DQLnPvCMVLn13",
         "username": "びー"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "ABccUK693ktkunwutw_yS",
@@ -948,7 +963,8 @@
       "lastBy": {
         "id": "LKkvlZvfhgly0EGm",
         "username": "犬の骨"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "8etcolLTkxm13hgSrO1yS",
@@ -967,7 +983,8 @@
       "lastBy": {
         "id": "sOKwseleCnAgcR1K",
         "username": "カペリート"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "0-qHcXeKgnhX1U0KNgQxT",
@@ -986,7 +1003,8 @@
       "lastBy": {
         "id": "sOKwseleCnAgcR1K",
         "username": "カペリート"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "MTmZJkOrmin_m2oRYUbbi",
@@ -1005,7 +1023,8 @@
       "lastBy": {
         "id": "F3wZl-lW0boMKU2Q",
         "username": "Guest"
-      }
+      },
+      "broadcasted": true
     },
     {
       "id": "LkpSu6PZ53gUZKFqXN3cN",
