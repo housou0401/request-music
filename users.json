@@ -447,7 +447,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 5,
+      "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "registeredAt": "2026-01-30T03:35:26.606Z"
