@@ -776,6 +776,19 @@
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-03T07:05:37.500Z",
       "registeredAt": "2026-02-03T07:05:37.500Z"
+    },
+    {
+      "id": "bt2WrX2J3jZ3v4x0",
+      "username": "れすまほ",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/144.0.7559.95 Mobile/15E148 Safari/604.1",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-02",
+      "lastRefillAtISO": "2026-02-03T07:34:46.599Z",
+      "registeredAt": "2026-02-03T07:34:46.599Z"
     }
   ]
 }
