@@ -1528,7 +1528,7 @@
         "id": "fBdfRvhlgor2GhEY",
         "username": "ぬ"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "vLcxT2q2CefJmzfjxmFqK",
@@ -1548,7 +1548,7 @@
         "id": "fBdfRvhlgor2GhEY",
         "username": "ぬ"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "Y9tfYLENbkuXYTfnhdXyA",
@@ -1568,7 +1568,7 @@
         "id": "fBdfRvhlgor2GhEY",
         "username": "ぬ"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "hi1RgAWM9WTifLfavL5jS",
@@ -1588,7 +1588,7 @@
         "id": "p1KnrVbqPQ5ylXnI",
         "username": "ゆっけ"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "ScVtFaXItZyBd-q2fJRE7",
@@ -1608,7 +1608,7 @@
         "id": "cgscUx2hpR6oxa8M",
         "username": "柚"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "wISduFTBOkbbpSPAZaqMo",
@@ -1628,7 +1628,7 @@
         "id": "Jsl0TOPrh4yfPPhd",
         "username": "あ"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "0oDM7z_R8j8QhVdvWiVD2",
@@ -1648,7 +1648,7 @@
         "id": "Jsl0TOPrh4yfPPhd",
         "username": "あ"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "L1GqKGQNOcLYf8wjrXPC2",
@@ -1668,7 +1668,7 @@
         "id": "Jsl0TOPrh4yfPPhd",
         "username": "あ"
       },
-      "broadcasted": false
+      "broadcasted": true
     },
     {
       "id": "3oKxtjBD5wOtiMoyWqCr8",
@@ -1687,8 +1687,7 @@
       "lastBy": {
         "id": "wEommr6jklhG5bna",
         "username": "Guest"
-      },
-      "broadcasted": false
+      }
     },
     {
       "id": "DIdx_OODmmj52LLECMNgL",
@@ -1707,8 +1706,7 @@
       "lastBy": {
         "id": "AMx8f3xfDN58fyT2",
         "username": "Guest"
-      },
-      "broadcasted": false
+      }
     }
   ],
   "lastSubmissions": {
