@@ -778,17 +778,17 @@
       "registeredAt": "2026-02-03T07:05:37.500Z"
     },
     {
-      "id": "bt2WrX2J3jZ3v4x0",
+      "id": "4hFGJuvAMG2QyPZW",
       "username": "れすまほ",
       "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/144.0.7559.95 Mobile/15E148 Safari/604.1",
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23C71 Instagram 414.0.0.23.79 (iPhone14,2; iOS 26_2_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 868652560)",
         "ip": "::1"
       },
       "role": "admin",
       "tokens": null,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-03T07:34:46.599Z",
-      "registeredAt": "2026-02-03T07:34:46.599Z"
+      "lastRefillAtISO": "2026-02-05T07:30:06.155Z",
+      "registeredAt": "2026-02-05T07:30:06.155Z"
     }
   ]
 }
