@@ -1766,6 +1766,25 @@
         "id": "qr4MueoKh15hnrqF",
         "username": "ぬ"
       }
+    },
+    {
+      "id": "j7ket3pQmxyNVNDQg5rzh",
+      "text": "いつだって自分になれる所へ",
+      "artist": "ハンナ・モンタナ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%84%E3%81%A4%E3%81%A0%E3%81%A3%E3%81%A6%E8%87%AA%E5%88%86%E3%81%AB%E3%81%AA%E3%82%8C%E3%82%8B%E6%89%80%E3%81%B8/1440632617?i=1440632719&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/23/42/0a/23420a7b-6fe0-9a8b-a740-c8e1ff6db2a7/09PNDIM00900.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b2/60/2b/b2602b2d-8a15-bcca-c7e6-46c3ec0bf621/mzaf_5369667903646822243.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-10T15:33:29.583Z",
+      "by": {
+        "id": "qr4MueoKh15hnrqF",
+        "username": "ぬ"
+      },
+      "lastRequestedAt": "2026-02-10T15:33:29.583Z",
+      "lastBy": {
+        "id": "qr4MueoKh15hnrqF",
+        "username": "ぬ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1902,7 +1921,8 @@
     "ゴールデン|anewhite": 1,
     "創聖のアクエリオン|akino": 1,
     "合法的トビ方ノススメ|creepy nuts": 1,
-    "sem nada|ogryzek, f!xmexed & leothm": 1
+    "sem nada|ogryzek, f!xmexed & leothm": 1,
+    "いつだって自分になれる所へ|ハンナ・モンタナ": 1
   },
   "settings": {
     "recruiting": true,
