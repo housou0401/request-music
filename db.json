@@ -1747,6 +1747,25 @@
         "id": "TMi_YrAhOUbrAwJ5",
         "username": "ぬ"
       }
+    },
+    {
+      "id": "vYpMYZYu7c-vjZUU4Dn0L",
+      "text": "Sem Nada",
+      "artist": "Ogryzek, F!xmexed & LeoTHM",
+      "appleMusicUrl": "https://music.apple.com/jp/album/sem-nada/1840984875?i=1840984876&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c3/f1/fb/c3f1fb5a-0208-7c76-9e31-50b73e77e569/619566086153.png/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/92/b8/45/92b8455e-c3c0-80be-2652-ab0d277b63d7/mzaf_13084850644985350079.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-10T15:24:49.900Z",
+      "by": {
+        "id": "qr4MueoKh15hnrqF",
+        "username": "ぬ"
+      },
+      "lastRequestedAt": "2026-02-10T15:24:49.900Z",
+      "lastBy": {
+        "id": "qr4MueoKh15hnrqF",
+        "username": "ぬ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1882,7 +1901,8 @@
     "スパークル|radwimps": 1,
     "ゴールデン|anewhite": 1,
     "創聖のアクエリオン|akino": 1,
-    "合法的トビ方ノススメ|creepy nuts": 1
+    "合法的トビ方ノススメ|creepy nuts": 1,
+    "sem nada|ogryzek, f!xmexed & leothm": 1
   },
   "settings": {
     "recruiting": true,
