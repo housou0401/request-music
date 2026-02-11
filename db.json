@@ -1785,6 +1785,25 @@
         "id": "qr4MueoKh15hnrqF",
         "username": "ぬ"
       }
+    },
+    {
+      "id": "SAzFrDDbV_ddSCSvA6KqM",
+      "text": "Toxic",
+      "artist": "ブリトニー・スピアーズ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/toxic/251947909?i=251948354&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/38/8b/7a/388b7a8f-10ff-a4e0-7624-65e29ac6a793/828765374828.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ae/c4/7f/aec47f56-842d-49b4-558b-7a7523fd6728/mzaf_6693111381462300599.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-11T02:47:06.980Z",
+      "by": {
+        "id": "-bBLQ2ORDCLwWAhP",
+        "username": "ぬ"
+      },
+      "lastRequestedAt": "2026-02-11T02:47:06.980Z",
+      "lastBy": {
+        "id": "-bBLQ2ORDCLwWAhP",
+        "username": "ぬ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1922,7 +1941,8 @@
     "創聖のアクエリオン|akino": 1,
     "合法的トビ方ノススメ|creepy nuts": 1,
     "sem nada|ogryzek, f!xmexed & leothm": 1,
-    "いつだって自分になれる所へ|ハンナ・モンタナ": 1
+    "いつだって自分になれる所へ|ハンナ・モンタナ": 1,
+    "toxic|ブリトニー・スピアーズ": 1
   },
   "settings": {
     "recruiting": true,
