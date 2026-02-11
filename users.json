@@ -863,7 +863,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 5,
+      "tokens": 3,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-11T04:42:56.717Z",
       "registeredAt": "2026-02-11T04:42:56.717Z"
