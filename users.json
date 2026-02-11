@@ -850,7 +850,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 5,
+      "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-10T15:34:15.712Z",
       "registeredAt": "2026-02-10T15:34:15.712Z"
