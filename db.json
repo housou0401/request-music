@@ -1741,16 +1741,16 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%88%E6%B3%95%E7%9A%84%E3%83%88%E3%83%93%E6%96%B9%E3%83%8E%E3%82%B9%E3%82%B9%E3%83%A1/1409540321?i=1409540327&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/70/40/9f/70409fa3-c3a0-5062-cf43-a5ae435adf9f/4948722534662_cover.jpg/300x300bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/48/3e/9f/483e9f46-dd1a-5edc-1410-fc3feb53bdd1/mzaf_7916115288851104014.plus.aac.p.m4a",
-      "count": 1,
+      "count": 2,
       "createdAt": "2026-02-10T14:07:37.927Z",
       "by": {
         "id": "TMi_YrAhOUbrAwJ5",
         "username": "ぬ"
       },
-      "lastRequestedAt": "2026-02-10T14:07:37.927Z",
+      "lastRequestedAt": "2026-02-11T06:20:34.985Z",
       "lastBy": {
-        "id": "TMi_YrAhOUbrAwJ5",
-        "username": "ぬ"
+        "id": "InYU9-Y19wYb-lD8",
+        "username": "Guest"
       }
     },
     {
@@ -1827,6 +1827,25 @@
       "lastBy": {
         "id": "-bBLQ2ORDCLwWAhP",
         "username": "ぬ"
+      }
+    },
+    {
+      "id": "el3sVDpkIFQAc2D2RJp9N",
+      "text": "Y.M.C.A.",
+      "artist": "GENERATIONS from EXILE TRIBE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/y-m-c-a/1349079276?i=1349079896&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/e4/42/aa/e442aa15-089a-5f71-326e-2b897a230814/ANTCD-26597.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/55/46/dc/5546dc9d-af05-0ee4-7d0d-9a7dc2d9b2d0/mzaf_5290100441330082444.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-11T06:20:25.885Z",
+      "by": {
+        "id": "InYU9-Y19wYb-lD8",
+        "username": "Guest"
+      },
+      "lastRequestedAt": "2026-02-11T06:20:25.885Z",
+      "lastBy": {
+        "id": "InYU9-Y19wYb-lD8",
+        "username": "Guest"
       }
     }
   ],
@@ -1963,11 +1982,12 @@
     "スパークル|radwimps": 1,
     "ゴールデン|anewhite": 1,
     "創聖のアクエリオン|akino": 1,
-    "合法的トビ方ノススメ|creepy nuts": 1,
+    "合法的トビ方ノススメ|creepy nuts": 2,
     "sem nada|ogryzek, f!xmexed & leothm": 1,
     "いつだって自分になれる所へ|ハンナ・モンタナ": 1,
     "toxic|ブリトニー・スピアーズ": 1,
-    "ホワット・メイクス・ユー・ビューティフル|ワン・ダイレクション": 1
+    "ホワット・メイクス・ユー・ビューティフル|ワン・ダイレクション": 1,
+    "y.m.c.a.|generations from exile tribe": 1
   },
   "settings": {
     "recruiting": true,
