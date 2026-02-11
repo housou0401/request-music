@@ -1804,6 +1804,25 @@
         "id": "-bBLQ2ORDCLwWAhP",
         "username": "ぬ"
       }
+    },
+    {
+      "id": "gVLEwX6gCjHb0T6ej1zUs",
+      "text": "ホワット・メイクス・ユー・ビューティフル",
+      "artist": "ワン・ダイレクション",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%9B%E3%83%AF%E3%83%83%E3%83%88-%E3%83%A1%E3%82%A4%E3%82%AF%E3%82%B9-%E3%83%A6%E3%83%BC-%E3%83%93%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%95%E3%83%AB/1537325978?i=1537326069&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/0b/7a/cc/0b7acc78-9722-d511-40ba-f9f22bfee917/jacket_SIXX06121B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/17/33/3d/17333d23-fb61-5558-c424-6bc71afbf77f/mzaf_3739391100337592508.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-11T04:38:57.782Z",
+      "by": {
+        "id": "-bBLQ2ORDCLwWAhP",
+        "username": "ぬ"
+      },
+      "lastRequestedAt": "2026-02-11T04:38:57.782Z",
+      "lastBy": {
+        "id": "-bBLQ2ORDCLwWAhP",
+        "username": "ぬ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -1942,7 +1961,8 @@
     "合法的トビ方ノススメ|creepy nuts": 1,
     "sem nada|ogryzek, f!xmexed & leothm": 1,
     "いつだって自分になれる所へ|ハンナ・モンタナ": 1,
-    "toxic|ブリトニー・スピアーズ": 1
+    "toxic|ブリトニー・スピアーズ": 1,
+    "ホワット・メイクス・ユー・ビューティフル|ワン・ダイレクション": 1
   },
   "settings": {
     "recruiting": true,
