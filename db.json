@@ -816,14 +816,19 @@
       "artist": "ビル・ウィザーズ & グローヴァー・ワシントン・Jr.",
       "appleMusicUrl": "https://music.apple.com/jp/album/just-the-two-of-us/321974938?i=321975002&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/81/2b/74/812b74f7-060b-7386-bb02-967cd2cdd78c/mzi.yfyaqhnz.jpg/300x300bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/df/02/6e/df026e40-8e6c-09f3-e24a-9f5e6cd838ed/mzaf_18109913532380365942.plus.aac.p.m4a",
-      "count": 1,
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ee/b7/06/eeb706c1-c8ef-bc2f-b1e7-9e7932230e79/mzaf_8132450407454153842.plus.aac.p.m4a",
+      "count": 2,
       "createdAt": "2025-12-01T15:04:14.616Z",
       "by": {
         "id": "Tkyb12YzgbTlmxbF",
         "username": "a"
       },
-      "broadcasted": false
+      "broadcasted": false,
+      "lastRequestedAt": "2026-02-11T04:42:15.914Z",
+      "lastBy": {
+        "id": "-bBLQ2ORDCLwWAhP",
+        "username": "ぬ"
+      }
     },
     {
       "id": "zLfHvD7Kk9N1H3C9Agy7v",
@@ -1910,7 +1915,7 @@
     "boss bitch|doja cat": 2,
     "ナンセンス|サブリナ・カーペンター": 1,
     "ビリラビリラ (轟はじめ solo)|regloss": 1,
-    "just the two of us|ビル・ウィザーズ & グローヴァー・ワシントン・jr.": 1,
+    "just the two of us|ビル・ウィザーズ & グローヴァー・ワシントン・jr.": 2,
     "all i want for christmas is you|マライア・キャリー": 2,
     "mom returns and finale (instrumental)|ジョン・ウィリアムズ": 1,
     "ヘドウィグのテーマ(映画「ハリー・ポッター」シリーズ:メイン・テーマ曲)|ジョン・ウィリアムズ": 1,
