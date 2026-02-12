@@ -1866,6 +1866,25 @@
         "id": "396PvtQrvqet3JEg",
         "username": "ぬ"
       }
+    },
+    {
+      "id": "vl1Y-apHh50oEFSnqG027",
+      "text": "Lalalalalalalalalala",
+      "artist": "MIKOLAS",
+      "appleMusicUrl": "https://music.apple.com/jp/album/lalalalalalalalalala/1714617395?i=1714617396&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/4a/a6/ac/4aa6ac34-dc3a-92e2-a95c-7adba1161440/ANTCD-A0000011899.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/1b/b7/e9/1bb7e952-7de7-b098-4e0e-2e4a3dae20f3/mzaf_1231451996152876435.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-12T03:26:33.407Z",
+      "by": {
+        "id": "ZEZjRdFsgprRlMoo",
+        "username": "🥳"
+      },
+      "lastRequestedAt": "2026-02-12T03:26:33.407Z",
+      "lastBy": {
+        "id": "ZEZjRdFsgprRlMoo",
+        "username": "🥳"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2007,7 +2026,8 @@
     "toxic|ブリトニー・スピアーズ": 1,
     "ホワット・メイクス・ユー・ビューティフル|ワン・ダイレクション": 1,
     "y.m.c.a.|generations from exile tribe": 1,
-    "the lazy song|ブルーノ・マーズ": 1
+    "the lazy song|ブルーノ・マーズ": 1,
+    "lalalalalalalalalala|mikolas": 1
   },
   "settings": {
     "recruiting": true,
