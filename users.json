@@ -902,7 +902,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 5,
+      "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-12T03:25:14.268Z",
       "registeredAt": "2026-02-12T03:25:14.268Z"
