@@ -1923,6 +1923,25 @@
         "id": "jh2VCMRS97laKDRl",
         "username": "にっしー"
       }
+    },
+    {
+      "id": "N8R58JyqHoYvoivYlXDLJ",
+      "text": "月が綺麗ねと言われたい!",
+      "artist": "柿崎ユウタ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%9C%88%E3%81%8C%E7%B6%BA%E9%BA%97%E3%81%AD%E3%81%A8%E8%A8%80%E3%82%8F%E3%82%8C%E3%81%9F%E3%81%84/1868879489?i=1868879494&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f8/2d/9b/f82d9b41-f66f-5b12-dc48-f05f47f36f25/4550752624208_cover.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/60/26/89/6026893d-ed86-6907-58ed-1b3464585c62/mzaf_8522778702329282791.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-12T14:16:24.459Z",
+      "by": {
+        "id": "Zytdy27euXLglcnc",
+        "username": "ななな"
+      },
+      "lastRequestedAt": "2026-02-12T14:16:24.459Z",
+      "lastBy": {
+        "id": "Zytdy27euXLglcnc",
+        "username": "ななな"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2067,7 +2086,8 @@
     "the lazy song|ブルーノ・マーズ": 1,
     "lalalalalalalalalala|mikolas": 1,
     "mind games (cover)|so kick": 1,
-    "never romantic|なにわ男子": 1
+    "never romantic|なにわ男子": 1,
+    "月が綺麗ねと言われたい!|柿崎ユウタ": 1
   },
   "settings": {
     "recruiting": true,
