@@ -1885,6 +1885,25 @@
         "id": "ZEZjRdFsgprRlMoo",
         "username": "🥳"
       }
+    },
+    {
+      "id": "qyHHMqb2szIBG-9i9cCWR",
+      "text": "Mind Games (Cover)",
+      "artist": "So kick",
+      "appleMusicUrl": "https://music.apple.com/jp/album/mind-games-cover/1685169525?i=1685169807&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/b6/28/90/b6289024-71ec-76e9-f715-457a83cf88fe/3701624031322_cover.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/97/25/7e/97257ef9-e7b0-d3a4-9b4e-586e44770ecf/mzaf_10389086292641486761.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-12T03:28:12.125Z",
+      "by": {
+        "id": "ZvUXiEAz3n5FIQyh",
+        "username": "めい"
+      },
+      "lastRequestedAt": "2026-02-12T03:28:12.125Z",
+      "lastBy": {
+        "id": "ZvUXiEAz3n5FIQyh",
+        "username": "めい"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2027,7 +2046,8 @@
     "ホワット・メイクス・ユー・ビューティフル|ワン・ダイレクション": 1,
     "y.m.c.a.|generations from exile tribe": 1,
     "the lazy song|ブルーノ・マーズ": 1,
-    "lalalalalalalalalala|mikolas": 1
+    "lalalalalalalalalala|mikolas": 1,
+    "mind games (cover)|so kick": 1
   },
   "settings": {
     "recruiting": true,
