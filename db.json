@@ -1904,6 +1904,25 @@
         "id": "ZvUXiEAz3n5FIQyh",
         "username": "めい"
       }
+    },
+    {
+      "id": "Sh4cGB6muuN7P3qDgTyHr",
+      "text": "Never Romantic",
+      "artist": "なにわ男子",
+      "appleMusicUrl": "https://music.apple.com/jp/album/never-romantic/1853554496?i=1853554756&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b1/5e/24/b15e24bf-8db9-692f-8d72-9817edd9d1e9/199806217023.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/42/f4/79/42f4797a-6e52-90df-55c8-df7b30140dfe/mzaf_11339547518059738043.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-12T13:58:16.611Z",
+      "by": {
+        "id": "jh2VCMRS97laKDRl",
+        "username": "にっしー"
+      },
+      "lastRequestedAt": "2026-02-12T13:58:16.611Z",
+      "lastBy": {
+        "id": "jh2VCMRS97laKDRl",
+        "username": "にっしー"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2047,7 +2066,8 @@
     "y.m.c.a.|generations from exile tribe": 1,
     "the lazy song|ブルーノ・マーズ": 1,
     "lalalalalalalalalala|mikolas": 1,
-    "mind games (cover)|so kick": 1
+    "mind games (cover)|so kick": 1,
+    "never romantic|なにわ男子": 1
   },
   "settings": {
     "recruiting": true,
