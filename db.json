@@ -606,41 +606,6 @@
       "broadcasted": false
     },
     {
-      "id": "nRqk5Owy6vECbG2L_L9SU",
-      "text": "アシンメトリー",
-      "artist": "なにわ男子",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%A2%E3%82%B7%E3%83%B3%E3%83%A1%E3%83%88%E3%83%AA%E3%83%BC/1834333253?i=1834333254&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/75/cd/18/75cd18ae-b51c-b0c4-101f-048f954d1d3b/199538467437.jpg/300x300bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e3/93/24/e39324a2-cffc-068f-5465-d79c66d7d496/mzaf_5915128333080784506.plus.aac.p.m4a",
-      "count": 2,
-      "createdAt": "2025-11-12T09:20:02.323Z",
-      "by": {
-        "id": "jh2VCMRS97laKDRl",
-        "username": "にっしー"
-      },
-      "lastRequestedAt": "2026-01-30T10:37:13.576Z",
-      "lastBy": {
-        "id": "jh2VCMRS97laKDRl",
-        "username": "にっしー"
-      },
-      "broadcasted": false
-    },
-    {
-      "id": "yRA8em7I4PghjpvawREMG",
-      "text": "悪戯な天使",
-      "artist": "snowman",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E6%82%AA%E6%88%AF%E3%81%AA%E5%A4%A9%E4%BD%BF/1846757126?i=1846757127&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f1/50/3b/f1503bb5-ef59-d045-6ff5-b9aa1e5bbdd2/ANTCD-A0000018181.jpg/300x300bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5a/cb/52/5acb5270-473b-20f3-8d61-528efe3b0052/mzaf_8340677778238557531.plus.aac.p.m4a",
-      "count": 1,
-      "createdAt": "2025-11-12T09:21:31.646Z",
-      "by": {
-        "id": "jh2VCMRS97laKDRl",
-        "username": "にっしー"
-      },
-      "broadcasted": false
-    },
-    {
       "id": "Oa3SKdhD5PC5jKhYz8Dzv",
       "text": "Boss Bitch",
       "artist": "Doja Cat",
@@ -1974,8 +1939,6 @@
     "magnetic|illit": 1,
     "jellyous|illit": 1,
     "かわいいだけじゃだめですか?|cutie street": 3,
-    "アシンメトリー|なにわ男子": 2,
-    "悪戯な天使|snowman": 1,
     "boss bitch|doja cat": 2,
     "ナンセンス|サブリナ・カーペンター": 1,
     "ビリラビリラ (轟はじめ solo)|regloss": 1,
