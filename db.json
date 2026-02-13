@@ -1980,6 +1980,44 @@
         "id": "_vnOhjLdz8Sm66Iq",
         "username": "Guest"
       }
+    },
+    {
+      "id": "qRz39udZCdHPWTf82uJl_",
+      "text": "SUSHI食べたい feat.ソイソース",
+      "artist": "ORANGE RANGE",
+      "appleMusicUrl": "https://music.apple.com/jp/album/sushi%E9%A3%9F%E3%81%B9%E3%81%9F%E3%81%84-feat-%E3%82%BD%E3%82%A4%E3%82%BD%E3%83%BC%E3%82%B9/1014337613?i=1014337616&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music1/v4/9c/2e/0b/9c2e0ba4-e39c-b553-2e50-3a06d48506ff/VEATP-32731.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/21/54/d2/2154d2d3-8d92-b1fe-58d2-65243bb55379/mzaf_15476211930408109463.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-13T09:13:07.544Z",
+      "by": {
+        "id": "_vnOhjLdz8Sm66Iq",
+        "username": "Guest"
+      },
+      "lastRequestedAt": "2026-02-13T09:13:07.544Z",
+      "lastBy": {
+        "id": "_vnOhjLdz8Sm66Iq",
+        "username": "Guest"
+      }
+    },
+    {
+      "id": "lC7Rdx1BksDH2n4cKv-1A",
+      "text": "FCKY-風呂キャンセル界隈-",
+      "artist": "チョコレートプラネット",
+      "appleMusicUrl": "https://music.apple.com/jp/album/fcky-%E9%A2%A8%E5%91%82%E3%82%AD%E3%83%A3%E3%83%B3%E3%82%BB%E3%83%AB%E7%95%8C%E9%9A%88/1839177466?i=1839177650&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b9/bb/7d/b9bb7ddd-4f29-a608-7062-16d02692983b/4582109077948.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/46/45/5f/46455f44-030c-e580-d774-32dfd3e9cfc3/mzaf_7154174731109128646.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-13T09:13:34.487Z",
+      "by": {
+        "id": "_vnOhjLdz8Sm66Iq",
+        "username": "Guest"
+      },
+      "lastRequestedAt": "2026-02-13T09:13:34.487Z",
+      "lastBy": {
+        "id": "_vnOhjLdz8Sm66Iq",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2127,7 +2165,9 @@
     "never romantic|なにわ男子": 1,
     "月が綺麗ねと言われたい!|柿崎ユウタ": 1,
     "怪獣の花唄|vaundy": 1,
-    "すいかのめいさんち|いぬいかずよ": 1
+    "すいかのめいさんち|いぬいかずよ": 1,
+    "sushi食べたい feat.ソイソース|orange range": 1,
+    "fcky-風呂キャンセル界隈-|チョコレートプラネット": 1
   },
   "settings": {
     "recruiting": true,
