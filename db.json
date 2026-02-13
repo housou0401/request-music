@@ -2055,7 +2055,8 @@
     "rateLimitPerMin": 2,
     "refillDay": 1,
     "refillHour": 0,
-    "refillMinute": 0
+    "refillMinute": 0,
+    "monthlyTokens": 10
   },
   "theme": {
     "active": false,
