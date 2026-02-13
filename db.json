@@ -1961,26 +1961,6 @@
         "id": "Zytdy27euXLglcnc",
         "username": "ななな"
       }
-    },
-    {
-      "id": "ZfviJwZKmABU6-ai3SJCH",
-      "text": "ゆーがらお友達",
-      "artist": "キング・クリームソーダ",
-      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%86%E3%83%BC%E3%81%8C%E3%82%89%E3%81%8A%E5%8F%8B%E9%81%94/1193855648?i=1193856029&uo=4",
-      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music91/v4/03/8f/e5/038fe50e-89f1-f225-6b2a-e1f27c4a8c62/AVCD-55141.jpg/300x300bb.jpg",
-      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview111/v4/78/38/9f/78389ff1-1bbc-ec58-55c9-f742acf796b8/mzaf_1693396555237202158.plus.aac.p.m4a",
-      "count": 1,
-      "createdAt": "2026-02-13T07:34:49.955Z",
-      "by": {
-        "id": "oZPVFDGmtG0WoiJH",
-        "username": "Guest"
-      },
-      "lastRequestedAt": "2026-02-13T07:34:49.955Z",
-      "lastBy": {
-        "id": "oZPVFDGmtG0WoiJH",
-        "username": "Guest"
-      },
-      "broadcasted": true
     }
   ],
   "lastSubmissions": {
@@ -2127,8 +2107,7 @@
     "mind games (cover)|so kick": 1,
     "never romantic|なにわ男子": 1,
     "月が綺麗ねと言われたい!|柿崎ユウタ": 1,
-    "怪獣の花唄|vaundy": 1,
-    "ゆーがらお友達|キング・クリームソーダ": 1
+    "怪獣の花唄|vaundy": 1
   },
   "settings": {
     "recruiting": true,
