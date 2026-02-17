@@ -1903,6 +1903,25 @@
         "id": "sTW3OalG0tUlxU47",
         "username": "野村ゆうき"
       }
+    },
+    {
+      "id": "WBmnjUjcppn19JQ6fJlx9",
+      "text": "Sunday Morning",
+      "artist": "ILLIT",
+      "appleMusicUrl": "https://music.apple.com/jp/album/sunday-morning/1861749531?i=1861749533&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6f/3b/4d/6f3b4db5-0e18-09cc-a37c-2e1dc035d32e/25UM2IM03879.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1b/db/98/1bdb9865-b6ec-6c7f-a41c-384cb7df7e1b/mzaf_6887157184309944160.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-17T03:36:14.116Z",
+      "by": {
+        "id": "T6qMLitXDeCkMGSP",
+        "username": "せー"
+      },
+      "lastRequestedAt": "2026-02-17T03:36:14.116Z",
+      "lastBy": {
+        "id": "T6qMLitXDeCkMGSP",
+        "username": "せー"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2044,7 +2063,8 @@
     "sushi食べたい feat.ソイソース|orange range": 1,
     "fcky-風呂キャンセル界隈-|チョコレートプラネット": 1,
     "戦う理由|red eye": 2,
-    "戦う理由|red": 2
+    "戦う理由|red": 2,
+    "sunday morning|illit": 1
   },
   "settings": {
     "recruiting": true,
