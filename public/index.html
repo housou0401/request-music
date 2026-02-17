@@ -260,11 +260,17 @@
     }
     async function ensureRegistered() {
       const me = await fetchMe();
+      setAdminButtonVisible(me);
       if (!me.loggedIn) { document.getElementById('welcomeOverlay')?.classList.add('show'); }
       else { updateTokenInfo(me); }
     }
 
-    // ------- 管理者パス残回数表示 -------
+    // BFCache(戻る/進む) で復帰したときにも管理者表示を復元
+    window.addEventListener('pageshow', (e) => {
+      if (e && e.persisted) ensureRegistered();
+    });
+
+// ------- 管理者パス残回数表示 -------
     async function refreshAdminTryInfo() {
       try {
         const r = await fetch('/auth/status');
