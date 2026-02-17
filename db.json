@@ -1998,6 +1998,44 @@
         "id": "VJvqAW4vJEwU3A3e",
         "username": "ゆうと"
       }
+    },
+    {
+      "id": "etvVfJC40NSRzbkd5Fh5H",
+      "text": "あの夏へ",
+      "artist": "ハンブレッダーズ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%82%E3%81%AE%E5%A4%8F%E3%81%B8/668520226?i=668520663&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music4/v4/82/7d/34/827d34f1-f358-78e0-e62c-eeb8f1dbe14f/TKCA-72165.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/5e/97/c2/5e97c2ab-5a12-eb80-f3f9-b9c29d9c971b/mzaf_6155585540081150677.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-17T12:47:22.231Z",
+      "by": {
+        "id": "VJvqAW4vJEwU3A3e",
+        "username": "ゆうと"
+      },
+      "lastRequestedAt": "2026-02-17T12:47:22.231Z",
+      "lastBy": {
+        "id": "VJvqAW4vJEwU3A3e",
+        "username": "ゆうと"
+      }
+    },
+    {
+      "id": "PuvN1fTNwyMAhLiYGHrBN",
+      "text": "銀河高速",
+      "artist": "ハンブレッダーズ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%8A%80%E6%B2%B3%E9%AB%98%E9%80%9F/1537924782?i=1537924784&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/3f/a5/2a/3fa52a63-c30d-685d-ae1a-2696e5d55344/jacket_XSXX00513B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/b5/ce/56/b5ce564f-fbc4-1582-64eb-96fea7d4a463/mzaf_10229788830108937066.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-17T12:47:27.351Z",
+      "by": {
+        "id": "VJvqAW4vJEwU3A3e",
+        "username": "ゆうと"
+      },
+      "lastRequestedAt": "2026-02-17T12:47:27.351Z",
+      "lastBy": {
+        "id": "VJvqAW4vJEwU3A3e",
+        "username": "ゆうと"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2144,7 +2182,9 @@
     "ラブソングに襲われる|=love": 1,
     "baby cry (feat. azuki eru)|リルジャップ": 1,
     "プリキュア5、スマイル go go!|工藤真由/コーラス:ヤングフレッシュ with mayumi & yuka": 1,
-    "アスノヨゾラ哨戒班|ゆある": 1
+    "アスノヨゾラ哨戒班|ゆある": 1,
+    "あの夏へ|ハンブレッダーズ": 1,
+    "銀河高速|ハンブレッダーズ": 1
   },
   "settings": {
     "recruiting": true,
