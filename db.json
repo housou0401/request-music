@@ -1307,16 +1307,16 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%BB%E3%83%AC%E3%83%8A%E3%83%BC%E3%83%87/1858168828?i=1858168846&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/03/6f/32/036f32e4-5245-9f28-77ff-c5313341c7e0/4547366794519.jpg/300x300bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/84/5f/5b/845f5b45-0f58-27c0-01ac-7250a67ca46e/mzaf_5054844089908243720.plus.aac.p.m4a",
-      "count": 1,
+      "count": 2,
       "createdAt": "2026-01-30T11:14:52.615Z",
       "by": {
         "id": "6TRidc8_UWTmoHZ0",
         "username": "Guest"
       },
-      "lastRequestedAt": "2026-01-30T11:14:52.615Z",
+      "lastRequestedAt": "2026-02-17T03:26:17.235Z",
       "lastBy": {
-        "id": "6TRidc8_UWTmoHZ0",
-        "username": "Guest"
+        "id": "p1KnrVbqPQ5ylXnI",
+        "username": "ゆっけ"
       },
       "broadcasted": false
     },
@@ -1892,13 +1892,13 @@
       "appleMusicUrl": "https://music.apple.com/jp/album/%E6%88%A6%E3%81%86%E7%90%86%E7%94%B1/1854690555?i=1854690898&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b5/4d/df/b54ddf11-679c-3772-5272-64f117f2495a/cover.jpg/300x300bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/88/83/b9/8883b9e6-6c6c-28ae-449e-47a415fe356f/mzaf_545840183997612166.plus.aac.p.m4a",
-      "count": 1,
+      "count": 2,
       "createdAt": "2026-02-17T03:25:00.483Z",
       "by": {
         "id": "sTW3OalG0tUlxU47",
         "username": "野村ゆうき"
       },
-      "lastRequestedAt": "2026-02-17T03:25:00.483Z",
+      "lastRequestedAt": "2026-02-17T03:26:08.028Z",
       "lastBy": {
         "id": "sTW3OalG0tUlxU47",
         "username": "野村ゆうき"
@@ -2014,7 +2014,7 @@
     "unpresent|嚩ᴴᴬᴷᵁ": 1,
     "lulu.|mrs. green apple": 1,
     "スーパーヒロイン|平成フラミンゴ": 1,
-    "セレナーデ|なとり": 1,
+    "セレナーデ|なとり": 2,
     "favorite song|ふみの": 1,
     "y qué fue?|don miguelo": 1,
     "nonsense|サブリナ・カーペンター": 1,
@@ -2044,7 +2044,7 @@
     "sushi食べたい feat.ソイソース|orange range": 1,
     "fcky-風呂キャンセル界隈-|チョコレートプラネット": 1,
     "戦う理由|red eye": 1,
-    "戦う理由|red": 1
+    "戦う理由|red": 2
   },
   "settings": {
     "recruiting": true,
