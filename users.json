@@ -908,11 +908,24 @@
         "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22C152 Instagram 416.1.0.27.68 (iPhone15,4; iOS 18_2; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 881475720) NW/3 Safari/604.1",
         "ip": "::1"
       },
-      "role": "user",
-      "tokens": 10,
+      "role": "admin",
+      "tokens": null,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-17T13:25:24.905Z",
       "registeredAt": "2026-02-17T13:25:24.905Z"
+    },
+    {
+      "id": "0CfzNJ50xUapak4b",
+      "username": "Guest",
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15 646F636F6D6F3031",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-02",
+      "lastRefillAtISO": "2026-02-17T13:26:37.078Z",
+      "registeredAt": "2026-02-17T13:26:37.078Z"
     }
   ]
 }
