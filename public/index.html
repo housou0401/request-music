@@ -52,13 +52,16 @@
   .mypage-link img{width:20px;height:20px;border-radius:50%;object-fit:cover}
 .theme-link{right:150px;}
   @media (max-width:520px){.mypage-link{padding:8px 12px}}
-  /* push admin button down a bit so both are visible */
-  .admin-button{top:56px !important;}
+  /* stack support/admin under mypage so they don't overlap */
+  .support-link{top:56px !important;}
+  .admin-button{top:100px !important;}
 </style>
 </head>
 
 <body>
-  <a id="mypage-link" class="mypage-link" href="/mypage" style="display:none;"><img src="/img/mypage.png" alt="マイページ"><span>マイページ</span></a>
+  <a id="mypage-link" class="mypage-link" href="/mypage"><img src="/img/mypage.png" alt="マイページ"><span>マイページ</span></a>
+
+  <a id="supportLink" class="mypage-link support-link ux-hidden" href="/support"><span>💬 サポート</span></a>
 <a id="theme-link" class="mypage-link theme-link" href="/theme" style="display:none;"><span>🎧 テーマ投票</span></a>
 
   <!-- 管理者ボタン（右上固定） -->
@@ -188,7 +191,7 @@
     async function goAdmin() {
       try {
         const me = await fetch('/me').then(r=>r.json());
-        if ((me?.loggedIn && me.user?.role === 'admin') || me?.adminSession === true) {
+        if ((me?.loggedIn && (me.user?.role === 'admin' || me.user?.role === 'site_admin')) || me?.adminSession === true) {
           location.href = '/admin';
         } else {
           alert('管理者権限がありません。');
@@ -244,21 +247,15 @@
     function setAdminButtonVisible(me){
       const btn = document.getElementById('adminBtn');
       if (!btn) return;
-      const ok = !!(me && ((me.loggedIn && me.user?.role === 'admin') || me.adminSession === true));
+      const ok = !!(me && ((me.loggedIn && (me.user?.role === 'admin' || me.user?.role === 'site_admin')) || me.adminSession === true));
       btn.classList.toggle('ux-hidden', !ok);
     }
 
-    function updateMyPageLink(me){
-      const a = document.getElementById('mypage-link');
+    function setSupportButtonVisible(me){
+      const a = document.getElementById('supportLink');
       if (!a) return;
-      if (!me || !me.loggedIn){
-        a.style.display = 'none';
-        return;
-      }
-      a.style.display = 'inline-flex';
-      const img = a.querySelector('img');
-      const icon = me.user?.iconUrl;
-      if (img) img.src = icon || '/img/mypage.png';
+      const ok = !!(me && me.loggedIn);
+      a.classList.toggle('ux-hidden', !ok);
     }
 
     function updateTokenInfo(me) {
@@ -275,7 +272,7 @@
     async function ensureRegistered() {
       const me = await fetchMe();
       setAdminButtonVisible(me);
-      updateMyPageLink(me);
+      setSupportButtonVisible(me);
       if (!me.loggedIn) { document.getElementById('welcomeOverlay')?.classList.add('show'); }
       else { updateTokenInfo(me); }
     }
@@ -323,7 +320,7 @@
           document.getElementById('welcomeOverlay')?.classList.remove('show');
           const me = await fetchMe();
           setAdminButtonVisible(me);
-          updateMyPageLink(me);
+      setSupportButtonVisible(me);
           updateTokenInfo(me);
           return;
         }
