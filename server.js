@@ -113,7 +113,18 @@ const monthKey = () => {
   const d = new Date();
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 };
-const isAdmin = (u) => u && u.role === "admin";
+// ---- Roles ----
+const ROLE_USER = "user";
+const ROLE_ADMIN = "admin";
+const ROLE_SITE_ADMIN = "site_admin";
+
+// 「管理者ログイン」用の特殊パスワード（0401 の代わりに 1103 を入れるとサイト管理者付与）
+// ※運用上の都合でここはサーバーファイル内固定にする
+const SITE_ADMIN_MAGIC_PASSWORD = "1103";
+
+const isSiteAdmin = (u) => u && u.role === ROLE_SITE_ADMIN;
+// 既存コードとの互換: isAdmin() は "admin" だけでなく "site_admin" も管理者扱い
+const isAdmin = (u) => u && (u.role === ROLE_ADMIN || u.role === ROLE_SITE_ADMIN);
 const getUserById = (id) => usersDb.data.users.find((u) => u.id === id);
 const deviceInfoFromReq = (req) => ({
   ua: req.get("User-Agent") || "",
@@ -549,19 +560,32 @@ app.post("/register", async (req, res) => {
     const monthly = Number(db.data.settings.monthlyTokens ?? 5);
 
     const regFails = getRegFails(req);
+    const wantSiteAdmin = !!adminPassword && adminPassword === SITE_ADMIN_MAGIC_PASSWORD;
+
     if (adminPassword) {
       if (regFails >= MAX_TRIES) {
         return res.json({ ok: false, reason: "locked", remaining: 0, message: "管理者パスワードの試行上限に達しました。" });
       }
-      if (adminPassword !== db.data.settings.adminPassword) {
+
+      const okAdminPwd = adminPassword === db.data.settings.adminPassword;
+      if (!okAdminPwd && !wantSiteAdmin) {
         const n = regFails + 1;
         setRegFails(res, n);
         return res.json({ ok: false, reason: "bad_admin_password", remaining: Math.max(0, MAX_TRIES - n) });
       }
+
+      if (wantSiteAdmin) {
+        await usersDb.read();
+        const existing = usersDb.data.users.find(u => u.role === ROLE_SITE_ADMIN);
+        if (existing) {
+          // すでにサイト管理者がいる場合は取得できない
+          return res.json({ ok: false, reason: "site_admin_exists", remaining: Math.max(0, MAX_TRIES - regFails), message: "すでにサイト管理者が存在します。" });
+        }
+      }
     }
 
     const deviceId = nanoid(16);
-    const role = adminPassword ? "admin" : "user";
+    const role = wantSiteAdmin ? ROLE_SITE_ADMIN : (adminPassword ? ROLE_ADMIN : ROLE_USER);
     const nowIso = new Date().toISOString();
     usersDb.data.users.push({
       id: deviceId,
@@ -569,7 +593,7 @@ app.post("/register", async (req, res) => {
       iconUrl: null,
       deviceInfo: deviceInfoFromReq(req),
       role,
-      tokens: role === "admin" ? null : monthly,
+      tokens: isAdmin({ role }) ? null : monthly,
       lastRefillISO: monthKey(),
       lastRefillAtISO: nowIso,
       registeredAt: nowIso,
@@ -577,7 +601,7 @@ app.post("/register", async (req, res) => {
     await usersDb.write();
 setRegFails(res, 0);
     res.cookie("deviceId", deviceId, COOKIE_OPTS);
-    if (role === "admin") res.cookie("adminAuth", "1", COOKIE_OPTS);
+    if (isAdmin({ role })) res.cookie("adminAuth", "1", COOKIE_OPTS);
     writeTokCookie(res, usersDb.data.users.at(-1)); 
     res.json({ ok: true, role, username });
   } catch (e) {
@@ -843,19 +867,38 @@ app.post("/admin-login", async (req, res) => {
   // 先に通常登録（deviceId cookie）が必要
   if (!req.user) return res.json({ success: false, reason: "not_registered" });
 
-  const ok = pwd === db.data.settings.adminPassword;
+  const wantSiteAdmin = pwd === SITE_ADMIN_MAGIC_PASSWORD;
+  const ok = wantSiteAdmin || (pwd === db.data.settings.adminPassword);
   if (!ok) {
     const n = fails + 1; setLoginFails(res, n);
     return res.json({ success: false, reason: "bad_password", remaining: Math.max(0, MAX_TRIES - n) });
   }
 
+  // サイト管理者は同時に1人だけ
+  if (wantSiteAdmin) {
+    await usersDb.read();
+    const existing = usersDb.data.users.find(u => u.role === ROLE_SITE_ADMIN);
+    if (existing && existing.id !== req.user.id) {
+      // 正しいパスワードでも取得できない場合があるので、試行回数は増やさない
+      return res.json({ success: false, reason: "site_admin_exists" });
+    }
+  }
+
   res.cookie("adminAuth", "1", COOKIE_OPTS);
   setLoginFails(res, 0);
 
-  if (req.user && !isAdmin(req.user)) {
-    req.user.role = "admin";
-    req.user.tokens = null;
-    await safeWriteUsers();
+  if (req.user) {
+    if (wantSiteAdmin) {
+      // 既存ユーザーをサイト管理者へ昇格
+      req.user.role = ROLE_SITE_ADMIN;
+      req.user.tokens = null;
+      await safeWriteUsers();
+    } else if (!isAdmin(req.user)) {
+      // 通常の管理者ログイン
+      req.user.role = ROLE_ADMIN;
+      req.user.tokens = null;
+      await safeWriteUsers();
+    }
   }
   return res.json({ success: true });
 });
@@ -863,8 +906,13 @@ app.post("/admin-login", async (req, res) => {
 // ---- なりすまし ----
 app.post("/admin/impersonate", requireAdmin, async (req, res) => {
   const { id } = req.body || {};
+  await usersDb.read();
+  const operator = getUserById(req.cookies?.deviceId);
   const u = getUserById(id);
   if (!u) return res.status(404).send("Not found");
+  if (u.role === ROLE_SITE_ADMIN) {
+    return res.send(toastPage("⚠サイト管理者にはなりすましできません。", "/admin/users"));
+  }
   res.cookie("impersonateId", u.id, COOKIE_OPTS);
   return res.send(toastPage(`✅ ${u.username} でサイトを閲覧します。`, "/admin/users"));
 });
@@ -1362,9 +1410,13 @@ app.post("/theme/vote", bodyParser.urlencoded({ extended: true }), async (req, r
 app.get("/admin/users", requireAdmin, async (req, res) => {
   await usersDb.read();
 
+  // 管理画面を操作している実ユーザー（なりすまし中でも deviceId は変わらない）
+  const operator = getUserById(req.cookies?.deviceId);
+
   const totalUsers = usersDb.data.users.length;
-  const adminCount = usersDb.data.users.filter(u => u.role === "admin").length;
-  const userCount = totalUsers - adminCount;
+  const siteAdminCount = usersDb.data.users.filter(u => u.role === ROLE_SITE_ADMIN).length;
+  const adminCount = usersDb.data.users.filter(u => u.role === ROLE_ADMIN).length;
+  const userCount = totalUsers - adminCount - siteAdminCount;
 
   const classifyUa = (ua = "") => {
     const s = String(ua || "").toLowerCase();
@@ -1379,20 +1431,24 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
       ? new Date(u.lastRefillAtISO).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })
       : (u.lastRefillISO || "-");
     const tokenStr = isAdmin(u) ? "∞" : (u.tokens ?? 0);
-    const roleLabel = u.role === "admin" ? "管理者" : "一般";
+    const roleLabel = u.role === ROLE_SITE_ADMIN ? "サイト管理者" : (u.role === ROLE_ADMIN ? "管理者" : "一般");
+    const pillClass = u.role === ROLE_SITE_ADMIN ? "pill-siteadmin" : (u.role === ROLE_ADMIN ? "pill-admin" : "pill-user");
+
+    // サイト管理者は「サイト管理者」本人以外からの操作を受け付けない
+    const locked = (u.role === ROLE_SITE_ADMIN) && !isSiteAdmin(operator);
 
     const ua = u.deviceInfo?.ua || "";
     const dev = classifyUa(ua);
     return `
     <tr data-search="${esc(u.username)} ${esc(u.id)} ${roleLabel} ${dev.label}">
-      <td><input type="checkbox" name="ids" value="${u.id}" class="user-check"></td>
+      <td><input type="checkbox" name="ids" value="${u.id}" class="user-check" ${locked ? 'disabled' : ''}></td>
       <td class="uname">${esc(u.username)}</td>
       <td class="dev"><span class="dev-pill" title="${esc(ua)}">${dev.emoji} ${dev.label}</span></td>
       <td class="uid">
         <code>${esc(u.id)}</code>
         <button type="button" class="mini-btn copy-btn" data-copy="${esc(u.id)}" title="IDをコピー">コピー</button>
       </td>
-      <td><span class="pill ${u.role === "admin" ? "pill-admin" : "pill-user"}">${roleLabel}</span></td>
+      <td><span class="pill ${pillClass}">${roleLabel}</span></td>
       <td>${tokenStr}</td>
       <td>${lastRefill}</td>
       <td class="ops">
@@ -1400,26 +1456,28 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
 
         <form method="POST" action="/admin/impersonate" class="inline-form">
           <input type="hidden" name="id" value="${u.id}">
-          <button type="submit" class="icon-btn" title="このユーザーとして見る（なりすまし）">👤</button>
+          <button type="submit" class="icon-btn" title="このユーザーとして見る（なりすまし）" ${locked ? 'disabled' : ''}>👤</button>
         </form>
 
         <form method="POST" action="/admin/update-user" class="inline-form wide">
           <input type="hidden" name="id" value="${u.id}">
           <label>トークン:
-            <input type="number" min="0" name="tokens" value="${isAdmin(u) ? 0 : (u.tokens ?? 0)}" ${isAdmin(u) ? 'disabled' : ''}>
+            <input type="number" min="0" name="tokens" value="${isAdmin(u) ? 0 : (u.tokens ?? 0)}" ${(isAdmin(u) || locked) ? 'disabled' : ''}>
           </label>
           <label>ロール:
-            <select name="role">
-              <option value="user" ${u.role === 'user' ? 'selected' : ''}>一般</option>
-              <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>管理者</option>
-            </select>
+            ${u.role === ROLE_SITE_ADMIN
+              ? `<select disabled><option selected>サイト管理者</option></select>`
+              : `<select name="role" ${locked ? 'disabled' : ''}>
+                   <option value="user" ${u.role === ROLE_USER ? 'selected' : ''}>一般</option>
+                   <option value="admin" ${u.role === ROLE_ADMIN ? 'selected' : ''}>管理者</option>
+                 </select>`}
           </label>
-          <button type="submit" class="mini-btn">保存</button>
+          <button type="submit" class="mini-btn" ${(u.role === ROLE_SITE_ADMIN || locked) ? 'disabled' : ''}>保存</button>
         </form>
 
         <form method="POST" action="/admin/delete-user" class="inline-form">
           <input type="hidden" name="id" value="${u.id}">
-          <button type="submit" class="icon-btn danger" title="このユーザーを削除" onclick="return confirm('このユーザーを削除します。よろしいですか？')">🗑️</button>
+          <button type="submit" class="icon-btn danger" title="このユーザーを削除" ${locked ? 'disabled' : ''} onclick="return ${locked ? 'false' : "confirm('このユーザーを削除します。よろしいですか？')"}">🗑️</button>
         </form>
       </td>
     </tr>`;
@@ -1446,6 +1504,7 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:650;border:1px solid #e5e7eb;background:#f9fafb;}
     .pill-admin{background:#fff7ed;border-color:#fed7aa;color:#9a3412;}
     .pill-user{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+    .pill-siteadmin{background:#fff1f2;border-color:#fecdd3;color:#b91c1c;}
     .dev{white-space:nowrap}
     .dev-pill{display:inline-flex;gap:6px;align-items:center;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:650;border:1px solid #e5e7eb;background:#f9fafb;}
     .ops{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -1456,8 +1515,10 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;text-decoration:none;color:#111827;box-shadow:0 2px 8px rgba(15,23,42,.05);}
     .icon-btn:hover{background:#f9fafb}
     .icon-btn.danger:hover{background:#fff1f2;border-color:#fecdd3}
+    .icon-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
     .mini-btn{padding:8px 10px;border-radius:10px;border:1px solid #e5e7eb;background:#f3f4f6;cursor:pointer;text-decoration:none;color:#111827;display:inline-flex;align-items:center;justify-content:center;}
     .mini-btn:hover{background:#e5e7eb}
+    .mini-btn:disabled{opacity:.45;cursor:not-allowed}
     .uid{white-space:nowrap}
     .muted{color:#6b7280}
     @media(max-width:860px){
@@ -1475,6 +1536,7 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
         <span class="stat">合計: <b id="statAll">${totalUsers}</b></span>
         <span class="stat">一般: <b id="statUser">${userCount}</b></span>
         <span class="stat">管理者: <b id="statAdmin">${adminCount}</b></span>
+        <span class="stat" style="background:#fff1f2;border-color:#fecdd3;">サイト管理者: <b id="statSiteAdmin" style="color:#b91c1c">${siteAdminCount}</b></span>
         ${req.impersonating ? `<span class="stat" style="background:#fff3cd;border-color:#ffeeba;">なりすまし中: <b>${esc(req.user?.username || "user")}</b></span>` : ``}
       </div>
     </div>
@@ -1703,7 +1765,7 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
           <img src="${esc(u.iconUrl || "/img/mypage.png")}" alt="avatar" class="avatar" onerror="this.src='/img/mypage.png';">
           <div>
             <div style="font-size:18px;font-weight:600;">${esc(u.username)} さんのマイページ（管理者閲覧）</div>
-            <div class="muted">ID: ${esc(u.id)} / ロール: ${u.role === "admin" ? "管理者" : "一般"}</div>
+            <div class="muted">ID: ${esc(u.id)} / ロール: ${u.role === ROLE_SITE_ADMIN ? "サイト管理者" : (u.role === ROLE_ADMIN ? "管理者" : "一般")}</div>
           </div>
         </div>
         <div class="kv">
@@ -1827,6 +1889,15 @@ app.post("/admin/update-user", requireAdmin, async (req, res) => {
   const { id, tokens, role } = req.body || {};
   const u = usersDb.data.users.find(x => x.id === id);
   if (!u) return res.status(404).send("Not found");
+  const operator = getUserById(req.cookies?.deviceId);
+  // サイト管理者はサイト内の操作で変更できない（削除のみ例外）
+  if (u.role === ROLE_SITE_ADMIN) {
+    return res.send(toastPage("⚠サイト管理者の情報は変更できません。", "/admin/users"));
+  }
+  // サイト管理者ロールは管理画面から付与できない（1103でログインして取得）
+  if (role === ROLE_SITE_ADMIN) {
+    return res.send(toastPage("⚠サイト管理者ロールは管理画面から付与できません。", "/admin/users"));
+  }
   if (role === "admin") {
     u.role = "admin";
     u.tokens = null;
@@ -1847,6 +1918,10 @@ app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
   await usersDb.read();
   const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
   const idSet = new Set(ids);
+  // site_admin が混ざっていても除外して他だけ削除する
+  for (const su of usersDb.data.users) {
+    if (su.role === ROLE_SITE_ADMIN) idSet.delete(su.id);
+  }
   usersDb.data.users = usersDb.data.users.filter(u => !idSet.has(u.id));
   await usersDb.write();
 res.redirect(`/admin/users`);
@@ -1863,6 +1938,11 @@ app.post("/admin/delete-user", requireAdmin, async (req, res) => {
   await usersDb.read();
   const { id } = req.body || {};
   if (!id) return res.status(400).send("bad request");
+  const operator = getUserById(req.cookies?.deviceId);
+  const target = usersDb.data.users.find(u => u.id === id);
+  if (target && target.role === ROLE_SITE_ADMIN && !isSiteAdmin(operator)) {
+    return res.send(toastPage("⚠サイト管理者アカウントはサイト管理者のみ削除できます。", "/admin/users"));
+  }
   usersDb.data.users = usersDb.data.users.filter(u => u.id !== id);
   await usersDb.write();
 res.redirect(`/admin/users`);
