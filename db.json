@@ -1941,6 +1941,44 @@
         "id": "T6qMLitXDeCkMGSP",
         "username": "せー"
       }
+    },
+    {
+      "id": "uJ83qgPYmP-4ODIAlCpRo",
+      "text": "Baby Cry (feat. Azuki Eru)",
+      "artist": "リルジャップ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/baby-cry-feat-azuki-eru/1560780135?i=1560780470&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/23/cd/75/23cd7523-46e2-eca3-78cb-837a81445e81/859756770954_cover.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/35/c0/50/35c050f5-c8bc-d007-526f-f294c9de1c90/mzaf_2999137646469598311.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-17T03:39:54.404Z",
+      "by": {
+        "id": "sTW3OalG0tUlxU47",
+        "username": "野村ゆうき"
+      },
+      "lastRequestedAt": "2026-02-17T03:39:54.404Z",
+      "lastBy": {
+        "id": "sTW3OalG0tUlxU47",
+        "username": "野村ゆうき"
+      }
+    },
+    {
+      "id": "GzAh2qDr_TRExryAudpvY",
+      "text": "プリキュア5、スマイル go go!",
+      "artist": "工藤真由/コーラス:ヤングフレッシュ with mayumi & yuka",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%97%E3%83%AA%E3%82%AD%E3%83%A5%E3%82%A25-%E3%82%B9%E3%83%9E%E3%82%A4%E3%83%AB-go-go/1561377030?i=1561377032&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/20/2b/a0/202ba0d4-668d-c76f-4bc4-abba3294b1b1/MAQLT-00346.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/5b/b4/b7/5bb4b7e7-2eac-5406-e9a2-89a0bb8ad8ab/mzaf_7416561630931276404.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-17T03:39:58.635Z",
+      "by": {
+        "id": "p1KnrVbqPQ5ylXnI",
+        "username": "ゆっけ"
+      },
+      "lastRequestedAt": "2026-02-17T03:39:58.635Z",
+      "lastBy": {
+        "id": "p1KnrVbqPQ5ylXnI",
+        "username": "ゆっけ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2084,7 +2122,9 @@
     "戦う理由|red eye": 2,
     "戦う理由|red": 2,
     "sunday morning|illit": 1,
-    "ラブソングに襲われる|=love": 1
+    "ラブソングに襲われる|=love": 1,
+    "baby cry (feat. azuki eru)|リルジャップ": 1,
+    "プリキュア5、スマイル go go!|工藤真由/コーラス:ヤングフレッシュ with mayumi & yuka": 1
   },
   "settings": {
     "recruiting": true,
