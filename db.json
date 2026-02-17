@@ -1979,6 +1979,46 @@
         "id": "p1KnrVbqPQ5ylXnI",
         "username": "ゆっけ"
       }
+    },
+    {
+      "id": "whAFmum330wCcke1bdnj3",
+      "text": "て",
+      "artist": "上野大樹",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A6/1540215942?i=1540215947&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/b2/4b/fd/b24bfd23-05d5-ddc8-f87d-418f364f4721/bigup13140766.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e5/05/67/e5056786-f93f-5664-a15f-96483d3fdc3c/mzaf_17186525902096214120.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-17T11:12:02.206Z",
+      "by": {
+        "id": "4hFGJuvAMG2QyPZW",
+        "username": "れすまほ"
+      },
+      "lastRequestedAt": "2026-02-17T11:12:02.206Z",
+      "lastBy": {
+        "id": "4hFGJuvAMG2QyPZW",
+        "username": "れすまほ"
+      },
+      "fromThemeId": "516SjLp2Cd"
+    },
+    {
+      "id": "s1Mya1mlFmSSEaITsHPR7",
+      "text": "W",
+      "artist": "Snow Man",
+      "appleMusicUrl": "https://music.apple.com/jp/album/w/1804833044?i=1804833234&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a7/35/d1/a735d155-d316-d9ea-19d2-d18c9aa2fb8b/ANTCD-A0000016546.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7f/1c/2a/7f1c2a7d-2a06-6da5-ff9b-fb3dc69e398a/mzaf_10984908690584524437.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-17T11:12:39.178Z",
+      "by": {
+        "id": "dT-T_amP934B9QgU",
+        "username": "tesssssssssssssssssssssss"
+      },
+      "lastRequestedAt": "2026-02-17T11:12:39.178Z",
+      "lastBy": {
+        "id": "dT-T_amP934B9QgU",
+        "username": "tesssssssssssssssssssssss"
+      },
+      "fromThemeId": "516SjLp2Cd"
     }
   ],
   "lastSubmissions": {
@@ -2124,7 +2164,9 @@
     "sunday morning|illit": 1,
     "ラブソングに襲われる|=love": 1,
     "baby cry (feat. azuki eru)|リルジャップ": 1,
-    "プリキュア5、スマイル go go!|工藤真由/コーラス:ヤングフレッシュ with mayumi & yuka": 1
+    "プリキュア5、スマイル go go!|工藤真由/コーラス:ヤングフレッシュ with mayumi & yuka": 1,
+    "て|上野大樹": 1,
+    "w|snow man": 1
   },
   "settings": {
     "recruiting": true,
@@ -2142,45 +2184,92 @@
     "monthlyTokens": 10
   },
   "theme": {
-    "active": true,
-    "status": "active",
+    "active": false,
+    "status": "ended",
     "id": "516SjLp2Cd",
     "title": "動作確認",
     "description": "",
     "startAtISO": "2026-02-17T11:11:30.577Z",
     "endAtISO": "2026-02-17T11:15:00.000Z",
-    "winnerRequestId": null,
-    "winner": null,
-    "endedAtISO": null,
-    "mergedAtISO": null,
-    "endReason": null
-  },
-  "themeRequests": [
-    {
+    "winnerRequestId": "HaPBAgNE3CGKCRwuGU2mD",
+    "winner": {
       "id": "HaPBAgNE3CGKCRwuGU2mD",
       "text": "て",
       "artist": "上野大樹",
       "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A6/1540215942?i=1540215947&uo=4",
       "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/b2/4b/fd/b24bfd23-05d5-ddc8-f87d-418f364f4721/bigup13140766.jpg/300x300bb.jpg",
       "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e5/05/67/e5056786-f93f-5664-a15f-96483d3fdc3c/mzaf_17186525902096214120.plus.aac.p.m4a",
-      "count": 1,
-      "createdAt": "2026-02-17T11:12:02.206Z",
-      "by": {
-        "id": "4hFGJuvAMG2QyPZW",
-        "username": "れすまほ"
-      },
-      "lastRequestedAt": "2026-02-17T11:12:02.206Z",
-      "lastBy": {
-        "id": "4hFGJuvAMG2QyPZW",
-        "username": "れすまほ"
-      },
-      "votes": 0
-    }
-  ],
-  "themeSongCounts": {
-    "て|上野大樹": 1
+      "votes": 2,
+      "count": 1
+    },
+    "endedAtISO": "2026-02-17T11:12:59.885Z",
+    "mergedAtISO": "2026-02-17T11:12:59.886Z",
+    "endReason": "manual"
   },
+  "themeRequests": [],
+  "themeSongCounts": {},
   "themeHistory": [
+    {
+      "id": "516SjLp2Cd",
+      "title": "動作確認",
+      "description": "",
+      "startAtISO": "2026-02-17T11:11:30.577Z",
+      "endAtISO": "2026-02-17T11:15:00.000Z",
+      "endedAtISO": "2026-02-17T11:12:59.885Z",
+      "endReason": "manual",
+      "winner": {
+        "id": "HaPBAgNE3CGKCRwuGU2mD",
+        "text": "て",
+        "artist": "上野大樹",
+        "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A6/1540215942?i=1540215947&uo=4",
+        "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/b2/4b/fd/b24bfd23-05d5-ddc8-f87d-418f364f4721/bigup13140766.jpg/300x300bb.jpg",
+        "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e5/05/67/e5056786-f93f-5664-a15f-96483d3fdc3c/mzaf_17186525902096214120.plus.aac.p.m4a",
+        "votes": 2,
+        "count": 1
+      },
+      "requests": [
+        {
+          "id": "HaPBAgNE3CGKCRwuGU2mD",
+          "text": "て",
+          "artist": "上野大樹",
+          "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A6/1540215942?i=1540215947&uo=4",
+          "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/b2/4b/fd/b24bfd23-05d5-ddc8-f87d-418f364f4721/bigup13140766.jpg/300x300bb.jpg",
+          "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e5/05/67/e5056786-f93f-5664-a15f-96483d3fdc3c/mzaf_17186525902096214120.plus.aac.p.m4a",
+          "count": 1,
+          "createdAt": "2026-02-17T11:12:02.206Z",
+          "by": {
+            "id": "4hFGJuvAMG2QyPZW",
+            "username": "れすまほ"
+          },
+          "lastRequestedAt": "2026-02-17T11:12:02.206Z",
+          "lastBy": {
+            "id": "4hFGJuvAMG2QyPZW",
+            "username": "れすまほ"
+          },
+          "votes": 2
+        },
+        {
+          "id": "8iYiW3Ru6oCOc6xDq8Lxc",
+          "text": "W",
+          "artist": "Snow Man",
+          "appleMusicUrl": "https://music.apple.com/jp/album/w/1804833044?i=1804833234&uo=4",
+          "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a7/35/d1/a735d155-d316-d9ea-19d2-d18c9aa2fb8b/ANTCD-A0000016546.jpg/300x300bb.jpg",
+          "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7f/1c/2a/7f1c2a7d-2a06-6da5-ff9b-fb3dc69e398a/mzaf_10984908690584524437.plus.aac.p.m4a",
+          "count": 1,
+          "createdAt": "2026-02-17T11:12:39.178Z",
+          "by": {
+            "id": "dT-T_amP934B9QgU",
+            "username": "tesssssssssssssssssssssss"
+          },
+          "lastRequestedAt": "2026-02-17T11:12:39.178Z",
+          "lastBy": {
+            "id": "dT-T_amP934B9QgU",
+            "username": "tesssssssssssssssssssssss"
+          },
+          "votes": 0
+        }
+      ]
+    },
     {
       "id": "bXB8JhoH3p",
       "title": "テスト募集",
