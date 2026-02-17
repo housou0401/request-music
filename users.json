@@ -765,26 +765,6 @@
       "registeredAt": "2026-02-03T07:05:37.500Z"
     },
     {
-      "id": "4hFGJuvAMG2QyPZW",
-      "username": "れすまほ",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23C71 Instagram 414.0.0.23.79 (iPhone14,2; iOS 26_2_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 868652560)",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-05T07:30:06.155Z",
-      "registeredAt": "2026-02-05T07:30:06.155Z",
-      "themeVotes": {
-        "516SjLp2Cd": {
-          "lastVoteDate": "2026-02-17",
-          "votedAtISO": "2026-02-17T11:12:07.453Z",
-          "requestId": "HaPBAgNE3CGKCRwuGU2mD"
-        }
-      }
-    },
-    {
       "id": "IgNCHq9w_JlBx_o-",
       "username": "Guest",
       "deviceInfo": {
@@ -926,19 +906,6 @@
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-12T14:15:07.920Z",
       "registeredAt": "2026-02-12T14:15:07.920Z"
-    },
-    {
-      "id": "ITa_21guW1PSFTWu",
-      "username": "0401",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22C152 Instagram 416.1.0.27.68 (iPhone15,4; iOS 18_2; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 881475720) Safari/604.1",
-        "ip": "::1"
-      },
-      "role": "user",
-      "tokens": 5,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-16T03:24:50.774Z",
-      "registeredAt": "2026-02-16T03:24:50.774Z"
     },
     {
       "id": "sTW3OalG0tUlxU47",
