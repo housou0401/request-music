@@ -775,7 +775,14 @@
       "tokens": null,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-05T07:30:06.155Z",
-      "registeredAt": "2026-02-05T07:30:06.155Z"
+      "registeredAt": "2026-02-05T07:30:06.155Z",
+      "themeVotes": {
+        "516SjLp2Cd": {
+          "lastVoteDate": "2026-02-17",
+          "votedAtISO": "2026-02-17T11:12:07.453Z",
+          "requestId": "HaPBAgNE3CGKCRwuGU2mD"
+        }
+      }
     },
     {
       "id": "IgNCHq9w_JlBx_o-",
@@ -970,7 +977,14 @@
       "tokens": null,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-17T10:43:40.912Z",
-      "registeredAt": "2026-02-17T10:43:40.912Z"
+      "registeredAt": "2026-02-17T10:43:40.912Z",
+      "themeVotes": {
+        "516SjLp2Cd": {
+          "lastVoteDate": "2026-02-17",
+          "votedAtISO": "2026-02-17T11:12:22.562Z",
+          "requestId": "HaPBAgNE3CGKCRwuGU2mD"
+        }
+      }
     }
   ]
 }
