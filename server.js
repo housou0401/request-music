@@ -98,8 +98,8 @@ function writeTokCookie(res, user){
   }catch{}
 }
 // ==== ミドルウェア ====
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true, limit: "2mb" }));
+app.use(express.json({ limit: "2mb" }));
 app.use(cookieParser());
 
 // 静的配信 & ルート
@@ -566,6 +566,7 @@ app.post("/register", async (req, res) => {
     usersDb.data.users.push({
       id: deviceId,
       username,
+      iconUrl: null,
       deviceInfo: deviceInfoFromReq(req),
       role,
       tokens: role === "admin" ? null : monthly,
@@ -598,7 +599,7 @@ app.get("/me", async (req, res) => {
     loggedIn: true,
     adminSession: !!req.adminSession,
     impersonating: !!req.impersonating,
-    user: { id: req.user.id, username: req.user.username, role: req.user.role, tokens: req.user.tokens },
+    user: { id: req.user.id, username: req.user.username, role: req.user.role, tokens: req.user.tokens, iconUrl: req.user.iconUrl || null },
     settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
   });
 });
@@ -1678,6 +1679,7 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
     .warn{padding:10px 12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:12px;color:#92400e}
     .next-remaining{font-size:12px;color:#4b5563;margin-top:2px;}
     .page-head-icon{width:40px;height:40px;object-fit:contain;margin-right:6px;}
+    .avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#e5e7eb;border:1px solid var(--border);}
     @media(max-width:560px){
       .kv{grid-template-columns:1fr}
       .list{grid-template-columns:1fr}
@@ -1698,7 +1700,7 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
 
       <div class="card">
         <div class="row">
-          <img src="/img/mypage.png" alt="mypage" class="page-head-icon" onerror="this.style.display='none'">
+          <img src="${esc(u.iconUrl || "/img/mypage.png")}" alt="avatar" class="avatar" onerror="this.src='/img/mypage.png';">
           <div>
             <div style="font-size:18px;font-weight:600;">${esc(u.username)} さんのマイページ（管理者閲覧）</div>
             <div class="muted">ID: ${esc(u.id)} / ロール: ${u.role === "admin" ? "管理者" : "一般"}</div>
@@ -1741,6 +1743,76 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
       }
       tick();
     })();
+
+    // ----- アイコン更新（dataURL / URL） -----
+    (function(){
+      const file = document.getElementById("iconFile");
+      const urlText = document.getElementById("iconUrlText");
+      const hidden = document.getElementById("iconUrlHidden");
+      const prev = document.getElementById("avatarPreview");
+      const clearBtn = document.getElementById("clearIconBtn");
+      const form = document.getElementById("iconForm");
+      if (!hidden || !prev) return;
+
+      function applyValue(v){
+        hidden.value = v || "";
+        if (v) prev.src = v;
+      }
+
+      if (file) {
+        file.addEventListener("change", () => {
+          const f = file.files && file.files[0];
+          if (!f) return;
+          if (!String(f.type || "").startsWith("image/")) {
+            alert("画像ファイルを選択してください。");
+            file.value = "";
+            return;
+          }
+          // 目安: 350KB程度（保存サイズ制限があるため）
+          if (f.size > 350 * 1024) {
+            alert("画像が大きすぎます。350KB以下を目安にしてください。");
+            file.value = "";
+            return;
+          }
+          const rd = new FileReader();
+          rd.onload = () => {
+            const v = String(rd.result || "");
+            applyValue(v);
+            if (urlText) urlText.value = "";
+          };
+          rd.readAsDataURL(f);
+        });
+      }
+
+      if (urlText) {
+        urlText.addEventListener("input", () => {
+          const v = (urlText.value || "").trim();
+          if (v) applyValue(v);
+          else applyValue("");
+        });
+      }
+
+      if (form) {
+        form.addEventListener("submit", () => {
+          // URL入力がある場合は hidden を上書き
+          const v = (urlText && urlText.value ? urlText.value : "").trim();
+          if (v) hidden.value = v;
+        });
+      }
+
+      if (clearBtn) {
+        clearBtn.addEventListener("click", async () => {
+          if (!confirm("アイコンをリセットしますか？")) return;
+          try {
+            await fetch("/mypage/icon/clear", { method: "POST" });
+            location.reload();
+          } catch {
+            alert("リセットに失敗しました。");
+          }
+        });
+      }
+    })();
+
     </script>
   </body>
   </html>`;
@@ -2046,6 +2118,7 @@ app.get("/mypage", async (req, res) => {
     form.settings-form button{padding:6px 12px;background:#0070c9;color:#fff;border:none;border-radius:8px;cursor:pointer;}
     .next-remaining{font-size:12px;color:#4b5563;margin-top:2px;}
     .page-head-icon{width:40px;height:40px;object-fit:contain;margin-right:6px;}
+    .avatar{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#e5e7eb;border:1px solid var(--border);}
     @media(max-width:560px){
       .kv{grid-template-columns:1fr}
       .list{grid-template-columns:1fr}
@@ -2055,7 +2128,7 @@ app.get("/mypage", async (req, res) => {
     <div class="wrap">
       <div class="card">
         <div class="row">
-          <img src="/img/mypage.png" alt="mypage" class="page-head-icon" onerror="this.style.display='none'">
+          <img src="${esc(u.iconUrl || "/img/mypage.png")}" alt="avatar" class="avatar" onerror="this.src='/img/mypage.png';">
           <div>
             <div style="font-size:18px;font-weight:600;">${u.username} さんのマイページ</div>
             <div class="muted">ID: ${u.id}</div>
@@ -2083,6 +2156,37 @@ app.get("/mypage", async (req, res) => {
           <button type="submit">保存する</button>
         </form>
       </div>
+
+      <div class="card">
+        <h3>アイコン</h3>
+        <p class="muted">画像ファイル（dataURL）または画像URLを保存できます。</p>
+
+        <div class="row" style="align-items:flex-start;">
+          <img id="avatarPreview" class="avatar" src="${esc(u.iconUrl || "/img/mypage.png")}" alt="avatar" onerror="this.src='/img/mypage.png';">
+          <div style="flex:1;min-width:0;">
+            <div class="muted" style="font-size:13px;margin-bottom:8px;">おすすめ: 300KB程度以下 / 正方形</div>
+            <form id="iconForm" class="settings-form" method="POST" action="/mypage/icon" style="gap:10px;">
+              <label style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <span class="muted">画像:</span>
+                <input id="iconFile" type="file" accept="image/*" style="max-width:240px;">
+              </label>
+
+              <label style="display:flex;gap:8px;align-items:center;flex:1;min-width:220px;flex-wrap:wrap;">
+                <span class="muted">URL:</span>
+                <input id="iconUrlText" type="text" placeholder="https://example.com/icon.png" style="flex:1;min-width:180px;">
+              </label>
+
+              <input type="hidden" name="iconUrl" id="iconUrlHidden" value="">
+              <button type="submit">保存する</button>
+              <button type="button" id="clearIconBtn" class="btn">リセット</button>
+            </form>
+            <div class="muted" style="font-size:12px;margin-top:6px;">
+              ※メッセージ取り消し等のサポート機能は後で実装します（今回はアイコンのみ）。
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       <div class="card">
         <h3>自分の投稿一覧</h3>
@@ -2113,6 +2217,76 @@ app.get("/mypage", async (req, res) => {
       }
       tick();
     })();
+
+    // ----- アイコン更新（dataURL / URL） -----
+    (function(){
+      const file = document.getElementById("iconFile");
+      const urlText = document.getElementById("iconUrlText");
+      const hidden = document.getElementById("iconUrlHidden");
+      const prev = document.getElementById("avatarPreview");
+      const clearBtn = document.getElementById("clearIconBtn");
+      const form = document.getElementById("iconForm");
+      if (!hidden || !prev) return;
+
+      function applyValue(v){
+        hidden.value = v || "";
+        if (v) prev.src = v;
+      }
+
+      if (file) {
+        file.addEventListener("change", () => {
+          const f = file.files && file.files[0];
+          if (!f) return;
+          if (!String(f.type || "").startsWith("image/")) {
+            alert("画像ファイルを選択してください。");
+            file.value = "";
+            return;
+          }
+          // 目安: 350KB程度（保存サイズ制限があるため）
+          if (f.size > 350 * 1024) {
+            alert("画像が大きすぎます。350KB以下を目安にしてください。");
+            file.value = "";
+            return;
+          }
+          const rd = new FileReader();
+          rd.onload = () => {
+            const v = String(rd.result || "");
+            applyValue(v);
+            if (urlText) urlText.value = "";
+          };
+          rd.readAsDataURL(f);
+        });
+      }
+
+      if (urlText) {
+        urlText.addEventListener("input", () => {
+          const v = (urlText.value || "").trim();
+          if (v) applyValue(v);
+          else applyValue("");
+        });
+      }
+
+      if (form) {
+        form.addEventListener("submit", () => {
+          // URL入力がある場合は hidden を上書き
+          const v = (urlText && urlText.value ? urlText.value : "").trim();
+          if (v) hidden.value = v;
+        });
+      }
+
+      if (clearBtn) {
+        clearBtn.addEventListener("click", async () => {
+          if (!confirm("アイコンをリセットしますか？")) return;
+          try {
+            await fetch("/mypage/icon/clear", { method: "POST" });
+            location.reload();
+          } catch {
+            alert("リセットに失敗しました。");
+          }
+        });
+      }
+    })();
+
     </script>
   </body>
   </html>`;
@@ -2133,6 +2307,58 @@ app.post("/mypage/update", async (req, res) => {
   await usersDb.write();
 return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
 });
+
+
+// ---- MyPage icon update ----
+
+function validateIconUrl(raw) {
+  const v = String(raw || "").trim();
+  if (!v) return { ok: false, message: "アイコンが空です。" };
+
+  // dataURL (data:image/...;base64,xxx)
+  if (v.startsWith("data:image/")) {
+    if (!v.includes(";base64,")) return { ok: false, message: "dataURL形式が不正です。" };
+    // length-based guard (roughly ~ bytes * 1.37)
+    if (v.length > 480000) return { ok: false, message: "画像が大きすぎます。350KB程度以下を目安にしてください。" };
+    return { ok: true, value: v };
+  }
+
+  // URL
+  if (/^https?:\/\//i.test(v)) {
+    if (v.length > 2048) return { ok: false, message: "URLが長すぎます。" };
+    return { ok: true, value: v };
+  }
+
+  return { ok: false, message: "http(s) のURL か data:image のみ保存できます。" };
+}
+
+
+app.post("/mypage/icon", async (req, res) => {
+  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/"));
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
+
+  const iconUrl = (req.body.iconUrl ?? "").toString();
+  const v = validateIconUrl(iconUrl);
+  if (!v.ok) return res.send(toastPage(`⚠${esc(v.message)}`, "/mypage"));
+
+  u.iconUrl = v.value;
+  await usersDb.write();
+  return res.send(toastPage("✅アイコンを更新しました。", "/mypage"));
+});
+
+app.post("/mypage/icon/clear", async (req, res) => {
+  if (!req.user) return res.status(401).send("not logged in");
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.status(404).send("not found");
+  u.iconUrl = null;
+  await usersDb.write();
+  res.send("ok");
+});
+
+
 
 
 
