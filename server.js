@@ -81,6 +81,17 @@ if (!db.data.themeSongCounts) db.data.themeSongCounts = {};
 if (!Array.isArray(db.data.themeHistory)) db.data.themeHistory = [];
 
 
+// ---- Support defaults ----
+if (!db.data.support) db.data.support = {
+  termsText: "【サポート利用規約】\n\n・本サポートは、サービス改善および不正利用防止のために内容を記録します。\n・個人情報の送信はお控えください。\n・迷惑行為、スパム、運営を妨げる行為は禁止です。\n・運営は必要に応じて、メッセージの削除やアクセス制限等の措置を行うことがあります。\n\n（この利用規約は管理画面から変更できます）\n",
+  termsVersion: 1,
+  threads: {}, // { [userId]: { userId, createdAtISO, updatedAtISO, lastPreview, messages:[...] } }
+};
+if (typeof db.data.support.termsVersion !== "number") db.data.support.termsVersion = 1;
+if (typeof db.data.support.termsText !== "string") db.data.support.termsText = "";
+if (!db.data.support.threads || typeof db.data.support.threads !== "object") db.data.support.threads = {};
+
+
 // ---- cookieからトークンを取得 ----
 const TOK_COOKIE = "tok";
 function readTokCookie(req){
@@ -591,6 +602,7 @@ app.post("/register", async (req, res) => {
       id: deviceId,
       username,
       iconUrl: null,
+      supportTermsAcceptedVersion: 0,
       deviceInfo: deviceInfoFromReq(req),
       role,
       tokens: isAdmin({ role }) ? null : monthly,
@@ -1038,6 +1050,7 @@ body{background:#f4f6fb;}
       </div>
       <div style="margin-left:auto;">
         <a class="pg-btn" href="/admin/users">👥 ユーザー管理</a>
+        <a class="pg-btn" href="/admin/supports">💬 問い合わせ一覧</a>
       </div>
     </div>
 
@@ -2436,6 +2449,733 @@ app.post("/mypage/icon/clear", async (req, res) => {
   u.iconUrl = null;
   await usersDb.write();
   res.send("ok");
+});
+
+
+// ==========================
+// Support (チャット問い合わせ)
+// ==========================
+const SUPPORT_DESK_NAME = "サポート窓口";
+const SUPPORT_DESK_ICON = "/img/mypage.png";
+
+function supportStore() {
+  if (!db.data.support) {
+    db.data.support = { termsText: "", termsVersion: 1, threads: {} };
+  }
+  if (typeof db.data.support.termsVersion !== "number") db.data.support.termsVersion = 1;
+  if (typeof db.data.support.termsText !== "string") db.data.support.termsText = "";
+  if (!db.data.support.threads || typeof db.data.support.threads !== "object") db.data.support.threads = {};
+  return db.data.support;
+}
+
+function getSupportThread(userId) {
+  const s = supportStore();
+  let t = s.threads[userId];
+  if (!t) {
+    const now = new Date().toISOString();
+    t = s.threads[userId] = {
+      userId,
+      createdAtISO: now,
+      updatedAtISO: now,
+      lastPreview: "",
+      messages: [],
+    };
+  }
+  if (!Array.isArray(t.messages)) t.messages = [];
+  return t;
+}
+
+function updateThreadMeta(t) {
+  const last = t.messages.length ? t.messages[t.messages.length - 1] : null;
+  t.updatedAtISO = last?.atISO || new Date().toISOString();
+  t.lastPreview = last?.text ? String(last.text).slice(0, 80) : "";
+}
+
+function viewerAcceptedSupportTerms(viewer) {
+  const s = supportStore();
+  const v = Number(viewer?.supportTermsAcceptedVersion || 0);
+  return v >= Number(s.termsVersion || 1);
+}
+
+function staffIdentity(reqUser) {
+  // site_admin は自分のアカウントで返信できる
+  if (isSiteAdmin(reqUser)) {
+    return {
+      kind: "staff",
+      userId: reqUser.id,
+      username: reqUser.username || "Site Admin",
+      role: ROLE_SITE_ADMIN,
+      iconUrl: reqUser.iconUrl || SUPPORT_DESK_ICON,
+      badge: "💎サイト管理者",
+    };
+  }
+  // admin は窓口アカウントとして返信（全管理者で共通）
+  return {
+    kind: "staff",
+    userId: null,
+    username: SUPPORT_DESK_NAME,
+    role: "desk",
+    iconUrl: SUPPORT_DESK_ICON,
+    badge: null,
+  };
+}
+
+function normalizeMsgForClient(m) {
+  return {
+    id: m.id,
+    atISO: m.atISO,
+    text: m.text,
+    from: m.from,
+  };
+}
+
+function formatSupportTime(iso) {
+  try { return new Date(iso).toLocaleString("ja-JP", { timeZone: TZ }); } catch { return "-"; }
+}
+
+// ---- ユーザー側：サポート画面 ----
+app.get("/support", async (req, res) => {
+  if (!req.user) return res.send(toastPage("⚠サポートを開くには、まず登録してください。", "/"));
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/"));
+
+  const needsTerms = !viewerAcceptedSupportTerms(u);
+  const s = supportStore();
+  const termsTextEsc = esc(s.termsText || "");
+
+  const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>サポート</title>
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#1f232a;color:#e5e7eb;}
+    a{color:#93c5fd;text-decoration:none}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#111827;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:10;}
+    .top .left{display:flex;align-items:center;gap:10px;min-width:0;}
+    .pill{display:inline-flex;align-items:center;gap:8px;background:#0b1220;border:1px solid rgba(255,255,255,.10);border-radius:999px;padding:6px 10px;color:#fff;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#111;}
+    .meta{opacity:.75;font-size:12px}
+    .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
+    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);}
+    .msgs{flex:1;overflow:auto;padding:14px 6px 10px;}
+    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
+    .msg.viewer{justify-content:flex-start;}
+    .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
+    .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#111;border:1px solid rgba(255,255,255,.10);}
+    .bubble{max-width:min(680px,78vw);background:#2b313a;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px 12px;line-height:1.45;position:relative;user-select:text;}
+    .other .bubble{background:#0b1220;}
+    .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
+    .badge{font-size:12px;color:#7dd3fc;}
+    .time{font-size:11px;opacity:.6;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
+    .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.20);}
+    .input{border-top:1px solid rgba(255,255,255,.08);padding:10px;background:#111827;}
+    .row{display:flex;gap:10px;align-items:flex-end;}
+    textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#0b1220;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
+    button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .hint{margin-top:6px;font-size:12px;opacity:.7}
+    /* context menu */
+    .ctx{position:fixed;z-index:9999;min-width:180px;background:#0b1220;border:1px solid rgba(255,255,255,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.45);display:none;overflow:hidden}
+    .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#fff;padding:10px 12px;border-radius:0;font-weight:600}
+    .ctx button:hover{background:rgba(255,255,255,.08)}
+    .ctx hr{border:0;border-top:1px solid rgba(255,255,255,.10);margin:0}
+    /* terms overlay */
+    .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:10000;padding:14px;}
+    .ov.show{display:flex;}
+    .modal{width:min(720px,92vw);background:#f9fafb;color:#111;border-radius:14px;border:1px solid rgba(0,0,0,.08);box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:hidden}
+    .modal .hd{padding:14px 16px;text-align:center;font-weight:800;color:#6b7280;border-bottom:1px solid rgba(0,0,0,.06)}
+    .modal .bd{padding:16px;}
+    .modal .bd .box{background:#fff;border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:14px;text-align:center;}
+    .modal .bd p{margin:0 0 10px;opacity:.85}
+    .modal .bd .termsbtn{display:inline-flex;justify-content:center;align-items:center;background:#fff;border:1px solid rgba(59,130,246,.55);color:#1d4ed8;border-radius:999px;padding:10px 18px;font-weight:700;cursor:pointer}
+    .terms{display:none;margin-top:12px;text-align:left;max-height:40vh;overflow:auto;white-space:pre-wrap;font-size:13px;line-height:1.5;border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:12px;background:#fff;}
+    .modal .ft{display:flex;gap:12px;justify-content:center;padding:14px 16px;border-top:1px solid rgba(0,0,0,.06)}
+    .modal .ft button{min-width:160px;border-radius:999px}
+    .modal .ft .no{background:#fff;color:#111;border:1px solid rgba(0,0,0,.18)}
+  </style>
+  <body>
+    <div class="top">
+      <div class="left">
+        <a class="pill" href="/">← 戻る</a>
+        <div class="pill" title="${esc(u.username)}">
+          <img src="${esc(u.iconUrl || SUPPORT_DESK_ICON)}" onerror="this.src='${SUPPORT_DESK_ICON}'">
+          <span>サポート</span>
+          <span class="meta">🆔 ${esc(u.id)}</span>
+        </div>
+      </div>
+      <div class="meta">閲覧者＝左 / 相手＝右</div>
+    </div>
+
+    <div class="wrap chat">
+      <div id="msgs" class="msgs"></div>
+
+      <div class="input">
+        <div class="row">
+          <textarea id="text" placeholder="メッセージを入力…（取り消し不可）" ${needsTerms ? "disabled" : ""}></textarea>
+          <button id="sendBtn" ${needsTerms ? "disabled" : ""}>送信</button>
+        </div>
+        <div class="hint">※ 内容は記録されます。個人情報の送信はお控えください。右クリックでショートカット（コピー）が出ます。</div>
+      </div>
+    </div>
+
+    <div id="ctx" class="ctx" role="menu" aria-hidden="true">
+      <button data-act="copy">テキストをコピー</button>
+    </div>
+
+    <div id="ov" class="ov ${needsTerms ? "show" : ""}">
+      <div class="modal">
+        <div class="hd">利用規約の同意</div>
+        <div class="bd">
+          <div class="box">
+            <p>サービスを利用するには利用規約の同意が必要です。<br>利用規約をご確認ください。</p>
+            <button id="termsBtn" class="termsbtn">利用規約</button>
+            <div id="terms" class="terms">${termsTextEsc}</div>
+          </div>
+        </div>
+        <div class="ft">
+          <button id="noBtn" class="no">同意しない</button>
+          <button id="yesBtn">同意する</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const NEEDS_TERMS = ${needsTerms ? "true" : "false"};
+
+      function escHtml(s){ return String(s??"").replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
+      function byId(id){ return document.getElementById(id); }
+
+      async function api(path, body){
+        const opt = body ? { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) } : {};
+        const r = await fetch(path, opt);
+        let j = null;
+        try{ j = await r.json(); }catch{}
+        return { ok:r.ok, status:r.status, json:j };
+      }
+
+      function render(messages, viewerId){
+        const root = byId("msgs");
+        root.innerHTML = "";
+        for (const m of messages){
+          const isViewer = (m.from?.kind === "user" && m.from?.userId === viewerId);
+          const wrap = document.createElement("div");
+          wrap.className = "msg " + (isViewer ? "viewer" : "other");
+          wrap.dataset.mid = m.id;
+
+          const av = document.createElement("img");
+          av.className = "avatar";
+          av.src = m.from?.iconUrl || "${SUPPORT_DESK_ICON}";
+          av.onerror = () => { av.src = "${SUPPORT_DESK_ICON}"; };
+
+          const bub = document.createElement("div");
+          bub.className = "bubble";
+          bub.tabIndex = 0;
+          bub.dataset.text = m.text || "";
+
+          const name = document.createElement("div");
+          name.className = "name";
+          name.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ` <span class="badge">${escHtml(m.from.badge)}</span>` : "");
+
+          const text = document.createElement("div");
+          text.innerHTML = escHtml(m.text || "").replace(/\n/g,"<br>");
+
+          const time = document.createElement("div");
+          time.className = "time";
+          time.innerHTML = `<span>${escHtml(m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "")}</span>` + (m.from?.userId ? ` <code>🆔 ${escHtml(m.from.userId)}</code>` : "");
+
+          bub.appendChild(name);
+          bub.appendChild(text);
+          bub.appendChild(time);
+
+          wrap.appendChild(av);
+          wrap.appendChild(bub);
+          root.appendChild(wrap);
+        }
+        root.scrollTop = root.scrollHeight + 999;
+      }
+
+      let lastMsgs = [];
+      async function load(){
+        const r = await api("/support/api/thread");
+        if (!r.ok){
+          if (r.status === 403 && r.json && r.json.reason === "terms_required") return;
+          alert("読み込みに失敗しました");
+          return;
+        }
+        lastMsgs = (r.json?.messages || []);
+        render(lastMsgs, r.json?.viewer?.id);
+      }
+
+      async function send(){
+        const ta = byId("text");
+        const v = (ta.value||"").trim();
+        if (!v) return;
+        byId("sendBtn").disabled = true;
+        const r = await api("/support/api/send", { text:v });
+        byId("sendBtn").disabled = false;
+        if (!r.ok){
+          alert(r.json?.message || "送信に失敗しました");
+          return;
+        }
+        ta.value = "";
+        await load();
+      }
+
+      // context menu (copy)
+      const ctx = byId("ctx");
+      let ctxTargetText = "";
+      function hideCtx(){ ctx.style.display="none"; ctxTargetText=""; }
+      document.addEventListener("click", hideCtx);
+      document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") hideCtx(); });
+
+      byId("msgs").addEventListener("contextmenu", (e)=>{
+        const bub = e.target.closest(".bubble");
+        if (!bub) return;
+        e.preventDefault();
+        ctxTargetText = bub.dataset.text || "";
+        ctx.style.left = Math.min(window.innerWidth-200, e.clientX) + "px";
+        ctx.style.top = Math.min(window.innerHeight-120, e.clientY) + "px";
+        ctx.style.display = "block";
+      });
+
+      ctx.addEventListener("click", async (e)=>{
+        const act = e.target?.dataset?.act;
+        if (act === "copy"){
+          try{ await navigator.clipboard.writeText(ctxTargetText || ""); }catch{}
+          hideCtx();
+        }
+      });
+
+      byId("sendBtn").addEventListener("click", send);
+      byId("text").addEventListener("keydown", (e)=>{ if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); send(); } });
+
+      // terms actions
+      if (NEEDS_TERMS){
+        byId("termsBtn").addEventListener("click", ()=>{
+          const t = byId("terms");
+          t.style.display = (t.style.display === "block") ? "none" : "block";
+        });
+        byId("noBtn").addEventListener("click", ()=>{ location.href = "/"; });
+        byId("yesBtn").addEventListener("click", async ()=>{
+          const r = await api("/support/terms/accept", {});
+          if (r.ok) location.reload();
+          else alert("同意に失敗しました");
+        });
+      } else {
+        load();
+      }
+    </script>
+  </body></html>`;
+  res.send(html);
+});
+
+app.post("/support/terms/accept", async (req, res) => {
+  if (!req.user) return res.status(401).json({ ok: false, reason: "not_logged_in" });
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.status(404).json({ ok: false, reason: "not_found" });
+  const s = supportStore();
+  u.supportTermsAcceptedVersion = Number(s.termsVersion || 1);
+  await usersDb.write();
+  return res.json({ ok: true });
+});
+
+app.get("/support/api/thread", async (req, res) => {
+  if (!req.user) return res.status(401).json({ ok:false, reason:"not_logged_in" });
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
+
+  if (!viewerAcceptedSupportTerms(u)) {
+    return res.status(403).json({ ok:false, reason:"terms_required" });
+  }
+
+  await db.read();
+  const t = getSupportThread(u.id);
+  updateThreadMeta(t);
+  await db.write();
+
+  const viewer = { id: u.id, username: u.username, role: u.role, iconUrl: u.iconUrl || null };
+  return res.json({
+    ok: true,
+    viewer,
+    messages: t.messages.map(normalizeMsgForClient),
+  });
+});
+
+app.post("/support/api/send", async (req, res) => {
+  if (!req.user) return res.status(401).json({ ok:false, reason:"not_logged_in" });
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
+  if (!viewerAcceptedSupportTerms(u)) return res.status(403).json({ ok:false, reason:"terms_required" });
+
+  const text = (req.body?.text ?? "").toString().trim();
+  if (!text) return res.status(400).json({ ok:false, message:"空のメッセージは送信できません。" });
+  if (text.length > 2000) return res.status(400).json({ ok:false, message:"メッセージが長すぎます（2000文字まで）。" });
+
+  await db.read();
+  const t = getSupportThread(u.id);
+
+  const msg = {
+    id: nanoid(10),
+    atISO: new Date().toISOString(),
+    text,
+    from: {
+      kind: "user",
+      userId: u.id,
+      username: u.username || "Guest",
+      role: u.role || ROLE_USER,
+      iconUrl: u.iconUrl || SUPPORT_DESK_ICON,
+      badge: isSiteAdmin(u) ? "💎サイト管理者" : null,
+    },
+  };
+
+  t.messages.push(msg);
+  updateThreadMeta(t);
+  await db.write();
+  return res.json({ ok:true, message: normalizeMsgForClient(msg) });
+});
+
+// ---- 管理者：問い合わせ一覧 ----
+app.get("/admin/supports", requireAdmin, async (req, res) => {
+  await db.read();
+  await usersDb.read();
+  const s = supportStore();
+
+  const threads = Object.values(s.threads || {});
+  threads.sort((a,b)=> new Date(b.updatedAtISO||0) - new Date(a.updatedAtISO||0));
+
+  const rows = threads.map(t => {
+    const user = usersDb.data.users.find(x => x.id === t.userId);
+    const name = user?.username || t.userId;
+    const icon = user?.iconUrl || SUPPORT_DESK_ICON;
+    const lastAt = t.updatedAtISO ? formatSupportTime(t.updatedAtISO) : "-";
+    const preview = esc(t.lastPreview || "");
+    return `
+      <a class="row" href="/admin/supports/${encodeURIComponent(t.userId)}">
+        <img class="av" src="${esc(icon)}" onerror="this.src='${SUPPORT_DESK_ICON}'">
+        <div class="main">
+          <div class="title"><b>${esc(name)}</b> <span class="id">🆔 ${esc(t.userId)}</span></div>
+          <div class="sub">${preview || '<span class="muted">（まだメッセージがありません）</span>'}</div>
+        </div>
+        <div class="time">${esc(lastAt)}</div>
+      </a>
+    `;
+  }).join("");
+
+  const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>問い合わせ一覧</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#f4f6fb;margin:0;padding:0;color:#111;}
+    .wrap{max-width:980px;margin:24px auto;padding:0 14px;}
+    .head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;}
+    .head h1{margin:0;font-size:22px;}
+    .btn{display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;border-radius:12px;padding:10px 12px;text-decoration:none;border:1px solid rgba(0,0,0,.08);}
+    .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);overflow:hidden}
+    .row{display:flex;gap:12px;align-items:center;padding:12px 12px;border-top:1px solid rgba(0,0,0,.06);text-decoration:none;color:inherit;}
+    .row:hover{background:#f9fafb;}
+    .row:first-child{border-top:none;}
+    .av{width:46px;height:46px;border-radius:14px;object-fit:cover;background:#f3f4f6;border:1px solid rgba(0,0,0,.06);}
+    .main{flex:1;min-width:0;}
+    .title{display:flex;gap:10px;align-items:center;min-width:0;}
+    .id{font-size:12px;color:#6b7280;white-space:nowrap;}
+    .sub{font-size:13px;color:#374151;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .time{font-size:12px;color:#6b7280;white-space:nowrap;}
+    .muted{opacity:.6}
+    .sec{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:14px;margin:14px 0;}
+    textarea{width:100%;min-height:160px;border-radius:12px;border:1px solid rgba(0,0,0,.15);padding:10px 12px;font-size:14px;resize:vertical;}
+    button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:700;}
+    .note{font-size:12px;color:#6b7280;margin-top:8px;}
+  </style>
+  <body>
+    <div class="wrap">
+      <div class="head">
+        <h1>💬 問い合わせ一覧</h1>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a class="btn" href="/admin">🎛 管理者トップ</a>
+          <a class="btn" href="/">🏠 トップ</a>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h2 style="margin:0 0 10px;font-size:16px;">利用規約（サポート）</h2>
+        <form method="POST" action="/admin/support-terms">
+          <textarea name="termsText" placeholder="利用規約テキスト（自由に編集できます）">${esc(s.termsText || "")}</textarea>
+          <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:10px;">
+            <div class="note">現在のバージョン: <b>${Number(s.termsVersion || 1)}</b> ／ 保存するとバージョンが +1 され、ユーザーは再同意が必要になります。</div>
+            <button type="submit">保存（バージョン更新）</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        ${rows || '<div style="padding:14px;opacity:.7">まだ問い合わせはありません。</div>'}
+      </div>
+    </div>
+  </body></html>`;
+  res.send(html);
+});
+
+app.post("/admin/support-terms", requireAdmin, async (req, res) => {
+  await db.read();
+  const s = supportStore();
+  const text = (req.body?.termsText ?? "").toString();
+  s.termsText = text;
+  s.termsVersion = Number(s.termsVersion || 1) + 1;
+  await db.write();
+  return res.redirect("/admin/supports");
+});
+
+// ---- 管理者：個別チャット ----
+app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
+  const userId = (req.params.userId || "").toString();
+  await usersDb.read();
+  const target = usersDb.data.users.find(x => x.id === userId) || null;
+  const titleName = target?.username || userId;
+
+  const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>サポート返信 - ${esc(titleName)}</title>
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#1f232a;color:#e5e7eb;}
+    a{color:#93c5fd;text-decoration:none}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#111827;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:10;}
+    .pill{display:inline-flex;align-items:center;gap:8px;background:#0b1220;border:1px solid rgba(255,255,255,.10);border-radius:999px;padding:6px 10px;color:#fff;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#111;}
+    .meta{opacity:.75;font-size:12px}
+    .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
+    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);}
+    .msgs{flex:1;overflow:auto;padding:14px 6px 10px;}
+    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
+    .msg.viewer{justify-content:flex-start;}
+    .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
+    .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#111;border:1px solid rgba(255,255,255,.10);}
+    .bubble{max-width:min(680px,78vw);background:#2b313a;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px 12px;line-height:1.45;position:relative;user-select:text;}
+    .other .bubble{background:#0b1220;}
+    .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
+    .badge{font-size:12px;color:#7dd3fc;}
+    .time{font-size:11px;opacity:.6;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
+    .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.20);}
+    .input{border-top:1px solid rgba(255,255,255,.08);padding:10px;background:#111827;}
+    .row{display:flex;gap:10px;align-items:flex-end;}
+    textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#0b1220;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
+    button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .hint{margin-top:6px;font-size:12px;opacity:.7}
+    /* context menu */
+    .ctx{position:fixed;z-index:9999;min-width:200px;background:#0b1220;border:1px solid rgba(255,255,255,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.45);display:none;overflow:hidden}
+    .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#fff;padding:10px 12px;border-radius:0;font-weight:600}
+    .ctx button:hover{background:rgba(255,255,255,.08)}
+    .ctx hr{border:0;border-top:1px solid rgba(255,255,255,.10);margin:0}
+    .danger{color:#fca5a5;}
+  </style>
+  <body>
+    <div class="top">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+        <a class="pill" href="/admin/supports">← 一覧</a>
+        <div class="pill" title="${esc(titleName)}">
+          <img src="${esc(target?.iconUrl || SUPPORT_DESK_ICON)}" onerror="this.src='${SUPPORT_DESK_ICON}'">
+          <span>${esc(titleName)}</span>
+          <span class="meta">🆔 ${esc(userId)}</span>
+        </div>
+      </div>
+      <div class="meta">閲覧者＝左 / 相手＝右</div>
+    </div>
+
+    <div class="wrap chat">
+      <div id="msgs" class="msgs"></div>
+      <div class="input">
+        <div class="row">
+          <textarea id="text" placeholder="返信を入力…（管理者は削除可能）"></textarea>
+          <button id="sendBtn">送信</button>
+        </div>
+        <div class="hint">右クリックでショートカット（コピー／削除）が出ます。site_admin は自分のアカウントで返信します。</div>
+      </div>
+    </div>
+
+    <div id="ctx" class="ctx" role="menu" aria-hidden="true">
+      <button data-act="copy">テキストをコピー</button>
+      <hr>
+      <button data-act="delete" class="danger">メッセージを削除</button>
+    </div>
+
+    <script>
+      const USER_ID = ${JSON.stringify(userId)};
+      function escHtml(s){ return String(s??"").replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
+      function byId(id){ return document.getElementById(id); }
+      async function api(path, body){
+        const opt = body ? { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) } : {};
+        const r = await fetch(path, opt);
+        let j = null;
+        try{ j = await r.json(); }catch{}
+        return { ok:r.ok, status:r.status, json:j };
+      }
+
+      function render(messages){
+        const root = byId("msgs");
+        root.innerHTML = "";
+        for (const m of messages){
+          // viewer=admin: staff メッセージを左、ユーザーを右
+          const isViewer = (m.from?.kind === "staff");
+          const wrap = document.createElement("div");
+          wrap.className = "msg " + (isViewer ? "viewer" : "other");
+          wrap.dataset.mid = m.id;
+
+          const av = document.createElement("img");
+          av.className = "avatar";
+          av.src = m.from?.iconUrl || "${SUPPORT_DESK_ICON}";
+          av.onerror = () => { av.src = "${SUPPORT_DESK_ICON}"; };
+
+          const bub = document.createElement("div");
+          bub.className = "bubble";
+          bub.tabIndex = 0;
+          bub.dataset.text = m.text || "";
+          bub.dataset.mid = m.id || "";
+
+          const name = document.createElement("div");
+          name.className = "name";
+          name.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ` <span class="badge">${escHtml(m.from.badge)}</span>` : "");
+
+          const text = document.createElement("div");
+          text.innerHTML = escHtml(m.text || "").replace(/\n/g,"<br>");
+
+          const time = document.createElement("div");
+          time.className = "time";
+          time.innerHTML = `<span>${escHtml(m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "")}</span>` + (m.from?.userId ? ` <code>🆔 ${escHtml(m.from.userId)}</code>` : "");
+
+          bub.appendChild(name);
+          bub.appendChild(text);
+          bub.appendChild(time);
+
+          wrap.appendChild(av);
+          wrap.appendChild(bub);
+          root.appendChild(wrap);
+        }
+        root.scrollTop = root.scrollHeight + 999;
+      }
+
+      let lastMsgs = [];
+      async function load(){
+        const r = await api(`/admin/supports/${encodeURIComponent(USER_ID)}/api/thread`);
+        if (!r.ok){
+          alert("読み込みに失敗しました");
+          return;
+        }
+        lastMsgs = (r.json?.messages || []);
+        render(lastMsgs);
+      }
+
+      async function send(){
+        const ta = byId("text");
+        const v = (ta.value||"").trim();
+        if (!v) return;
+        byId("sendBtn").disabled = true;
+        const r = await api(`/admin/supports/${encodeURIComponent(USER_ID)}/api/send`, { text:v });
+        byId("sendBtn").disabled = false;
+        if (!r.ok){
+          alert(r.json?.message || "送信に失敗しました");
+          return;
+        }
+        ta.value = "";
+        await load();
+      }
+
+      // context menu (copy/delete)
+      const ctx = byId("ctx");
+      let ctxTargetText = "";
+      let ctxTargetId = "";
+      function hideCtx(){ ctx.style.display="none"; ctxTargetText=""; ctxTargetId=""; }
+      document.addEventListener("click", hideCtx);
+      document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") hideCtx(); });
+
+      byId("msgs").addEventListener("contextmenu", (e)=>{
+        const bub = e.target.closest(".bubble");
+        if (!bub) return;
+        e.preventDefault();
+        ctxTargetText = bub.dataset.text || "";
+        ctxTargetId = bub.dataset.mid || "";
+        ctx.style.left = Math.min(window.innerWidth-220, e.clientX) + "px";
+        ctx.style.top = Math.min(window.innerHeight-140, e.clientY) + "px";
+        ctx.style.display = "block";
+      });
+
+      ctx.addEventListener("click", async (e)=>{
+        const act = e.target?.dataset?.act;
+        if (act === "copy"){
+          try{ await navigator.clipboard.writeText(ctxTargetText || ""); }catch{}
+          hideCtx();
+        }
+        if (act === "delete"){
+          if (!ctxTargetId) return;
+          if (!confirm("このメッセージを削除しますか？")) return;
+          const r = await api(`/admin/supports/${encodeURIComponent(USER_ID)}/api/delete`, { messageId: ctxTargetId });
+          if (!r.ok) alert("削除に失敗しました");
+          hideCtx();
+          await load();
+        }
+      });
+
+      byId("sendBtn").addEventListener("click", send);
+      byId("text").addEventListener("keydown", (e)=>{ if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); send(); } });
+
+      load();
+    </script>
+  </body></html>`;
+  res.send(html);
+});
+
+app.get("/admin/supports/:userId/api/thread", requireAdmin, async (req, res) => {
+  const userId = (req.params.userId || "").toString();
+  await db.read();
+  await usersDb.read();
+
+  const target = usersDb.data.users.find(x => x.id === userId) || null;
+  const t = getSupportThread(userId);
+  updateThreadMeta(t);
+  await db.write();
+
+  const viewer = { id: req.user?.id || null, username: req.user?.username || "admin", role: req.user?.role || ROLE_ADMIN, iconUrl: req.user?.iconUrl || null };
+  return res.json({
+    ok: true,
+    viewer,
+    target: target ? { id: target.id, username: target.username, role: target.role, iconUrl: target.iconUrl || null } : null,
+    messages: t.messages.map(normalizeMsgForClient),
+  });
+});
+
+app.post("/admin/supports/:userId/api/send", requireAdmin, async (req, res) => {
+  const userId = (req.params.userId || "").toString();
+  const text = (req.body?.text ?? "").toString().trim();
+  if (!text) return res.status(400).json({ ok:false, message:"空のメッセージは送信できません。" });
+  if (text.length > 2000) return res.status(400).json({ ok:false, message:"メッセージが長すぎます（2000文字まで）。" });
+
+  await db.read();
+  const t = getSupportThread(userId);
+
+  const from = staffIdentity(req.user || null);
+  const msg = { id: nanoid(10), atISO: new Date().toISOString(), text, from };
+
+  t.messages.push(msg);
+  updateThreadMeta(t);
+  await db.write();
+
+  return res.json({ ok:true, message: normalizeMsgForClient(msg) });
+});
+
+app.post("/admin/supports/:userId/api/delete", requireAdmin, async (req, res) => {
+  const userId = (req.params.userId || "").toString();
+  const messageId = (req.body?.messageId ?? "").toString();
+  if (!messageId) return res.status(400).json({ ok:false, message:"messageId が必要です。" });
+
+  await db.read();
+  const t = getSupportThread(userId);
+
+  const before = t.messages.length;
+  t.messages = t.messages.filter(m => m.id !== messageId);
+  const after = t.messages.length;
+
+  updateThreadMeta(t);
+  await db.write();
+  return res.json({ ok:true, removed: before - after });
 });
 
 
