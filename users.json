@@ -941,9 +941,9 @@
         "ip": "::1"
       },
       "role": "admin",
-      "tokens": null,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-17T10:43:40.912Z",
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "registeredAt": "2026-02-17T10:43:40.912Z",
       "themeVotes": {
         "516SjLp2Cd": {
