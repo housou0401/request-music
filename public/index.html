@@ -58,7 +58,7 @@
 </head>
 
 <body>
-  <a id="mypage-link" class="mypage-link" href="/mypage"><img src="/img/mypage.png" alt="マイページ"><span>マイページ</span></a>
+  <a id="mypage-link" class="mypage-link" href="/mypage" style="display:none;"><img src="/img/mypage.png" alt="マイページ"><span>マイページ</span></a>
 <a id="theme-link" class="mypage-link theme-link" href="/theme" style="display:none;"><span>🎧 テーマ投票</span></a>
 
   <!-- 管理者ボタン（右上固定） -->
@@ -247,6 +247,20 @@
       const ok = !!(me && ((me.loggedIn && me.user?.role === 'admin') || me.adminSession === true));
       btn.classList.toggle('ux-hidden', !ok);
     }
+
+    function updateMyPageLink(me){
+      const a = document.getElementById('mypage-link');
+      if (!a) return;
+      if (!me || !me.loggedIn){
+        a.style.display = 'none';
+        return;
+      }
+      a.style.display = 'inline-flex';
+      const img = a.querySelector('img');
+      const icon = me.user?.iconUrl;
+      if (img) img.src = icon || '/img/mypage.png';
+    }
+
     function updateTokenInfo(me) {
       const el = document.getElementById('token-info');
       if (!el) return;
@@ -261,6 +275,7 @@
     async function ensureRegistered() {
       const me = await fetchMe();
       setAdminButtonVisible(me);
+      updateMyPageLink(me);
       if (!me.loggedIn) { document.getElementById('welcomeOverlay')?.classList.add('show'); }
       else { updateTokenInfo(me); }
     }
@@ -308,6 +323,7 @@
           document.getElementById('welcomeOverlay')?.classList.remove('show');
           const me = await fetchMe();
           setAdminButtonVisible(me);
+          updateMyPageLink(me);
           updateTokenInfo(me);
           return;
         }
