@@ -950,10 +950,24 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 10,
+      "tokens": 9,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-18T03:25:59.009Z",
       "registeredAt": "2026-02-18T03:25:59.009Z"
+    },
+    {
+      "id": "1RuTkYlwM8TSMYAC",
+      "username": "ro.chi",
+      "iconUrl": null,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22G100 Instagram 416.1.0.27.68 (iPhone17,5; iOS 18_6_2; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 881475720) Safari/604.1",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 10,
+      "lastRefillISO": "2026-02",
+      "lastRefillAtISO": "2026-02-18T03:26:58.413Z",
+      "registeredAt": "2026-02-18T03:26:58.413Z"
     }
   ]
 }
