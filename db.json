@@ -2074,6 +2074,25 @@
         "id": "1RuTkYlwM8TSMYAC",
         "username": "ro.chi"
       }
+    },
+    {
+      "id": "RAUWGKPHQhe_YoHt7p5VG",
+      "text": "命に嫌われている。",
+      "artist": "るぅと",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%91%BD%E3%81%AB%E5%AB%8C%E3%82%8F%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8B/1544015663?i=1544015664&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/69/ea/01/69ea0111-4f99-c5ce-be05-1f4875694e73/PCSP_03352.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a6/54/2a/a6542ab2-2eb9-c534-c349-c443ab397e5d/mzaf_11899018717300752881.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-18T03:30:27.029Z",
+      "by": {
+        "id": "1RuTkYlwM8TSMYAC",
+        "username": "ro.chi"
+      },
+      "lastRequestedAt": "2026-02-18T03:30:27.029Z",
+      "lastBy": {
+        "id": "1RuTkYlwM8TSMYAC",
+        "username": "ro.chi"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2224,7 +2243,8 @@
     "あの夏へ|ハンブレッダーズ": 1,
     "銀河高速|ハンブレッダーズ": 1,
     "help!!|kobo kanaeru": 1,
-    "君と僕の約束|るぅと": 1
+    "君と僕の約束|るぅと": 1,
+    "命に嫌われている。|るぅと": 1
   },
   "settings": {
     "recruiting": true,
