@@ -909,7 +909,7 @@
         "ip": "::1"
       },
       "role": "admin",
-      "tokens": null,
+      "tokens": 10,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-17T13:25:24.905Z",
       "registeredAt": "2026-02-17T13:25:24.905Z"
