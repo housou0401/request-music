@@ -2055,6 +2055,25 @@
         "id": "GW9Fib2XXaHIZRMS",
         "username": "まお"
       }
+    },
+    {
+      "id": "hUrvf1IcapCo2NBtVWusF",
+      "text": "君と僕の約束",
+      "artist": "るぅと",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%90%9B%E3%81%A8%E5%83%95%E3%81%AE%E7%B4%84%E6%9D%9F/1866491571?i=1866492579&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f5/e7/07/f5e70758-dfcc-a04b-7780-a2ba86ef3529/PA00209127_0_237260_jacket.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/41/05/e5/4105e52b-75a2-3aef-ca53-56e6e19e0ef3/mzaf_10892660840698775894.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-18T03:28:25.110Z",
+      "by": {
+        "id": "1RuTkYlwM8TSMYAC",
+        "username": "ro.chi"
+      },
+      "lastRequestedAt": "2026-02-18T03:28:25.110Z",
+      "lastBy": {
+        "id": "1RuTkYlwM8TSMYAC",
+        "username": "ro.chi"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2204,7 +2223,8 @@
     "アスノヨゾラ哨戒班|ゆある": 1,
     "あの夏へ|ハンブレッダーズ": 1,
     "銀河高速|ハンブレッダーズ": 1,
-    "help!!|kobo kanaeru": 1
+    "help!!|kobo kanaeru": 1,
+    "君と僕の約束|るぅと": 1
   },
   "settings": {
     "recruiting": true,
