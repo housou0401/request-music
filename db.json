@@ -2112,6 +2112,25 @@
         "id": "9TZx3YVx4tdCV30D",
         "username": "Guest"
       }
+    },
+    {
+      "id": "nARYJvlpuBIhxDKfdiCin",
+      "text": "OVERDRIVE",
+      "artist": "TWS",
+      "appleMusicUrl": "https://music.apple.com/jp/album/overdrive/1843555337?i=1843555342&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/56/bd/77/56bd77ed-3fdf-6d9b-86dd-e3a5d1b5e488/25UM1IM50752.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d3/6a/71/d36a7116-cd67-71fe-c3e9-88a217e047f8/mzaf_16885438048702041654.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-19T13:43:59.964Z",
+      "by": {
+        "id": "9TZx3YVx4tdCV30D",
+        "username": "Guest"
+      },
+      "lastRequestedAt": "2026-02-19T13:43:59.964Z",
+      "lastBy": {
+        "id": "9TZx3YVx4tdCV30D",
+        "username": "Guest"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2264,7 +2283,8 @@
     "help!!|kobo kanaeru": 1,
     "君と僕の約束|るぅと": 1,
     "命に嫌われている。|るぅと": 1,
-    "stars|snow man": 1
+    "stars|snow man": 1,
+    "overdrive|tws": 1
   },
   "settings": {
     "recruiting": true,
