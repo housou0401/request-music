@@ -41,9 +41,10 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 5,
+      "tokens": 4,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "registeredAt": "2026-02-19T13:57:24.307Z"
     },
     {
       "id": "ktDyyCNziXct9gnR",
