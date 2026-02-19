@@ -2131,6 +2131,25 @@
         "id": "9TZx3YVx4tdCV30D",
         "username": "Guest"
       }
+    },
+    {
+      "id": "872L3i3QR2RlWTxQUId2w",
+      "text": "だる着のまま迎えに行くよ (feat. maeshima soshi)",
+      "artist": "KeeP",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%A0%E3%82%8B%E7%9D%80%E3%81%AE%E3%81%BE%E3%81%BE%E8%BF%8E%E3%81%88%E3%81%AB%E8%A1%8C%E3%81%8F%E3%82%88-feat-maeshima-soshi/1730875550?i=1730875551&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/93/27/3a/93273aaf-8f69-c259-5db9-e1c3ea824423/4500000031128.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/f5/38/9b/f5389bfa-4557-2340-d528-7bd9d819384f/mzaf_16836262541666039962.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-19T13:57:15.338Z",
+      "by": {
+        "id": "VH9mNh634tnoJmt3",
+        "username": "☆"
+      },
+      "lastRequestedAt": "2026-02-19T13:57:15.338Z",
+      "lastBy": {
+        "id": "VH9mNh634tnoJmt3",
+        "username": "☆"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2284,7 +2303,8 @@
     "君と僕の約束|るぅと": 1,
     "命に嫌われている。|るぅと": 1,
     "stars|snow man": 1,
-    "overdrive|tws": 1
+    "overdrive|tws": 1,
+    "だる着のまま迎えに行くよ (feat. maeshima soshi)|keep": 1
   },
   "settings": {
     "recruiting": true,
