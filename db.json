@@ -2169,6 +2169,25 @@
         "id": "cgscUx2hpR6oxa8M",
         "username": "柚"
       }
+    },
+    {
+      "id": "mYyyCW3O0GHcnFPKCAWgD",
+      "text": "Caffeine",
+      "artist": "秋山黄色",
+      "appleMusicUrl": "https://music.apple.com/jp/album/caffeine/1538137147?i=1538137153&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/6b/e0/1e/6be01ee7-0ff2-08fc-eca7-c23179f35a68/jacket_ESCL05362B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/15/cd/09/15cd0993-52fe-bf41-a19d-0662a8144493/mzaf_7367761611875138553.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-21T09:34:06.561Z",
+      "by": {
+        "id": "cgscUx2hpR6oxa8M",
+        "username": "柚"
+      },
+      "lastRequestedAt": "2026-02-21T09:34:06.561Z",
+      "lastBy": {
+        "id": "cgscUx2hpR6oxa8M",
+        "username": "柚"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2324,7 +2343,8 @@
     "stars|snow man": 1,
     "overdrive|tws": 1,
     "だる着のまま迎えに行くよ (feat. maeshima soshi)|keep": 1,
-    "モス|サカナクション": 1
+    "モス|サカナクション": 1,
+    "caffeine|秋山黄色": 1
   },
   "settings": {
     "recruiting": true,
