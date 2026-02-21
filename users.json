@@ -695,7 +695,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 4,
+      "tokens": 3,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T02:57:42.842Z",
       "registeredAt": "2026-02-01T02:57:42.842Z"
