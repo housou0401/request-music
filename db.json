@@ -2150,6 +2150,25 @@
         "id": "VH9mNh634tnoJmt3",
         "username": "☆"
       }
+    },
+    {
+      "id": "-0nFdZCLeT9fNwsAqZlFy",
+      "text": "モス",
+      "artist": "サカナクション",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%83%A2%E3%82%B9/1465208767?i=1465208773&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/83/ab/69/83ab69ab-265b-d5c5-cca3-3ad62d4e8be2/VICL-65194.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/99/8a/04/998a047c-991f-9ca7-f07e-1ceff89c62a0/mzaf_747634209111146833.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-21T09:32:58.788Z",
+      "by": {
+        "id": "cgscUx2hpR6oxa8M",
+        "username": "柚"
+      },
+      "lastRequestedAt": "2026-02-21T09:32:58.788Z",
+      "lastBy": {
+        "id": "cgscUx2hpR6oxa8M",
+        "username": "柚"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2304,7 +2323,8 @@
     "命に嫌われている。|るぅと": 1,
     "stars|snow man": 1,
     "overdrive|tws": 1,
-    "だる着のまま迎えに行くよ (feat. maeshima soshi)|keep": 1
+    "だる着のまま迎えに行くよ (feat. maeshima soshi)|keep": 1,
+    "モス|サカナクション": 1
   },
   "settings": {
     "recruiting": true,
