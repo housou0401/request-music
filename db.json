@@ -2598,6 +2598,28 @@
   "support": {
     "termsText": "test",
     "termsVersion": 2,
-    "threads": {}
+    "threads": {
+      "C9b5pAZO8vJQvHWx": {
+        "userId": "C9b5pAZO8vJQvHWx",
+        "createdAtISO": "2026-02-22T20:11:01.856Z",
+        "updatedAtISO": "2026-02-22T20:11:01.856Z",
+        "lastPreview": "てすと",
+        "messages": [
+          {
+            "id": "6z9D-3fKFJ",
+            "atISO": "2026-02-22T20:11:01.856Z",
+            "text": "てすと",
+            "from": {
+              "kind": "user",
+              "userId": "C9b5pAZO8vJQvHWx",
+              "username": "surface",
+              "role": "site_admin",
+              "iconUrl": "/img/mypage.png",
+              "badge": "💎サイト管理者"
+            }
+          }
+        ]
+      }
+    }
   }
 }
