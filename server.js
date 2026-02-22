@@ -2611,7 +2611,7 @@ app.get("/support", async (req, res) => {
       <div class="input">
         <div class="row">
           <textarea id="text" placeholder="メッセージを入力…（取り消し不可）" ${needsTerms ? "disabled" : ""}></textarea>
-          <button id="sendBtn" ${needsTerms ? "disabled" : ""}>送信</button>
+          <button id="sendBtn" type="button" ${needsTerms ? "disabled" : ""}>送信</button>
         </div>
         <div class="hint">※ 内容は記録されます。個人情報の送信はお控えください。右クリックでショートカット（コピー）が出ます。</div>
       </div>
@@ -2627,18 +2627,19 @@ app.get("/support", async (req, res) => {
         <div class="bd">
           <div class="box">
             <p>サービスを利用するには利用規約の同意が必要です。<br>利用規約をご確認ください。</p>
-            <button id="termsBtn" class="termsbtn">利用規約</button>
+            <button id="termsBtn" class="termsbtn" type="button">利用規約</button>
             <div id="terms" class="terms">${termsTextEsc}</div>
           </div>
         </div>
         <div class="ft">
-          <button id="noBtn" class="no">同意しない</button>
-          <button id="yesBtn">同意する</button>
+          <button id="noBtn" class="no" type="button">同意しない</button>
+          <button id="yesBtn" type="button">同意する</button>
         </div>
       </div>
     </div>
 
     <script>
+      window.addEventListener('DOMContentLoaded', ()=>{
       const NEEDS_TERMS = ${needsTerms ? "true" : "false"};
 
       function escHtml(s){ return String(s??"").replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
@@ -2750,12 +2751,12 @@ app.get("/support", async (req, res) => {
 
       // terms actions
       if (NEEDS_TERMS){
-        byId("termsBtn").addEventListener("click", ()=>{
+        byId("termsBtn")?.addEventListener("click", (e)=>{ e.preventDefault();
           const t = byId("terms");
           t.style.display = (t.style.display === "block") ? "none" : "block";
         });
-        byId("noBtn").addEventListener("click", ()=>{ location.href = "/"; });
-        byId("yesBtn").addEventListener("click", async ()=>{
+        byId("noBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); location.href = "/"; });
+        byId("yesBtn")?.addEventListener("click", async (e)=>{ e.preventDefault();
           const r = await api("/support/terms/accept", {});
           if (r.ok) location.reload();
           else alert("同意に失敗しました");
@@ -2763,6 +2764,7 @@ app.get("/support", async (req, res) => {
       } else {
         load();
       }
+      });
     </script>
   </body></html>`;
   res.send(html);
