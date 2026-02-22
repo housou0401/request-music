@@ -2594,5 +2594,10 @@
       "winner": null,
       "requests": []
     }
-  ]
+  ],
+  "support": {
+    "termsText": "",
+    "termsVersion": 1,
+    "threads": {}
+  }
 }
