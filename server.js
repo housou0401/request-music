@@ -2994,38 +2994,37 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート返信 - ${esc(titleName)}</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#1f232a;color:#e5e7eb;}
-    a{color:#93c5fd;text-decoration:none}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#111827;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:10;}
-    .pill{display:inline-flex;align-items:center;gap:8px;background:#0b1220;border:1px solid rgba(255,255,255,.10);border-radius:999px;padding:6px 10px;color:#fff;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#111;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
+    a{color:#2563eb;text-decoration:none}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
+    .pill{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:6px 10px;color:#111827;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#e5e7eb;}
     .meta{opacity:.75;font-size:12px}
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
-    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);}
-    .msgs{flex:1;overflow:auto;padding:14px 6px 10px;}
+    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);background:#ffffff;}
+    .msgs{flex:1;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
     .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
     .msg.viewer{justify-content:flex-start;}
     .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
-    .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#111;border:1px solid rgba(255,255,255,.10);}
-    .bubble{max-width:min(680px,78vw);background:#2b313a;border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px 12px;line-height:1.45;position:relative;user-select:text;}
-    .other .bubble{background:#0b1220;}
+    .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
+    .bubble{max-width:min(680px,78vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;position:relative;user-select:text;}
+    .other .bubble{background:#e0f2fe;border-color:rgba(2,132,199,.25);}
     .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
-    .badge{font-size:12px;color:#7dd3fc;}
-    .time{font-size:11px;opacity:.6;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
-    .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.20);}
-    .input{border-top:1px solid rgba(255,255,255,.08);padding:10px;background:#111827;}
+    .badge{font-size:12px;color:#0284c7;}
+    .time{font-size:11px;opacity:.65;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
+    .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
+    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;}
     .row{display:flex;gap:10px;align-items:flex-end;}
-    textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#0b1220;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
+    textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
     button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
     button:disabled{opacity:.5;cursor:not-allowed}
-    a.btn{display:inline-flex;align-items:center;justify-content:center;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;text-decoration:none}
     .hint{margin-top:6px;font-size:12px;opacity:.7}
     /* context menu */
-    .ctx{position:fixed;z-index:9999;min-width:200px;background:#0b1220;border:1px solid rgba(255,255,255,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.45);display:none;overflow:hidden}
-    .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#fff;padding:10px 12px;border-radius:0;font-weight:600}
-    .ctx button:hover{background:rgba(255,255,255,.08)}
-    .ctx hr{border:0;border-top:1px solid rgba(255,255,255,.10);margin:0}
-    .danger{color:#fca5a5;}
+    .ctx{position:fixed;z-index:9999;min-width:220px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
+    .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:600}
+    .ctx button:hover{background:rgba(0,0,0,.05)}
+    .ctx hr{border:0;border-top:1px solid rgba(0,0,0,.08);margin:0}
+    .danger{color:#ef4444;}
   </style>
   <body>
     <div class="top">
@@ -3045,7 +3044,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
       <div class="input">
         <div class="row">
           <textarea id="text" placeholder="返信を入力…（管理者は削除可能）"></textarea>
-          <button id="sendBtn">送信</button>
+          <button id="sendBtn" type="button">送信</button>
         </div>
         <div class="hint">右クリックでショートカット（コピー／削除）が出ます。site_admin は自分のアカウントで返信します。</div>
       </div>
@@ -3173,7 +3172,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
         }
       });
 
-      byId("sendForm")?.addEventListener("submit", (e)=>{ e.preventDefault(); send(); });
+      byId("sendBtn")?.addEventListener("click", ()=>send());
       byId("text").addEventListener("keydown", (e)=>{ if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); send(); } });
 
       load();
