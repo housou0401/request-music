@@ -2673,14 +2673,14 @@ app.get("/support", async (req, res) => {
 
           const name = document.createElement("div");
           name.className = "name";
-          name.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ` <span class="badge">${escHtml(m.from.badge)}</span>` : "");
+          name.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ' <span class="badge">' + escHtml(m.from.badge) + '</span>' : "");
 
           const text = document.createElement("div");
           text.innerHTML = escHtml(m.text || "").replace(/\n/g,"<br>");
 
           const time = document.createElement("div");
           time.className = "time";
-          time.innerHTML = `<span>${escHtml(m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "")}</span>` + (m.from?.userId ? ` <code>🆔 ${escHtml(m.from.userId)}</code>` : "");
+          time.innerHTML = '<span>' + escHtml(m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "") + '</span>' + (m.from?.userId ? ' <code>🆔 ' + escHtml(m.from.userId) + '</code>' : "");
 
           bub.appendChild(name);
           bub.appendChild(text);
@@ -3033,14 +3033,14 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
 
           const name = document.createElement("div");
           name.className = "name";
-          name.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ` <span class="badge">${escHtml(m.from.badge)}</span>` : "");
+          name.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ' <span class="badge">' + escHtml(m.from.badge) + '</span>' : "");
 
           const text = document.createElement("div");
           text.innerHTML = escHtml(m.text || "").replace(/\n/g,"<br>");
 
           const time = document.createElement("div");
           time.className = "time";
-          time.innerHTML = `<span>${escHtml(m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "")}</span>` + (m.from?.userId ? ` <code>🆔 ${escHtml(m.from.userId)}</code>` : "");
+          time.innerHTML = '<span>' + escHtml(m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "") + '</span>' + (m.from?.userId ? ' <code>🆔 ' + escHtml(m.from.userId) + '</code>' : "");
 
           bub.appendChild(name);
           bub.appendChild(text);
@@ -3055,7 +3055,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
 
       let lastMsgs = [];
       async function load(){
-        const r = await api(`/admin/supports/${encodeURIComponent(USER_ID)}/api/thread`);
+        const r = await api("/admin/supports/" + encodeURIComponent(USER_ID) + "/api/thread");
         if (!r.ok){
           alert("読み込みに失敗しました");
           return;
@@ -3069,7 +3069,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
         const v = (ta.value||"").trim();
         if (!v) return;
         byId("sendBtn").disabled = true;
-        const r = await api(`/admin/supports/${encodeURIComponent(USER_ID)}/api/send`, { text:v });
+        const r = await api("/admin/supports/" + encodeURIComponent(USER_ID) + "/api/send", { text:v });
         byId("sendBtn").disabled = false;
         if (!r.ok){
           alert(r.json?.message || "送信に失敗しました");
@@ -3107,7 +3107,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
         if (act === "delete"){
           if (!ctxTargetId) return;
           if (!confirm("このメッセージを削除しますか？")) return;
-          const r = await api(`/admin/supports/${encodeURIComponent(USER_ID)}/api/delete`, { messageId: ctxTargetId });
+          const r = await api("/admin/supports/" + encodeURIComponent(USER_ID) + "/api/delete", { messageId: ctxTargetId });
           if (!r.ok) alert("削除に失敗しました");
           hideCtx();
           await load();
