@@ -2596,8 +2596,8 @@
     }
   ],
   "support": {
-    "termsText": "",
-    "termsVersion": 1,
+    "termsText": "test",
+    "termsVersion": 2,
     "threads": {}
   }
 }
