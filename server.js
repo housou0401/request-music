@@ -2572,6 +2572,7 @@ app.get("/support", async (req, res) => {
     textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
     button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
     button:disabled{opacity:.5;cursor:not-allowed}
+    a.btn{display:inline-flex;align-items:center;justify-content:center;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;text-decoration:none}
     .hint{margin-top:6px;font-size:12px;opacity:.7}
     /* context menu */
     .ctx{position:fixed;z-index:9999;min-width:180px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
@@ -2589,7 +2590,7 @@ app.get("/support", async (req, res) => {
     .modal .bd .termsbtn{display:inline-flex;justify-content:center;align-items:center;background:#fff;border:1px solid rgba(59,130,246,.55);color:#1d4ed8;border-radius:999px;padding:10px 18px;font-weight:700;cursor:pointer}
     .terms{display:none;margin-top:12px;text-align:left;max-height:40vh;overflow:auto;white-space:pre-wrap;font-size:13px;line-height:1.5;border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:12px;background:#fff;}
     .modal .ft{display:flex;gap:12px;justify-content:center;padding:14px 16px;border-top:1px solid rgba(0,0,0,.06)}
-    .modal .ft button{min-width:160px;border-radius:999px}
+    .modal .ft button, .modal .ft .btn{min-width:160px;border-radius:999px}
     .modal .ft .no{background:#fff;color:#111;border:1px solid rgba(0,0,0,.18)}
   </style>
   <body>
@@ -2609,10 +2610,10 @@ app.get("/support", async (req, res) => {
       <div id="msgs" class="msgs"></div>
 
       <div class="input">
-        <div class="row">
-          <textarea id="text" placeholder="メッセージを入力…（取り消し不可）" ${needsTerms ? "disabled" : ""}></textarea>
-          <button id="sendBtn" type="button" ${needsTerms ? "disabled" : ""}>送信</button>
-        </div>
+        <form id="sendForm" class="row" method="POST" action="/support/send">
+          <textarea id="text" name="text" placeholder="メッセージを入力…（取り消し不可）" ${needsTerms ? "disabled" : ""}></textarea>
+          <button id="sendBtn" type="submit" ${needsTerms ? "disabled" : ""}>送信</button>
+        </form>
         <div class="hint">※ 内容は記録されます。個人情報の送信はお控えください。右クリックでショートカット（コピー）が出ます。</div>
       </div>
     </div>
@@ -2627,19 +2628,21 @@ app.get("/support", async (req, res) => {
         <div class="bd">
           <div class="box">
             <p>サービスを利用するには利用規約の同意が必要です。<br>利用規約をご確認ください。</p>
-            <button id="termsBtn" class="termsbtn" type="button">利用規約</button>
+            <button id="termsBtn" class="termsbtn" type="button" onclick="const t=document.getElementById('terms'); if(t) t.style.display=(t.style.display==='block'?'none':'block'); return false;">利用規約</button>
             <div id="terms" class="terms">${termsTextEsc}</div>
           </div>
         </div>
         <div class="ft">
-          <button id="noBtn" class="no" type="button">同意しない</button>
-          <button id="yesBtn" type="button">同意する</button>
+          <a id="noBtn" class="no btn" href="/">同意しない</a>
+          <form method="POST" action="/support/terms/accept" style="margin:0">
+            <button id="yesBtn" type="submit">同意する</button>
+          </form>
         </div>
       </div>
     </div>
 
     <script>
-      window.addEventListener('DOMContentLoaded', ()=>{
+      (function(){
       const NEEDS_TERMS = ${needsTerms ? "true" : "false"};
 
       function escHtml(s){ return String(s??"").replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
@@ -2746,7 +2749,7 @@ app.get("/support", async (req, res) => {
         }
       });
 
-      byId("sendBtn").addEventListener("click", send);
+      byId("sendForm")?.addEventListener("submit", (e)=>{ e.preventDefault(); send(); });
       byId("text").addEventListener("keydown", (e)=>{ if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); send(); } });
 
       // terms actions
@@ -2764,22 +2767,37 @@ app.get("/support", async (req, res) => {
       } else {
         load();
       }
-      });
+    })();
     </script>
   </body></html>`;
   res.send(html);
 });
 
 app.post("/support/terms/accept", async (req, res) => {
-  if (!req.user) return res.status(401).json({ ok: false, reason: "not_logged_in" });
+  const isJson = (req.headers["content-type"] || "").includes("application/json");
+
+  if (!req.user) {
+    return isJson
+      ? res.status(401).json({ ok: false, reason: "not_logged_in" })
+      : res.redirect("/");
+  }
+
   await usersDb.read();
   const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.status(404).json({ ok: false, reason: "not_found" });
+  if (!u) {
+    return isJson
+      ? res.status(404).json({ ok: false, reason: "not_found" })
+      : res.redirect("/");
+  }
+
   const s = supportStore();
   u.supportTermsAcceptedVersion = Number(s.termsVersion || 1);
   await usersDb.write();
+
+  if (!isJson) return res.redirect("/support");
   return res.json({ ok: true });
 });
+
 
 app.get("/support/api/thread", async (req, res) => {
   if (!req.user) return res.status(401).json({ ok:false, reason:"not_logged_in" });
@@ -2836,6 +2854,44 @@ app.post("/support/api/send", async (req, res) => {
   updateThreadMeta(t);
   await db.write();
   return res.json({ ok:true, message: normalizeMsgForClient(msg) });
+});
+
+
+
+app.post("/support/send", async (req, res) => {
+  // JS が動かない場合のフォールバック（フォーム送信）
+  if (!req.user) return res.redirect("/");
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.redirect("/");
+
+  if (!viewerAcceptedSupportTerms(u)) return res.redirect("/support");
+
+  const text = (req.body?.text ?? "").toString().trim();
+  if (!text) return res.redirect("/support");
+  if (text.length > 2000) return res.send(toastPage("⚠メッセージが長すぎます（2000文字まで）。", "/support"));
+
+  await db.read();
+  const t = getSupportThread(u.id);
+
+  const msg = {
+    id: nanoid(10),
+    atISO: new Date().toISOString(),
+    text,
+    from: {
+      kind: "user",
+      userId: u.id,
+      username: u.username || "Guest",
+      role: u.role || ROLE_USER,
+      iconUrl: u.iconUrl || SUPPORT_DESK_ICON,
+      badge: isSiteAdmin(u) ? "💎サイト管理者" : null,
+    },
+  };
+
+  t.messages.push(msg);
+  updateThreadMeta(t);
+  await db.write();
+  return res.redirect("/support");
 });
 
 // ---- 管理者：問い合わせ一覧 ----
@@ -2962,6 +3018,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
     textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#0b1220;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
     button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
     button:disabled{opacity:.5;cursor:not-allowed}
+    a.btn{display:inline-flex;align-items:center;justify-content:center;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;text-decoration:none}
     .hint{margin-top:6px;font-size:12px;opacity:.7}
     /* context menu */
     .ctx{position:fixed;z-index:9999;min-width:200px;background:#0b1220;border:1px solid rgba(255,255,255,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.45);display:none;overflow:hidden}
@@ -3116,7 +3173,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
         }
       });
 
-      byId("sendBtn").addEventListener("click", send);
+      byId("sendForm")?.addEventListener("submit", (e)=>{ e.preventDefault(); send(); });
       byId("text").addEventListener("keydown", (e)=>{ if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); send(); } });
 
       load();
