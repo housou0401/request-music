@@ -2598,6 +2598,28 @@
   "support": {
     "termsText": "test",
     "termsVersion": 2,
-    "threads": {}
+    "threads": {
+      "sD9ZZ9QlKc1boYzG": {
+        "userId": "sD9ZZ9QlKc1boYzG",
+        "createdAtISO": "2026-02-23T15:36:19.589Z",
+        "updatedAtISO": "2026-02-23T15:36:19.589Z",
+        "lastPreview": "ｙｒｄｙ",
+        "messages": [
+          {
+            "id": "ex5s0lGUQg",
+            "atISO": "2026-02-23T15:36:19.589Z",
+            "text": "ｙｒｄｙ",
+            "from": {
+              "kind": "user",
+              "userId": "sD9ZZ9QlKc1boYzG",
+              "username": "testだよ",
+              "role": "admin",
+              "iconUrl": null,
+              "badge": null
+            }
+          }
+        ]
+      }
+    }
   }
 }
