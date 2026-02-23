@@ -985,6 +985,21 @@
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-21T10:52:44.874Z",
       "registeredAt": "2026-02-21T10:52:44.874Z"
+    },
+    {
+      "id": "-PhdrjXbWbYpooni",
+      "username": "一般テストユーザ",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/145.0.7632.108 Mobile/15E148 Safari/604.1",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 10,
+      "lastRefillISO": "2026-02",
+      "lastRefillAtISO": "2026-02-23T12:51:10.030Z",
+      "registeredAt": "2026-02-23T12:51:10.030Z"
     }
   ]
 }
