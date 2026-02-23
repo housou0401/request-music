@@ -2598,6 +2598,14 @@
   "support": {
     "termsText": "test",
     "termsVersion": 2,
-    "threads": {}
+    "threads": {
+      "sD9ZZ9QlKc1boYzG": {
+        "userId": "sD9ZZ9QlKc1boYzG",
+        "createdAtISO": "2026-02-23T15:52:10.516Z",
+        "updatedAtISO": "2026-02-23T15:52:10.516Z",
+        "lastPreview": "te\nst",
+        "messages": []
+      }
+    }
   }
 }
