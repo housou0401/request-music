@@ -2601,27 +2601,14 @@
     "threads": {
       "C9b5pAZO8vJQvHWx": {
         "userId": "C9b5pAZO8vJQvHWx",
-        "createdAtISO": "2026-02-23T12:06:58.485Z",
-        "updatedAtISO": "2026-02-23T12:36:12.497Z",
-        "lastPreview": "てｓｔ",
+        "createdAtISO": "2026-02-23T12:36:57.163Z",
+        "updatedAtISO": "2026-02-23T12:36:57.163Z",
+        "lastPreview": "てすと",
         "messages": [
           {
-            "id": "Os8yRwZscy",
-            "atISO": "2026-02-23T12:06:58.485Z",
-            "text": "test",
-            "from": {
-              "kind": "user",
-              "userId": "C9b5pAZO8vJQvHWx",
-              "username": "surface",
-              "role": "site_admin",
-              "iconUrl": "/img/mypage.png",
-              "badge": "💎サイト管理者"
-            }
-          },
-          {
-            "id": "VCB8jAMdbg",
-            "atISO": "2026-02-23T12:36:12.497Z",
-            "text": "てｓｔ",
+            "id": "5i6TJCGS0R",
+            "atISO": "2026-02-23T12:36:57.163Z",
+            "text": "てすと",
             "from": {
               "kind": "user",
               "userId": "C9b5pAZO8vJQvHWx",
