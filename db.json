@@ -2598,6 +2598,28 @@
   "support": {
     "termsText": "test",
     "termsVersion": 2,
-    "threads": {}
+    "threads": {
+      "VNrvVYKWPmyXvtD5": {
+        "userId": "VNrvVYKWPmyXvtD5",
+        "createdAtISO": "2026-02-23T17:18:51.679Z",
+        "updatedAtISO": "2026-02-23T17:18:51.679Z",
+        "lastPreview": "test",
+        "messages": [
+          {
+            "id": "qL-3hx8izl",
+            "atISO": "2026-02-23T17:18:51.679Z",
+            "text": "test",
+            "from": {
+              "kind": "user",
+              "userId": "VNrvVYKWPmyXvtD5",
+              "username": "サポート",
+              "role": "site_admin",
+              "iconUrl": null,
+              "badge": "💎サイト管理者"
+            }
+          }
+        ]
+      }
+    }
   }
 }
