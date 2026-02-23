@@ -137,6 +137,70 @@ const isSiteAdmin = (u) => u && u.role === ROLE_SITE_ADMIN;
 // 既存コードとの互換: isAdmin() は "admin" だけでなく "site_admin" も管理者扱い
 const isAdmin = (u) => u && (u.role === ROLE_ADMIN || u.role === ROLE_SITE_ADMIN);
 const getUserById = (id) => usersDb.data.users.find((u) => u.id === id);
+
+// ---- Site admin: custom ID rename ----
+function validateCustomUserId(raw){
+  const s = String(raw ?? "").trim();
+  if (!s) return { ok:false, message:"新しいIDが空です。" };
+  if (s.length < 6 || s.length > 64) return { ok:false, message:"IDは6〜64文字で入力してください。" };
+  if (!/^[A-Za-z0-9_-]+$/.test(s)) return { ok:false, message:"IDに使える文字は英数字 / _ / - のみです。" };
+  return { ok:true, value:s };
+}
+
+async function renameUserIdEverywhere(oldId, newId){
+  await usersDb.read();
+  await db.read();
+
+  const u = usersDb.data.users.find(x => x.id === oldId);
+  if (!u) throw new Error("user_not_found");
+  if (usersDb.data.users.some(x => x.id === newId)) throw new Error("id_already_used");
+
+  u.id = newId;
+
+  const patchReqList = (list) => {
+    if (!Array.isArray(list)) return;
+    for (const r of list) {
+      if (r?.by?.id === oldId) r.by.id = newId;
+      if (r?.lastBy?.id === oldId) r.lastBy.id = newId;
+    }
+  };
+
+  patchReqList(db.data.responses);
+  patchReqList(db.data.themeRequests);
+  if (Array.isArray(db.data.themeHistory)) {
+    for (const h of db.data.themeHistory) patchReqList(h?.requests);
+  }
+
+  // Support threads: keys + message "from.userId" + thread.userId
+  const s = supportStore();
+  if (s.threads && typeof s.threads === "object") {
+    for (const t of Object.values(s.threads)) {
+      if (!t) continue;
+      if (t.userId === oldId) t.userId = newId;
+      if (Array.isArray(t.messages)) {
+        for (const m of t.messages) {
+          if (!m?.from) continue;
+          if (m.from.userId === oldId) {
+            // user message or site_admin staff message should follow the rename
+            if (m.from.kind === "user" || (m.from.kind === "staff" && m.from.role === ROLE_SITE_ADMIN)) {
+              m.from.userId = newId;
+            }
+          }
+        }
+      }
+    }
+    if (s.threads[oldId]) {
+      s.threads[newId] = s.threads[oldId];
+      delete s.threads[oldId];
+      if (s.threads[newId]) s.threads[newId].userId = newId;
+    }
+  }
+
+  await usersDb.write();
+  await db.write();
+  return true;
+}
+
 const deviceInfoFromReq = (req) => ({
   ua: req.get("User-Agent") || "",
   ip: req.ip || req.connection?.remoteAddress || "",
@@ -291,7 +355,8 @@ async function endThemeAndMerge(reason = "manual") {
   await safeWriteDb();
 }
 
-const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 365 };
+const COOKIE_MAX_AGE = 1000 * 60 * 60 * 24 * 365 * 10; // 10 years
+const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: COOKIE_MAX_AGE };
 const getInt = (v) => (Number.isFinite(parseInt(v, 10)) ? parseInt(v, 10) : 0);
 const getRegFails = (req) => Math.max(0, getInt(req.cookies?.areg));
 const setRegFails = (res, n) => res.cookie("areg", Math.max(0, n), COOKIE_OPTS);
@@ -2270,10 +2335,24 @@ app.get("/mypage", async (req, res) => {
           </label>
           <button type="submit">保存する</button>
         </form>
-      </div>
+</div>
 
-      <div class="card">
-        <h3>アイコン</h3>
+${isSiteAdmin(u) ? `
+<div class="card">
+  <h3>サイト管理者: ID変更</h3>
+  <p class="muted">あなた自身のID（Cookieの deviceId）を任意の文字列に変更できます。変更後も投稿・問い合わせスレッドは引き継がれます。</p>
+  <form class="settings-form" method="POST" action="/mypage/change-id" onsubmit="return confirm('IDを変更しますか？（元に戻せません）');">
+    <label>新しいID:
+      <input type="text" name="newId" value="${esc(u.id)}" maxlength="64" />
+    </label>
+    <button type="submit">IDを変更する</button>
+  </form>
+  <div class="muted" style="font-size:12px;margin-top:6px;">使える文字: 英数字 / _ / -（6〜64文字）。</div>
+</div>
+` : ""}
+
+<div class="card">
+  <h3>アイコン</h3>
         <p class="muted">画像ファイル（dataURL）または画像URLを保存できます。</p>
 
         <div class="row" style="align-items:flex-start;">
@@ -2423,6 +2502,44 @@ app.post("/mypage/update", async (req, res) => {
 return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
 });
 
+
+app.post("/mypage/change-id", async (req, res) => {
+  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/mypage"));
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
+  if (!isSiteAdmin(u)) return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/mypage"));
+
+  const v = validateCustomUserId(req.body.newId);
+  if (!v.ok) return res.send(toastPage(`⚠${esc(v.message)}`, "/mypage"));
+  const newId = v.value;
+  const oldId = u.id;
+
+  if (newId === oldId) return res.send(toastPage("ℹ️同じIDです。", "/mypage"));
+  if (usersDb.data.users.some(x => x.id === newId)) return res.send(toastPage("⚠そのIDは既に使われています。", "/mypage"));
+
+  try{
+    await renameUserIdEverywhere(oldId, newId);
+  }catch(e){
+    const reason = String(e?.message || "");
+    const msg =
+      reason === "id_already_used" ? "そのIDは既に使われています。" :
+      reason === "user_not_found" ? "ユーザーが見つかりませんでした。" :
+      "IDの変更に失敗しました。";
+    return res.send(toastPage(`⚠${esc(msg)}`, "/mypage"));
+  }
+
+  try { res.cookie("deviceId", newId, COOKIE_OPTS); } catch {}
+  try { res.cookie("adminAuth", "1", COOKIE_OPTS); } catch {}
+  try {
+    if (req.cookies?.impersonateId === oldId) res.cookie("impersonateId", newId, COOKIE_OPTS);
+  } catch {}
+
+  // tokens cookie refresh
+  await usersDb.read();
+  writeTokCookie(res, usersDb.data.users.find(x => x.id === newId));
+  return res.send(toastPage("✅IDを変更しました。", "/mypage"));
+});
 
 // ---- MyPage icon update ----
 
@@ -2724,7 +2841,7 @@ app.get("/support", async (req, res) => {
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
     .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
     .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
-    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
+    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;width:100%;box-sizing:border-box;}
     .msg.viewer{justify-content:flex-start;}
     .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
@@ -2745,6 +2862,7 @@ app.get("/support", async (req, res) => {
     .ctx{position:fixed;z-index:9999;min-width:180px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
     .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:700}
     .ctx button:hover{background:rgba(0,0,0,.05)}
+    .ctx button.danger{color:#dc2626;}
     /* terms overlay */
     .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:10000;padding:14px;}
     .ov.show{display:flex;}
@@ -2767,7 +2885,7 @@ app.get("/support", async (req, res) => {
         <a class="pill" href="/">← 戻る</a>
         <div class="pill" title="${esc(u.username)}">
           <img src="${esc(u.iconUrl || SUPPORT_DESK_ICON)}" onerror="this.src='${SUPPORT_DESK_ICON}'">
-          <span>サポート</span>
+          <span>${esc(u.username || "Guest")}</span>
           <span class="meta">🆔 ${esc(u.id)}</span>
         </div>
       </div>
@@ -2782,12 +2900,13 @@ app.get("/support", async (req, res) => {
           <textarea id="text" name="text" placeholder="メッセージを入力…（取り消し不可）" ${needsTerms ? "disabled" : ""}></textarea>
           <button id="sendBtn" type="submit" ${needsTerms ? "disabled" : ""}>送信</button>
         </form>
-        <div class="hint">※ 内容は記録されます。個人情報の送信はお控えください。右クリックでショートカット（コピー）が出ます。</div>
+        <div class="hint">※ 内容は記録されます。個人情報の送信はお控えください。右クリックでショートカット（コピー / 削除）が出ます。</div>
       </div>
     </div>
 
     <div id="ctx" class="ctx" role="menu" aria-hidden="true">
       <button data-act="copy">テキストをコピー</button>
+      <button data-act="delete" class="danger">このメッセージを削除</button>
     </div>
 
     <div id="ov" class="ov ${needsTerms ? "show" : ""}">
@@ -2886,32 +3005,57 @@ app.get("/support", async (req, res) => {
           return r;
         }
 
-        // context menu (copy)
-        var ctx = byId('ctx');
-        var ctxTargetText = '';
-        function hideCtx(){ ctx.style.display='none'; ctxTargetText=''; }
-        document.addEventListener('click', hideCtx);
-        document.addEventListener('keydown', function(e){ if(e.key==='Escape') hideCtx(); });
+        // context menu (copy / delete)
+var ctx = byId('ctx');
+var ctxTargetText = '';
+var ctxTargetId = '';
+var ctxCanDelete = false;
+var VIEWER_CAN_DELETE_ANY = ${isAdmin(u) ? 'true' : 'false'};
 
-        byId('msgs').addEventListener('contextmenu', function(e){
-          var bub = e.target.closest('.bubble');
-          if (!bub) return;
-          e.preventDefault();
-          ctxTargetText = bub.dataset.text || '';
-          ctx.style.left = Math.min(window.innerWidth-200, e.clientX) + 'px';
-          ctx.style.top  = Math.min(window.innerHeight-120, e.clientY) + 'px';
-          ctx.style.display = 'block';
-        });
+function hideCtx(){ ctx.style.display='none'; ctxTargetText=''; ctxTargetId=''; ctxCanDelete=false; }
+document.addEventListener('click', hideCtx);
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') hideCtx(); });
 
-        ctx.addEventListener('click', async function(e){
-          var act = e.target && e.target.dataset ? e.target.dataset.act : '';
-          if (act === 'copy'){
-            try{ await navigator.clipboard.writeText(ctxTargetText || ''); }catch(err){}
-            hideCtx();
-          }
-        });
+byId('msgs').addEventListener('contextmenu', function(e){
+  var bub = e.target.closest('.bubble');
+  if (!bub) return;
+  e.preventDefault();
+  var row = bub.closest('.msg');
+  ctxTargetText = bub.dataset.text || '';
+  ctxTargetId = row ? (row.dataset.mid || '') : '';
+  ctxCanDelete = VIEWER_CAN_DELETE_ANY || (!!row && row.classList.contains('viewer'));
 
-        // send (フォームはフォールバック。JS が動けばリロードなし)
+  var delBtn = ctx.querySelector('button[data-act="delete"]');
+  if (delBtn) delBtn.style.display = ctxCanDelete ? 'block' : 'none';
+
+  ctx.style.left = Math.min(window.innerWidth-220, e.clientX) + 'px';
+  ctx.style.top  = Math.min(window.innerHeight-160, e.clientY) + 'px';
+  ctx.style.display = 'block';
+});
+
+ctx.addEventListener('click', async function(e){
+  var act = e.target && e.target.dataset ? e.target.dataset.act : '';
+  if (act === 'copy'){
+    try{ await navigator.clipboard.writeText(ctxTargetText || ''); }catch(err){}
+    hideCtx();
+    return;
+  }
+  if (act === 'delete'){
+    if (!ctxCanDelete || !ctxTargetId){ hideCtx(); return; }
+    if (!confirm('このメッセージを削除しますか？')){ hideCtx(); return; }
+    var r = await api('/support/api/delete', { messageId: ctxTargetId });
+    if (!r.ok){
+      alert((r.json && (r.json.message || r.json.reason)) ? (r.json.message || r.json.reason) : '削除に失敗しました。');
+      hideCtx();
+      return;
+    }
+    hideCtx();
+    await load();
+    return;
+  }
+});
+
+// send (フォームはフォールバック。JS が動けばリロードなし)
         var sendForm = byId('sendForm');
         if (sendForm){
           sendForm.addEventListener('submit', async function(e){
@@ -3007,6 +3151,36 @@ app.post("/support/api/send", async (req, res) => {
 
   const msg = await appendSupportMessageAsUser(u, text);
   return res.json({ ok:true, message: normalizeMsgForClient(msg) });
+});
+
+app.post("/support/api/delete", async (req, res) => {
+  if (!req.user) return res.status(401).json({ ok:false, reason:"not_logged_in" });
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
+  await db.read();
+  if (!viewerAcceptedSupportTerms(u)) return res.status(403).json({ ok:false, reason:"terms_required" });
+
+  const messageId = (req.body?.messageId ?? "").toString().trim();
+  if (!messageId) return res.status(400).json({ ok:false, reason:"bad_request", message:"messageId がありません。" });
+
+  const t = getSupportThread(u.id, false);
+  if (!t || !Array.isArray(t.messages)) return res.status(404).json({ ok:false, reason:"thread_not_found" });
+
+  const idx = t.messages.findIndex(m => m && m.id === messageId);
+  if (idx < 0) return res.status(404).json({ ok:false, reason:"message_not_found" });
+
+  const m = t.messages[idx];
+  const canDeleteAny = isAdmin(u); // admin / site_admin
+  if (!canDeleteAny) {
+    const ownerOk = m?.from?.kind === "user" && m?.from?.userId === u.id;
+    if (!ownerOk) return res.status(403).json({ ok:false, reason:"forbidden", message:"このメッセージは削除できません。" });
+  }
+
+  t.messages.splice(idx, 1);
+  updateThreadMeta(t);
+  await db.write();
+  return res.json({ ok:true });
 });
 
 // フォーム送信用（JS が死んでも送れる）
@@ -3192,7 +3366,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
     .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
     .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
-    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
+    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;width:100%;box-sizing:border-box;}
     .msg.viewer{justify-content:flex-start;}
     .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
@@ -3214,6 +3388,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
     .ctx{position:fixed;z-index:9999;min-width:220px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
     .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:800}
     .ctx button:hover{background:rgba(0,0,0,.05)}
+    .ctx button.danger{color:#dc2626;}
     .ctx hr{border:0;border-top:1px solid rgba(0,0,0,.08);margin:0}
   </style>
   <body>
