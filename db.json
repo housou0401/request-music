@@ -2602,7 +2602,7 @@
       "VNrvVYKWPmyXvtD5": {
         "userId": "VNrvVYKWPmyXvtD5",
         "createdAtISO": "2026-02-23T17:18:51.679Z",
-        "updatedAtISO": "2026-02-23T17:18:51.679Z",
+        "updatedAtISO": "2026-02-23T17:20:35.178Z",
         "lastPreview": "test",
         "messages": [
           {
@@ -2615,6 +2615,19 @@
               "username": "サポート",
               "role": "site_admin",
               "iconUrl": null,
+              "badge": "💎サイト管理者"
+            }
+          },
+          {
+            "id": "N62979G-Jh",
+            "atISO": "2026-02-23T17:20:35.178Z",
+            "text": "test",
+            "from": {
+              "kind": "staff",
+              "userId": "VNrvVYKWPmyXvtD5",
+              "username": "サポート",
+              "role": "site_admin",
+              "iconUrl": "/img/mypage.png",
               "badge": "💎サイト管理者"
             }
           }
