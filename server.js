@@ -2553,6 +2553,65 @@ function formatSupportTime(iso) {
   try { return new Date(iso).toLocaleString("ja-JP", { timeZone: TZ }); } catch { return "-"; }
 }
 
+
+function renderSupportMsgsHtmlForSupport(messages, viewerId) {
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return '<div style="opacity:.6;padding:10px;">（まだメッセージがありません）</div>';
+  }
+  return messages.map(m => {
+    const isViewer = (m.from?.kind === "user" && m.from?.userId === viewerId);
+    const cls = isViewer ? "viewer" : "other";
+    const icon = esc(m.from?.iconUrl || SUPPORT_DESK_ICON);
+    const name = esc(m.from?.username || "unknown");
+    const badge = m.from?.badge ? ' <span class="badge">' + esc(m.from.badge) + '</span>' : "";
+    const at = m.atISO ? formatSupportTime(m.atISO) : "";
+    const sid = m.from?.userId || (m.from?.role === "desk" ? "support-desk" : "");
+    const text = esc(m.text || "").replace(/\n/g, "<br>");
+    const dataText = esc(m.text || "");
+    return `
+      <div class="msg ${cls}" data-mid="${esc(m.id || "")}">
+        <img class="avatar" src="${icon}" onerror="this.src='${SUPPORT_DESK_ICON}'">
+        <div class="bubble" tabindex="0" data-text="${dataText}">
+          <div class="name">${name}${badge}</div>
+          <div>${text}</div>
+          <div class="time"><span>${esc(at)}</span>${sid ? ` <code>🆔 ${esc(sid)}</code>` : ""}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderSupportMsgsHtmlForAdmin(messages) {
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return '<div style="opacity:.6;padding:10px;">（まだメッセージがありません）</div>';
+  }
+  return messages.map(m => {
+    const isViewer = (m.from?.kind === "staff");
+    const cls = isViewer ? "viewer" : "other";
+    const icon = esc(m.from?.iconUrl || SUPPORT_DESK_ICON);
+    const name = esc(m.from?.username || "unknown");
+    const badge = m.from?.badge ? ' <span class="badge">' + esc(m.from.badge) + '</span>' : "";
+    const at = m.atISO ? formatSupportTime(m.atISO) : "";
+    const sid = m.from?.userId || (m.from?.role === "desk" ? "support-desk" : "");
+    const text = esc(m.text || "").replace(/\n/g, "<br>");
+    const dataText = esc(m.text || "");
+    const mid = esc(m.id || "");
+    return `
+      <div class="msg ${cls}" data-mid="${mid}">
+        <img class="avatar" src="${icon}" onerror="this.src='${SUPPORT_DESK_ICON}'">
+        <div class="bubble" tabindex="0" data-text="${dataText}" data-mid="${mid}">
+          <div class="head">
+            <div class="who">${name}${badge}</div>
+            <div class="metaRow"><span>${esc(at)}</span>${sid ? ` <code>🆔 ${esc(sid)}</code>` : ""}</div>
+          </div>
+          <div class="text">${text}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+
 // ---- ユーザー側：サポート画面 ----
 app.get("/support", async (req, res) => {
   if (!req.user) return res.send(toastPage("⚠サポートを開くには、まず登録してください。", "/"));
@@ -2560,9 +2619,14 @@ app.get("/support", async (req, res) => {
   const u = usersDb.data.users.find(x => x.id === req.user.id);
   if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/"));
 
-  const needsTerms = !viewerAcceptedSupportTerms(u);
+  await db.read();
   const s = supportStore();
+  const needsTerms = !viewerAcceptedSupportTerms(u);
   const termsTextEsc = esc(s.termsText || "");
+
+  const t0 = findSupportThread(u.id);
+  const initMsgs = (t0?.messages || []).map(normalizeMsgForClient);
+  const initMsgsHtml = renderSupportMsgsHtmlForSupport(initMsgs, u.id);
 
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート</title>
@@ -2627,7 +2691,7 @@ app.get("/support", async (req, res) => {
     </div>
 
     <div class="wrap chat">
-      <div id="msgs" class="msgs"></div>
+      <div id="msgs" class="msgs">${initMsgsHtml}</div>
 
       <div class="input">
         <form id="sendForm" class="row" method="POST" action="/support/send">
@@ -2810,6 +2874,7 @@ app.post("/support/terms/accept", async (req, res) => {
       : res.redirect("/");
   }
 
+  await db.read();
   const s = supportStore();
   u.supportTermsAcceptedVersion = Number(s.termsVersion || 1);
   await usersDb.write();
@@ -3043,6 +3108,11 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
   const target = usersDb.data.users.find(x => x.id === userId) || null;
   const titleName = target?.username || userId;
 
+  await db.read();
+  const t0 = findSupportThread(userId);
+  const initMsgs = (t0?.messages || []).map(normalizeMsgForClient);
+  const initMsgsHtml = renderSupportMsgsHtmlForAdmin(initMsgs);
+
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート返信 - ${esc(titleName)}</title>
   <style>
@@ -3103,7 +3173,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
     </div>
 
     <div class="wrap chat">
-      <div id="msgs" class="msgs"></div>
+      <div id="msgs" class="msgs">${initMsgsHtml}</div>
       <div class="input">
         <div class="row">
           <textarea id="text" placeholder="返信を入力…（管理者は削除可能）"></textarea>
@@ -3179,8 +3249,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
 
           const body = document.createElement("div");
           body.className = "text";
-          body.innerHTML = escHtml(m.text || "").replace(/
-/g,"<br>");
+          body.innerHTML = escHtml(m.text || "").replace(/\n/g,"<br>");
 
           bub.appendChild(head);
           bub.appendChild(body);
