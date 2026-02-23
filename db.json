@@ -2598,49 +2598,6 @@
   "support": {
     "termsText": "test",
     "termsVersion": 2,
-    "threads": {
-      "C9b5pAZO8vJQvHWx": {
-        "userId": "C9b5pAZO8vJQvHWx",
-        "createdAtISO": "2026-02-23T12:36:57.163Z",
-        "updatedAtISO": "2026-02-23T12:36:57.163Z",
-        "lastPreview": "てすと",
-        "messages": [
-          {
-            "id": "5i6TJCGS0R",
-            "atISO": "2026-02-23T12:36:57.163Z",
-            "text": "てすと",
-            "from": {
-              "kind": "user",
-              "userId": "C9b5pAZO8vJQvHWx",
-              "username": "surface",
-              "role": "site_admin",
-              "iconUrl": "/img/mypage.png",
-              "badge": "💎サイト管理者"
-            }
-          }
-        ]
-      },
-      "Iq2rS37it8Lx1orw": {
-        "userId": "Iq2rS37it8Lx1orw",
-        "createdAtISO": "2026-02-23T12:43:36.070Z",
-        "updatedAtISO": "2026-02-23T12:43:36.070Z",
-        "lastPreview": "てすと",
-        "messages": [
-          {
-            "id": "F8swwuT-3d",
-            "atISO": "2026-02-23T12:43:36.070Z",
-            "text": "てすと",
-            "from": {
-              "kind": "user",
-              "userId": "Iq2rS37it8Lx1orw",
-              "username": "すまほ",
-              "role": "admin",
-              "iconUrl": "/img/mypage.png",
-              "badge": null
-            }
-          }
-        ]
-      }
-    }
+    "threads": {}
   }
 }
