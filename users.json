@@ -967,36 +967,6 @@
       "registeredAt": "2026-02-21T10:52:44.874Z"
     },
     {
-      "id": "-PhdrjXbWbYpooni",
-      "username": "一般テストユーザ",
-      "iconUrl": null,
-      "supportTermsAcceptedVersion": 2,
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/145.0.7632.108 Mobile/15E148 Safari/604.1",
-        "ip": "::1"
-      },
-      "role": "user",
-      "tokens": 9,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-23T12:51:10.030Z",
-      "registeredAt": "2026-02-23T12:51:10.030Z"
-    },
-    {
-      "id": "sD9ZZ9QlKc1boYzG",
-      "username": "testだよ",
-      "iconUrl": null,
-      "supportTermsAcceptedVersion": 2,
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-23T15:36:08.644Z",
-      "registeredAt": "2026-02-23T15:36:08.644Z"
-    },
-    {
       "id": "kN0Vryd4lHbpFzAS",
       "username": "あああ",
       "iconUrl": null,
