@@ -191,7 +191,7 @@
     async function goAdmin() {
       try {
         const me = await fetch('/me').then(r=>r.json());
-        if ((me?.loggedIn && (me.user?.role === 'admin' || me.user?.role === 'site_admin')) || me?.adminSession === true) {
+        if ((me?.loggedIn && (me.user?.role === 'admin' || me.user?.role === 'site_admin')) || (me?.loggedIn && me?.adminSession === true)) {
           location.href = '/admin';
         } else {
           alert('管理者権限がありません。');
@@ -247,7 +247,7 @@
     function setAdminButtonVisible(me){
       const btn = document.getElementById('adminBtn');
       if (!btn) return;
-      const ok = !!(me && ((me.loggedIn && (me.user?.role === 'admin' || me.user?.role === 'site_admin')) || me.adminSession === true));
+      const ok = !!(me && me.loggedIn && ((me.user?.role === 'admin' || me.user?.role === 'site_admin') || me.adminSession === true));
       btn.classList.toggle('ux-hidden', !ok);
     }
 
