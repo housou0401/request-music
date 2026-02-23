@@ -2349,6 +2349,23 @@ ${isSiteAdmin(u) ? `
   </form>
   <div class="muted" style="font-size:12px;margin-top:6px;">使える文字: 英数字 / _ / -（6〜64文字）。</div>
 </div>
+
+<div class="card">
+  <h3>サイト管理者: 権限を解除</h3>
+  <p class="muted">「role: site_admin」を削除（降格）します。解除後は ID変更などのサイト管理者限定機能は使えません。</p>
+
+  <form class="settings-form" method="POST" action="/mypage/remove-site-admin" onsubmit="return confirm('サイト管理者を解除して「管理者」に戻ります。よろしいですか？');">
+    <input type="hidden" name="to" value="admin">
+    <button type="submit">サイト管理者を解除（管理者に戻る）</button>
+  </form>
+
+  <form class="settings-form" method="POST" action="/mypage/remove-site-admin" onsubmit="return confirm('サイト管理者を解除して「一般ユーザー」に戻ります。よろしいですか？（管理画面も使えなくなります）');">
+    <input type="hidden" name="to" value="user">
+    <button type="submit" style="background:#dc2626;">サイト管理者を解除（一般ユーザーに戻る）</button>
+  </form>
+
+  <div class="muted" style="font-size:12px;margin-top:6px;">※ 解除はいつでもできますが、元に戻すには管理者ログインが必要です。</div>
+</div>
 ` : ""}
 
 <div class="card">
@@ -2541,6 +2558,34 @@ app.post("/mypage/change-id", async (req, res) => {
   return res.send(toastPage("✅IDを変更しました。", "/mypage"));
 });
 
+app.post("/mypage/remove-site-admin", async (req, res) => {
+  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/mypage"));
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
+  if (!isSiteAdmin(u)) return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/mypage"));
+
+  const to = String(req.body?.to || "admin").toLowerCase();
+  const nextRole = (to === "user") ? ROLE_USER : ROLE_ADMIN;
+
+  // role: site_admin を削除（降格）
+  u.role = nextRole;
+
+  await usersDb.write();
+
+  // 旧cookieが残っても role で弾かれるが、見た目の混乱を避けるために一応クリア
+  try { res.cookie("adminAuth", "", { ...COOKIE_OPTS, maxAge: 0 }); } catch {}
+
+  // tokens cookie refresh
+  try { writeTokCookie(res, u); } catch {}
+
+  const msg = nextRole === ROLE_USER
+    ? "✅サイト管理者権限を解除しました（一般ユーザーに戻りました）。"
+    : "✅サイト管理者権限を解除しました（管理者に戻りました）。";
+  return res.send(toastPage(msg, "/mypage"));
+});
+
+
 // ---- MyPage icon update ----
 
 function validateIconUrl(raw) {
@@ -2698,6 +2743,11 @@ function hydrateSupportMessage(m, usersMap) {
   if (!m || !m.from) return m;
   const out = { ...m, from: { ...(m.from || {}) } };
 
+  // 旧データ互換：kind が欠けている/想定外の場合は推測して補正
+  if (!out.from.kind || (out.from.kind !== "user" && out.from.kind !== "staff")) {
+    out.from.kind = out.from.userId ? "user" : "staff";
+  }
+
   // ユーザー投稿：常に最新の username / iconUrl / role / badge を反映
   if (out.from.kind === "user" && out.from.userId) {
     const u = usersMap.get(out.from.userId);
@@ -2831,27 +2881,29 @@ app.get("/support", async (req, res) => {
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
     a{color:#2563eb;text-decoration:none}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
+    .top{background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
+    .top .inner{max-width:980px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;}
     .top .left{display:flex;align-items:center;gap:10px;min-width:0;}
     .pill{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:6px 10px;color:#111827;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#e5e7eb;}
     .meta{opacity:.75;font-size:12px}
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
-    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
+    .chat{flex:1;display:flex;flex-direction:column;background:#ffffff;min-height:0;}
     .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
     .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;width:100%;box-sizing:border-box;}
     .msg.viewer{justify-content:flex-start;}
-    .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
+    /* row-reverse の場合、flex-start が「右端」になる（= 右寄せ） */
+    .msg.other{justify-content:flex-start;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
-    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;}
+    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;-webkit-touch-callout:none;touch-action:manipulation;}
     .other .bubble{background:#e0f2fe;border-color:rgba(2,132,199,.25);}
     .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
     .badge{font-size:12px;color:#0284c7;}
     .time{font-size:11px;opacity:.65;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
     .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
-    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
+    .input{position:sticky;bottom:0;border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
     .row{display:flex;gap:10px;align-items:flex-end;}
     @media (max-width:520px){.row{flex-direction:column;align-items:stretch}textarea{max-height:34vh}button{width:100%}}
     textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
@@ -2880,7 +2932,7 @@ app.get("/support", async (req, res) => {
     .modal .ft .no{background:#fff;color:#111;border:1px solid rgba(0,0,0,.18)}
   </style>
   <body>
-    <div class="top">
+    <div class="top"><div class="inner">
       <div class="left">
         <a class="pill" href="/">← 戻る</a>
         <div class="pill" title="${esc(u.username)}">
@@ -2890,7 +2942,7 @@ app.get("/support", async (req, res) => {
         </div>
       </div>
       <div class="meta">閲覧者＝左 / 相手＝右</div>
-    </div>
+    </div></div>
 
     <div class="wrap chat">
       <div id="msgs" class="msgs">${initialMsgsHtml}</div>
@@ -3242,9 +3294,10 @@ app.get("/admin/supports", requireAdmin, async (req, res) => {
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>問い合わせ一覧</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
     a{color:#2563eb;text-decoration:none}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
+    .top{background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
+    .top .inner{max-width:980px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;}
     .wrap{max-width:980px;margin:0 auto;padding:14px 10px 40px;}
     .btn{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:8px 12px;color:#111827;font-weight:700}
     .list{margin-top:14px;border:1px solid rgba(0,0,0,.10);border-radius:14px;overflow:hidden;background:#fff}
@@ -3269,13 +3322,13 @@ app.get("/admin/supports", requireAdmin, async (req, res) => {
     .empty{padding:20px;text-align:center;opacity:.7}
   </style>
   <body>
-    <div class="top">
+    <div class="top"><div class="inner">
       <div style="display:flex;gap:10px;align-items:center">
         <a class="btn" href="/admin">← 管理画面</a>
         <div style="font-weight:900">問い合わせ一覧</div>
       </div>
       <div class="meta">threads: ${threads.length}</div>
-    </div>
+    </div></div>
 
     <div class="wrap">
       <div class="list">
@@ -3356,27 +3409,29 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート返信 - ${esc(titleName)}</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
     a{color:#2563eb;text-decoration:none}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
+    .top{background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
+    .top .inner{max-width:980px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;}
     .left{display:flex;align-items:center;gap:10px;min-width:0;}
     .pill{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:6px 10px;color:#111827;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#e5e7eb;}
     .meta{opacity:.75;font-size:12px}
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
-    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
+    .chat{flex:1;display:flex;flex-direction:column;background:#ffffff;min-height:0;}
     .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
     .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;width:100%;box-sizing:border-box;}
     .msg.viewer{justify-content:flex-start;}
-    .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
+    /* row-reverse の場合、flex-start が「右端」になる（= 右寄せ） */
+    .msg.other{justify-content:flex-start;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
-    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;}
+    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;-webkit-touch-callout:none;touch-action:manipulation;}
     .other .bubble{background:#e0f2fe;border-color:rgba(2,132,199,.25);}
     .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
     .badge{font-size:12px;color:#0284c7;}
     .time{font-size:11px;opacity:.65;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
     .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
-    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
+    .input{position:sticky;bottom:0;border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
     .row{display:flex;gap:10px;align-items:flex-end;}
     @media (max-width:520px){.row{flex-direction:column;align-items:stretch}textarea{max-height:34vh}button{width:100%}}
     textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
@@ -3392,7 +3447,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
     .ctx hr{border:0;border-top:1px solid rgba(0,0,0,.08);margin:0}
   </style>
   <body>
-    <div class="top">
+    <div class="top"><div class="inner">
       <div class="left">
         <a class="pill" href="/admin/supports">← 一覧</a>
         <div class="pill" title="${esc(titleName)}">
@@ -3411,7 +3466,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
           <button type="submit" class="btn2">🗑 スレッド削除</button>
         </form>
       </div>
-    </div>
+    </div></div>
 
     <div class="wrap chat">
       <div id="msgs" class="msgs">${initialMsgsHtml}</div>
@@ -3517,6 +3572,50 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
           ctx.style.top  = Math.min(window.innerHeight-160, e.clientY) + 'px';
           ctx.style.display = 'block';
         });
+
+        // long-press（スマホ用）：500ms で同じメニューを開く
+        (function(){
+          var root = byId('msgs');
+          if (!root) return;
+          var timer = null;
+          var sx = 0, sy = 0;
+          function clear(){ if (timer){ clearTimeout(timer); timer = null; } }
+          function getXY(ev){
+            if (ev.touches && ev.touches[0]) return { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
+            return { x: ev.clientX, y: ev.clientY };
+          }
+          function openAt(x, y, bub){
+            var row = bub ? bub.closest('.msg') : null;
+            ctxTargetText = bub ? (bub.dataset.text || '') : '';
+            ctxTargetId = row ? (row.dataset.mid || '') : '';
+            ctx.style.left = Math.min(window.innerWidth-240, x) + 'px';
+            ctx.style.top  = Math.min(window.innerHeight-160, y) + 'px';
+            ctx.style.display = 'block';
+          }
+          function onDown(ev){
+            var bub = ev.target.closest('.bubble');
+            if (!bub) return;
+            // タッチ以外（マウス）は従来の右クリックに任せる
+            if (ev.pointerType && ev.pointerType !== 'touch') return;
+            var p = getXY(ev);
+            sx = p.x; sy = p.y;
+            clear();
+            timer = setTimeout(function(){ openAt(sx, sy, bub); }, 520);
+          }
+          function onMove(ev){
+            if (!timer) return;
+            var p = getXY(ev);
+            if (Math.abs(p.x - sx) + Math.abs(p.y - sy) > 12) clear();
+          }
+          function onUp(){ clear(); }
+          root.addEventListener('pointerdown', onDown);
+          root.addEventListener('pointermove', onMove);
+          root.addEventListener('pointerup', onUp);
+          root.addEventListener('pointercancel', onUp);
+          root.addEventListener('touchstart', onDown, { passive: true });
+          root.addEventListener('touchmove', onMove, { passive: true });
+          root.addEventListener('touchend', onUp);
+        })();
 
         ctx.addEventListener('click', async function(e){
           var act = e.target && e.target.dataset ? e.target.dataset.act : '';
