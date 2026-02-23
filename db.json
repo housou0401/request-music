@@ -2619,6 +2619,27 @@
             }
           }
         ]
+      },
+      "Iq2rS37it8Lx1orw": {
+        "userId": "Iq2rS37it8Lx1orw",
+        "createdAtISO": "2026-02-23T12:43:36.070Z",
+        "updatedAtISO": "2026-02-23T12:43:36.070Z",
+        "lastPreview": "てすと",
+        "messages": [
+          {
+            "id": "F8swwuT-3d",
+            "atISO": "2026-02-23T12:43:36.070Z",
+            "text": "てすと",
+            "from": {
+              "kind": "user",
+              "userId": "Iq2rS37it8Lx1orw",
+              "username": "すまほ",
+              "role": "admin",
+              "iconUrl": "/img/mypage.png",
+              "badge": null
+            }
+          }
+        ]
       }
     }
   }
