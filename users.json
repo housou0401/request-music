@@ -980,6 +980,36 @@
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-23T12:51:10.030Z",
       "registeredAt": "2026-02-23T12:51:10.030Z"
+    },
+    {
+      "id": "sD9ZZ9QlKc1boYzG",
+      "username": "testだよ",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 2,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",
+        "ip": "::1"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-02",
+      "lastRefillAtISO": "2026-02-23T15:36:08.644Z",
+      "registeredAt": "2026-02-23T15:36:08.644Z"
+    },
+    {
+      "id": "kN0Vryd4lHbpFzAS",
+      "username": "あああ",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23C71 Instagram 417.1.0.39.73 (iPhone14,2; iOS 26_2_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 885644877) Safari/604.1",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 10,
+      "lastRefillISO": "2026-02",
+      "lastRefillAtISO": "2026-02-23T15:36:39.276Z",
+      "registeredAt": "2026-02-23T15:36:39.276Z"
     }
   ]
 }
