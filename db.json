@@ -2597,7 +2597,7 @@
   ],
   "support": {
     "termsText": "test",
-    "termsVersion": 2,
+    "termsVersion": 0,
     "threads": {}
   }
 }
