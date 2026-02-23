@@ -349,19 +349,26 @@ async function refillAllIfMonthChanged() {
   if (touched) await usersDb.write();
 }
 
-// ---- Cookie → ユーザ / アドミンセッション / なりすまし ----
-app.use(async (req, _res, next) => {
+// ---- Cookie → ユーザ / 管理者判定 / なりすまし ----
+app.use(async (req, res, next) => {
   const baseDeviceId = req.cookies?.deviceId || null;
   const baseUser = baseDeviceId ? getUserById(baseDeviceId) : null;
 
-  // ---- admin セッションは「adminユーザー」または「adminAuthクッキー」で判定 ----
-  const adminSession = !!baseUser && (isAdmin(baseUser) || (req.cookies?.adminAuth === "1"));
+  // 管理者判定は role のみ（クッキーだけで管理者になれない）
+  const adminActor = (baseUser && isAdmin(baseUser)) ? baseUser : null;
 
-  // ---- なりすまし ----
+  // 旧実装の名残 adminAuth を無効化
+  if (!adminActor && req.cookies?.adminAuth) {
+    try { res.clearCookie("adminAuth", COOKIE_OPTS); } catch {}
+  }
+
+  const adminSession = !!adminActor;
+
+  // ---- なりすまし（管理者のみ） ----
   let effectiveUser = baseUser;
   let impersonating = false;
   const impId = req.cookies?.impersonateId;
-  if (impId && adminSession) {
+  if (impId && adminActor) {
     const target = getUserById(impId);
     if (target) { effectiveUser = target; impersonating = true; }
   }
@@ -369,8 +376,6 @@ app.use(async (req, _res, next) => {
   if (effectiveUser) await ensureMonthlyRefill(effectiveUser);
   await ensureThemeAutoClose();
 
-
-  
   // Recover from mirror cookie if tokens missing (ephemeral disk cold starts)
   const tokMirror = readTokCookie(req);
   if (effectiveUser && (typeof effectiveUser.tokens !== "number") && tokMirror && typeof tokMirror.tokens === "number") {
@@ -378,27 +383,46 @@ app.use(async (req, _res, next) => {
     if (tokMirror.lastRefillISO) effectiveUser.lastRefillISO = tokMirror.lastRefillISO;
     if (tokMirror.lastRefillAtISO) effectiveUser.lastRefillAtISO = tokMirror.lastRefillAtISO;
     await usersDb.write();
-}
-
-// ---- トークン補充の初回ログイン時トースト ----
-  if (effectiveUser && effectiveUser.refillToastPending) {
-    // ---- GET のときだけトーストページへリダイレクト ----
-    if (req.method === "GET" && req.path !== "/refill-toast") {
-      return _res.send(toastPage("🪄トークンが補充されました！", "/"));
-    }
-    // ---- それ以外は次のレスポンスで出すように残しておく ----
   }
 
+  // ---- トークン補充トースト（ページ遷移時のみ / 1回で解除） ----
+  if (effectiveUser && effectiveUser.refillToastPending) {
+    const accept = (req.get("accept") || "").toLowerCase();
+    const secDest = String(req.headers["sec-fetch-dest"] || "").toLowerCase();
+    const isDocNav = (secDest === "document") || accept.includes("text/html");
+    const wantsJson = accept.includes("application/json");
+    const isApiLike =
+      req.path === "/me" ||
+      req.path.startsWith("/support/api") ||
+      req.path.startsWith("/auth/") ||
+      req.path.startsWith("/search") ||
+      req.path.includes("/api/");
+
+    if (req.method === "GET" && req.path !== "/refill-toast" && isDocNav && !wantsJson && !isApiLike) {
+      effectiveUser.refillToastPending = false;
+      try { await usersDb.write(); } catch {}
+      return res.send(toastPage("🪄トークンが補充されました！", req.originalUrl || "/"));
+    }
+  }
+
+  req.baseUser = baseUser || null;
+  req.adminUser = adminActor || null;
   req.user = effectiveUser || null;
-  req.adminSession = !!adminSession;
+  req.adminSession = adminSession;
   req.impersonating = impersonating;
-  try { if (effectiveUser) writeTokCookie(_res, effectiveUser); } catch {}
+  try { if (effectiveUser) writeTokCookie(res, effectiveUser); } catch {}
   next();
 });
 
 // ---- 管理者保護 ----
 function requireAdmin(req, res, next) {
-  if (req.adminSession) return next();
+  // 管理画面は「なりすまし先」ではなく「実際の管理者アカウント」で動かす
+  if (req.adminUser && isAdmin(req.adminUser)) {
+    req.user = req.adminUser;
+    req.adminSession = true;
+    req.impersonating = false;
+    return next();
+  }
   return res
     .status(403)
     .send(`<!doctype html><meta charset="utf-8"><title>403</title><p>管理者のみアクセスできます。</p><p><a href="/">トップへ</a></p>`);
@@ -627,13 +651,13 @@ app.get("/me", async (req, res) => {
   if (!req.user)
     return res.json({
       loggedIn: false,
-      adminSession: !!req.adminSession,
+      adminSession: false,
       settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
     });
   await ensureMonthlyRefill(req.user);
   res.json({
     loggedIn: true,
-    adminSession: !!req.adminSession,
+    adminSession: !!req.adminUser,
     impersonating: !!req.impersonating,
     user: { id: req.user.id, username: req.user.username, role: req.user.role, tokens: req.user.tokens, iconUrl: req.user.iconUrl || null },
     settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
@@ -895,9 +919,7 @@ app.post("/admin-login", async (req, res) => {
       return res.json({ success: false, reason: "site_admin_exists" });
     }
   }
-
-  res.cookie("adminAuth", "1", COOKIE_OPTS);
-  setLoginFails(res, 0);
+setLoginFails(res, 0);
 
   if (req.user) {
     if (wantSiteAdmin) {
@@ -2452,6 +2474,7 @@ app.post("/mypage/icon/clear", async (req, res) => {
 });
 
 
+
 // ==========================
 // Support (チャット問い合わせ)
 // ==========================
@@ -2460,7 +2483,11 @@ const SUPPORT_DESK_ICON = "/img/mypage.png";
 
 function supportStore() {
   if (!db.data.support) {
-    db.data.support = { termsText: "", termsVersion: 1, threads: {} };
+    db.data.support = {
+      termsText: "",
+      termsVersion: 1,
+      threads: {}, // { [userId]: { userId, createdAtISO, updatedAtISO, lastPreview, messages:[...] } }
+    };
   }
   if (typeof db.data.support.termsVersion !== "number") db.data.support.termsVersion = 1;
   if (typeof db.data.support.termsText !== "string") db.data.support.termsText = "";
@@ -2468,10 +2495,14 @@ function supportStore() {
   return db.data.support;
 }
 
-function getSupportThread(userId) {
+/**
+ * getSupportThread(userId, createIfMissing=true)
+ * - createIfMissing=false のときは存在しない場合 null を返す（閲覧だけで thread を復活させないため）
+ */
+function getSupportThread(userId, createIfMissing = true) {
   const s = supportStore();
   let t = s.threads[userId];
-  if (!t) {
+  if (!t && createIfMissing) {
     const now = new Date().toISOString();
     t = s.threads[userId] = {
       userId,
@@ -2481,34 +2512,15 @@ function getSupportThread(userId) {
       messages: [],
     };
   }
-  if (!Array.isArray(t.messages)) t.messages = [];
-  return t;
+  if (t && !Array.isArray(t.messages)) t.messages = [];
+  return t || null;
 }
-
-
-function deleteSupportThread(userId) {
-  const s = supportStore();
-  if (s.threads && Object.prototype.hasOwnProperty.call(s.threads, userId)) {
-    delete s.threads[userId];
-    return true;
-  }
-  return false;
-}
-
-
-function findSupportThread(userId) {
-  const s = supportStore();
-  const t = s.threads ? s.threads[userId] : null;
-  if (!t) return null;
-  if (!Array.isArray(t.messages)) t.messages = [];
-  return t;
-}
-
 
 function updateThreadMeta(t) {
+  if (!t) return;
   const last = t.messages.length ? t.messages[t.messages.length - 1] : null;
-  t.updatedAtISO = last?.atISO || new Date().toISOString();
-  t.lastPreview = last?.text ? String(last.text).slice(0, 80) : "";
+  t.updatedAtISO = last?.atISO || t.updatedAtISO || new Date().toISOString();
+  t.lastPreview = last?.text ? String(last.text).slice(0, 80) : (t.lastPreview || "");
 }
 
 function viewerAcceptedSupportTerms(viewer) {
@@ -2542,77 +2554,141 @@ function staffIdentity(reqUser) {
 
 function normalizeMsgForClient(m) {
   return {
-    id: m.id,
-    atISO: m.atISO,
-    text: m.text,
-    from: m.from,
+    id: m?.id,
+    atISO: m?.atISO,
+    text: m?.text,
+    from: m?.from ? {
+      kind: m.from.kind || null,
+      userId: m.from.userId || null,
+      username: m.from.username || null,
+      role: m.from.role || null,
+      iconUrl: m.from.iconUrl || null,
+      badge: m.from.badge || null,
+    } : null,
   };
 }
-
-function formatSupportTime(iso) {
-  try { return new Date(iso).toLocaleString("ja-JP", { timeZone: TZ }); } catch { return "-"; }
+function buildUsersMap() {
+  const m = new Map();
+  try {
+    for (const u of (usersDb.data?.users || [])) {
+      if (u && u.id) m.set(u.id, u);
+    }
+  } catch {}
+  return m;
 }
 
+function hydrateSupportMessage(m, usersMap) {
+  if (!m || !m.from) return m;
+  const out = { ...m, from: { ...(m.from || {}) } };
 
-function renderSupportMsgsHtmlForSupport(messages, viewerId) {
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return '<div style="opacity:.6;padding:10px;">（まだメッセージがありません）</div>';
+  // ユーザー投稿：常に最新の username / iconUrl / role / badge を反映
+  if (out.from.kind === "user" && out.from.userId) {
+    const u = usersMap.get(out.from.userId);
+    if (u) {
+      out.from.username = u.username || out.from.username || "Guest";
+      out.from.iconUrl = u.iconUrl || out.from.iconUrl || null;
+      out.from.role = u.role || out.from.role || ROLE_USER;
+      out.from.badge = isSiteAdmin(u) ? "💎サイト管理者" : null;
+    }
+    return out;
   }
-  return messages.map(m => {
-    const isViewer = (m.from?.kind === "user" && m.from?.userId === viewerId);
-    const cls = isViewer ? "viewer" : "other";
-    const icon = esc(m.from?.iconUrl || SUPPORT_DESK_ICON);
-    const name = esc(m.from?.username || "unknown");
-    const badge = m.from?.badge ? ' <span class="badge">' + esc(m.from.badge) + '</span>' : "";
-    const at = m.atISO ? formatSupportTime(m.atISO) : "";
-    const sid = m.from?.userId || (m.from?.role === "desk" ? "support-desk" : "");
-    const text = esc(m.text || "").replace(/\n/g, "<br>");
-    const dataText = esc(m.text || "");
-    return `
-      <div class="msg ${cls}" data-mid="${esc(m.id || "")}">
-        <img class="avatar" src="${icon}" onerror="this.src='${SUPPORT_DESK_ICON}'">
-        <div class="bubble" tabindex="0" data-text="${dataText}">
-          <div class="name">${name}${badge}</div>
-          <div>${text}</div>
-          <div class="time"><span>${esc(at)}</span>${sid ? ` <code>🆔 ${esc(sid)}</code>` : ""}</div>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
 
-function renderSupportMsgsHtmlForAdmin(messages) {
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return '<div style="opacity:.6;padding:10px;">（まだメッセージがありません）</div>';
+  // site_admin が「自分のアカウントで返信」した場合も最新を反映
+  if (out.from.kind === "staff" && out.from.role === ROLE_SITE_ADMIN && out.from.userId) {
+    const u = usersMap.get(out.from.userId);
+    if (u) {
+      out.from.username = u.username || out.from.username || "Site Admin";
+      out.from.iconUrl = u.iconUrl || out.from.iconUrl || SUPPORT_DESK_ICON;
+      out.from.badge = "💎サイト管理者";
+    }
+    return out;
   }
-  return messages.map(m => {
-    const isViewer = (m.from?.kind === "staff");
-    const cls = isViewer ? "viewer" : "other";
-    const icon = esc(m.from?.iconUrl || SUPPORT_DESK_ICON);
-    const name = esc(m.from?.username || "unknown");
-    const badge = m.from?.badge ? ' <span class="badge">' + esc(m.from.badge) + '</span>' : "";
-    const at = m.atISO ? formatSupportTime(m.atISO) : "";
-    const sid = m.from?.userId || (m.from?.role === "desk" ? "support-desk" : "");
-    const text = esc(m.text || "").replace(/\n/g, "<br>");
-    const dataText = esc(m.text || "");
-    const mid = esc(m.id || "");
-    return `
-      <div class="msg ${cls}" data-mid="${mid}">
-        <img class="avatar" src="${icon}" onerror="this.src='${SUPPORT_DESK_ICON}'">
-        <div class="bubble" tabindex="0" data-text="${dataText}" data-mid="${mid}">
-          <div class="head">
-            <div class="who">${name}${badge}</div>
-            <div class="metaRow"><span>${esc(at)}</span>${sid ? ` <code>🆔 ${esc(sid)}</code>` : ""}</div>
-          </div>
-          <div class="text">${text}</div>
-        </div>
-      </div>
-    `;
-  }).join("");
+
+  // desk（共通窓口）
+  if (out.from.kind === "staff" && !out.from.userId) {
+    out.from.username = SUPPORT_DESK_NAME;
+    out.from.iconUrl = SUPPORT_DESK_ICON;
+    out.from.badge = null;
+    out.from.role = "desk";
+  }
+
+  return out;
 }
 
+function hydrateSupportMessages(messages, usersMap) {
+  const arr = Array.isArray(messages) ? messages : [];
+  return arr.map(m => hydrateSupportMessage(m, usersMap));
+}
 
-// ---- ユーザー側：サポート画面 ----
+function supportMsgHtmlSSR(m, isViewer) {
+  const av = esc(m?.from?.iconUrl || SUPPORT_DESK_ICON);
+  const uname = esc(m?.from?.username || "unknown");
+  const badge = m?.from?.badge ? ` <span class="badge">${esc(m.from.badge)}</span>` : "";
+  const txt = esc(m?.text || "").replace(/\n/g, "<br>");
+  const t = esc(m?.atISO ? fmtJst(m.atISO) : "");
+  const uid = (m?.from?.userId != null) ? ` <code>🆔 ${esc(m.from.userId)}</code>` : ` <code>🆔 -</code>`;
+  const mid = esc(m?.id || "");
+  // data-text はコピー用（属性なので改行は保持せず）
+  const dataText = esc((m?.text || "").toString());
+  return `
+    <div class="msg ${isViewer ? "viewer" : "other"}" data-mid="${mid}">
+      <img class="avatar" src="${av}" onerror="this.src='${SUPPORT_DESK_ICON}'">
+      <div class="bubble" tabindex="0" data-text="${dataText}">
+        <div class="name">${uname}${badge}</div>
+        <div class="body">${txt}</div>
+        <div class="time"><span>${t}</span>${uid}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function appendSupportMessageAsUser(u, text) {
+  await db.read();
+  const t = getSupportThread(u.id, true);
+  const msg = {
+    id: nanoid(10),
+    atISO: new Date().toISOString(),
+    text,
+    from: {
+      kind: "user",
+      userId: u.id,
+      username: u.username || "Guest",
+      role: u.role || ROLE_USER,
+      iconUrl: u.iconUrl || null,
+      badge: isSiteAdmin(u) ? "💎サイト管理者" : null,
+    },
+  };
+  t.messages.push(msg);
+  updateThreadMeta(t);
+  await db.write();
+  return msg;
+}
+
+async function appendSupportMessageAsStaff(targetUserId, reqUser, text) {
+  await db.read();
+  const t = getSupportThread(targetUserId, true);
+  const from = staffIdentity(reqUser || null);
+  const msg = { id: nanoid(10), atISO: new Date().toISOString(), text, from };
+  t.messages.push(msg);
+  updateThreadMeta(t);
+  await db.write();
+  return msg;
+}
+
+async function deleteSupportThread(userId) {
+  await db.read();
+  const s = supportStore();
+  if (s.threads && s.threads[userId]) {
+    delete s.threads[userId];
+    await db.write();
+    return true;
+  }
+  return false;
+}
+
+// ==========================
+// /support (ユーザー側)
+// ==========================
 app.get("/support", async (req, res) => {
   if (!req.user) return res.send(toastPage("⚠サポートを開くには、まず登録してください。", "/"));
   await usersDb.read();
@@ -2622,11 +2698,18 @@ app.get("/support", async (req, res) => {
   await db.read();
   const s = supportStore();
   const needsTerms = !viewerAcceptedSupportTerms(u);
-  const termsTextEsc = esc(s.termsText || "");
 
-  const t0 = findSupportThread(u.id);
-  const initMsgs = (t0?.messages || []).map(normalizeMsgForClient);
-  const initMsgsHtml = renderSupportMsgsHtmlForSupport(initMsgs, u.id);
+  // SSR: ここで既存メッセージを描画（JS が落ちても見える / 送信後リロードでも見える）
+  let initialMsgsHtml = "";
+  if (!needsTerms) {
+    await db.read();
+    const t = getSupportThread(u.id, false);
+    const usersMap = buildUsersMap();
+    const msgs = hydrateSupportMessages(t?.messages || [], usersMap);
+    initialMsgsHtml = msgs.map(m => supportMsgHtmlSSR(m, (m?.from?.kind === "user" && m?.from?.userId === u.id))).join("");
+  }
+
+  const termsTextEsc = esc(s.termsText || "");
 
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート</title>
@@ -2639,30 +2722,29 @@ app.get("/support", async (req, res) => {
     .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#e5e7eb;}
     .meta{opacity:.75;font-size:12px}
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
-    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);background:#ffffff;}
-    .msgs{flex:1;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
+    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
+    .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
     .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
     .msg.viewer{justify-content:flex-start;}
     .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
-    .bubble{max-width:min(680px,78vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;position:relative;user-select:text;}
+    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;}
     .other .bubble{background:#e0f2fe;border-color:rgba(2,132,199,.25);}
     .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
     .badge{font-size:12px;color:#0284c7;}
     .time{font-size:11px;opacity:.65;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
     .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
-    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;}
+    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
     .row{display:flex;gap:10px;align-items:flex-end;}
+    @media (max-width:520px){.row{flex-direction:column;align-items:stretch}textarea{max-height:34vh}button{width:100%}}
     textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
     button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
     button:disabled{opacity:.5;cursor:not-allowed}
-    a.btn{display:inline-flex;align-items:center;justify-content:center;background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;text-decoration:none}
     .hint{margin-top:6px;font-size:12px;opacity:.7}
     /* context menu */
     .ctx{position:fixed;z-index:9999;min-width:180px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
-    .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:600}
+    .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:700}
     .ctx button:hover{background:rgba(0,0,0,.05)}
-    .ctx hr{border:0;border-top:1px solid rgba(0,0,0,.08);margin:0}
     /* terms overlay */
     .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:10000;padding:14px;}
     .ov.show{display:flex;}
@@ -2671,10 +2753,12 @@ app.get("/support", async (req, res) => {
     .modal .bd{padding:16px;}
     .modal .bd .box{background:#fff;border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:14px;text-align:center;}
     .modal .bd p{margin:0 0 10px;opacity:.85}
-    .modal .bd .termsbtn{display:inline-flex;justify-content:center;align-items:center;background:#fff;border:1px solid rgba(59,130,246,.55);color:#1d4ed8;border-radius:999px;padding:10px 18px;font-weight:700;cursor:pointer}
-    .terms{display:none;margin-top:12px;text-align:left;max-height:40vh;overflow:auto;white-space:pre-wrap;font-size:13px;line-height:1.5;border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:12px;background:#fff;}
+    details{margin-top:10px;text-align:left;}
+    summary{list-style:none;display:inline-flex;justify-content:center;align-items:center;background:#fff;border:1px solid rgba(59,130,246,.55);color:#1d4ed8;border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer;user-select:none;}
+    summary::-webkit-details-marker{display:none;}
+    .terms{margin-top:12px;max-height:40vh;overflow:auto;white-space:pre-wrap;font-size:13px;line-height:1.5;border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:12px;background:#fff;}
     .modal .ft{display:flex;gap:12px;justify-content:center;padding:14px 16px;border-top:1px solid rgba(0,0,0,.06)}
-    .modal .ft button, .modal .ft .btn{min-width:160px;border-radius:999px}
+    .modal .ft button,.modal .ft a{min-width:160px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;}
     .modal .ft .no{background:#fff;color:#111;border:1px solid rgba(0,0,0,.18)}
   </style>
   <body>
@@ -2691,7 +2775,7 @@ app.get("/support", async (req, res) => {
     </div>
 
     <div class="wrap chat">
-      <div id="msgs" class="msgs">${initMsgsHtml}</div>
+      <div id="msgs" class="msgs">${initialMsgsHtml}</div>
 
       <div class="input">
         <form id="sendForm" class="row" method="POST" action="/support/send">
@@ -2712,177 +2796,181 @@ app.get("/support", async (req, res) => {
         <div class="bd">
           <div class="box">
             <p>サービスを利用するには利用規約の同意が必要です。<br>利用規約をご確認ください。</p>
-            <button id="termsBtn" class="termsbtn" type="button" onclick="const t=document.getElementById('terms'); if(t) t.style.display=(t.style.display==='block'?'none':'block'); return false;">利用規約</button>
-            <div id="terms" class="terms">${termsTextEsc}</div>
+            <details>
+              <summary>利用規約</summary>
+              <div class="terms">${termsTextEsc}</div>
+            </details>
           </div>
         </div>
         <div class="ft">
-          <a id="noBtn" class="no btn" href="/">同意しない</a>
-          <form method="POST" action="/support/terms/accept" style="margin:0">
-            <button id="yesBtn" type="submit">同意する</button>
+          <a class="no" href="/">同意しない</a>
+          <form method="POST" action="/support/terms/accept">
+            <button type="submit">同意する</button>
           </form>
         </div>
       </div>
     </div>
 
     <script>
-      (function(){
-      const NEEDS_TERMS = ${needsTerms ? "true" : "false"};
+      window.addEventListener('DOMContentLoaded', function(){
+        var NEEDS_TERMS = ${needsTerms ? "true" : "false"};
 
-      function escHtml(s){ return String(s??"").replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
-      function byId(id){ return document.getElementById(id); }
+        function escHtml(s){ return String(s??'').replace(/[&<>"']/g,function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }); }
+        function byId(id){ return document.getElementById(id); }
 
-      async function api(path, body){
-        const opt = body ? { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) } : {};
-        const r = await fetch(path, opt);
-        let j = null;
-        try{ j = await r.json(); }catch{}
-        return { ok:r.ok, status:r.status, json:j };
-      }
-
-      function render(messages, viewerId){
-        const root = byId("msgs");
-        root.innerHTML = "";
-        for (const m of messages){
-          const isViewer = (m.from?.kind === "user" && m.from?.userId === viewerId);
-          const wrap = document.createElement("div");
-          wrap.className = "msg " + (isViewer ? "viewer" : "other");
-          wrap.dataset.mid = m.id;
-
-          const av = document.createElement("img");
-          av.className = "avatar";
-          av.src = m.from?.iconUrl || "${SUPPORT_DESK_ICON}";
-          av.onerror = () => { av.src = "${SUPPORT_DESK_ICON}"; };
-
-          const bub = document.createElement("div");
-          bub.className = "bubble";
-          bub.tabIndex = 0;
-          bub.dataset.text = m.text || "";
-
-          const name = document.createElement("div");
-          name.className = "name";
-          name.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ' <span class="badge">' + escHtml(m.from.badge) + '</span>' : "");
-
-          const text = document.createElement("div");
-          text.innerHTML = escHtml(m.text || "").replace(/\n/g,"<br>");
-
-          const time = document.createElement("div");
-          time.className = "time";
-          time.innerHTML = '<span>' + escHtml(m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "") + '</span>' + (m.from?.userId ? ' <code>🆔 ' + escHtml(m.from.userId) + '</code>' : "");
-
-          bub.appendChild(name);
-          bub.appendChild(text);
-          bub.appendChild(time);
-
-          wrap.appendChild(av);
-          wrap.appendChild(bub);
-          root.appendChild(wrap);
+        async function api(path, body){
+          var opt = body ? { method:'POST', headers:{ 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify(body), credentials:'include' } : { headers:{ 'Accept':'application/json' }, credentials:'include' };
+          var r = await fetch(path, opt);
+          var j = null;
+          try{ j = await r.json(); }catch(e){}
+          return { ok:r.ok, status:r.status, json:j };
         }
-        root.scrollTop = root.scrollHeight + 999;
-      }
 
-      let lastMsgs = [];
-      async function load(){
-        const r = await api("/support/api/thread");
-        if (!r.ok){
-          if (r.status === 403 && r.json && r.json.reason === "terms_required") return;
-          alert("読み込みに失敗しました");
-          return;
+        function render(messages, viewerId){
+          var root = byId('msgs');
+          root.innerHTML = '';
+          for (var i=0;i<messages.length;i++){
+            var m = messages[i];
+            var isViewer = (m && m.from && m.from.kind === 'user' && m.from.userId === viewerId);
+            var wrap = document.createElement('div');
+            wrap.className = 'msg ' + (isViewer ? 'viewer' : 'other');
+            wrap.dataset.mid = m.id || '';
+
+            var av = document.createElement('img');
+            av.className = 'avatar';
+            av.src = (m.from && m.from.iconUrl) ? m.from.iconUrl : '${SUPPORT_DESK_ICON}';
+            av.onerror = function(){ this.src = '${SUPPORT_DESK_ICON}'; };
+
+            var bub = document.createElement('div');
+            bub.className = 'bubble';
+            bub.tabIndex = 0;
+            bub.dataset.text = m.text || '';
+
+            var name = document.createElement('div');
+            name.className = 'name';
+            name.innerHTML = escHtml((m.from && m.from.username) ? m.from.username : 'unknown') + ((m.from && m.from.badge) ? (' <span class="badge">' + escHtml(m.from.badge) + '</span>') : '');
+
+            var body = document.createElement('div');
+            body.className = 'body';
+            body.innerHTML = escHtml(m.text || '').replace(/\\n/g,'<br>');
+
+            var time = document.createElement('div');
+            time.className = 'time';
+            var d = m.atISO ? new Date(m.atISO).toLocaleString('ja-JP') : '';
+            var uid = (m.from && m.from.userId != null) ? (' <code>🆔 ' + escHtml(m.from.userId) + '</code>') : ' <code>🆔 -</code>';
+            time.innerHTML = '<span>' + escHtml(d) + '</span>' + uid;
+
+            bub.appendChild(name);
+            bub.appendChild(body);
+            bub.appendChild(time);
+
+            wrap.appendChild(av);
+            wrap.appendChild(bub);
+            root.appendChild(wrap);
+          }
+          root.scrollTop = root.scrollHeight + 999;
         }
-        lastMsgs = (r.json?.messages || []);
-        render(lastMsgs, r.json?.viewer?.id);
-      }
 
-      async function send(){
-        const ta = byId("text");
-        const v = (ta.value||"").trim();
-        if (!v) return;
-        byId("sendBtn").disabled = true;
-        const r = await api("/support/api/send", { text:v });
-        byId("sendBtn").disabled = false;
-        if (!r.ok){
-          alert(r.json?.message || "送信に失敗しました");
-          return;
+        async function load(){
+          var r = await api('/support/api/thread');
+          if (!r.ok){
+            if (r.status === 403 && r.json && r.json.reason === 'terms_required') return;
+            console.warn('thread load failed', r.status, r.json);
+            return;
+          }
+          render((r.json && r.json.messages) ? r.json.messages : [], (r.json && r.json.viewer) ? r.json.viewer.id : null);
         }
-        ta.value = "";
-        await load();
-      }
 
-      // context menu (copy)
-      const ctx = byId("ctx");
-      let ctxTargetText = "";
-      function hideCtx(){ ctx.style.display="none"; ctxTargetText=""; }
-      document.addEventListener("click", hideCtx);
-      document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") hideCtx(); });
-
-      byId("msgs").addEventListener("contextmenu", (e)=>{
-        const bub = e.target.closest(".bubble");
-        if (!bub) return;
-        e.preventDefault();
-        ctxTargetText = bub.dataset.text || "";
-        ctx.style.left = Math.min(window.innerWidth-200, e.clientX) + "px";
-        ctx.style.top = Math.min(window.innerHeight-120, e.clientY) + "px";
-        ctx.style.display = "block";
-      });
-
-      ctx.addEventListener("click", async (e)=>{
-        const act = e.target?.dataset?.act;
-        if (act === "copy"){
-          try{ await navigator.clipboard.writeText(ctxTargetText || ""); }catch{}
-          hideCtx();
+        async function sendViaApi(text){
+          var r = await api('/support/api/send', { text:text });
+          return r;
         }
-      });
 
-      byId("sendForm")?.addEventListener("submit", (e)=>{ e.preventDefault(); send(); });
-      byId("text").addEventListener("keydown", (e)=>{ if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); send(); } });
+        // context menu (copy)
+        var ctx = byId('ctx');
+        var ctxTargetText = '';
+        function hideCtx(){ ctx.style.display='none'; ctxTargetText=''; }
+        document.addEventListener('click', hideCtx);
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape') hideCtx(); });
 
-      // terms actions
-      if (NEEDS_TERMS){
-        byId("termsBtn")?.addEventListener("click", (e)=>{ e.preventDefault();
-          const t = byId("terms");
-          t.style.display = (t.style.display === "block") ? "none" : "block";
+        byId('msgs').addEventListener('contextmenu', function(e){
+          var bub = e.target.closest('.bubble');
+          if (!bub) return;
+          e.preventDefault();
+          ctxTargetText = bub.dataset.text || '';
+          ctx.style.left = Math.min(window.innerWidth-200, e.clientX) + 'px';
+          ctx.style.top  = Math.min(window.innerHeight-120, e.clientY) + 'px';
+          ctx.style.display = 'block';
         });
-        byId("noBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); location.href = "/"; });
-        byId("yesBtn")?.addEventListener("click", async (e)=>{ e.preventDefault();
-          const r = await api("/support/terms/accept", {});
-          if (r.ok) location.reload();
-          else alert("同意に失敗しました");
+
+        ctx.addEventListener('click', async function(e){
+          var act = e.target && e.target.dataset ? e.target.dataset.act : '';
+          if (act === 'copy'){
+            try{ await navigator.clipboard.writeText(ctxTargetText || ''); }catch(err){}
+            hideCtx();
+          }
         });
-      } else {
-        load();
-      }
-    })();
+
+        // send (フォームはフォールバック。JS が動けばリロードなし)
+        var sendForm = byId('sendForm');
+        if (sendForm){
+          sendForm.addEventListener('submit', async function(e){
+            if (NEEDS_TERMS) return; // disabled anyway
+            e.preventDefault();
+            var ta = byId('text');
+            var v = (ta.value||'').trim();
+            if (!v) return;
+            byId('sendBtn').disabled = true;
+            try{
+              var r = await sendViaApi(v);
+              byId('sendBtn').disabled = false;
+              if (!r.ok){
+                // 失敗時はフォーム送信でフォールバック（原因調査用）
+                console.warn('send failed', r.status, r.json);
+                sendForm.submit();
+                return;
+              }
+              ta.value = '';
+              await load();
+            }catch(err){
+              byId('sendBtn').disabled = false;
+              sendForm.submit();
+            }
+          });
+        }
+
+        byId('text').addEventListener('keydown', function(e){
+          if(e.key==='Enter' && (e.ctrlKey || e.metaKey)){
+            e.preventDefault();
+            byId('sendBtn').click();
+          }
+        });
+
+        if (!NEEDS_TERMS){
+          // 初回ロード（SSRありでも最新化のため）
+          load();
+        }
+      });
     </script>
   </body></html>`;
+
   res.send(html);
 });
 
 app.post("/support/terms/accept", async (req, res) => {
-  const isJson = (req.headers["content-type"] || "").includes("application/json");
-
-  if (!req.user) {
-    return isJson
-      ? res.status(401).json({ ok: false, reason: "not_logged_in" })
-      : res.redirect("/");
-  }
-
+  if (!req.user) return res.status(401).json({ ok: false, reason: "not_logged_in" });
   await usersDb.read();
   const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) {
-    return isJson
-      ? res.status(404).json({ ok: false, reason: "not_found" })
-      : res.redirect("/");
-  }
-
+  if (!u) return res.status(404).json({ ok: false, reason: "not_found" });
   await db.read();
   const s = supportStore();
   u.supportTermsAcceptedVersion = Number(s.termsVersion || 1);
   await usersDb.write();
 
-  if (!isJson) return res.redirect("/support");
+  const accept = (req.get("accept") || "").toLowerCase();
+  if (accept.includes("text/html")) return res.redirect("/support");
   return res.json({ ok: true });
 });
-
 
 app.get("/support/api/thread", async (req, res) => {
   if (!req.user) return res.status(401).json({ ok:false, reason:"not_logged_in" });
@@ -2890,22 +2978,18 @@ app.get("/support/api/thread", async (req, res) => {
   const u = usersDb.data.users.find(x => x.id === req.user.id);
   if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
 
+  await db.read();
   if (!viewerAcceptedSupportTerms(u)) {
     return res.status(403).json({ ok:false, reason:"terms_required" });
   }
 
-  await db.read();
-  const t = findSupportThread(u.id);
-  if (t) {
-    updateThreadMeta(t);
-    await db.write();
-  }
-
+  const t = getSupportThread(u.id, false);
   const viewer = { id: u.id, username: u.username, role: u.role, iconUrl: u.iconUrl || null };
+
   return res.json({
     ok: true,
     viewer,
-    messages: (t?.messages || []).map(normalizeMsgForClient),
+    messages: hydrateSupportMessages((t?.messages || []), buildUsersMap()).map(normalizeMsgForClient),
   });
 });
 
@@ -2914,159 +2998,123 @@ app.post("/support/api/send", async (req, res) => {
   await usersDb.read();
   const u = usersDb.data.users.find(x => x.id === req.user.id);
   if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
+  await db.read();
   if (!viewerAcceptedSupportTerms(u)) return res.status(403).json({ ok:false, reason:"terms_required" });
 
   const text = (req.body?.text ?? "").toString().trim();
   if (!text) return res.status(400).json({ ok:false, message:"空のメッセージは送信できません。" });
   if (text.length > 2000) return res.status(400).json({ ok:false, message:"メッセージが長すぎます（2000文字まで）。" });
 
-  await db.read();
-  const t = getSupportThread(u.id);
-
-  const msg = {
-    id: nanoid(10),
-    atISO: new Date().toISOString(),
-    text,
-    from: {
-      kind: "user",
-      userId: u.id,
-      username: u.username || "Guest",
-      role: u.role || ROLE_USER,
-      iconUrl: u.iconUrl || SUPPORT_DESK_ICON,
-      badge: isSiteAdmin(u) ? "💎サイト管理者" : null,
-    },
-  };
-
-  t.messages.push(msg);
-  updateThreadMeta(t);
-  await db.write();
+  const msg = await appendSupportMessageAsUser(u, text);
   return res.json({ ok:true, message: normalizeMsgForClient(msg) });
 });
 
-
-
+// フォーム送信用（JS が死んでも送れる）
 app.post("/support/send", async (req, res) => {
-  // JS が動かない場合のフォールバック（フォーム送信）
-  if (!req.user) return res.redirect("/");
+  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/"));
   await usersDb.read();
   const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.redirect("/");
+  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/"));
+  await db.read();
+  if (!viewerAcceptedSupportTerms(u)) return res.send(toastPage("⚠利用規約への同意が必要です。", "/support"));
 
-  if (!viewerAcceptedSupportTerms(u)) return res.redirect("/support");
-
-  const text = (req.body?.text ?? "").toString().trim();
+  const text = (req.body?.text ?? req.body?.message ?? "").toString().trim();
   if (!text) return res.redirect("/support");
   if (text.length > 2000) return res.send(toastPage("⚠メッセージが長すぎます（2000文字まで）。", "/support"));
 
-  await db.read();
-  const t = getSupportThread(u.id);
-
-  const msg = {
-    id: nanoid(10),
-    atISO: new Date().toISOString(),
-    text,
-    from: {
-      kind: "user",
-      userId: u.id,
-      username: u.username || "Guest",
-      role: u.role || ROLE_USER,
-      iconUrl: u.iconUrl || SUPPORT_DESK_ICON,
-      badge: isSiteAdmin(u) ? "💎サイト管理者" : null,
-    },
-  };
-
-  t.messages.push(msg);
-  updateThreadMeta(t);
-  await db.write();
+  await appendSupportMessageAsUser(u, text);
   return res.redirect("/support");
 });
 
-// ---- 管理者：問い合わせ一覧 ----
+// ==========================
+// 管理者：問い合わせ一覧 / 返信
+// ==========================
 app.get("/admin/supports", requireAdmin, async (req, res) => {
   await db.read();
   await usersDb.read();
   const s = supportStore();
 
-  const threads = Object.values(s.threads || {});
-  threads.sort((a,b)=> new Date(b.updatedAtISO||0) - new Date(a.updatedAtISO||0));
+  const threads = Object.values(s.threads || {}).sort((a,b)=>{
+    const ta = new Date(a.updatedAtISO || a.createdAtISO || 0).getTime();
+    const tb = new Date(b.updatedAtISO || b.createdAtISO || 0).getTime();
+    return tb - ta;
+  });
 
-  const rows = threads.map(t => {
-    const user = usersDb.data.users.find(x => x.id === t.userId);
-    const name = user?.username || t.userId;
-    const icon = user?.iconUrl || SUPPORT_DESK_ICON;
-    const lastAt = t.updatedAtISO ? formatSupportTime(t.updatedAtISO) : "-";
+  const rows = threads.map(t=>{
+    const user = usersDb.data.users.find(x=>x.id===t.userId) || null;
+    const uname = user?.username || t.userId;
+    const icon = esc(user?.iconUrl || "/img/mypage.png");
+    const when = esc(fmtJst(t.updatedAtISO || t.createdAtISO));
     const preview = esc(t.lastPreview || "");
+    const uid = esc(t.userId);
     return `
-      <div class="row">
-        <a class="rowLink" href="/admin/supports/${encodeURIComponent(t.userId)}" title="開く">
-          <img class="av" src="${esc(icon)}" onerror="this.src='${SUPPORT_DESK_ICON}'">
-          <div class="main">
-            <div class="title"><b>${esc(name)}</b> <span class="id">🆔 ${esc(t.userId)}</span></div>
-            <div class="sub">${preview || '<span class="muted">（まだメッセージがありません）</span>'}</div>
+      <div class="rowwrap">
+        <a class="row" href="/admin/supports/${encodeURIComponent(t.userId)}">
+          <img src="${icon}" onerror="this.src='/img/mypage.png'">
+          <div class="col">
+            <div class="topline"><span class="name">${uname}</span><span class="time">${when}</span></div>
+            <div class="preview">${preview || "&nbsp;"}</div>
+            <div class="sub">🆔 ${uid}</div>
           </div>
-          <div class="time">${esc(lastAt)}</div>
         </a>
-        <form class="del" method="POST" action="/admin/supports/${encodeURIComponent(t.userId)}/delete-thread" onsubmit="return confirm('このスレッドを削除します。
-一覧から消え、メッセージも全て削除されます。
-よろしいですか？');">
+        <form class="del" method="POST" action="/admin/supports/${encodeURIComponent(t.userId)}/delete-thread" onsubmit="return confirm('このスレッドを削除します。メッセージも全て消えます。よろしいですか？');">
           <button type="submit" title="スレッド削除">🗑</button>
         </form>
       </div>
     `;
   }).join("");
 
+  const termsText = esc(s.termsText || "");
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>問い合わせ一覧</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#f4f6fb;margin:0;padding:0;color:#111;}
-    .wrap{max-width:980px;margin:24px auto;padding:0 14px;}
-    .head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;}
-    .head h1{margin:0;font-size:22px;}
-    .btn{display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;border-radius:12px;padding:10px 12px;text-decoration:none;border:1px solid rgba(0,0,0,.08);}
-    .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);overflow:hidden}
-    .row{display:flex;gap:0;align-items:center;border-top:1px solid rgba(0,0,0,.06);}
-    .row:first-child{border-top:none;}
-    .row:hover{background:#f9fafb;}
-    .rowLink{flex:1;display:flex;gap:12px;align-items:center;padding:12px 12px;min-width:0;text-decoration:none;color:inherit;}
-    .del{padding:0 10px;}
-    .del button{width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.10);background:#fff;cursor:pointer}
-    .del button:hover{background:rgba(0,0,0,.05);}
-
-    .av{width:46px;height:46px;border-radius:14px;object-fit:cover;background:#f3f4f6;border:1px solid rgba(0,0,0,.06);}
-    .main{flex:1;min-width:0;}
-    .title{display:flex;gap:10px;align-items:center;min-width:0;}
-    .id{font-size:12px;color:#6b7280;white-space:nowrap;}
-    .sub{font-size:13px;color:#374151;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .time{font-size:12px;color:#6b7280;white-space:nowrap;}
-    .muted{opacity:.6}
-    .sec{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:14px;margin:14px 0;}
-    textarea{width:100%;min-height:160px;border-radius:12px;border:1px solid rgba(0,0,0,.15);padding:10px 12px;font-size:14px;resize:vertical;}
-    button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:700;}
-    .note{font-size:12px;color:#6b7280;margin-top:8px;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
+    a{color:#2563eb;text-decoration:none}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
+    .wrap{max-width:980px;margin:0 auto;padding:14px 10px 40px;}
+    .btn{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:8px 12px;color:#111827;font-weight:700}
+    .list{margin-top:14px;border:1px solid rgba(0,0,0,.10);border-radius:14px;overflow:hidden;background:#fff}
+    .rowwrap{display:flex;align-items:stretch;border-top:1px solid rgba(0,0,0,.08);}
+    .rowwrap:first-child{border-top:none}
+    .row{flex:1;display:flex;gap:12px;padding:12px 12px;align-items:center;min-width:0}
+    .row img{width:44px;height:44px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10)}
+    .col{min-width:0;flex:1}
+    .topline{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+    .name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .time{font-size:12px;opacity:.65;white-space:nowrap}
+    .preview{margin-top:2px;font-size:13px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sub{margin-top:2px;font-size:12px;opacity:.65}
+    .del{display:flex;align-items:center;padding:0 10px}
+    .del button{border:none;background:#fff;border-left:1px solid rgba(0,0,0,.08);padding:0 12px;font-size:18px;cursor:pointer}
+    .del button:hover{background:rgba(0,0,0,.04)}
+    .card{margin-top:18px;background:#fff;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:12px}
+    textarea{width:100%;min-height:160px;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:13px;outline:none}
+    .actions{display:flex;justify-content:flex-end;margin-top:10px}
+    .save{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+    .meta{font-size:12px;opacity:.7;margin-top:6px}
+    .empty{padding:20px;text-align:center;opacity:.7}
   </style>
   <body>
-    <div class="wrap">
-      <div class="head">
-        <h1>💬 問い合わせ一覧</h1>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <a class="btn" href="/admin">🎛 管理者トップ</a>
-          <a class="btn" href="/">🏠 トップ</a>
-        </div>
+    <div class="top">
+      <div style="display:flex;gap:10px;align-items:center">
+        <a class="btn" href="/admin">← 管理画面</a>
+        <div style="font-weight:900">問い合わせ一覧</div>
       </div>
+      <div class="meta">threads: ${threads.length}</div>
+    </div>
 
-      <div class="sec">
-        <h2 style="margin:0 0 10px;font-size:16px;">利用規約（サポート）</h2>
-        <form method="POST" action="/admin/support-terms">
-          <textarea name="termsText" placeholder="利用規約テキスト（自由に編集できます）">${esc(s.termsText || "")}</textarea>
-          <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:10px;">
-            <div class="note">現在のバージョン: <b>${Number(s.termsVersion || 1)}</b> ／ 保存するとバージョンが +1 され、ユーザーは再同意が必要になります。</div>
-            <button type="submit">保存（バージョン更新）</button>
-          </div>
-        </form>
+    <div class="wrap">
+      <div class="list">
+        ${rows || `<div class="empty">問い合わせはまだありません</div>`}
       </div>
 
       <div class="card">
-        ${rows || '<div style="padding:14px;opacity:.7">まだ問い合わせはありません。</div>'}
+        <div style="font-weight:900;margin-bottom:8px">サポート利用規約（ユーザーに表示）</div>
+        <form method="POST" action="/admin/support-terms">
+          <textarea name="termsText">${termsText}</textarea>
+          <div class="actions"><button class="save" type="submit">保存（バージョン更新）</button></div>
+          <div class="meta">保存すると termsVersion が +1 され、ユーザーは再同意が必要になります。</div>
+        </form>
       </div>
     </div>
   </body></html>`;
@@ -3074,263 +3122,291 @@ app.get("/admin/supports", requireAdmin, async (req, res) => {
 });
 
 app.post("/admin/support-terms", requireAdmin, async (req, res) => {
+  const termsText = (req.body?.termsText ?? "").toString();
   await db.read();
   const s = supportStore();
-  const text = (req.body?.termsText ?? "").toString();
-  s.termsText = text;
+  s.termsText = termsText;
   s.termsVersion = Number(s.termsVersion || 1) + 1;
   await db.write();
   return res.redirect("/admin/supports");
 });
 
-
+// thread delete (HTMLフォーム)
 app.post("/admin/supports/:userId/delete-thread", requireAdmin, async (req, res) => {
   const userId = (req.params.userId || "").toString();
-  await db.read();
-  const removed = deleteSupportThread(userId);
-  if (removed) await db.write();
+  await deleteSupportThread(userId);
   return res.redirect("/admin/supports");
 });
 
+// thread delete (API)
 app.post("/admin/supports/:userId/api/delete-thread", requireAdmin, async (req, res) => {
   const userId = (req.params.userId || "").toString();
+  const ok = await deleteSupportThread(userId);
+  return res.json({ ok, userId });
+});
+// clear all messages in a thread (HTML)
+app.post("/admin/supports/:userId/clear", requireAdmin, async (req, res) => {
+  const userId = (req.params.userId || "").toString();
   await db.read();
-  const removed = deleteSupportThread(userId);
-  if (removed) await db.write();
-  return res.json({ ok: true, removed: !!removed });
+  const t = getSupportThread(userId, true);
+  t.messages = [];
+  updateThreadMeta(t);
+  await db.write();
+  return res.redirect("/admin/supports/" + encodeURIComponent(userId));
 });
 
+// clear all messages in a thread (API)
+app.post("/admin/supports/:userId/api/clear", requireAdmin, async (req, res) => {
+  const userId = (req.params.userId || "").toString();
+  await db.read();
+  const t = getSupportThread(userId, true);
+  const before = t.messages.length;
+  t.messages = [];
+  updateThreadMeta(t);
+  await db.write();
+  return res.json({ ok: true, cleared: before, userId });
+});
 
-// ---- 管理者：個別チャット ----
 app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
   const userId = (req.params.userId || "").toString();
   await usersDb.read();
+  await db.read();
+
   const target = usersDb.data.users.find(x => x.id === userId) || null;
   const titleName = target?.username || userId;
 
-  await db.read();
-  const t0 = findSupportThread(userId);
-  const initMsgs = (t0?.messages || []).map(normalizeMsgForClient);
-  const initMsgsHtml = renderSupportMsgsHtmlForAdmin(initMsgs);
+  const t = getSupportThread(userId, false);
+  const usersMap = buildUsersMap();
+  const initialMsgsHtml = hydrateSupportMessages((t?.messages || []), usersMap).map(m => supportMsgHtmlSSR(m, (m?.from?.kind === "staff"))).join("");
 
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート返信 - ${esc(titleName)}</title>
   <style>
-    html,body{height:100%;}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;display:flex;flex-direction:column;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
     a{color:#2563eb;text-decoration:none}
     .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
+    .left{display:flex;align-items:center;gap:10px;min-width:0;}
     .pill{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:6px 10px;color:#111827;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#e5e7eb;}
     .meta{opacity:.75;font-size:12px}
-    .wrap{max-width:980px;margin:0 auto;padding:0 10px;flex:1;min-height:0;display:flex;flex-direction:column;}
-    .chat{display:flex;flex-direction:column;flex:1;min-height:0;background:#ffffff;}
+    .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
+    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
     .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
     .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
     .msg.viewer{justify-content:flex-start;}
     .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
-    .bubble{max-width:min(680px,78vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;position:relative;user-select:text;}
-    .text{white-space:pre-wrap;word-break:break-word;}
+    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;}
     .other .bubble{background:#e0f2fe;border-color:rgba(2,132,199,.25);}
-    .head{display:flex;gap:10px;align-items:baseline;justify-content:space-between;margin:0 0 6px;}
-    .who{font-size:12px;opacity:.88;display:flex;gap:8px;align-items:center;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .metaRow{font-size:11px;opacity:.65;display:flex;gap:8px;align-items:center;white-space:nowrap;}
-    .metaRow code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
+    .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
     .badge{font-size:12px;color:#0284c7;}
-    /* time styles replaced */
-    /* time code styles moved to .metaRow code */
-    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;}
+    .time{font-size:11px;opacity:.65;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
+    .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
+    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
     .row{display:flex;gap:10px;align-items:flex-end;}
+    @media (max-width:520px){.row{flex-direction:column;align-items:stretch}textarea{max-height:34vh}button{width:100%}}
     textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
-    button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
+    button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:700}
+    .btn2{background:#fff;color:#111827;border:1px solid rgba(0,0,0,.18)}
     button:disabled{opacity:.5;cursor:not-allowed}
-    .dangerBtn{background:#fff;color:#ef4444;border:1px solid rgba(239,68,68,.35);border-radius:12px;padding:8px 12px;cursor:pointer;font-weight:800}
     .hint{margin-top:6px;font-size:12px;opacity:.7}
     /* context menu */
     .ctx{position:fixed;z-index:9999;min-width:220px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
-    .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:600}
+    .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:800}
     .ctx button:hover{background:rgba(0,0,0,.05)}
     .ctx hr{border:0;border-top:1px solid rgba(0,0,0,.08);margin:0}
-    .danger{color:#ef4444;}
   </style>
   <body>
     <div class="top">
-      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+      <div class="left">
         <a class="pill" href="/admin/supports">← 一覧</a>
         <div class="pill" title="${esc(titleName)}">
-          <img src="${esc(target?.iconUrl || SUPPORT_DESK_ICON)}" onerror="this.src='${SUPPORT_DESK_ICON}'">
+          <img src="${esc(target?.iconUrl || "/img/mypage.png")}" onerror="this.src='/img/mypage.png'">
           <span>${esc(titleName)}</span>
           <span class="meta">🆔 ${esc(userId)}</span>
         </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-        <form method="POST" action="/admin/supports/${encodeURIComponent(userId)}/delete-thread" onsubmit="return confirm('このスレッドを削除します。\n一覧から消え、メッセージも全て削除されます。\nよろしいですか？');" style="margin:0;">
-          <button class="dangerBtn" type="submit">スレッド削除</button>
-        </form>
+      <div style="display:flex;gap:10px;align-items:center">
         <div class="meta">閲覧者＝左 / 相手＝右</div>
+        <form method="POST" action="/admin/supports/${encodeURIComponent(userId)}/clear" onsubmit="return confirm(\'このチャットのメッセージを全削除します。よろしいですか？\');">
+          <button type="submit" class="btn2">🧹 メッセ全削除</button>
+        </form>
+
+        <form method="POST" action="/admin/supports/${encodeURIComponent(userId)}/delete-thread" onsubmit="return confirm('このスレッドを削除します。メッセージも全て消えます。よろしいですか？');">
+          <button type="submit" class="btn2">🗑 スレッド削除</button>
+        </form>
       </div>
     </div>
 
     <div class="wrap chat">
-      <div id="msgs" class="msgs">${initMsgsHtml}</div>
+      <div id="msgs" class="msgs">${initialMsgsHtml}</div>
+
       <div class="input">
-        <div class="row">
-          <textarea id="text" placeholder="返信を入力…（管理者は削除可能）"></textarea>
-          <button id="sendBtn" type="button">送信</button>
-        </div>
-        <div class="hint">右クリックでショートカット（コピー／削除）が出ます。site_admin は自分のアカウントで返信します。</div>
+        <form id="sendForm" class="row" method="POST" action="/admin/supports/${encodeURIComponent(userId)}/send">
+          <textarea id="text" name="text" placeholder="メッセージを入力…（取り消し不可）"></textarea>
+          <button id="sendBtn" type="submit">送信</button>
+        </form>
+        <div class="hint">※ 右クリックでショートカット（コピー / メッセージ削除）が出ます。</div>
       </div>
     </div>
 
     <div id="ctx" class="ctx" role="menu" aria-hidden="true">
       <button data-act="copy">テキストをコピー</button>
       <hr>
-      <button data-act="delete" class="danger">メッセージを削除</button>
+      <button data-act="del">メッセージを削除</button>
     </div>
 
     <script>
-      const USER_ID = ${JSON.stringify(userId)};
-      function escHtml(s){ return String(s??"").replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
-      function byId(id){ return document.getElementById(id); }
-      async function api(path, body){
-        const opt = body
-          ? { method:"POST", headers:{ "Content-Type":"application/json", "Accept":"application/json" }, body: JSON.stringify(body), credentials:"include" }
-          : { method:"GET", headers:{ "Accept":"application/json" }, credentials:"include" };
+      window.addEventListener('DOMContentLoaded', function(){
+        var USER_ID = ${JSON.stringify(userId)};
 
-        const r = await fetch(path, opt);
-        const ct = (r.headers.get("content-type") || "").toLowerCase();
-        let j = null, t = null;
-        try{
-          if (ct.includes("application/json")) j = await r.json();
-          else t = await r.text();
-        }catch(e){
-          try{ t = await r.text(); }catch{}
+        function escHtml(s){ return String(s??'').replace(/[&<>"']/g,function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }); }
+        function byId(id){ return document.getElementById(id); }
+
+        async function api(path, body){
+          var opt = body ? { method:'POST', headers:{ 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify(body), credentials:'include' } : { headers:{ 'Accept':'application/json' }, credentials:'include' };
+          var r = await fetch(path, opt);
+          var j = null;
+          try{ j = await r.json(); }catch(e){}
+          return { ok:r.ok, status:r.status, json:j };
         }
-        return { ok:r.ok, status:r.status, json:j, text:t };
-      }
 
-      function render(messages){
-        const root = byId("msgs");
-        root.innerHTML = "";
-        for (const m of messages){
-          // viewer=admin: staff メッセージを左、ユーザーを右
-          const isViewer = (m.from?.kind === "staff");
-          const wrap = document.createElement("div");
-          wrap.className = "msg " + (isViewer ? "viewer" : "other");
-          wrap.dataset.mid = m.id;
+        function render(messages){
+          var root = byId('msgs');
+          root.innerHTML = '';
+          for (var i=0;i<messages.length;i++){
+            var m = messages[i];
+            // 管理画面では staff が閲覧者（左）
+            var isViewer = (m && m.from && m.from.kind === 'staff');
+            var wrap = document.createElement('div');
+            wrap.className = 'msg ' + (isViewer ? 'viewer' : 'other');
+            wrap.dataset.mid = m.id || '';
 
-          const av = document.createElement("img");
-          av.className = "avatar";
-          av.src = m.from?.iconUrl || "${SUPPORT_DESK_ICON}";
-          av.onerror = () => { av.src = "${SUPPORT_DESK_ICON}"; };
+            var av = document.createElement('img');
+            av.className = 'avatar';
+            av.src = (m.from && m.from.iconUrl) ? m.from.iconUrl : '${SUPPORT_DESK_ICON}';
+            av.onerror = function(){ this.src = '${SUPPORT_DESK_ICON}'; };
 
-          const bub = document.createElement("div");
-          bub.className = "bubble";
-          bub.tabIndex = 0;
-          bub.dataset.text = m.text || "";
-          bub.dataset.mid = m.id || "";
+            var bub = document.createElement('div');
+            bub.className = 'bubble';
+            bub.tabIndex = 0;
+            bub.dataset.text = m.text || '';
 
-          const head = document.createElement("div");
-          head.className = "head";
+            var name = document.createElement('div');
+            name.className = 'name';
+            name.innerHTML = escHtml((m.from && m.from.username) ? m.from.username : 'unknown') + ((m.from && m.from.badge) ? (' <span class="badge">' + escHtml(m.from.badge) + '</span>') : '');
 
-          const who = document.createElement("div");
-          who.className = "who";
-          who.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ' <span class="badge">' + escHtml(m.from.badge) + "</span>" : "");
+            var body = document.createElement('div');
+            body.className = 'body';
+            body.innerHTML = escHtml(m.text || '').replace(/\\n/g,'<br>');
 
-          const meta = document.createElement("div");
-          meta.className = "metaRow";
-          const at = m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "";
-          const sid = m.from?.userId || (m.from?.role === "desk" ? "support-desk" : "");
-          meta.innerHTML = "<span>" + escHtml(at) + "</span>" + (sid ? " <code>🆔 " + escHtml(sid) + "</code>" : "");
+            var time = document.createElement('div');
+            time.className = 'time';
+            var d = m.atISO ? new Date(m.atISO).toLocaleString('ja-JP') : '';
+            var uid = (m.from && m.from.userId != null) ? (' <code>🆔 ' + escHtml(m.from.userId) + '</code>') : ' <code>🆔 -</code>';
+            time.innerHTML = '<span>' + escHtml(d) + '</span>' + uid;
 
-          head.appendChild(who);
-          head.appendChild(meta);
+            bub.appendChild(name);
+            bub.appendChild(body);
+            bub.appendChild(time);
 
-          const body = document.createElement("div");
-          body.className = "text";
-          body.innerHTML = escHtml(m.text || "").replace(/\n/g,"<br>");
-
-          bub.appendChild(head);
-          bub.appendChild(body);
-
-          wrap.appendChild(av);
-          wrap.appendChild(bub);
-          root.appendChild(wrap);
+            wrap.appendChild(av);
+            wrap.appendChild(bub);
+            root.appendChild(wrap);
+          }
+          root.scrollTop = root.scrollHeight + 999;
         }
-        root.scrollTop = root.scrollHeight + 999;
-      }
 
-      let lastMsgs = [];
-      async function load(){
-        const r = await api("/admin/supports/" + encodeURIComponent(USER_ID) + "/api/thread");
-        if (!r.ok || !r.json){
-          alert("読み込みに失敗しました（ログイン状態を確認してページを再読み込みしてください）");
-          console.warn("thread load failed:", r.status, r.text);
-          return;
+        async function load(){
+          var r = await api('/admin/supports/' + encodeURIComponent(USER_ID) + '/api/thread');
+          if (!r.ok){ console.warn('thread load failed', r.status, r.json); return; }
+          render((r.json && r.json.messages) ? r.json.messages : []);
         }
-        lastMsgs = (r.json?.messages || []);
-        render(lastMsgs);
-      }
 
-      async function send(){
-        const ta = byId("text");
-        const v = (ta.value||"").trim();
-        if (!v) return;
-        byId("sendBtn").disabled = true;
-        const r = await api("/admin/supports/" + encodeURIComponent(USER_ID) + "/api/send", { text:v });
-        byId("sendBtn").disabled = false;
-        if (!r.ok || !r.json){
-          alert(r.json?.message || r.text || "送信に失敗しました");
-          console.warn("send failed:", r.status, r.text);
-          return;
+        // context menu
+        var ctx = byId('ctx');
+        var ctxTargetText = '';
+        var ctxTargetId = '';
+        function hideCtx(){ ctx.style.display='none'; ctxTargetText=''; ctxTargetId=''; }
+        document.addEventListener('click', hideCtx);
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape') hideCtx(); });
+
+        byId('msgs').addEventListener('contextmenu', function(e){
+          var bub = e.target.closest('.bubble');
+          if (!bub) return;
+          e.preventDefault();
+          var row = bub.closest('.msg');
+          ctxTargetText = bub.dataset.text || '';
+          ctxTargetId = row ? (row.dataset.mid || '') : '';
+          ctx.style.left = Math.min(window.innerWidth-240, e.clientX) + 'px';
+          ctx.style.top  = Math.min(window.innerHeight-160, e.clientY) + 'px';
+          ctx.style.display = 'block';
+        });
+
+        ctx.addEventListener('click', async function(e){
+          var act = e.target && e.target.dataset ? e.target.dataset.act : '';
+          if (act === 'copy'){
+            try{ await navigator.clipboard.writeText(ctxTargetText || ''); }catch(err){}
+            hideCtx();
+          }
+          if (act === 'del'){
+            if (!ctxTargetId) return;
+            if (!confirm('このメッセージを削除します。よろしいですか？')) return;
+            var r = await api('/admin/supports/' + encodeURIComponent(USER_ID) + '/api/delete', { messageId: ctxTargetId });
+            hideCtx();
+            if (!r.ok){ alert('削除に失敗しました'); return; }
+            await load();
+          }
+        });
+
+        // send (フォームはフォールバック)
+        var sendForm = byId('sendForm');
+        if (sendForm){
+          sendForm.addEventListener('submit', async function(e){
+            e.preventDefault();
+            var ta = byId('text');
+            var v = (ta.value||'').trim();
+            if (!v) return;
+            byId('sendBtn').disabled = true;
+            try{
+              var r = await api('/admin/supports/' + encodeURIComponent(USER_ID) + '/api/send', { text:v });
+              byId('sendBtn').disabled = false;
+              if (!r.ok){
+                console.warn('send failed', r.status, r.json);
+                sendForm.submit();
+                return;
+              }
+              ta.value = '';
+              await load();
+            }catch(err){
+              byId('sendBtn').disabled = false;
+              sendForm.submit();
+            }
+          });
         }
-        ta.value = "";
-        await load();
-      }
 
-      // context menu (copy/delete)
-      const ctx = byId("ctx");
-      let ctxTargetText = "";
-      let ctxTargetId = "";
-      function hideCtx(){ ctx.style.display="none"; ctxTargetText=""; ctxTargetId=""; }
-      document.addEventListener("click", hideCtx);
-      document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") hideCtx(); });
+        byId('text').addEventListener('keydown', function(e){
+          if(e.key==='Enter' && (e.ctrlKey || e.metaKey)){
+            e.preventDefault();
+            byId('sendBtn').click();
+          }
+        });
 
-      byId("msgs").addEventListener("contextmenu", (e)=>{
-        const bub = e.target.closest(".bubble");
-        if (!bub) return;
-        e.preventDefault();
-        ctxTargetText = bub.dataset.text || "";
-        ctxTargetId = bub.dataset.mid || "";
-        ctx.style.left = Math.min(window.innerWidth-220, e.clientX) + "px";
-        ctx.style.top = Math.min(window.innerHeight-140, e.clientY) + "px";
-        ctx.style.display = "block";
+        load();
       });
-
-      ctx.addEventListener("click", async (e)=>{
-        const act = e.target?.dataset?.act;
-        if (act === "copy"){
-          try{ await navigator.clipboard.writeText(ctxTargetText || ""); }catch{}
-          hideCtx();
-        }
-        if (act === "delete"){
-          if (!ctxTargetId) return;
-          if (!confirm("このメッセージを削除しますか？")) return;
-          const r = await api("/admin/supports/" + encodeURIComponent(USER_ID) + "/api/delete", { messageId: ctxTargetId });
-          if (!r.ok) alert("削除に失敗しました");
-          hideCtx();
-          await load();
-        }
-      });
-
-      byId("sendBtn")?.addEventListener("click", ()=>send());
-      byId("text").addEventListener("keydown", (e)=>{ if(e.key==="Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); send(); } });
-
-      load();
     </script>
   </body></html>`;
   res.send(html);
+});
+
+// admin form send
+app.post("/admin/supports/:userId/send", requireAdmin, async (req, res) => {
+  const userId = (req.params.userId || "").toString();
+  const text = (req.body?.text ?? "").toString().trim();
+  if (!text) return res.redirect("/admin/supports/" + encodeURIComponent(userId));
+  if (text.length > 2000) return res.send(toastPage("⚠メッセージが長すぎます（2000文字まで）。", "/admin/supports/" + encodeURIComponent(userId)));
+  await appendSupportMessageAsStaff(userId, req.user || null, text);
+  return res.redirect("/admin/supports/" + encodeURIComponent(userId));
 });
 
 app.get("/admin/supports/:userId/api/thread", requireAdmin, async (req, res) => {
@@ -3339,18 +3415,14 @@ app.get("/admin/supports/:userId/api/thread", requireAdmin, async (req, res) => 
   await usersDb.read();
 
   const target = usersDb.data.users.find(x => x.id === userId) || null;
-  const t = findSupportThread(userId);
-  if (t) {
-    updateThreadMeta(t);
-    await db.write();
-  }
+  const t = getSupportThread(userId, false);
 
   const viewer = { id: req.user?.id || null, username: req.user?.username || "admin", role: req.user?.role || ROLE_ADMIN, iconUrl: req.user?.iconUrl || null };
   return res.json({
     ok: true,
     viewer,
     target: target ? { id: target.id, username: target.username, role: target.role, iconUrl: target.iconUrl || null } : null,
-    messages: (t?.messages || []).map(normalizeMsgForClient),
+    messages: hydrateSupportMessages((t?.messages || []), buildUsersMap()).map(normalizeMsgForClient),
   });
 });
 
@@ -3360,16 +3432,7 @@ app.post("/admin/supports/:userId/api/send", requireAdmin, async (req, res) => {
   if (!text) return res.status(400).json({ ok:false, message:"空のメッセージは送信できません。" });
   if (text.length > 2000) return res.status(400).json({ ok:false, message:"メッセージが長すぎます（2000文字まで）。" });
 
-  await db.read();
-  const t = getSupportThread(userId);
-
-  const from = staffIdentity(req.user || null);
-  const msg = { id: nanoid(10), atISO: new Date().toISOString(), text, from };
-
-  t.messages.push(msg);
-  updateThreadMeta(t);
-  await db.write();
-
+  const msg = await appendSupportMessageAsStaff(userId, req.user || null, text);
   return res.json({ ok:true, message: normalizeMsgForClient(msg) });
 });
 
@@ -3379,19 +3442,14 @@ app.post("/admin/supports/:userId/api/delete", requireAdmin, async (req, res) =>
   if (!messageId) return res.status(400).json({ ok:false, message:"messageId が必要です。" });
 
   await db.read();
-  const t = getSupportThread(userId);
-
+  const t = getSupportThread(userId, true);
   const before = t.messages.length;
   t.messages = t.messages.filter(m => m.id !== messageId);
   const after = t.messages.length;
-
   updateThreadMeta(t);
   await db.write();
   return res.json({ ok:true, removed: before - after });
 });
-
-
-
 
 
 // ---- リクエストを放送済みに ----
