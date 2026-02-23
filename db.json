@@ -2602,13 +2602,26 @@
       "C9b5pAZO8vJQvHWx": {
         "userId": "C9b5pAZO8vJQvHWx",
         "createdAtISO": "2026-02-23T12:06:58.485Z",
-        "updatedAtISO": "2026-02-23T12:06:58.485Z",
-        "lastPreview": "test",
+        "updatedAtISO": "2026-02-23T12:36:12.497Z",
+        "lastPreview": "てｓｔ",
         "messages": [
           {
             "id": "Os8yRwZscy",
             "atISO": "2026-02-23T12:06:58.485Z",
             "text": "test",
+            "from": {
+              "kind": "user",
+              "userId": "C9b5pAZO8vJQvHWx",
+              "username": "surface",
+              "role": "site_admin",
+              "iconUrl": "/img/mypage.png",
+              "badge": "💎サイト管理者"
+            }
+          },
+          {
+            "id": "VCB8jAMdbg",
+            "atISO": "2026-02-23T12:36:12.497Z",
+            "text": "てｓｔ",
             "from": {
               "kind": "user",
               "userId": "C9b5pAZO8vJQvHWx",
