@@ -2485,6 +2485,26 @@ function getSupportThread(userId) {
   return t;
 }
 
+
+function deleteSupportThread(userId) {
+  const s = supportStore();
+  if (s.threads && Object.prototype.hasOwnProperty.call(s.threads, userId)) {
+    delete s.threads[userId];
+    return true;
+  }
+  return false;
+}
+
+
+function findSupportThread(userId) {
+  const s = supportStore();
+  const t = s.threads ? s.threads[userId] : null;
+  if (!t) return null;
+  if (!Array.isArray(t.messages)) t.messages = [];
+  return t;
+}
+
+
 function updateThreadMeta(t) {
   const last = t.messages.length ? t.messages[t.messages.length - 1] : null;
   t.updatedAtISO = last?.atISO || new Date().toISOString();
@@ -2810,15 +2830,17 @@ app.get("/support/api/thread", async (req, res) => {
   }
 
   await db.read();
-  const t = getSupportThread(u.id);
-  updateThreadMeta(t);
-  await db.write();
+  const t = findSupportThread(u.id);
+  if (t) {
+    updateThreadMeta(t);
+    await db.write();
+  }
 
   const viewer = { id: u.id, username: u.username, role: u.role, iconUrl: u.iconUrl || null };
   return res.json({
     ok: true,
     viewer,
-    messages: t.messages.map(normalizeMsgForClient),
+    messages: (t?.messages || []).map(normalizeMsgForClient),
   });
 });
 
@@ -2910,14 +2932,21 @@ app.get("/admin/supports", requireAdmin, async (req, res) => {
     const lastAt = t.updatedAtISO ? formatSupportTime(t.updatedAtISO) : "-";
     const preview = esc(t.lastPreview || "");
     return `
-      <a class="row" href="/admin/supports/${encodeURIComponent(t.userId)}">
-        <img class="av" src="${esc(icon)}" onerror="this.src='${SUPPORT_DESK_ICON}'">
-        <div class="main">
-          <div class="title"><b>${esc(name)}</b> <span class="id">🆔 ${esc(t.userId)}</span></div>
-          <div class="sub">${preview || '<span class="muted">（まだメッセージがありません）</span>'}</div>
-        </div>
-        <div class="time">${esc(lastAt)}</div>
-      </a>
+      <div class="row">
+        <a class="rowLink" href="/admin/supports/${encodeURIComponent(t.userId)}" title="開く">
+          <img class="av" src="${esc(icon)}" onerror="this.src='${SUPPORT_DESK_ICON}'">
+          <div class="main">
+            <div class="title"><b>${esc(name)}</b> <span class="id">🆔 ${esc(t.userId)}</span></div>
+            <div class="sub">${preview || '<span class="muted">（まだメッセージがありません）</span>'}</div>
+          </div>
+          <div class="time">${esc(lastAt)}</div>
+        </a>
+        <form class="del" method="POST" action="/admin/supports/${encodeURIComponent(t.userId)}/delete-thread" onsubmit="return confirm('このスレッドを削除します。
+一覧から消え、メッセージも全て削除されます。
+よろしいですか？');">
+          <button type="submit" title="スレッド削除">🗑</button>
+        </form>
+      </div>
     `;
   }).join("");
 
@@ -2930,9 +2959,14 @@ app.get("/admin/supports", requireAdmin, async (req, res) => {
     .head h1{margin:0;font-size:22px;}
     .btn{display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;border-radius:12px;padding:10px 12px;text-decoration:none;border:1px solid rgba(0,0,0,.08);}
     .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);overflow:hidden}
-    .row{display:flex;gap:12px;align-items:center;padding:12px 12px;border-top:1px solid rgba(0,0,0,.06);text-decoration:none;color:inherit;}
-    .row:hover{background:#f9fafb;}
+    .row{display:flex;gap:0;align-items:center;border-top:1px solid rgba(0,0,0,.06);}
     .row:first-child{border-top:none;}
+    .row:hover{background:#f9fafb;}
+    .rowLink{flex:1;display:flex;gap:12px;align-items:center;padding:12px 12px;min-width:0;text-decoration:none;color:inherit;}
+    .del{padding:0 10px;}
+    .del button{width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.10);background:#fff;cursor:pointer}
+    .del button:hover{background:rgba(0,0,0,.05);}
+
     .av{width:46px;height:46px;border-radius:14px;object-fit:cover;background:#f3f4f6;border:1px solid rgba(0,0,0,.06);}
     .main{flex:1;min-width:0;}
     .title{display:flex;gap:10px;align-items:center;min-width:0;}
@@ -2984,6 +3018,24 @@ app.post("/admin/support-terms", requireAdmin, async (req, res) => {
   return res.redirect("/admin/supports");
 });
 
+
+app.post("/admin/supports/:userId/delete-thread", requireAdmin, async (req, res) => {
+  const userId = (req.params.userId || "").toString();
+  await db.read();
+  const removed = deleteSupportThread(userId);
+  if (removed) await db.write();
+  return res.redirect("/admin/supports");
+});
+
+app.post("/admin/supports/:userId/api/delete-thread", requireAdmin, async (req, res) => {
+  const userId = (req.params.userId || "").toString();
+  await db.read();
+  const removed = deleteSupportThread(userId);
+  if (removed) await db.write();
+  return res.json({ ok: true, removed: !!removed });
+});
+
+
 // ---- 管理者：個別チャット ----
 app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
   const userId = (req.params.userId || "").toString();
@@ -2994,30 +3046,36 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート返信 - ${esc(titleName)}</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
+    html,body{height:100%;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;display:flex;flex-direction:column;}
     a{color:#2563eb;text-decoration:none}
     .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
     .pill{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:6px 10px;color:#111827;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#e5e7eb;}
     .meta{opacity:.75;font-size:12px}
-    .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
-    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);background:#ffffff;}
-    .msgs{flex:1;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
+    .wrap{max-width:980px;margin:0 auto;padding:0 10px;flex:1;min-height:0;display:flex;flex-direction:column;}
+    .chat{display:flex;flex-direction:column;flex:1;min-height:0;background:#ffffff;}
+    .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
     .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
     .msg.viewer{justify-content:flex-start;}
     .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
     .bubble{max-width:min(680px,78vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;position:relative;user-select:text;}
+    .text{white-space:pre-wrap;word-break:break-word;}
     .other .bubble{background:#e0f2fe;border-color:rgba(2,132,199,.25);}
-    .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
+    .head{display:flex;gap:10px;align-items:baseline;justify-content:space-between;margin:0 0 6px;}
+    .who{font-size:12px;opacity:.88;display:flex;gap:8px;align-items:center;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .metaRow{font-size:11px;opacity:.65;display:flex;gap:8px;align-items:center;white-space:nowrap;}
+    .metaRow code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
     .badge{font-size:12px;color:#0284c7;}
-    .time{font-size:11px;opacity:.65;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
-    .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
+    /* time styles replaced */
+    /* time code styles moved to .metaRow code */
     .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;}
     .row{display:flex;gap:10px;align-items:flex-end;}
     textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
     button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
     button:disabled{opacity:.5;cursor:not-allowed}
+    .dangerBtn{background:#fff;color:#ef4444;border:1px solid rgba(239,68,68,.35);border-radius:12px;padding:8px 12px;cursor:pointer;font-weight:800}
     .hint{margin-top:6px;font-size:12px;opacity:.7}
     /* context menu */
     .ctx{position:fixed;z-index:9999;min-width:220px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
@@ -3036,7 +3094,12 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
           <span class="meta">🆔 ${esc(userId)}</span>
         </div>
       </div>
-      <div class="meta">閲覧者＝左 / 相手＝右</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+        <form method="POST" action="/admin/supports/${encodeURIComponent(userId)}/delete-thread" onsubmit="return confirm('このスレッドを削除します。\n一覧から消え、メッセージも全て削除されます。\nよろしいですか？');" style="margin:0;">
+          <button class="dangerBtn" type="submit">スレッド削除</button>
+        </form>
+        <div class="meta">閲覧者＝左 / 相手＝右</div>
+      </div>
     </div>
 
     <div class="wrap chat">
@@ -3061,11 +3124,20 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
       function escHtml(s){ return String(s??"").replace(/[&<>"']/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
       function byId(id){ return document.getElementById(id); }
       async function api(path, body){
-        const opt = body ? { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body) } : {};
+        const opt = body
+          ? { method:"POST", headers:{ "Content-Type":"application/json", "Accept":"application/json" }, body: JSON.stringify(body), credentials:"include" }
+          : { method:"GET", headers:{ "Accept":"application/json" }, credentials:"include" };
+
         const r = await fetch(path, opt);
-        let j = null;
-        try{ j = await r.json(); }catch{}
-        return { ok:r.ok, status:r.status, json:j };
+        const ct = (r.headers.get("content-type") || "").toLowerCase();
+        let j = null, t = null;
+        try{
+          if (ct.includes("application/json")) j = await r.json();
+          else t = await r.text();
+        }catch(e){
+          try{ t = await r.text(); }catch{}
+        }
+        return { ok:r.ok, status:r.status, json:j, text:t };
       }
 
       function render(messages){
@@ -3089,20 +3161,29 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
           bub.dataset.text = m.text || "";
           bub.dataset.mid = m.id || "";
 
-          const name = document.createElement("div");
-          name.className = "name";
-          name.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ' <span class="badge">' + escHtml(m.from.badge) + '</span>' : "");
+          const head = document.createElement("div");
+          head.className = "head";
 
-          const text = document.createElement("div");
-          text.innerHTML = escHtml(m.text || "").replace(/\n/g,"<br>");
+          const who = document.createElement("div");
+          who.className = "who";
+          who.innerHTML = escHtml(m.from?.username || "unknown") + (m.from?.badge ? ' <span class="badge">' + escHtml(m.from.badge) + "</span>" : "");
 
-          const time = document.createElement("div");
-          time.className = "time";
-          time.innerHTML = '<span>' + escHtml(m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "") + '</span>' + (m.from?.userId ? ' <code>🆔 ' + escHtml(m.from.userId) + '</code>' : "");
+          const meta = document.createElement("div");
+          meta.className = "metaRow";
+          const at = m.atISO ? new Date(m.atISO).toLocaleString("ja-JP") : "";
+          const sid = m.from?.userId || (m.from?.role === "desk" ? "support-desk" : "");
+          meta.innerHTML = "<span>" + escHtml(at) + "</span>" + (sid ? " <code>🆔 " + escHtml(sid) + "</code>" : "");
 
-          bub.appendChild(name);
-          bub.appendChild(text);
-          bub.appendChild(time);
+          head.appendChild(who);
+          head.appendChild(meta);
+
+          const body = document.createElement("div");
+          body.className = "text";
+          body.innerHTML = escHtml(m.text || "").replace(/
+/g,"<br>");
+
+          bub.appendChild(head);
+          bub.appendChild(body);
 
           wrap.appendChild(av);
           wrap.appendChild(bub);
@@ -3114,8 +3195,9 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
       let lastMsgs = [];
       async function load(){
         const r = await api("/admin/supports/" + encodeURIComponent(USER_ID) + "/api/thread");
-        if (!r.ok){
-          alert("読み込みに失敗しました");
+        if (!r.ok || !r.json){
+          alert("読み込みに失敗しました（ログイン状態を確認してページを再読み込みしてください）");
+          console.warn("thread load failed:", r.status, r.text);
           return;
         }
         lastMsgs = (r.json?.messages || []);
@@ -3129,8 +3211,9 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
         byId("sendBtn").disabled = true;
         const r = await api("/admin/supports/" + encodeURIComponent(USER_ID) + "/api/send", { text:v });
         byId("sendBtn").disabled = false;
-        if (!r.ok){
-          alert(r.json?.message || "送信に失敗しました");
+        if (!r.ok || !r.json){
+          alert(r.json?.message || r.text || "送信に失敗しました");
+          console.warn("send failed:", r.status, r.text);
           return;
         }
         ta.value = "";
@@ -3187,16 +3270,18 @@ app.get("/admin/supports/:userId/api/thread", requireAdmin, async (req, res) => 
   await usersDb.read();
 
   const target = usersDb.data.users.find(x => x.id === userId) || null;
-  const t = getSupportThread(userId);
-  updateThreadMeta(t);
-  await db.write();
+  const t = findSupportThread(userId);
+  if (t) {
+    updateThreadMeta(t);
+    await db.write();
+  }
 
   const viewer = { id: req.user?.id || null, username: req.user?.username || "admin", role: req.user?.role || ROLE_ADMIN, iconUrl: req.user?.iconUrl || null };
   return res.json({
     ok: true,
     viewer,
     target: target ? { id: target.id, username: target.username, role: target.role, iconUrl: target.iconUrl || null } : null,
-    messages: t.messages.map(normalizeMsgForClient),
+    messages: (t?.messages || []).map(normalizeMsgForClient),
   });
 });
 
