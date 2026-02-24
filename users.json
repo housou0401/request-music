@@ -995,6 +995,21 @@
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-24T12:27:37.265Z",
       "registeredAt": "2026-02-24T12:27:37.265Z"
+    },
+    {
+      "id": "w5iTZBb6W5mAk8Hz",
+      "username": "ぬ",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Linux; Android 15; SH-52F Build/S512L; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/145.0.7632.103 Mobile Safari/537.36 Instagram 417.0.0.54.77 Android (35/15; 280dpi; 720x1612; SHARP/DOCOMO; SH-52F; SH-52F; mt6835; ja_JP; 884780529; IABMV/1)",
+        "ip": "::1"
+      },
+      "role": "user",
+      "tokens": 10,
+      "lastRefillISO": "2026-02",
+      "lastRefillAtISO": "2026-02-24T22:22:25.373Z",
+      "registeredAt": "2026-02-24T22:22:25.373Z"
     }
   ]
 }
