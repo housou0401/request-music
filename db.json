@@ -2264,6 +2264,25 @@
         "id": "I_9_mUJH7dIXORlt",
         "username": "1127rina"
       }
+    },
+    {
+      "id": "WprZqhNS5RZ7BkiDIhJ6A",
+      "text": "博多のマサムネ",
+      "artist": "野獣先輩",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%8D%9A%E5%A4%9A%E3%81%AE%E3%83%9E%E3%82%B5%E3%83%A0%E3%83%8D/1838468882?i=1838468885&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/4a/fd/fc/4afdfc76-7da8-71e1-6615-4cbd3e421f1a/artwork.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/83/26/0b/83260b5b-9afd-c25e-4bd8-cd071bf6069c/mzaf_4135580367535992309.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-24T22:24:06.698Z",
+      "by": {
+        "id": "w5iTZBb6W5mAk8Hz",
+        "username": "ぬ"
+      },
+      "lastRequestedAt": "2026-02-24T22:24:06.698Z",
+      "lastBy": {
+        "id": "w5iTZBb6W5mAk8Hz",
+        "username": "ぬ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2424,7 +2443,8 @@
     "あかときリロード|aiko": 1,
     "366日|hy": 1,
     "青い鳥|千葉県立幕張総合高等学校合唱団": 1,
-    "心の瞳|坂本九": 1
+    "心の瞳|坂本九": 1,
+    "博多のマサムネ|野獣先輩": 1
   },
   "settings": {
     "recruiting": true,
