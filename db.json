@@ -2283,6 +2283,25 @@
         "id": "w5iTZBb6W5mAk8Hz",
         "username": "ぬ"
       }
+    },
+    {
+      "id": "7Y4FRUHJPbEXBaf4v4dxz",
+      "text": "YAJU&U",
+      "artist": "ライララ",
+      "appleMusicUrl": "https://music.apple.com/jp/album/yaju-u/1804573154?i=1804573159&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d1/c2/f5/d1c2f5d7-5a9b-d4f8-3b82-1e489aaa3ac3/4550707073082_cover.png/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/78/01/b2/7801b2d0-0a21-0d98-b891-be1991cb3ab7/mzaf_643335663570830509.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-24T22:25:46.982Z",
+      "by": {
+        "id": "w5iTZBb6W5mAk8Hz",
+        "username": "ぬ"
+      },
+      "lastRequestedAt": "2026-02-24T22:25:46.982Z",
+      "lastBy": {
+        "id": "w5iTZBb6W5mAk8Hz",
+        "username": "ぬ"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2444,7 +2463,8 @@
     "366日|hy": 1,
     "青い鳥|千葉県立幕張総合高等学校合唱団": 1,
     "心の瞳|坂本九": 1,
-    "博多のマサムネ|野獣先輩": 1
+    "博多のマサムネ|野獣先輩": 1,
+    "yaju&u|ライララ": 1
   },
   "settings": {
     "recruiting": true,
