@@ -163,7 +163,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 5,
+      "tokens": 3,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
     },
