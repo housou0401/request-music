@@ -2226,6 +2226,44 @@
         "id": "RK_SVb3CKNbXn5Cd",
         "username": "ひず"
       }
+    },
+    {
+      "id": "g8cDWCF7sTSBIVM_0Xq6n",
+      "text": "青い鳥",
+      "artist": "千葉県立幕張総合高等学校合唱団",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%9D%92%E3%81%84%E9%B3%A5/834244327?i=834244468&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/f6/5b/68/f65b68c5-7dcb-de8c-a536-01a3b8c32a60/COCQ-85052.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/a9/8c/3e/a98c3eff-769a-d265-a8c9-65219ae0710f/mzaf_3184142839312047510.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-24T03:24:21.889Z",
+      "by": {
+        "id": "I_9_mUJH7dIXORlt",
+        "username": "1127rina"
+      },
+      "lastRequestedAt": "2026-02-24T03:24:21.889Z",
+      "lastBy": {
+        "id": "I_9_mUJH7dIXORlt",
+        "username": "1127rina"
+      }
+    },
+    {
+      "id": "9DlAyb977zykV-Zbxaw20",
+      "text": "心の瞳",
+      "artist": "坂本九",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%BF%83%E3%81%AE%E7%9E%B3/1537154084?i=1537154090&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/58/4c/f6/584cf65c-4d48-744a-27ce-22768ebf51d3/jacket_MHXX02684B00Z_550.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/91/08/bb/9108bb89-8e47-9bb8-b687-72f803d3a9a4/mzaf_12989638939845156086.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-24T03:24:49.446Z",
+      "by": {
+        "id": "I_9_mUJH7dIXORlt",
+        "username": "1127rina"
+      },
+      "lastRequestedAt": "2026-02-24T03:24:49.446Z",
+      "lastBy": {
+        "id": "I_9_mUJH7dIXORlt",
+        "username": "1127rina"
+      }
     }
   ],
   "lastSubmissions": {
@@ -2384,7 +2422,9 @@
     "モス|サカナクション": 1,
     "caffeine|秋山黄色": 1,
     "あかときリロード|aiko": 1,
-    "366日|hy": 1
+    "366日|hy": 1,
+    "青い鳥|千葉県立幕張総合高等学校合唱団": 1,
+    "心の瞳|坂本九": 1
   },
   "settings": {
     "recruiting": true,
