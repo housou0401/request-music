@@ -55,6 +55,34 @@
   /* stack support/admin under mypage so they don't overlap */
   .support-link{top:56px !important;}
   .admin-button{top:100px !important;}
+
+/* ===== Request Terms Modal (same design as support terms) ===== */
+.terms-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.terms-ov.show{display:flex}
+.terms-modal{width:min(640px,92vw);background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden;border:1px solid rgba(0,0,0,.08)}
+.terms-h{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.08)}
+.terms-h .t{font-weight:900}
+.terms-x{border:none;background:transparent;font-size:20px;cursor:pointer;opacity:.7}
+.terms-x:hover{opacity:1}
+.terms-b{padding:14px}
+.terms-open-wrap{display:flex;justify-content:center;margin:10px 0 14px}
+.terms-open-btn{border:none;background:#111827;color:#fff;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.terms-open-btn:hover{filter:brightness(.95)}
+.terms-agree{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.terms-agree .btn{border:none;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.terms-agree .cancel{background:#e5e7eb;color:#111827}
+.terms-agree .ok{background:#2563eb;color:#fff}
+.terms-sub{font-size:12px;opacity:.7;margin-top:6px}
+.terms-view{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:10000;padding:16px}
+.terms-view.show{display:flex}
+.terms-card{width:min(860px,94vw);max-height:86vh;background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.30);border:1px solid rgba(0,0,0,.10);overflow:hidden;display:flex;flex-direction:column}
+.terms-card .head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.08)}
+.terms-card .body{padding:14px;overflow:auto;white-space:pre-wrap;line-height:1.7;font-size:14px}
+.terms-card .foot{display:flex;justify-content:flex-end;gap:10px;padding:12px 14px;border-top:1px solid rgba(0,0,0,.08)}
+.terms-card .foot button{border:none;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.terms-card .foot .agree{background:#2563eb;color:#fff}
+.terms-card .foot .close{background:#e5e7eb;color:#111827}
+
 </style>
 </head>
 
@@ -162,8 +190,8 @@
   <div class="ux-overlay" id="welcomeOverlay" aria-hidden="true">
     <div class="ux-modal">
       <h3 style="margin:0 0 6px;">ようこそ！</h3>
-      <p style="margin:0 0 8px;">ユーザネームを入力して初回登録してください（端末ごとに1アカウント）。</p>
-      <div class="ux-row"><input id="usernameInput" type="text" placeholder="ユーザネーム" required maxlength="24"></div>
+      <p style="margin:0 0 8px;">ユーザー名を入力して初回登録してください（2文字以上 / 端末ごとに1アカウント）。</p>
+      <div class="ux-row"><input id="usernameInput" type="text" placeholder="ユーザネーム" required minlength="2" maxlength="24"></div>
       <details style="margin-top:6px;">
         <summary>管理者としてログイン（管理者のみ）</summary>
         <div class="ux-row"><input id="adminPassInput" type="password" placeholder="管理パスワード"></div>
@@ -171,9 +199,46 @@
       </details>
       <div class="ux-row" style="justify-content:flex-end;"><button id="registerBtn" type="button">登録</button></div>
     </div>
-  </div>
 
-  <!-- メンテ中オーバーレイ -->
+</div>
+
+<!-- リクエスト送信用 利用規約（初回登録前/再同意用） -->
+<div class="terms-ov" id="reqTermsOverlay" aria-hidden="true">
+  <div class="terms-modal" role="dialog" aria-modal="true">
+    <div class="terms-h">
+      <div class="t">利用規約の同意</div>
+      <button class="terms-x" type="button" id="reqTermsCloseBtn" aria-label="閉じる">×</button>
+    </div>
+    <div class="terms-b">
+      <div style="font-weight:900;margin-bottom:6px;">リクエスト送信用 利用規約</div>
+      <div class="terms-sub">リクエスト曲を送るには、利用規約への同意が必要です。</div>
+      <div class="terms-open-wrap">
+        <button type="button" class="terms-open-btn" id="reqTermsOpenBtn">利用規約を確認</button>
+      </div>
+      <div class="terms-agree">
+        <button type="button" class="btn cancel" id="reqTermsCancelBtn">キャンセル</button>
+        <button type="button" class="btn ok" id="reqTermsAgreeBtn">同意する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 利用規約ビュー（読みやすい表示） -->
+<div class="terms-view" id="reqTermsView" aria-hidden="true">
+  <div class="terms-card">
+    <div class="head">
+      <div style="font-weight:900">リクエスト送信用 利用規約</div>
+      <button class="terms-x" type="button" id="reqTermsViewCloseX" aria-label="閉じる">×</button>
+    </div>
+    <div class="body" id="reqTermsText">（読み込み中…）</div>
+    <div class="foot">
+      <button type="button" class="close" id="reqTermsViewCloseBtn">閉じる</button>
+      <button type="button" class="agree" id="reqTermsViewAgreeBtn">同意する</button>
+    </div>
+  </div>
+</div>
+
+<!-- メンテ中オーバーレイ -->
   <div class="ux-maint-overlay" id="maintenanceOverlay">
     <div class="ux-maint-box">
       <h2>現在メンテナンス中です</h2>
@@ -244,6 +309,84 @@
       catch { return { loggedIn:false }; }
     }
 
+
+// ---- リクエスト送信用 利用規約 ----
+let __reqTermsCache = null; // {termsText, termsVersion}
+let __reqTermsPending = null; // { type:'register'|'submit', payload:{} }
+
+async function fetchRequestTerms() {
+  try {
+    const r = await fetch('/request-terms');
+    const j = await r.json();
+    return { termsText: String(j.termsText ?? ''), termsVersion: Number(j.termsVersion ?? 1) || 1 };
+  } catch {
+    return { termsText: '', termsVersion: 1 };
+  }
+}
+async function ensureReqTermsLoaded(force=false) {
+  if (force || !__reqTermsCache) __reqTermsCache = await fetchRequestTerms();
+  return __reqTermsCache;
+}
+
+function showReqTermsOverlay() {
+  document.getElementById('reqTermsOverlay')?.classList.add('show');
+  document.getElementById('reqTermsOverlay')?.setAttribute('aria-hidden','false');
+}
+function hideReqTermsOverlay() {
+  document.getElementById('reqTermsOverlay')?.classList.remove('show');
+  document.getElementById('reqTermsOverlay')?.setAttribute('aria-hidden','true');
+}
+function showReqTermsView() {
+  document.getElementById('reqTermsView')?.classList.add('show');
+  document.getElementById('reqTermsView')?.setAttribute('aria-hidden','false');
+}
+function hideReqTermsView() {
+  document.getElementById('reqTermsView')?.classList.remove('show');
+  document.getElementById('reqTermsView')?.setAttribute('aria-hidden','true');
+}
+
+async function openReqTermsModal(type, payload) {
+  __reqTermsPending = { type, payload };
+  const rt = await ensureReqTermsLoaded();
+  const box = document.getElementById('reqTermsText');
+  if (box) box.textContent = rt.termsText || '（利用規約が設定されていません）';
+  showReqTermsOverlay();
+}
+
+async function acceptReqTermsAndContinue() {
+  const rt = await ensureReqTermsLoaded();
+  const pending = __reqTermsPending;
+  if (!pending) { hideReqTermsOverlay(); hideReqTermsView(); return; }
+
+  if (pending.type === 'register') {
+    await performRegister(pending.payload.username, pending.payload.adminPassword, rt.termsVersion);
+    return;
+  }
+  if (pending.type === 'submit') {
+    try {
+      const r = await fetch('/request-terms/accept', { method:'POST' });
+      const j = await r.json().catch(()=>({}));
+      if (!j.ok) {
+        alert('同意の保存に失敗しました。もう一度お試しください。');
+        return;
+      }
+      hideReqTermsView();
+      hideReqTermsOverlay();
+      __reqTermsPending = null;
+
+      // 同意したので再送
+      const f = pending.payload.form;
+      if (f && typeof f.requestSubmit === 'function') {
+        window.__reqTermsBypassOnce = true;
+        f.requestSubmit();
+      }
+      return;
+    } catch(e) {
+      alert('通信エラー: ' + e.message);
+    }
+  }
+}
+
     function setAdminButtonVisible(me){
       const btn = document.getElementById('adminBtn');
       if (!btn) return;
@@ -298,67 +441,93 @@
       }
     }
 
-    // ------- 登録（管理者パスが正しければ即 admin / 誤りは登録せず再入力） -------
-    async function registerNow() {
-      const uiName = document.getElementById('usernameInput');
-      const uiPass = document.getElementById('adminPassInput');
-      const username = (uiName?.value ?? '').trim();
-      if (!username) { alert('ユーザー名を入力してください。'); uiName && uiName.focus(); return; }
-      const adminPassword = (uiPass?.value ?? '').trim();
+    // ------- 登録（利用規約の同意が必須） -------
+async function performRegister(username, adminPassword, requestTermsVersion) {
+  try {
+    const res = await fetch('/register', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ username, adminPassword: adminPassword || undefined, requestTermsVersion })
+    });
+    const data = await res.json();
 
-      try {
-        const res = await fetch('/register', {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json' },
-          body: JSON.stringify({ username, adminPassword: adminPassword || undefined })
-        });
-        const data = await res.json();
+    if (data.ok) {
+      const roleJa = data.role === 'admin' ? '管理者' : (data.role === 'site_admin' ? 'サイト管理者' : 'ユーザー');
+      const nameForAlert = data.username || username || 'ユーザー';
+      alert(`✅${roleJa}でログインしました
+${nameForAlert} さんようこそ！`);
+      document.getElementById('welcomeOverlay')?.classList.remove('show');
+      hideReqTermsOverlay();
+      hideReqTermsView();
+      __reqTermsPending = null;
 
-        if (data.ok) {
-          const roleJa = data.role === 'admin' ? '管理者' : 'ユーザー';
-          const nameForAlert = data.username || username || 'ユーザー';
-          alert(`✅${roleJa}でログインしました\n${nameForAlert} さんようこそ！`);
-          document.getElementById('welcomeOverlay')?.classList.remove('show');
-          const me = await fetchMe();
-          setAdminButtonVisible(me);
+      const me = await fetchMe();
+      setAdminButtonVisible(me);
       setSupportButtonVisible(me);
-          updateTokenInfo(me);
-          return;
-        }
-
-        if (data.reason === 'bad_admin_password') {
-          const left = (typeof data.remaining === 'number') ? data.remaining : 0;
-          alert(`管理者パスワードが違います。残り ${left} 回`);
-          if (uiPass) { uiPass.value = ''; uiPass.focus(); }
-          await refreshAdminTryInfo();
-          return;
-        }
-        if (data.reason === 'locked') {
-          alert('管理者パスワードの試行上限に達しました。パスワード欄を空にしてユーザーとして登録してください。');
-          if (uiPass) { uiPass.value = ''; uiPass.blur(); }
-          await refreshAdminTryInfo();
-          return;
-        }
-        if (data.reason === 'username_required') {
-          alert('ユーザー名を入力してください。');
-          if (uiName) { uiName.focus(); }
-          return;
-        }
-        if (data.reason === 'username_too_long') {
-          alert('ユーザー名が長すぎます。（最大24文字）');
-          if (uiName) { uiName.focus(); }
-          return;
-        }
-        if (data.reason === 'username_invalid') {
-          alert('ユーザー名に使えない文字が含まれています。');
-          if (uiName) { uiName.focus(); }
-          return;
-        }
-        alert('登録に失敗しました。もう一度お試しください。');
-      } catch (e) {
-        alert('通信エラー: ' + e.message);
-      }
+      updateTokenInfo(me);
+      return;
     }
+
+    if (data.reason === 'request_terms_required') {
+      // 管理画面でバージョンが更新された等
+      await ensureReqTermsLoaded(true);
+      alert('利用規約が更新されています。再度ご確認のうえ同意してください。');
+      await openReqTermsModal('register', { username, adminPassword });
+      return;
+    }
+
+    if (data.reason === 'bad_admin_password') {
+      const left = (typeof data.remaining === 'number') ? data.remaining : 0;
+      alert(`管理者パスワードが違います。残り ${left} 回`);
+      const uiPass = document.getElementById('adminPassInput');
+      if (uiPass) { uiPass.value = ''; uiPass.focus(); }
+      await refreshAdminTryInfo();
+      return;
+    }
+    if (data.reason === 'locked') {
+      alert('管理者パスワードの試行上限に達しました。パスワード欄を空にしてユーザーとして登録してください。');
+      const uiPass = document.getElementById('adminPassInput');
+      if (uiPass) { uiPass.value = ''; uiPass.blur(); }
+      await refreshAdminTryInfo();
+      return;
+    }
+    if (data.reason === 'username_required') {
+      alert('ユーザー名を入力してください。');
+      document.getElementById('usernameInput')?.focus();
+      return;
+    }
+    if (data.reason === 'username_too_short') {
+      alert('ユーザー名は2文字以上で入力してください。');
+      document.getElementById('usernameInput')?.focus();
+      return;
+    }
+    if (data.reason === 'username_too_long') {
+      alert('ユーザー名が長すぎます。（最大24文字）');
+      document.getElementById('usernameInput')?.focus();
+      return;
+    }
+    if (data.reason === 'username_invalid') {
+      alert('ユーザー名に使えない文字が含まれています。');
+      document.getElementById('usernameInput')?.focus();
+      return;
+    }
+    alert('登録に失敗しました。もう一度お試しください。');
+  } catch (e) {
+    alert('通信エラー: ' + e.message);
+  }
+}
+
+async function registerNow() {
+  const uiName = document.getElementById('usernameInput');
+  const uiPass = document.getElementById('adminPassInput');
+  const username = (uiName?.value ?? '').trim();
+  if (!username) { alert('ユーザー名を入力してください。'); uiName && uiName.focus(); return; }
+  if (username.length < 2) { alert('ユーザー名は2文字以上で入力してください。'); uiName && uiName.focus(); return; }
+  const adminPassword = (uiPass?.value ?? '').trim();
+
+  // 利用規約の同意モーダルへ
+  await openReqTermsModal('register', { username, adminPassword: adminPassword || undefined });
+}
 
     // ------- 旧UIで新エンジンを使う：バインド処理 -------
     const audioEl = document.getElementById('amPreviewAudio');
@@ -524,6 +693,38 @@
       ensureRegistered();
       startRefillCountdown();
       refreshAdminTryInfo();
+
+// リクエスト送信用 利用規約: ボタン配線
+document.getElementById('reqTermsOpenBtn')?.addEventListener('click', async () => {
+  const rt = await ensureReqTermsLoaded();
+  const box = document.getElementById('reqTermsText');
+  if (box) box.textContent = rt.termsText || '（利用規約が設定されていません）';
+  showReqTermsView();
+});
+const closeTermsAll = () => { hideReqTermsView(); hideReqTermsOverlay(); __reqTermsPending = null; };
+document.getElementById('reqTermsCloseBtn')?.addEventListener('click', closeTermsAll);
+document.getElementById('reqTermsCancelBtn')?.addEventListener('click', closeTermsAll);
+document.getElementById('reqTermsViewCloseBtn')?.addEventListener('click', hideReqTermsView);
+document.getElementById('reqTermsViewCloseX')?.addEventListener('click', hideReqTermsView);
+document.getElementById('reqTermsAgreeBtn')?.addEventListener('click', acceptReqTermsAndContinue);
+document.getElementById('reqTermsViewAgreeBtn')?.addEventListener('click', acceptReqTermsAndContinue);
+
+// 送信時も利用規約同意チェック（バージョン更新時の再同意含む）
+const reqForm = document.getElementById('requestForm');
+if (reqForm) {
+  reqForm.addEventListener('submit', async (ev) => {
+    if (window.__reqTermsBypassOnce) { window.__reqTermsBypassOnce = false; return; }
+    const me = await fetchMe();
+    if (!me || !me.loggedIn) return;
+
+    const rt = await ensureReqTermsLoaded();
+    const accepted = Number(me.user?.requestTermsAcceptedVersion ?? 0);
+    if (accepted < Number(rt.termsVersion ?? 1)) {
+      ev.preventDefault();
+      await openReqTermsModal('submit', { form: reqForm });
+    }
+  }, true); // capture
+}
 
       // ソート選択の初期化
       const sel = document.getElementById('searchSort');
