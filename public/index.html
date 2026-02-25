@@ -61,7 +61,7 @@
 <body>
   <a id="mypage-link" class="mypage-link" href="/mypage"><img src="/img/mypage.png" alt="マイページ"><span>マイページ</span></a>
 
-  <a id="supportLink" class="mypage-link support-link ux-hidden" href="/support"><span>💬 サポート</span></a>
+  <a id="supportLink" class="mypage-link support-link ux-hidden" href="/support"><span>💬 サポート・要望</span></a>
 <a id="theme-link" class="mypage-link theme-link" href="/theme" style="display:none;"><span>🎧 テーマ投票</span></a>
 
   <!-- 管理者ボタン（右上固定） -->
@@ -163,7 +163,7 @@
     <div class="ux-modal">
       <h3 style="margin:0 0 6px;">ようこそ！</h3>
       <p style="margin:0 0 8px;">ユーザネームを入力して初回登録してください（端末ごとに1アカウント）。</p>
-      <div class="ux-row"><input id="usernameInput" type="text" placeholder="ユーザネーム"></div>
+      <div class="ux-row"><input id="usernameInput" type="text" placeholder="ユーザネーム" required maxlength="24"></div>
       <details style="margin-top:6px;">
         <summary>管理者としてログイン（管理者のみ）</summary>
         <div class="ux-row"><input id="adminPassInput" type="password" placeholder="管理パスワード"></div>
@@ -302,7 +302,8 @@
     async function registerNow() {
       const uiName = document.getElementById('usernameInput');
       const uiPass = document.getElementById('adminPassInput');
-      const username = (uiName?.value ?? '').trim() || 'Guest';
+      const username = (uiName?.value ?? '').trim();
+      if (!username) { alert('ユーザー名を入力してください。'); uiName && uiName.focus(); return; }
       const adminPassword = (uiPass?.value ?? '').trim();
 
       try {
@@ -336,6 +337,21 @@
           alert('管理者パスワードの試行上限に達しました。パスワード欄を空にしてユーザーとして登録してください。');
           if (uiPass) { uiPass.value = ''; uiPass.blur(); }
           await refreshAdminTryInfo();
+          return;
+        }
+        if (data.reason === 'username_required') {
+          alert('ユーザー名を入力してください。');
+          if (uiName) { uiName.focus(); }
+          return;
+        }
+        if (data.reason === 'username_too_long') {
+          alert('ユーザー名が長すぎます。（最大24文字）');
+          if (uiName) { uiName.focus(); }
+          return;
+        }
+        if (data.reason === 'username_invalid') {
+          alert('ユーザー名に使えない文字が含まれています。');
+          if (uiName) { uiName.focus(); }
           return;
         }
         alert('登録に失敗しました。もう一度お試しください。');
