@@ -12,6 +12,8 @@ import url from "node:url";
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", true);
+
 
 const toastPage = (msg, redirect="/") => `<!doctype html><html lang="ja"><meta charset="utf-8">
 <style>
@@ -91,6 +93,14 @@ if (typeof db.data.support.termsVersion !== "number") db.data.support.termsVersi
 if (typeof db.data.support.termsText !== "string") db.data.support.termsText = "";
 if (!db.data.support.threads || typeof db.data.support.threads !== "object") db.data.support.threads = {};
 
+// ---- Access control defaults (ban by deviceId / IP) ----
+if (!db.data.accessControl) db.data.accessControl = {
+  bannedDevices: {}, // { [deviceId]: { deviceId, ip, reason, bannedAtISO, by } }
+  bannedIps: {},     // { [ip]: { ip, mode:'soft'|'strict', reason, bannedAtISO, by } }
+};
+if (!db.data.accessControl.bannedDevices || typeof db.data.accessControl.bannedDevices !== "object") db.data.accessControl.bannedDevices = {};
+if (!db.data.accessControl.bannedIps || typeof db.data.accessControl.bannedIps !== "object") db.data.accessControl.bannedIps = {};
+
 
 // ---- cookieからトークンを取得 ----
 const TOK_COOKIE = "tok";
@@ -112,6 +122,79 @@ function writeTokCookie(res, user){
 app.use(bodyParser.urlencoded({ extended: true, limit: "2mb" }));
 app.use(express.json({ limit: "2mb" }));
 app.use(cookieParser());
+
+// ---- Access gate (ban by deviceId / IP) ----
+function _normIp(ip){
+  const s = String(ip || "").trim();
+  if (!s) return "";
+  const v = s.startsWith("::ffff:") ? s.slice(7) : s;
+  return v.split("%")[0];
+}
+function _clientIp(req){
+  const xff = req.headers["x-forwarded-for"];
+  if (typeof xff === "string" && xff.trim()) return _normIp(xff.split(",")[0].trim());
+  return _normIp(req.ip || req.connection?.remoteAddress || "");
+}
+function _sendBanned(res, { title = "アクセス禁止", reason = "" } = {}){
+  res.status(403).send(`<!doctype html><html lang="ja"><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${title}</title>
+  <style>
+    body{margin:0;background:#f3f4f6;color:#111827;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial}
+    .wrap{max-width:720px;margin:40px auto;padding:0 16px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px;box-shadow:0 10px 24px rgba(15,23,42,.08)}
+    h1{margin:0 0 8px;font-size:22px;color:#b91c1c}
+    p{margin:8px 0;color:#374151;line-height:1.6}
+    .muted{color:#6b7280;font-size:13px}
+    a{color:#2563eb;text-decoration:none}
+  </style>
+  <body><div class="wrap"><div class="card">
+    <h1>🚫 アクセスが制限されています</h1>
+    <p>${reason || "運営者によりアクセスが制限されています。"}</p>
+    <p class="muted">心当たりがない場合は、運営へご連絡ください。</p>
+    <p class="muted"><a href="/">トップへ</a></p>
+  </div></div></body></html>`);
+}
+
+app.use((req, res, next) => {
+  try {
+    const ip = _clientIp(req);
+    const deviceId = req.cookies?.deviceId || null;
+
+    const ac = db.data.accessControl || {};
+    const bannedDevices = ac.bannedDevices || {};
+    const bannedIps = ac.bannedIps || {};
+
+    // 端末（deviceId）BANは常にブロック（同一WiFiでも巻き込まないため、基本は端末BAN推奨）
+    if (deviceId && bannedDevices[deviceId]) {
+      const rec = bannedDevices[deviceId] || {};
+      return _sendBanned(res, { reason: rec.reason || "この端末はアクセス禁止です。" });
+    }
+
+    // IP BANは「soft（既存ユーザーは許可）」をデフォルトにする
+    if (ip && bannedIps[ip]) {
+      const rec = bannedIps[ip] || {};
+      const mode = (rec.mode || "soft");
+      const baseUser = deviceId ? usersDb.data.users.find(u => u.id === deviceId) : null;
+      const isAdminUser = !!(baseUser && (baseUser.role === "admin" || baseUser.role === "site_admin"));
+      if (!isAdminUser) {
+        let blocked = false;
+        if (mode === "strict") {
+          blocked = true;
+        } else {
+          // soft: ban後に新規登録したユーザー/未登録はブロック（同一WiFiの既存ユーザーは許可）
+          const banAt = Date.parse(rec.bannedAtISO || "");
+          const regAt = baseUser ? Date.parse(baseUser.registeredAt || "") : NaN;
+          if (!baseUser) blocked = true;
+          else if (!Number.isFinite(banAt) || !Number.isFinite(regAt)) blocked = true;
+          else blocked = !(regAt < banAt);
+        }
+        if (blocked) return _sendBanned(res, { reason: rec.reason || "このネットワークからのアクセスは制限されています。" });
+      }
+    }
+  } catch {}
+  next();
+});
 
 // 静的配信 & ルート
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -291,7 +374,7 @@ async function endThemeAndMerge(reason = "manual") {
   await safeWriteDb();
 }
 
-const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 365 };
+const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 3650 };
 const getInt = (v) => (Number.isFinite(parseInt(v, 10)) ? parseInt(v, 10) : 0);
 const getRegFails = (req) => Math.max(0, getInt(req.cookies?.areg));
 const setRegFails = (res, n) => res.cookie("areg", Math.max(0, n), COOKIE_OPTS);
@@ -590,7 +673,10 @@ app.get("/auth/status", (req, res) => {
 app.post("/register", async (req, res) => {
   try {
     const usernameRaw = (req.body.username ?? "").toString();
-    const username = usernameRaw.trim() || "Guest";
+    const username = usernameRaw.trim();
+    if (!username) return res.json({ ok: false, reason: "username_required" });
+    if (username.length > 24) return res.json({ ok: false, reason: "username_too_long" });
+    if (/[\r\n]/.test(username)) return res.json({ ok: false, reason: "username_invalid" });
     const adminPassword = typeof req.body.adminPassword === "string" ? req.body.adminPassword.trim() : "";
     const monthly = Number(db.data.settings.monthlyTokens ?? 5);
 
@@ -769,6 +855,265 @@ if (!isAdmin(user)) {
 // ---- リクエスト削除 & まとめて削除 ----
 function safeWriteUsers() { return usersDb.write().catch(e => console.error("users.json write error:", e)); }
 function safeWriteDb() { return db.write().catch(e => console.error("db.json write error:", e)); }
+
+// ---- Admin: Access control (BAN) ----
+const normIp = (ip) => {
+  const s = String(ip || "").trim();
+  if (!s) return "";
+  const v = s.startsWith("::ffff:") ? s.slice(7) : s;
+  return v.split("%")[0];
+};
+
+app.get("/admin/access-control", requireAdmin, async (req, res) => {
+  await db.read().catch(()=>{});
+  await usersDb.read().catch(()=>{});
+
+  const ac = db.data.accessControl || {};
+  const bannedDevices = ac.bannedDevices || {};
+  const bannedIps = ac.bannedIps || {};
+
+  const preDeviceId = String(req.query.deviceId || "").trim();
+  const preIp = String(req.query.ip || "").trim();
+
+  const preUser = preDeviceId ? usersDb.data.users.find(u => u.id === preDeviceId) : null;
+  const inferredIp = preIp || normIp(preUser?.deviceInfo?.ip || "");
+
+  const now = new Date();
+  const fmt = (iso) => {
+    if (!iso) return "-";
+    try { return new Date(iso).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }); } catch { return iso; }
+  };
+
+  const devRows = Object.values(bannedDevices).sort((a,b)=>String(b.bannedAtISO||"").localeCompare(String(a.bannedAtISO||""))).map((r) => {
+    const did = String(r.deviceId || "");
+    const user = did ? usersDb.data.users.find(u => u.id === did) : null;
+    return `<tr>
+      <td><code>${esc(did)}</code></td>
+      <td>${esc(r.username || user?.username || "-")}</td>
+      <td>${esc(r.ip || user?.deviceInfo?.ip || "-")}</td>
+      <td>${fmt(r.bannedAtISO)}</td>
+      <td style="max-width:260px;word-break:break-word;">${esc(r.reason || "")}</td>
+      <td>
+        <form method="POST" action="/admin/access/unban-device" style="display:inline-flex;gap:6px;align-items:center;">
+          <input type="hidden" name="deviceId" value="${esc(did)}">
+          <button type="submit" class="btn danger">解除</button>
+        </form>
+      </td>
+    </tr>`;
+  }).join("");
+
+  const ipRows = Object.values(bannedIps).sort((a,b)=>String(b.bannedAtISO||"").localeCompare(String(a.bannedAtISO||""))).map((r) => {
+    const ip = String(r.ip || "");
+    const mode = (r.mode || "soft");
+    return `<tr>
+      <td><code>${esc(ip)}</code></td>
+      <td><span class="pill">${mode === "strict" ? "strict" : "soft"}</span></td>
+      <td>${fmt(r.bannedAtISO)}</td>
+      <td style="max-width:320px;word-break:break-word;">${esc(r.reason || "")}</td>
+      <td>
+        <form method="POST" action="/admin/access/unban-ip" style="display:inline-flex;gap:6px;align-items:center;">
+          <input type="hidden" name="ip" value="${esc(ip)}">
+          <button type="submit" class="btn danger">解除</button>
+        </form>
+      </td>
+    </tr>`;
+  }).join("");
+
+  res.send(`<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>アクセス制限</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;background:#f3f4f6;margin:0;padding:16px;color:#111827;}
+    .wrap{max-width:1100px;margin:0 auto;}
+    a{color:#2563eb;text-decoration:none}
+    h1{margin:6px 0 10px 0;}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px;margin:12px 0;box-shadow:0 10px 24px rgba(15,23,42,.08);}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:860px){.grid{grid-template-columns:1fr}}
+    label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#374151}
+    input,select{padding:10px 12px;border:1px solid #d1d5db;border-radius:12px;font-size:14px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .btn{padding:10px 14px;border-radius:12px;border:1px solid #e5e7eb;background:#111827;color:#fff;cursor:pointer}
+    .btn:hover{opacity:.92}
+    .btn.danger{background:#b91c1c}
+    .muted{color:#6b7280;font-size:13px;line-height:1.55}
+    .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:650;border:1px solid #e5e7eb;background:#f9fafb;}
+    table{border-collapse:collapse;width:100%;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 10px 24px rgba(15,23,42,.08);}
+    th,td{border-bottom:1px solid #e5e7eb;padding:10px 12px;text-align:left;vertical-align:top;}
+    th{background:#f8fafc;font-weight:650;}
+    tr:last-child td{border-bottom:none;}
+    code{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:2px 6px;}
+  </style>
+  <body><div class="wrap">
+    <div class="row" style="justify-content:space-between;">
+      <a href="/admin">← 管理画面に戻る</a>
+      <a href="/admin/users">👥 ユーザー管理へ</a>
+    </div>
+
+    <h1>🚫 アクセス制限</h1>
+    <div class="card">
+      <div class="muted">
+        <b>推奨:</b> 同一WiFi（同一IP）に複数人がいることがあるため、基本は <b>端末BAN（deviceId）</b> を使ってください。<br>
+        IP BAN は <b>soft</b>（既存ユーザーは許可 / ban後に新規登録した端末だけブロック）をデフォルトにしています。<br>
+        <b>strict</b> は、そのIPからのアクセスを全てブロックします（巻き込み注意）。
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 style="margin:0 0 10px;font-size:16px;">端末BAN（deviceId）</h2>
+        <form method="POST" action="/admin/access/ban-device">
+          <label>Device ID
+            <input name="deviceId" value="${esc(preDeviceId)}" placeholder="例: sD9ZZ9QlKc1boYzG" required>
+          </label>
+          <label>記録するIP（任意 / 空でもOK）
+            <input name="ip" value="${esc(inferredIp)}" placeholder="例: 203.0.113.10">
+          </label>
+          <label>理由（任意）
+            <input name="reason" value="" placeholder="例: スパム行為">
+          </label>
+
+          <div class="row">
+            <label style="flex-direction:row;gap:8px;align-items:center;">
+              <input type="checkbox" name="alsoBanIp"> 同時にこのIPもBANする
+            </label>
+            <label style="min-width:220px;">IP BANモード
+              <select name="ipMode">
+                <option value="soft" selected>soft（既存ユーザーは許可）</option>
+                <option value="strict">strict（全ブロック）</option>
+              </select>
+            </label>
+            <button class="btn danger" type="submit" onclick="return confirm('この端末をアクセス禁止にします。よろしいですか？')">BANする</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 style="margin:0 0 10px;font-size:16px;">IP BAN</h2>
+        <form method="POST" action="/admin/access/ban-ip">
+          <label>IP
+            <input name="ip" value="${esc(preIp)}" placeholder="例: 203.0.113.10" required>
+          </label>
+          <label>モード
+            <select name="mode">
+              <option value="soft" selected>soft（既存ユーザーは許可）</option>
+              <option value="strict">strict（全ブロック）</option>
+            </select>
+          </label>
+          <label>理由（任意）
+            <input name="reason" value="" placeholder="例: 迷惑行為が多い">
+          </label>
+          <div class="row">
+            <button class="btn danger" type="submit" onclick="return confirm('このIPをアクセス禁止にします。よろしいですか？')">BANする</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <h2 style="margin:18px 0 8px;font-size:16px;">端末BAN一覧</h2>
+    <table>
+      <thead><tr><th>Device ID</th><th>ユーザー</th><th>IP</th><th>日時</th><th>理由</th><th>操作</th></tr></thead>
+      <tbody>${devRows || `<tr><td colspan="6" class="muted">（なし）</td></tr>`}</tbody>
+    </table>
+
+    <h2 style="margin:18px 0 8px;font-size:16px;">IP BAN一覧</h2>
+    <table>
+      <thead><tr><th>IP</th><th>モード</th><th>日時</th><th>理由</th><th>操作</th></tr></thead>
+      <tbody>${ipRows || `<tr><td colspan="5" class="muted">（なし）</td></tr>`}</tbody>
+    </table>
+
+  </div></body></html>`);
+});
+
+app.post("/admin/access/ban-device", requireAdmin, bodyParser.urlencoded({ extended: true }), async (req, res) => {
+  await db.read().catch(()=>{});
+  await usersDb.read().catch(()=>{});
+
+  const deviceId = String(req.body.deviceId || "").trim();
+  if (!deviceId) return res.send(toastPage("⚠ deviceId が空です。", "/admin/access-control"));
+
+  const target = usersDb.data.users.find(u => u.id === deviceId) || null;
+  const ip = normIp(String(req.body.ip || target?.deviceInfo?.ip || ""));
+  const reason = String(req.body.reason || "").trim();
+  const nowIso = new Date().toISOString();
+
+  db.data.accessControl = db.data.accessControl || { bannedDevices: {}, bannedIps: {} };
+  db.data.accessControl.bannedDevices = db.data.accessControl.bannedDevices || {};
+
+  db.data.accessControl.bannedDevices[deviceId] = {
+    deviceId,
+    username: target?.username || null,
+    ip: ip || null,
+    reason: reason || "",
+    bannedAtISO: nowIso,
+    by: req.adminUser ? { id: req.adminUser.id, username: req.adminUser.username } : null,
+  };
+
+  // 追加でIP BANも入れる
+  const alsoBanIp = String(req.body.alsoBanIp || "") === "on";
+  const ipMode = (String(req.body.ipMode || "soft") === "strict") ? "strict" : "soft";
+  if (alsoBanIp && ip) {
+    db.data.accessControl.bannedIps = db.data.accessControl.bannedIps || {};
+    db.data.accessControl.bannedIps[ip] = {
+      ip,
+      mode: ipMode,
+      reason: reason || "端末BANと同時に設定",
+      bannedAtISO: nowIso,
+      by: req.adminUser ? { id: req.adminUser.id, username: req.adminUser.username } : null,
+    };
+  }
+
+  await safeWriteDb();
+  res.send(toastPage("✅ アクセス禁止を設定しました。", `/admin/access-control?deviceId=${encodeURIComponent(deviceId)}`));
+});
+
+app.post("/admin/access/unban-device", requireAdmin, bodyParser.urlencoded({ extended: true }), async (req, res) => {
+  await db.read().catch(()=>{});
+  const deviceId = String(req.body.deviceId || "").trim();
+  if (!deviceId) return res.send(toastPage("⚠ deviceId が空です。", "/admin/access-control"));
+
+  db.data.accessControl = db.data.accessControl || { bannedDevices: {}, bannedIps: {} };
+  db.data.accessControl.bannedDevices = db.data.accessControl.bannedDevices || {};
+  delete db.data.accessControl.bannedDevices[deviceId];
+
+  await safeWriteDb();
+  res.send(toastPage("✅ 解除しました。", "/admin/access-control"));
+});
+
+app.post("/admin/access/ban-ip", requireAdmin, bodyParser.urlencoded({ extended: true }), async (req, res) => {
+  await db.read().catch(()=>{});
+  const ip = normIp(String(req.body.ip || ""));
+  if (!ip) return res.send(toastPage("⚠ IP が空です。", "/admin/access-control"));
+
+  const mode = (String(req.body.mode || "soft") === "strict") ? "strict" : "soft";
+  const reason = String(req.body.reason || "").trim();
+  const nowIso = new Date().toISOString();
+
+  db.data.accessControl = db.data.accessControl || { bannedDevices: {}, bannedIps: {} };
+  db.data.accessControl.bannedIps = db.data.accessControl.bannedIps || {};
+  db.data.accessControl.bannedIps[ip] = {
+    ip,
+    mode,
+    reason: reason || "",
+    bannedAtISO: nowIso,
+    by: req.adminUser ? { id: req.adminUser.id, username: req.adminUser.username } : null,
+  };
+
+  await safeWriteDb();
+  res.send(toastPage("✅ IP をアクセス禁止にしました。", "/admin/access-control"));
+});
+
+app.post("/admin/access/unban-ip", requireAdmin, bodyParser.urlencoded({ extended: true }), async (req, res) => {
+  await db.read().catch(()=>{});
+  const ip = normIp(String(req.body.ip || ""));
+  if (!ip) return res.send(toastPage("⚠ IP が空です。", "/admin/access-control"));
+
+  db.data.accessControl = db.data.accessControl || { bannedDevices: {}, bannedIps: {} };
+  db.data.accessControl.bannedIps = db.data.accessControl.bannedIps || {};
+  delete db.data.accessControl.bannedIps[ip];
+
+  await safeWriteDb();
+  res.send(toastPage("✅ 解除しました。", "/admin/access-control"));
+});
 
 app.get("/delete/:id", requireAdmin, async (req, res) => {
   const id = req.params.id;
@@ -954,6 +1299,23 @@ app.get("/admin/impersonate/clear", requireAdmin, async (_req, res) => {
   res.clearCookie("impersonateId");
   return res.send(toastPage("👥 なりすましを解除しました。", "/admin/users"));
 });
+
+// ---- サイト管理者ロール解除（site_admin → admin）----
+// ※安全のため「サイト管理者（site_admin）」本人だけが実行できます
+app.post("/admin/site-admin/demote", requireAdmin, bodyParser.urlencoded({ extended: true }), async (req, res) => {
+  if (!req.adminUser || req.adminUser.role !== ROLE_SITE_ADMIN) {
+    return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/admin/users"));
+  }
+  await usersDb.read();
+  const id = String(req.body.id || "").trim();
+  const u = getUserById(id);
+  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/admin/users"));
+  if (u.role !== ROLE_SITE_ADMIN) return res.send(toastPage("⚠このユーザーはサイト管理者ではありません。", "/admin/users"));
+
+  u.role = ROLE_ADMIN; // 解除後は「管理者」へ
+  await usersDb.write();
+  return res.send(toastPage("✅ site_admin を解除しました。（管理者に変更）", "/admin/users"));
+});
 // ---- 管理 UI ----
 app.get("/admin", requireAdmin, async (req, res) => {
   const sort = (req.query.sort || "newest").toString(); // newest | popular
@@ -1072,6 +1434,7 @@ body{background:#f4f6fb;}
       </div>
       <div style="margin-left:auto;">
         <a class="pg-btn" href="/admin/users">👥 ユーザー管理</a>
+        <a class="pg-btn" href="/admin/access-control">🚫 アクセス制限</a>
         <a class="pg-btn" href="/admin/supports">💬 問い合わせ一覧</a>
       </div>
     </div>
@@ -1510,6 +1873,14 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
           <button type="submit" class="mini-btn" ${(u.role === ROLE_SITE_ADMIN || locked) ? 'disabled' : ''}>保存</button>
         </form>
 
+        ${u.role === ROLE_SITE_ADMIN && isSiteAdmin(operator) ? `
+        <form method="POST" action="/admin/site-admin/demote" class="inline-form" style="margin-right:6px;">
+          <input type="hidden" name="id" value="${u.id}">
+          <button type="submit" class="mini-btn" onclick="return confirm('サイト管理者ロールを解除します。よろしいですか？')">site_admin解除</button>
+        </form>` : ``}
+
+        <a class="icon-btn danger" href="/admin/access-control?deviceId=${u.id}" title="アクセス制限（BAN/解除）" ${locked ? 'style="pointer-events:none;opacity:.45"' : '' }>🚫</a>
+
         <form method="POST" action="/admin/delete-user" class="inline-form">
           <input type="hidden" name="id" value="${u.id}">
           <button type="submit" class="icon-btn danger" title="このユーザーを削除" ${locked ? 'disabled' : ''} onclick="return ${locked ? 'false' : "confirm('このユーザーを削除します。よろしいですか？')"}">🗑️</button>
@@ -1587,6 +1958,7 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
       <label class="muted"><input type="checkbox" id="userSelectAll"> 全選択</label>
       <button form="bulkUserForm" type="submit" class="mini-btn" onclick="return confirm('選択したユーザーを削除します。よろしいですか？')">選択したユーザーを削除</button>
       <a class="mini-btn" href="/admin/impersonate/clear">なりすまし解除</a>
+      <a class="mini-btn" href="/admin/access-control">🚫 アクセス制限</a>
     </div>
 
     <form method="POST" action="/admin/bulk-delete-users" id="bulkUserForm">
@@ -2417,7 +2789,10 @@ app.post("/mypage/update", async (req, res) => {
   if (!u) {
     return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/"));
   }
-  const name = (req.body.username ?? "").toString().trim() || "Guest";
+  const name = (req.body.username ?? "").toString().trim();
+  if (!name) return res.send(toastPage("⚠ユーザー名を入力してください。", "/mypage"));
+  if (name.length > 40) return res.send(toastPage("⚠ユーザー名が長すぎます。（最大40文字）", "/mypage"));
+  if (/[\r\n]/.test(name)) return res.send(toastPage("⚠ユーザー名に使えない文字が含まれています。", "/mypage"));
   u.username = name;
   await usersDb.write();
 return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
