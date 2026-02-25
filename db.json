@@ -2699,29 +2699,29 @@
     "termsText": "test2",
     "termsVersion": 3,
     "threads": {
-      "kN0Vryd4lHbpFzAS": {
-        "userId": "kN0Vryd4lHbpFzAS",
-        "createdAtISO": "2026-02-24T14:09:16.258Z",
-        "updatedAtISO": "2026-02-24T14:09:21.798Z",
-        "lastPreview": "aaa",
+      "nFdPntJL3BeYgq0o": {
+        "userId": "nFdPntJL3BeYgq0o",
+        "createdAtISO": "2026-02-25T10:15:48.353Z",
+        "updatedAtISO": "2026-02-25T10:16:04.212Z",
+        "lastPreview": "ｇｙｇｙｇ",
         "messages": [
           {
-            "id": "PEBf7rtdP6",
-            "atISO": "2026-02-24T14:09:16.258Z",
+            "id": "kfJkUToIWC",
+            "atISO": "2026-02-25T10:15:48.353Z",
             "text": "てすと",
             "from": {
               "kind": "user",
-              "userId": "kN0Vryd4lHbpFzAS",
-              "username": "あああ",
+              "userId": "nFdPntJL3BeYgq0o",
+              "username": "う",
               "role": "user",
               "iconUrl": null,
               "badge": null
             }
           },
           {
-            "id": "F2ewGJvGQn",
-            "atISO": "2026-02-24T14:09:21.798Z",
-            "text": "aaa",
+            "id": "2ypq7d5Ika",
+            "atISO": "2026-02-25T10:16:04.212Z",
+            "text": "ｇｙｇｙｇ",
             "from": {
               "kind": "staff",
               "userId": "support",
@@ -2736,19 +2736,7 @@
     }
   },
   "accessControl": {
-    "bannedDevices": {
-      "kN0Vryd4lHbpFzAS": {
-        "deviceId": "kN0Vryd4lHbpFzAS",
-        "username": "あああ",
-        "ip": "::1",
-        "reason": "試験運用。",
-        "bannedAtISO": "2026-02-25T10:07:55.887Z",
-        "by": {
-          "id": "support",
-          "username": "rsa"
-        }
-      }
-    },
+    "bannedDevices": {},
     "bannedIps": {}
   }
 }
