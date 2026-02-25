@@ -238,6 +238,84 @@ const isSiteAdmin = (u) => u && u.role === ROLE_SITE_ADMIN;
 const isAdmin = (u) => u && (u.role === ROLE_ADMIN || u.role === ROLE_SITE_ADMIN);
 const getUserById = (id) => usersDb.data.users.find((u) => u.id === id);
 
+/** ===== Penalty (Warning / Timed Ban / Permanent Ban) =====
+ * users.json fields:
+ * - warningCount:number
+ * - warningSeenCount:number
+ * - warningMessage:string
+ * - banUntil:string|null (ISO)
+ * - permanentBan:boolean
+ * - banReason:string
+ */
+function ensurePenaltyFields(u){
+  if (!u) return;
+  if (typeof u.warningCount !== "number") u.warningCount = 0;
+  if (typeof u.warningSeenCount !== "number") u.warningSeenCount = 0;
+  if (typeof u.warningMessage !== "string") u.warningMessage = "";
+  if (typeof u.banReason !== "string") u.banReason = "";
+  if (typeof u.permanentBan !== "boolean") u.permanentBan = false;
+  if (u.banUntil === undefined) u.banUntil = null;
+}
+function penaltyStatus(u){
+  ensurePenaltyFields(u);
+  const now = Date.now();
+  const untilMs = u.banUntil ? Date.parse(u.banUntil) : NaN;
+  const timed = Number.isFinite(untilMs) && untilMs > now;
+  const perm = !!u.permanentBan;
+  const banned = perm || timed;
+  const warningPending = (u.warningCount|0) > (u.warningSeenCount|0);
+  return { banned, timed, perm, untilMs, warningPending };
+}
+function parseDurationInputToMs(raw){
+  const s = String(raw || "").trim();
+  if (!s) return null;
+  // Accept "24h", "7d", "30m", "12" (hours), or ISO/Date string
+  const m = s.match(/^(-?\d+(?:\.\d+)?)\s*([dhm])?$/i);
+  if (m){
+    const n = Number(m[1]);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    const unit = (m[2] || "h").toLowerCase();
+    if (unit === "d") return Math.round(n * 24 * 60 * 60 * 1000);
+    if (unit === "m") return Math.round(n * 60 * 1000);
+    return Math.round(n * 60 * 60 * 1000);
+  }
+  const asDate = Date.parse(s);
+  if (Number.isFinite(asDate)) {
+    const delta = asDate - Date.now();
+    if (delta > 0) return delta;
+  }
+  return null;
+}
+function fmtJstIso(iso){
+  try { return new Date(iso).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }); } catch { return String(iso||""); }
+}
+function sendPenaltyBlocked(req, res, u){
+  const st = penaltyStatus(u);
+  const reason = (u && u.banReason) ? String(u.banReason) : (st.perm ? "運営者により永久停止されています。" : "運営者により一時停止されています。");
+  const untilTxt = (!st.perm && u && u.banUntil) ? `解除予定: ${fmtJstIso(u.banUntil)}` : "";
+  const wantsJson = (req.headers.accept || "").includes("application/json") || req.path.startsWith("/api") || req.path.startsWith("/support/api") || req.path.startsWith("/auth/");
+  if (wantsJson) return res.status(403).json({ ok:false, reason:"banned", permanent: st.perm, banUntil: u?.banUntil || null, banReason: reason });
+  return res.status(403).send(`<!doctype html><html lang="ja"><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1"><title>利用停止</title>
+  <style>
+    body{margin:0;background:#f3f4f6;color:#111827;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial}
+    .wrap{max-width:720px;margin:40px auto;padding:0 16px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px;box-shadow:0 10px 24px rgba(15,23,42,.08)}
+    h1{margin:0 0 8px;font-size:22px;color:#b91c1c}
+    p{margin:8px 0;color:#374151;line-height:1.6}
+    .muted{color:#6b7280;font-size:13px}
+    a{color:#2563eb;text-decoration:none}
+    code{background:#f1f5f9;padding:2px 6px;border-radius:8px}
+  </style>
+  <body><div class="wrap"><div class="card">
+    <h1>⛔ サービス利用が制限されています</h1>
+    <p>${esc(reason)}</p>
+    ${untilTxt ? `<p class="muted">${esc(untilTxt)}</p>` : ``}
+    <p class="muted">心当たりがない場合は、運営へご連絡ください。</p>
+    <p class="muted"><a href="/">トップへ</a></p>
+  </div></div></body></html>`);
+}
+
 
 function viewerAcceptedRequestTerms(u) {
   const rt = requestTermsStore();
@@ -455,6 +533,7 @@ async function endThemeAndMerge(reason = "manual") {
       existing.appleMusicUrl = r.appleMusicUrl || existing.appleMusicUrl;
       existing.artworkUrl = r.artworkUrl || existing.artworkUrl;
       existing.previewUrl = r.previewUrl || existing.previewUrl;
+      existing.rejected = false;
     } else {
       db.data.responses.push({
         id: nanoid(),
@@ -468,6 +547,8 @@ async function endThemeAndMerge(reason = "manual") {
         by: r.by || r.lastBy || null,
         lastRequestedAt: r.lastRequestedAt || r.createdAt || new Date().toISOString(),
         lastBy: r.lastBy || r.by || null,
+        broadcasted: false,
+        rejected: false,
         fromThemeId: t.id,
       });
     }
@@ -481,7 +562,7 @@ async function endThemeAndMerge(reason = "manual") {
   await safeWriteDb();
 }
 
-const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 3650 };
+const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 365 };
 const getInt = (v) => (Number.isFinite(parseInt(v, 10)) ? parseInt(v, 10) : 0);
 const getRegFails = (req) => Math.max(0, getInt(req.cookies?.areg));
 const setRegFails = (res, n) => res.cookie("areg", Math.max(0, n), COOKIE_OPTS);
@@ -601,6 +682,36 @@ app.use(async (req, res, next) => {
   req.adminSession = adminSession;
   req.impersonating = impersonating;
   try { if (effectiveUser) writeTokCookie(res, effectiveUser); } catch {}
+// ---- Penalty gate (user-level): warning / timed ban / permanent ban ----
+app.use((req, res, next) => {
+  try {
+    const u = req.user;
+    if (!u) return next();
+    // 管理者（実ユーザー）が操作している場合はバイパス（なりすましで閲覧できるように）
+    if (req.adminUser && isAdmin(req.adminUser)) return next();
+    // 管理者/サイト管理者は基本的に停止対象から除外（運用でロックアウトしないため）
+    if (isAdmin(u) || isSiteAdmin(u)) return next();
+
+    ensurePenaltyFields(u);
+    const st = penaltyStatus(u);
+    if (!st.banned) return next();
+
+    // allowlist: show page & allow status check / logout
+    const allow =
+      (req.method === "GET" && (req.path === "/" || req.path === "/index.html")) ||
+      (req.method === "GET" && (req.path === "/style.css" || req.path === "/skript.js" || req.path === "/favicon.ico")) ||
+      (req.path === "/me") ||
+      (req.path === "/logout") ||
+      (req.path === "/request-terms") ||
+      (req.path === "/support-terms");
+
+    if (allow) return next();
+    return sendPenaltyBlocked(req, res, u);
+  } catch {}
+  next();
+});
+
+
   next();
 });
 
@@ -837,6 +948,13 @@ app.post("/register", async (req, res) => {
       lastRefillISO: monthKey(),
       lastRefillAtISO: nowIso,
       registeredAt: nowIso,
+      // penalty
+      warningCount: 0,
+      warningSeenCount: 0,
+      warningMessage: "",
+      banUntil: null,
+      permanentBan: false,
+      banReason: "",
     });
     await usersDb.write();
 setRegFails(res, 0);
@@ -864,9 +982,26 @@ app.get("/me", async (req, res) => {
     adminSession: !!req.adminUser,
     impersonating: !!req.impersonating,
     user: { id: req.user.id, username: req.user.username, role: req.user.role, tokens: req.user.tokens, iconUrl: req.user.iconUrl || null, requestTermsAcceptedVersion: Number(req.user.requestTermsAcceptedVersion || 0) },
+    penalty: (() => { try { ensurePenaltyFields(req.user); const st = penaltyStatus(req.user); return { warningCount: req.user.warningCount|0, warningSeenCount: req.user.warningSeenCount|0, warningMessage: req.user.warningMessage||"", banUntil: req.user.banUntil||null, permanentBan: !!req.user.permanentBan, banReason: req.user.banReason||"", warningPending: !!st.warningPending, banned: !!st.banned }; } catch { return { warningCount:0, warningSeenCount:0, warningMessage:"", banUntil:null, permanentBan:false, banReason:"", warningPending:false, banned:false }; } })(),
     settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason, requestTermsVersion: Number(requestTermsStore().termsVersion || 1) },
   });
 });
+app.post("/penalty/warning-ack", async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ ok:false, reason:"not_logged_in" });
+    // impersonating admin should not ack warnings for others implicitly; only base user may ack.
+    if (req.impersonating && req.adminUser && isAdmin(req.adminUser)) {
+      // allow ack for target (admin intentionally)
+    }
+    ensurePenaltyFields(req.user);
+    req.user.warningSeenCount = (req.user.warningCount|0);
+    await usersDb.write();
+    return res.json({ ok:true });
+  } catch {
+    return res.status(500).json({ ok:false });
+  }
+});
+
 
 // ---- 送信 ----
 app.post("/submit", async (req, res) => {
@@ -948,6 +1083,7 @@ if (existing) {
   existing.appleMusicUrl = appleMusicUrl;
   existing.artworkUrl = artworkUrl;
   existing.previewUrl = previewUrl;
+  if (!themeOn) existing.rejected = false;
 } else {
   list.push({
     id: nanoid(),
@@ -961,7 +1097,7 @@ if (existing) {
     by: { id: user.id, username: user.username },
     lastRequestedAt: nowIso,
     lastBy: { id: user.id, username: user.username },
-    ...(themeOn ? { votes: 0 } : {})
+    ...(themeOn ? { votes: 0 } : { broadcasted:false, rejected:false })
   });
 }
 
@@ -1449,6 +1585,7 @@ app.get("/admin", requireAdmin, async (req, res) => {
   let items = [...db.data.responses];
   if (only === "broadcasted") items = items.filter(r => r.broadcasted);
   if (only === "unbroadcasted") items = items.filter(r => !r.broadcasted);
+  if (only === "rejected") items = items.filter(r => r.rejected);
   if (sort === "popular") items.sort((a,b)=> (b.count|0)-(a.count|0) || new Date(b.createdAt)-new Date(a.createdAt));
   else items.sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
 
@@ -1497,6 +1634,7 @@ app.get("/admin", requireAdmin, async (req, res) => {
     .banner-imp{padding:8px 12px;background:#fff3cd;border:1px solid #ffeeba;border-radius:8px;margin:10px 0}
     .badge{background:#10b981;color:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin-left:6px;display:inline-block;line-height:1.3;vertical-align:middle;}
     .badge.gray{background:#9ca3af;}
+    .badge.red{background:#ef4444;}
     .meta{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .meta code{padding:2px 6px;background:#f5f5f5;border:1px solid #eee;border-radius:6px;}
   
@@ -1553,6 +1691,7 @@ body{background:#f4f6fb;}
         絞り込み:
         <a class="pg-btn ${only==='broadcasted'?'current':''}" href="?sort=${sort}&only=broadcasted">放送済みのみ</a>
         <a class="pg-btn ${only==='unbroadcasted'?'current':''}" href="?sort=${sort}&only=unbroadcasted">未放送のみ</a>
+        <a class="pg-btn ${only==='rejected'?'current':''}" href="?sort=${sort}&only=rejected">却下のみ</a>
         <a class="pg-btn ${only==='all'?'current':''}" href="?sort=${sort}&only=all">すべて</a>
       </div>
       <div style="margin-left:auto;">
@@ -1569,6 +1708,8 @@ body{background:#f4f6fb;}
         <label><input type="checkbox" id="reqSelectAll"> 全選択</label>
         <button type="submit" formaction="/admin/bulk-broadcast-requests">選択を放送済みに</button>
         <button type="submit" formaction="/admin/bulk-unbroadcast-requests">選択を未放送へ</button>
+        <button type="submit" formaction="/admin/bulk-reject-requests">選択を却下</button>
+        <button type="submit" formaction="/admin/bulk-unreject-requests">選択の却下を解除</button>
         <button type="submit">選択したリクエストを削除</button>
         <a class="pg-btn" href="/sync-requests">GitHubに同期</a>
         <a class="pg-btn" href="/fetch-requests">GitHubから取得</a>
@@ -1584,7 +1725,7 @@ body{background:#f4f6fb;}
           <div class="count-badge">${e.count}</div>
           <img src="${e.artworkUrl}" alt="Cover">
           <div class="entry-text">
-            <strong>${e.text}</strong>${e.broadcasted ? '<span class="badge">放送済み</span>' : '<span class="badge gray">未放送</span>'}<br>
+            <strong>${e.text}</strong>${e.broadcasted ? '<span class="badge">放送済み</span>' : '<span class="badge gray">未放送</span>'}${e.rejected ? '<span class="badge red">却下</span>' : ''}<br>
             <small>${e.artist}</small>
           </div>
         </a>
@@ -1596,6 +1737,8 @@ body{background:#f4f6fb;}
           </span>
           <a href="/broadcast/${e.id}" class="delete" title="放送済みにする">📻</a>
           <a href="/unbroadcast/${e.id}" class="delete" title="未放送に戻す">↩️</a>
+          <a href="/reject/${e.id}" class="delete" title="却下する">❌</a>
+          <a href="/unreject/${e.id}" class="delete" title="却下を解除">✅</a>
           <a href="/delete/${e.id}" class="delete" title="削除">🗑️</a>
         </div>
       </div>
@@ -1958,12 +2101,21 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     // サイト管理者は「サイト管理者」本人以外からの操作を受け付けない
     const locked = (u.role === ROLE_SITE_ADMIN) && !isSiteAdmin(operator);
 
+// penalty status badge
+ensurePenaltyFields(u);
+const pst = penaltyStatus(u);
+let penBadge = "";
+if (pst.perm) penBadge = `<span class="flag ban">永久停止</span>`;
+else if (pst.timed) penBadge = `<span class="flag ban">停止中</span>`;
+else if (pst.warningPending) penBadge = `<span class="flag warn">警告</span>`;
+else if ((u.warningCount|0) > 0) penBadge = `<span class="flag warn muted">警告済</span>`;
+
     const ua = u.deviceInfo?.ua || "";
     const dev = classifyUa(ua);
     return `
     <tr data-search="${esc(u.username)} ${esc(u.id)} ${roleLabel} ${dev.label}">
       <td><input type="checkbox" name="ids" value="${u.id}" class="user-check" ${locked ? 'disabled' : ''}></td>
-      <td class="uname">${esc(u.username)}</td>
+      <td class="uname">${esc(u.username)} ${penBadge}</td>
       <td class="dev"><span class="dev-pill" title="${esc(ua)}">${dev.emoji} ${dev.label}</span></td>
       <td class="uid">
         <code>${esc(u.id)}</code>
@@ -1985,6 +2137,11 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
         <form method="POST" action="/admin/users/${u.id}/delete" class="inline-form" onsubmit="return confirm('このユーザーを削除しますか？（元に戻せません）');">
           <button type="submit" class="icon-btn danger" title="ユーザー削除" ${locked ? 'disabled style="opacity:.45"' : ''}>🗑️</button>
         </form>
+
+<button type="button" class="icon-btn" data-penact="warn" data-uid="${u.id}" title="警告（メッセージ送信）" ${locked ? 'disabled style="opacity:.45"' : ''}>⚠️</button>
+<button type="button" class="icon-btn" data-penact="ban" data-uid="${u.id}" title="期限付き停止（例: 24h / 7d / 30m）" ${locked ? 'disabled style="opacity:.45"' : ''}>⏱️</button>
+<button type="button" class="icon-btn danger" data-penact="perm" data-uid="${u.id}" title="永久停止" ${locked ? 'disabled style="opacity:.45"' : ''}>⛔</button>
+<button type="button" class="icon-btn" data-penact="unban" data-uid="${u.id}" title="停止解除" ${locked ? 'disabled style="opacity:.45"' : ''}>✅</button>
 
         <form method="POST" action="/admin/update-user" class="update-user">
           <input type="hidden" name="id" value="${u.id}">
@@ -2055,7 +2212,12 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     @media(max-width:720px){
       th:nth-child(6), td:nth-child(6){display:none;} /* トークン */
     }
-  </style>
+  
+    .flag{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid rgba(0,0,0,.08)}
+    .flag.warn{background:#fef3c7;color:#92400e}
+    .flag.ban{background:#fee2e2;color:#991b1b}
+    .flag.muted{opacity:.7}
+</style>
   <body>
   <div class="wrap">
     <div class="topbar">
@@ -2162,7 +2324,55 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
         alert('コピーに失敗しました');
       }
     });
-  </script>
+  
+async function postPenalty(url, body){
+  const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body||{}) });
+  let j = null; try{ j = await r.json(); }catch{}
+  if (!r.ok || !j || j.ok !== true) {
+    const msg = (j && (j.reason || j.message)) ? String(j.reason || j.message) : 'HTTP ' + r.status;
+    throw new Error(msg);
+  }
+  return j;
+}
+document.addEventListener('click', async (e) => {
+  const b = e.target && e.target.closest ? e.target.closest('button[data-penact]') : null;
+  if (!b) return;
+  const act = b.getAttribute('data-penact');
+  const uid = b.getAttribute('data-uid');
+  if (!uid) return;
+  try{
+    if (act === 'warn') {
+      const message = prompt('警告メッセージを入力（空なら前回のメッセージを維持）', '⚠ 利用規約/マナーに違反する行為が確認されました。以後、同様の行為が続く場合は停止措置を行います。');
+      if (message === null) return;
+      await postPenalty('/admin/users/' + uid + '/warn', { message });
+      alert('警告を送信しました');
+      location.reload();
+    } else if (act === 'ban') {
+      const duration = prompt('停止期間を入力（例: 24h / 7d / 30m / 12(時間) / 2026-03-01T00:00:00Z）', '24h');
+      if (duration === null) return;
+      const reason = prompt('停止理由（任意）', 'ルール違反のため一時停止');
+      if (reason === null) return;
+      await postPenalty('/admin/users/' + uid + '/ban', { duration, reason });
+      alert('期限付き停止を設定しました');
+      location.reload();
+    } else if (act === 'perm') {
+      if (!confirm('このユーザーを永久停止しますか？')) return;
+      const reason = prompt('永久停止の理由（任意）', '重大なルール違反のため');
+      if (reason === null) return;
+      await postPenalty('/admin/users/' + uid + '/permanent', { reason });
+      alert('永久停止を設定しました');
+      location.reload();
+    } else if (act === 'unban') {
+      if (!confirm('停止/制限を解除しますか？')) return;
+      await postPenalty('/admin/users/' + uid + '/unban', {});
+      alert('解除しました');
+      location.reload();
+    }
+  }catch(err){
+    alert('失敗: ' + (err && err.message ? err.message : err));
+  }
+});
+</script>
   </body></html>`);
 });
 
@@ -2443,6 +2653,111 @@ app.post("/admin/update-user", requireAdmin, async (req, res) => {
   await usersDb.write();
 res.redirect(`/admin/users`);
 });
+app.post("/admin/users/:id/delete", requireAdmin, async (req, res) => {
+  try {
+    await usersDb.read();
+    const id = req.params.id;
+    const u = usersDb.data.users.find(x => x.id === id);
+    if (!u) return res.redirect("/admin/users");
+    // site_admin は画面から削除できない（1103運用のため）
+    if (u.role === ROLE_SITE_ADMIN) return res.send(toastPage("⚠サイト管理者は削除できません。", "/admin/users"));
+    usersDb.data.users = usersDb.data.users.filter(x => x.id !== id);
+    await usersDb.write();
+    return res.redirect("/admin/users");
+  } catch {
+    return res.redirect("/admin/users");
+  }
+});
+app.post("/admin/users/:id/warn", requireAdmin, async (req, res) => {
+  try {
+    await usersDb.read();
+    const id = req.params.id;
+    const u = usersDb.data.users.find(x => x.id === id);
+    if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
+    if (u.role === ROLE_SITE_ADMIN) return res.status(403).json({ ok:false, reason:"locked" });
+    ensurePenaltyFields(u);
+    u.warningCount = (u.warningCount|0) + 1;
+    const msg = typeof req.body?.message === "string" ? req.body.message.trim() : "";
+    if (msg) u.warningMessage = msg.slice(0, 800);
+    await usersDb.write();
+    return res.json({ ok:true, warningCount: u.warningCount|0 });
+  } catch {
+    return res.status(500).json({ ok:false });
+  }
+});
+app.post("/admin/users/:id/ban", requireAdmin, async (req, res) => {
+  try {
+    await usersDb.read();
+    const id = req.params.id;
+    const u = usersDb.data.users.find(x => x.id === id);
+    if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
+    if (u.role === ROLE_SITE_ADMIN) return res.status(403).json({ ok:false, reason:"locked" });
+    ensurePenaltyFields(u);
+    const input = (req.body?.duration ?? "").toString();
+    const ms = parseDurationInputToMs(input);
+    if (!ms) return res.status(400).json({ ok:false, reason:"bad_duration" });
+    u.banUntil = new Date(Date.now() + ms).toISOString();
+    u.permanentBan = false;
+    const reason = typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
+    if (reason) u.banReason = reason.slice(0, 800);
+    await usersDb.write();
+    return res.json({ ok:true, banUntil: u.banUntil });
+  } catch {
+    return res.status(500).json({ ok:false });
+  }
+});
+app.post("/admin/users/:id/permanent", requireAdmin, async (req, res) => {
+  try {
+    await usersDb.read();
+    const id = req.params.id;
+    const u = usersDb.data.users.find(x => x.id === id);
+    if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
+    if (u.role === ROLE_SITE_ADMIN) return res.status(403).json({ ok:false, reason:"locked" });
+    ensurePenaltyFields(u);
+    u.permanentBan = true;
+    u.banUntil = null;
+    const reason = typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
+    if (reason) u.banReason = reason.slice(0, 800);
+
+    // Sync with device ban (prevents cookie delete evade). Mark source so it can be safely解除.
+    db.data.accessControl ||= {};
+    db.data.accessControl.bannedDevices ||= {};
+    db.data.accessControl.bannedDevices[id] = { reason: u.banReason || "永久停止", bannedAtISO: new Date().toISOString(), source: "penalty" };
+    await safeWriteDb();
+    await usersDb.write();
+    return res.json({ ok:true });
+  } catch {
+    return res.status(500).json({ ok:false });
+  }
+});
+app.post("/admin/users/:id/unban", requireAdmin, async (req, res) => {
+  try {
+    await usersDb.read();
+    const id = req.params.id;
+    const u = usersDb.data.users.find(x => x.id === id);
+    if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
+    if (u.role === ROLE_SITE_ADMIN) return res.status(403).json({ ok:false, reason:"locked" });
+    ensurePenaltyFields(u);
+    u.permanentBan = false;
+    u.banUntil = null;
+    u.banReason = "";
+
+    // Remove device ban if created by penalty
+    try {
+      const rec = db.data?.accessControl?.bannedDevices?.[id];
+      if (rec && rec.source === "penalty") {
+        delete db.data.accessControl.bannedDevices[id];
+        await safeWriteDb();
+      }
+    } catch {}
+    await usersDb.write();
+    return res.json({ ok:true });
+  } catch {
+    return res.status(500).json({ ok:false });
+  }
+});
+
+
 app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
   await usersDb.read();
   const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
@@ -4190,6 +4505,25 @@ app.get("/unbroadcast/:id", requireAdmin, async (req, res) => {
   }
   res.redirect("/admin");
 });
+app.get("/reject/:id", requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  const item = db.data.responses.find(r => r.id === id);
+  if (item) {
+    item.rejected = true;
+    await db.write();
+  }
+  res.redirect("/admin");
+});
+app.get("/unreject/:id", requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  const item = db.data.responses.find(r => r.id === id);
+  if (item) {
+    item.rejected = false;
+    await db.write();
+  }
+  res.redirect("/admin");
+});
+
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
