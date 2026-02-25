@@ -2302,6 +2302,27 @@
         "id": "w5iTZBb6W5mAk8Hz",
         "username": "ぬ"
       }
+    },
+    {
+      "id": "yrkjK8WeFPaizDRaUV7dG",
+      "text": "会いにKiTE! (2026 support ver.)",
+      "artist": "iLiFE!",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E4%BC%9A%E3%81%84%E3%81%ABkite-2026-support-ver/1869251262?i=1869251661&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/18/60/05/18600566-be7f-b959-b2e6-6c8d8c73f907/4573694952581.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d4/15/33/d41533da-74ab-1fcb-9999-1a5f172bd85c/mzaf_16494286029408126662.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-02-25T15:25:24.023Z",
+      "by": {
+        "id": "5PMoF6EsY_wQwwlU",
+        "username": "ill"
+      },
+      "lastRequestedAt": "2026-02-25T15:25:24.023Z",
+      "lastBy": {
+        "id": "5PMoF6EsY_wQwwlU",
+        "username": "ill"
+      },
+      "broadcasted": false,
+      "rejected": false
     }
   ],
   "lastSubmissions": {
@@ -2464,7 +2485,8 @@
     "青い鳥|千葉県立幕張総合高等学校合唱団": 1,
     "心の瞳|坂本九": 1,
     "博多のマサムネ|野獣先輩": 1,
-    "yaju&u|ライララ": 1
+    "yaju&u|ライララ": 1,
+    "会いにkite! (2026 support ver.)|ilife!": 1
   },
   "settings": {
     "recruiting": true,
