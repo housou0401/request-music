@@ -2696,8 +2696,8 @@
     }
   ],
   "support": {
-    "termsText": "test",
-    "termsVersion": 2,
+    "termsText": "test2",
+    "termsVersion": 3,
     "threads": {
       "kN0Vryd4lHbpFzAS": {
         "userId": "kN0Vryd4lHbpFzAS",
