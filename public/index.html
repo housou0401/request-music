@@ -447,7 +447,7 @@ function hideReqTermsView() {
 }
 
 async function openReqTermsModal(type, payload) {
-  __reqTermsPending = { type, payload };
+  __reqTermsPending = { type, payload, auto: !!(payload && payload.auto), autoVersion: (payload && payload.autoVersion) ? Number(payload.autoVersion) : null };
   const rt = await ensureReqTermsLoaded();
   const box = document.getElementById('reqTermsText');
   if (box) box.textContent = rt.termsText || '（利用規約が設定されていません）';
@@ -474,9 +474,10 @@ async function acceptReqTermsAndContinue() {
       hideReqTermsView();
       hideReqTermsOverlay();
       __reqTermsPending = null;
+      try { sessionStorage.removeItem('reqTermsDismissedVersion'); } catch {}
 
-      // 同意したので再送
-      const f = pending.payload.form;
+      // 同意したので再送（submit時のみ）
+      const f = pending.payload && pending.payload.form;
       if (f && typeof f.requestSubmit === 'function') {
         window.__reqTermsBypassOnce = true;
         f.requestSubmit();
@@ -486,6 +487,28 @@ async function acceptReqTermsAndContinue() {
       alert('通信エラー: ' + e.message);
     }
   }
+}
+
+
+
+// リクエスト送信用 利用規約: バージョン更新時は全ユーザーに表示（admin / site_admin は除外）
+async function maybeShowUpdatedRequestTerms(me){
+  try{
+    if (!me || !me.loggedIn) return;
+    const role = me.user && me.user.role;
+    if (me.adminSession === true || role === 'admin' || role === 'site_admin') return;
+
+    const cur = Number((me.settings && me.settings.requestTermsVersion) ?? 1) || 1;
+    const accepted = Number((me.user && me.user.requestTermsAcceptedVersion) ?? 0) || 0;
+
+    if (accepted >= cur) { try{ sessionStorage.removeItem('reqTermsDismissedVersion'); } catch{}; return; }
+
+    const dismissed = Number(sessionStorage.getItem('reqTermsDismissedVersion') || 0) || 0;
+    if (dismissed === cur) return;
+
+    await ensureReqTermsLoaded(true);
+    await openReqTermsModal('submit', { form: null, auto: true, autoVersion: cur });
+  }catch{}
 }
 
     function setAdminButtonVisible(me){
@@ -520,6 +543,7 @@ async function acceptReqTermsAndContinue() {
       if (!me.loggedIn) { document.getElementById('welcomeOverlay')?.classList.add('show'); }
       else { updateTokenInfo(me); }
       applyPenaltyUI(me);
+      await maybeShowUpdatedRequestTerms(me);
     }
 
     // BFCache(戻る/進む) で復帰したときにも管理者表示を復元
@@ -803,7 +827,14 @@ document.getElementById('reqTermsOpenBtn')?.addEventListener('click', async () =
   if (box) box.textContent = rt.termsText || '（利用規約が設定されていません）';
   showReqTermsView();
 });
-const closeTermsAll = () => { hideReqTermsView(); hideReqTermsOverlay(); __reqTermsPending = null; };
+const closeTermsAll = () => {
+  try {
+    if (__reqTermsPending && __reqTermsPending.autoVersion) {
+      sessionStorage.setItem('reqTermsDismissedVersion', String(__reqTermsPending.autoVersion));
+    }
+  } catch {}
+  hideReqTermsView(); hideReqTermsOverlay(); __reqTermsPending = null;
+};
 document.getElementById('reqTermsCloseBtn')?.addEventListener('click', closeTermsAll);
 document.getElementById('reqTermsCancelBtn')?.addEventListener('click', closeTermsAll);
 document.getElementById('reqTermsViewCloseBtn')?.addEventListener('click', hideReqTermsView);
@@ -818,6 +849,8 @@ if (reqForm) {
     if (window.__reqTermsBypassOnce) { window.__reqTermsBypassOnce = false; return; }
     const me = await fetchMe();
     if (!me || !me.loggedIn) return;
+    const role = me.user?.role;
+    if (me.adminSession === true || role === 'admin' || role === 'site_admin') return;
 
     const rt = await ensureReqTermsLoaded();
     const accepted = Number(me.user?.requestTermsAcceptedVersion ?? 0);
