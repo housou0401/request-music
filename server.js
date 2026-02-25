@@ -1010,7 +1010,7 @@ app.post("/submit", async (req, res) => {
   await ensureMonthlyRefill(user);
 
   // request terms gate
-  if (!viewerAcceptedRequestTerms(user)) {
+  if (!isAdmin(user) && !viewerAcceptedRequestTerms(user)) {
     return res.send(toastPage("⚠リクエスト送信の利用規約への同意が必要です。", "/"));
   }
 
