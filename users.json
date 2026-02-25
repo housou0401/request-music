@@ -8,8 +8,15 @@
         "ip": "::1"
       },
       "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2025-10"
+      "tokens": 10,
+      "lastRefillISO": "2026-02",
+      "warningCount": 1,
+      "warningSeenCount": 0,
+      "warningMessage": "⚠ 利用規約/マナーに違反する行為が確認されました。以後、同様の行為が続く場合は停止措置を行います。",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null,
+      "lastRefillAtISO": "2026-02-25T10:15:41.257Z"
     },
     {
       "id": "4LOBN67Kp0bEML3_",
@@ -20,7 +27,13 @@
       },
       "role": "admin",
       "tokens": null,
-      "lastRefillISO": "2025-10"
+      "lastRefillISO": "2025-10",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "zwLXNADZsqArCmYk",
@@ -31,7 +44,13 @@
       },
       "role": "admin",
       "tokens": null,
-      "lastRefillISO": "2025-10"
+      "lastRefillISO": "2025-10",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "VH9mNh634tnoJmt3",
@@ -44,7 +63,13 @@
       "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-02-19T13:57:24.307Z"
+      "registeredAt": "2026-02-19T13:57:24.307Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "ktDyyCNziXct9gnR",
@@ -56,7 +81,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "E10RYNN_XvnKGPHJ",
@@ -68,7 +99,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "9OkwVZfZJAHhhOKm",
@@ -81,7 +118,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-25T13:55:57.167Z"
+      "registeredAt": "2026-01-25T13:55:57.167Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "30dYCl0ZVODZumSf",
@@ -93,7 +136,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "p1KnrVbqPQ5ylXnI",
@@ -105,7 +154,13 @@
       "role": "user",
       "tokens": 3,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "4uxZqUuTty9G0if7",
@@ -117,7 +172,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "pi_mX_lLsL5eqiIz",
@@ -129,7 +190,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "RK_SVb3CKNbXn5Cd",
@@ -141,7 +208,13 @@
       "role": "user",
       "tokens": 4,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "dA7YakbKoO7qCuQQ",
@@ -153,7 +226,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "I_9_mUJH7dIXORlt",
@@ -165,7 +244,13 @@
       "role": "user",
       "tokens": 3,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "BWm1AemkPkRdJjtG",
@@ -177,7 +262,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "aECtyUrrrmYNaVAl",
@@ -188,7 +279,13 @@
       },
       "role": "admin",
       "tokens": null,
-      "lastRefillISO": "2025-11"
+      "lastRefillISO": "2025-11",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "jh2VCMRS97laKDRl",
@@ -201,7 +298,13 @@
       "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2025-11-12T09:15:55.652Z"
+      "registeredAt": "2025-11-12T09:15:55.652Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "TjoSJi6HEKfzdIrQ",
@@ -213,7 +316,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "N9aV1H0C4yi8y7-u",
@@ -225,7 +334,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "BAPNiFaY8FVjQHg2",
@@ -237,7 +352,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "hlJf7-Pe7efaSmSF",
@@ -249,7 +370,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "oE2-KkGlOjeX0Tg5",
@@ -261,7 +388,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "ZGglPGIFuIDFC0hv",
@@ -273,7 +406,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "q38qPO7HGf-sw9_W",
@@ -285,7 +424,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "KASdgXpUkvZh26Zr",
@@ -298,7 +443,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2025-11-13T06:31:43.329Z"
+      "registeredAt": "2025-11-13T06:31:43.329Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "F3wZl-lW0boMKU2Q",
@@ -310,7 +461,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "sOKwseleCnAgcR1K",
@@ -323,7 +480,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2025-11-13T06:32:47.483Z"
+      "registeredAt": "2025-11-13T06:32:47.483Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "7YD0ZCCgV5yh0JKV",
@@ -335,7 +498,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "Q862oJ8-mHv0rdLN",
@@ -347,7 +516,13 @@
       "role": "user",
       "tokens": 5,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z"
+      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "YauIkER4hYv47iat",
@@ -360,7 +535,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2025-11-06T05:16:41.853Z"
+      "registeredAt": "2025-11-06T05:16:41.853Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "VJvqAW4vJEwU3A3e",
@@ -373,7 +554,13 @@
       "tokens": 2,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2025-11-07T03:37:03.114Z"
+      "registeredAt": "2025-11-07T03:37:03.114Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "OhK0bsoSPxQPjVdi",
@@ -386,7 +573,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2025-11-15T04:12:43.181Z"
+      "registeredAt": "2025-11-15T04:12:43.181Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "EuR5hs6yN3XpkYkr",
@@ -399,7 +592,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2025-11-26T03:46:23.593Z"
+      "registeredAt": "2025-11-26T03:46:23.593Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "Tkyb12YzgbTlmxbF",
@@ -412,7 +611,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2025-12-01T15:03:55.135Z"
+      "registeredAt": "2025-12-01T15:03:55.135Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "FkDXvk5Wv8EAIZWL",
@@ -425,7 +630,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-08T12:09:21.393Z"
+      "registeredAt": "2026-01-08T12:09:21.393Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "wEommr6jklhG5bna",
@@ -438,7 +649,13 @@
       "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T03:35:26.606Z"
+      "registeredAt": "2026-01-30T03:35:26.606Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "cx0DQLnPvCMVLn13",
@@ -451,7 +668,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T08:13:38.839Z"
+      "registeredAt": "2026-01-30T08:13:38.839Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "LKkvlZvfhgly0EGm",
@@ -464,7 +687,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T08:15:12.949Z"
+      "registeredAt": "2026-01-30T08:15:12.949Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "fTgEDnElPlcBQv8N",
@@ -477,7 +706,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T08:30:06.996Z"
+      "registeredAt": "2026-01-30T08:30:06.996Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "e20A8xHIZxD2TOOX",
@@ -490,7 +725,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T08:38:15.778Z"
+      "registeredAt": "2026-01-30T08:38:15.778Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "ugnGYohZcqc8o-l_",
@@ -503,7 +744,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T08:42:39.805Z"
+      "registeredAt": "2026-01-30T08:42:39.805Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "rlgc3bNg56K4QbqH",
@@ -516,7 +763,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T08:53:53.756Z"
+      "registeredAt": "2026-01-30T08:53:53.756Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "56OTSMH7UBe9t2fS",
@@ -529,7 +782,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T09:07:44.288Z"
+      "registeredAt": "2026-01-30T09:07:44.288Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "YEUK7R7d-G82liDS",
@@ -542,7 +801,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T09:10:12.216Z"
+      "registeredAt": "2026-01-30T09:10:12.216Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "no74OLv4iImrpH6O",
@@ -555,7 +820,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T09:11:54.918Z"
+      "registeredAt": "2026-01-30T09:11:54.918Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "4En6Gu5WMaY5aDiu",
@@ -568,7 +839,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T10:01:25.231Z"
+      "registeredAt": "2026-01-30T10:01:25.231Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "fz-tZmqeU0c2vpLg",
@@ -581,7 +858,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T10:05:34.315Z"
+      "registeredAt": "2026-01-30T10:05:34.315Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "H2pyACUwI2vZFbaI",
@@ -594,7 +877,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T10:10:04.938Z"
+      "registeredAt": "2026-01-30T10:10:04.938Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "C7ycyA7ZsjA_X_iO",
@@ -607,7 +896,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T10:14:01.084Z"
+      "registeredAt": "2026-01-30T10:14:01.084Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "B4d8aZ3P0nXtIuHf",
@@ -620,7 +915,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T10:21:42.898Z"
+      "registeredAt": "2026-01-30T10:21:42.898Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "5FxDtKRei6AeAvLe",
@@ -633,7 +934,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T11:09:24.245Z"
+      "registeredAt": "2026-01-30T11:09:24.245Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "6TRidc8_UWTmoHZ0",
@@ -646,7 +953,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T11:14:24.162Z"
+      "registeredAt": "2026-01-30T11:14:24.162Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "HHKFX1_D0OKkA3Vu",
@@ -659,7 +972,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T12:18:53.935Z"
+      "registeredAt": "2026-01-30T12:18:53.935Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "Fhiwgcpa8njgGTJ7",
@@ -672,7 +991,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T12:30:32.724Z"
+      "registeredAt": "2026-01-30T12:30:32.724Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "fBdfRvhlgor2GhEY",
@@ -685,7 +1010,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-30T15:56:01.466Z"
+      "registeredAt": "2026-01-30T15:56:01.466Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "cgscUx2hpR6oxa8M",
@@ -698,7 +1029,13 @@
       "tokens": 2,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T02:57:42.842Z",
-      "registeredAt": "2026-02-01T02:57:42.842Z"
+      "registeredAt": "2026-02-01T02:57:42.842Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "Jsl0TOPrh4yfPPhd",
@@ -711,7 +1048,13 @@
       "tokens": 0,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-02T15:00:08.743Z",
-      "registeredAt": "2026-02-02T15:00:08.743Z"
+      "registeredAt": "2026-02-02T15:00:08.743Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "AMx8f3xfDN58fyT2",
@@ -724,7 +1067,13 @@
       "tokens": null,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-02T22:48:11.594Z",
-      "registeredAt": "2026-02-02T22:48:11.594Z"
+      "registeredAt": "2026-02-02T22:48:11.594Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "g-yd3HOYyVLz6OKm",
@@ -737,7 +1086,13 @@
       "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-10T03:11:03.613Z",
-      "registeredAt": "2026-02-10T03:11:03.613Z"
+      "registeredAt": "2026-02-10T03:11:03.613Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "TMi_YrAhOUbrAwJ5",
@@ -750,7 +1105,13 @@
       "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-10T14:04:34.459Z",
-      "registeredAt": "2026-02-10T14:04:34.459Z"
+      "registeredAt": "2026-02-10T14:04:34.459Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "qr4MueoKh15hnrqF",
@@ -763,7 +1124,13 @@
       "tokens": 0,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-10T15:18:09.898Z",
-      "registeredAt": "2026-02-10T15:18:09.898Z"
+      "registeredAt": "2026-02-10T15:18:09.898Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "-bBLQ2ORDCLwWAhP",
@@ -776,7 +1143,13 @@
       "tokens": 2,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-10T15:34:15.712Z",
-      "registeredAt": "2026-02-10T15:34:15.712Z"
+      "registeredAt": "2026-02-10T15:34:15.712Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "InYU9-Y19wYb-lD8",
@@ -789,7 +1162,13 @@
       "tokens": 3,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-11T04:42:56.717Z",
-      "registeredAt": "2026-02-11T04:42:56.717Z"
+      "registeredAt": "2026-02-11T04:42:56.717Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "396PvtQrvqet3JEg",
@@ -802,7 +1181,13 @@
       "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-11T12:52:06.742Z",
-      "registeredAt": "2026-02-11T12:52:06.742Z"
+      "registeredAt": "2026-02-11T12:52:06.742Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "ZEZjRdFsgprRlMoo",
@@ -815,7 +1200,13 @@
       "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-12T03:25:14.268Z",
-      "registeredAt": "2026-02-12T03:25:14.268Z"
+      "registeredAt": "2026-02-12T03:25:14.268Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "ZvUXiEAz3n5FIQyh",
@@ -828,7 +1219,13 @@
       "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-12T03:25:31.283Z",
-      "registeredAt": "2026-02-12T03:25:31.283Z"
+      "registeredAt": "2026-02-12T03:25:31.283Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "Zytdy27euXLglcnc",
@@ -841,7 +1238,13 @@
       "tokens": 3,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-12T14:15:07.920Z",
-      "registeredAt": "2026-02-12T14:15:07.920Z"
+      "registeredAt": "2026-02-12T14:15:07.920Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "sTW3OalG0tUlxU47",
@@ -854,7 +1257,13 @@
       "tokens": 4,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-17T03:23:51.015Z",
-      "registeredAt": "2026-02-17T03:23:51.015Z"
+      "registeredAt": "2026-02-17T03:23:51.015Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "T6qMLitXDeCkMGSP",
@@ -867,7 +1276,13 @@
       "tokens": 8,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-17T03:32:24.774Z",
-      "registeredAt": "2026-02-17T03:32:24.774Z"
+      "registeredAt": "2026-02-17T03:32:24.774Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "abv3p7Peyfwuri8Y",
@@ -880,7 +1295,13 @@
       "tokens": 10,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-17T13:25:24.905Z",
-      "registeredAt": "2026-02-17T13:25:24.905Z"
+      "registeredAt": "2026-02-17T13:25:24.905Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "0CfzNJ50xUapak4b",
@@ -893,7 +1314,13 @@
       "tokens": null,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-17T13:26:37.078Z",
-      "registeredAt": "2026-02-17T13:26:37.078Z"
+      "registeredAt": "2026-02-17T13:26:37.078Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "GW9Fib2XXaHIZRMS",
@@ -907,7 +1334,13 @@
       "tokens": 9,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-18T03:25:59.009Z",
-      "registeredAt": "2026-02-18T03:25:59.009Z"
+      "registeredAt": "2026-02-18T03:25:59.009Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "1RuTkYlwM8TSMYAC",
@@ -921,7 +1354,13 @@
       "tokens": 8,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-18T03:26:58.413Z",
-      "registeredAt": "2026-02-18T03:26:58.413Z"
+      "registeredAt": "2026-02-18T03:26:58.413Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "9TZx3YVx4tdCV30D",
@@ -935,7 +1374,13 @@
       "tokens": 8,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-19T13:42:54.783Z",
-      "registeredAt": "2026-02-19T13:42:54.783Z"
+      "registeredAt": "2026-02-19T13:42:54.783Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "cEulOCTYwUEdj0yQ",
@@ -949,7 +1394,13 @@
       "tokens": 9,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-21T10:52:44.874Z",
-      "registeredAt": "2026-02-21T10:52:44.874Z"
+      "registeredAt": "2026-02-21T10:52:44.874Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "support",
@@ -961,10 +1412,16 @@
         "ip": "::1"
       },
       "role": "site_admin",
-      "tokens": null,
+      "tokens": 10,
       "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-23T17:18:29.478Z",
-      "registeredAt": "2026-02-23T17:18:29.478Z"
+      "lastRefillAtISO": "2026-02-25T10:15:41.257Z",
+      "registeredAt": "2026-02-23T17:18:29.478Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "qJxWp0WeGMm7ZqAH",
@@ -979,7 +1436,13 @@
       "tokens": 10,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-24T12:27:37.265Z",
-      "registeredAt": "2026-02-24T12:27:37.265Z"
+      "registeredAt": "2026-02-24T12:27:37.265Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "w5iTZBb6W5mAk8Hz",
@@ -994,7 +1457,13 @@
       "tokens": 8,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-24T22:22:25.373Z",
-      "registeredAt": "2026-02-24T22:22:25.373Z"
+      "registeredAt": "2026-02-24T22:22:25.373Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "nFdPntJL3BeYgq0o",
@@ -1009,7 +1478,13 @@
       "tokens": 10,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-25T10:15:41.257Z",
-      "registeredAt": "2026-02-25T10:15:41.257Z"
+      "registeredAt": "2026-02-25T10:15:41.257Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banReason": "",
+      "permanentBan": false,
+      "banUntil": null
     },
     {
       "id": "5PMoF6EsY_wQwwlU",
