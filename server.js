@@ -137,70 +137,6 @@ const isSiteAdmin = (u) => u && u.role === ROLE_SITE_ADMIN;
 // 既存コードとの互換: isAdmin() は "admin" だけでなく "site_admin" も管理者扱い
 const isAdmin = (u) => u && (u.role === ROLE_ADMIN || u.role === ROLE_SITE_ADMIN);
 const getUserById = (id) => usersDb.data.users.find((u) => u.id === id);
-
-// ---- Site admin: custom ID rename ----
-function validateCustomUserId(raw){
-  const s = String(raw ?? "").trim();
-  if (!s) return { ok:false, message:"新しいIDが空です。" };
-  if (s.length < 6 || s.length > 64) return { ok:false, message:"IDは6〜64文字で入力してください。" };
-  if (!/^[A-Za-z0-9_-]+$/.test(s)) return { ok:false, message:"IDに使える文字は英数字 / _ / - のみです。" };
-  return { ok:true, value:s };
-}
-
-async function renameUserIdEverywhere(oldId, newId){
-  await usersDb.read();
-  await db.read();
-
-  const u = usersDb.data.users.find(x => x.id === oldId);
-  if (!u) throw new Error("user_not_found");
-  if (usersDb.data.users.some(x => x.id === newId)) throw new Error("id_already_used");
-
-  u.id = newId;
-
-  const patchReqList = (list) => {
-    if (!Array.isArray(list)) return;
-    for (const r of list) {
-      if (r?.by?.id === oldId) r.by.id = newId;
-      if (r?.lastBy?.id === oldId) r.lastBy.id = newId;
-    }
-  };
-
-  patchReqList(db.data.responses);
-  patchReqList(db.data.themeRequests);
-  if (Array.isArray(db.data.themeHistory)) {
-    for (const h of db.data.themeHistory) patchReqList(h?.requests);
-  }
-
-  // Support threads: keys + message "from.userId" + thread.userId
-  const s = supportStore();
-  if (s.threads && typeof s.threads === "object") {
-    for (const t of Object.values(s.threads)) {
-      if (!t) continue;
-      if (t.userId === oldId) t.userId = newId;
-      if (Array.isArray(t.messages)) {
-        for (const m of t.messages) {
-          if (!m?.from) continue;
-          if (m.from.userId === oldId) {
-            // user message or site_admin staff message should follow the rename
-            if (m.from.kind === "user" || (m.from.kind === "staff" && m.from.role === ROLE_SITE_ADMIN)) {
-              m.from.userId = newId;
-            }
-          }
-        }
-      }
-    }
-    if (s.threads[oldId]) {
-      s.threads[newId] = s.threads[oldId];
-      delete s.threads[oldId];
-      if (s.threads[newId]) s.threads[newId].userId = newId;
-    }
-  }
-
-  await usersDb.write();
-  await db.write();
-  return true;
-}
-
 const deviceInfoFromReq = (req) => ({
   ua: req.get("User-Agent") || "",
   ip: req.ip || req.connection?.remoteAddress || "",
@@ -355,8 +291,7 @@ async function endThemeAndMerge(reason = "manual") {
   await safeWriteDb();
 }
 
-const COOKIE_MAX_AGE = 1000 * 60 * 60 * 24 * 365 * 10; // 10 years
-const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: COOKIE_MAX_AGE };
+const COOKIE_OPTS = { httpOnly: true, sameSite: "Lax", maxAge: 1000 * 60 * 60 * 24 * 365 };
 const getInt = (v) => (Number.isFinite(parseInt(v, 10)) ? parseInt(v, 10) : 0);
 const getRegFails = (req) => Math.max(0, getInt(req.cookies?.areg));
 const setRegFails = (res, n) => res.cookie("areg", Math.max(0, n), COOKIE_OPTS);
@@ -2335,41 +2270,10 @@ app.get("/mypage", async (req, res) => {
           </label>
           <button type="submit">保存する</button>
         </form>
-</div>
+      </div>
 
-${isSiteAdmin(u) ? `
-<div class="card">
-  <h3>サイト管理者: ID変更</h3>
-  <p class="muted">あなた自身のID（Cookieの deviceId）を任意の文字列に変更できます。変更後も投稿・問い合わせスレッドは引き継がれます。</p>
-  <form class="settings-form" method="POST" action="/mypage/change-id" onsubmit="return confirm('IDを変更しますか？（元に戻せません）');">
-    <label>新しいID:
-      <input type="text" name="newId" value="${esc(u.id)}" maxlength="64" />
-    </label>
-    <button type="submit">IDを変更する</button>
-  </form>
-  <div class="muted" style="font-size:12px;margin-top:6px;">使える文字: 英数字 / _ / -（6〜64文字）。</div>
-</div>
-
-<div class="card">
-  <h3>サイト管理者: 権限を解除</h3>
-  <p class="muted">「role: site_admin」を削除（降格）します。解除後は ID変更などのサイト管理者限定機能は使えません。</p>
-
-  <form class="settings-form" method="POST" action="/mypage/remove-site-admin" onsubmit="return confirm('サイト管理者を解除して「管理者」に戻ります。よろしいですか？');">
-    <input type="hidden" name="to" value="admin">
-    <button type="submit">サイト管理者を解除（管理者に戻る）</button>
-  </form>
-
-  <form class="settings-form" method="POST" action="/mypage/remove-site-admin" onsubmit="return confirm('サイト管理者を解除して「一般ユーザー」に戻ります。よろしいですか？（管理画面も使えなくなります）');">
-    <input type="hidden" name="to" value="user">
-    <button type="submit" style="background:#dc2626;">サイト管理者を解除（一般ユーザーに戻る）</button>
-  </form>
-
-  <div class="muted" style="font-size:12px;margin-top:6px;">※ 解除はいつでもできますが、元に戻すには管理者ログインが必要です。</div>
-</div>
-` : ""}
-
-<div class="card">
-  <h3>アイコン</h3>
+      <div class="card">
+        <h3>アイコン</h3>
         <p class="muted">画像ファイル（dataURL）または画像URLを保存できます。</p>
 
         <div class="row" style="align-items:flex-start;">
@@ -2517,72 +2421,6 @@ app.post("/mypage/update", async (req, res) => {
   u.username = name;
   await usersDb.write();
 return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
-});
-
-
-app.post("/mypage/change-id", async (req, res) => {
-  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/mypage"));
-  await usersDb.read();
-  const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
-  if (!isSiteAdmin(u)) return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/mypage"));
-
-  const v = validateCustomUserId(req.body.newId);
-  if (!v.ok) return res.send(toastPage(`⚠${esc(v.message)}`, "/mypage"));
-  const newId = v.value;
-  const oldId = u.id;
-
-  if (newId === oldId) return res.send(toastPage("ℹ️同じIDです。", "/mypage"));
-  if (usersDb.data.users.some(x => x.id === newId)) return res.send(toastPage("⚠そのIDは既に使われています。", "/mypage"));
-
-  try{
-    await renameUserIdEverywhere(oldId, newId);
-  }catch(e){
-    const reason = String(e?.message || "");
-    const msg =
-      reason === "id_already_used" ? "そのIDは既に使われています。" :
-      reason === "user_not_found" ? "ユーザーが見つかりませんでした。" :
-      "IDの変更に失敗しました。";
-    return res.send(toastPage(`⚠${esc(msg)}`, "/mypage"));
-  }
-
-  try { res.cookie("deviceId", newId, COOKIE_OPTS); } catch {}
-  try { res.cookie("adminAuth", "1", COOKIE_OPTS); } catch {}
-  try {
-    if (req.cookies?.impersonateId === oldId) res.cookie("impersonateId", newId, COOKIE_OPTS);
-  } catch {}
-
-  // tokens cookie refresh
-  await usersDb.read();
-  writeTokCookie(res, usersDb.data.users.find(x => x.id === newId));
-  return res.send(toastPage("✅IDを変更しました。", "/mypage"));
-});
-
-app.post("/mypage/remove-site-admin", async (req, res) => {
-  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/mypage"));
-  await usersDb.read();
-  const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
-  if (!isSiteAdmin(u)) return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/mypage"));
-
-  const to = String(req.body?.to || "admin").toLowerCase();
-  const nextRole = (to === "user") ? ROLE_USER : ROLE_ADMIN;
-
-  // role: site_admin を削除（降格）
-  u.role = nextRole;
-
-  await usersDb.write();
-
-  // 旧cookieが残っても role で弾かれるが、見た目の混乱を避けるために一応クリア
-  try { res.cookie("adminAuth", "", { ...COOKIE_OPTS, maxAge: 0 }); } catch {}
-
-  // tokens cookie refresh
-  try { writeTokCookie(res, u); } catch {}
-
-  const msg = nextRole === ROLE_USER
-    ? "✅サイト管理者権限を解除しました（一般ユーザーに戻りました）。"
-    : "✅サイト管理者権限を解除しました（管理者に戻りました）。";
-  return res.send(toastPage(msg, "/mypage"));
 });
 
 
@@ -2743,11 +2581,6 @@ function hydrateSupportMessage(m, usersMap) {
   if (!m || !m.from) return m;
   const out = { ...m, from: { ...(m.from || {}) } };
 
-  // 旧データ互換：kind が欠けている/想定外の場合は推測して補正
-  if (!out.from.kind || (out.from.kind !== "user" && out.from.kind !== "staff")) {
-    out.from.kind = out.from.userId ? "user" : "staff";
-  }
-
   // ユーザー投稿：常に最新の username / iconUrl / role / badge を反映
   if (out.from.kind === "user" && out.from.userId) {
     const u = usersMap.get(out.from.userId);
@@ -2881,29 +2714,27 @@ app.get("/support", async (req, res) => {
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
     a{color:#2563eb;text-decoration:none}
-    .top{background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
-    .top .inner{max-width:980px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
     .top .left{display:flex;align-items:center;gap:10px;min-width:0;}
     .pill{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:6px 10px;color:#111827;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#e5e7eb;}
     .meta{opacity:.75;font-size:12px}
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
-    .chat{flex:1;display:flex;flex-direction:column;background:#ffffff;min-height:0;}
+    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
     .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
-    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;width:100%;box-sizing:border-box;}
+    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
     .msg.viewer{justify-content:flex-start;}
-    /* row-reverse の場合、flex-start が「右端」になる（= 右寄せ） */
-    .msg.other{justify-content:flex-start;flex-direction:row-reverse;}
+    .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
-    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;-webkit-touch-callout:none;touch-action:manipulation;}
+    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;}
     .other .bubble{background:#e0f2fe;border-color:rgba(2,132,199,.25);}
     .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
     .badge{font-size:12px;color:#0284c7;}
     .time{font-size:11px;opacity:.65;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
     .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
-    .input{position:sticky;bottom:0;border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
+    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
     .row{display:flex;gap:10px;align-items:flex-end;}
     @media (max-width:520px){.row{flex-direction:column;align-items:stretch}textarea{max-height:34vh}button{width:100%}}
     textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
@@ -2914,7 +2745,6 @@ app.get("/support", async (req, res) => {
     .ctx{position:fixed;z-index:9999;min-width:180px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
     .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:700}
     .ctx button:hover{background:rgba(0,0,0,.05)}
-    .ctx button.danger{color:#dc2626;}
     /* terms overlay */
     .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:10000;padding:14px;}
     .ov.show{display:flex;}
@@ -2923,26 +2753,36 @@ app.get("/support", async (req, res) => {
     .modal .bd{padding:16px;}
     .modal .bd .box{background:#fff;border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:14px;text-align:center;}
     .modal .bd p{margin:0 0 10px;opacity:.85}
-    details{margin-top:10px;text-align:left;}
-    summary{list-style:none;display:inline-flex;justify-content:center;align-items:center;background:#fff;border:1px solid rgba(59,130,246,.55);color:#1d4ed8;border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer;user-select:none;}
-    summary::-webkit-details-marker{display:none;}
-    .terms{margin-top:12px;max-height:40vh;overflow:auto;white-space:pre-wrap;font-size:13px;line-height:1.5;border:1px solid rgba(0,0,0,.10);border-radius:12px;padding:12px;background:#fff;}
-    .modal .ft{display:flex;gap:12px;justify-content:center;padding:14px 16px;border-top:1px solid rgba(0,0,0,.06)}
+    .terms-open-wrap{margin-top:10px;display:flex;justify-content:center;}
+.terms-open{list-style:none;display:inline-flex;justify-content:center;align-items:center;background:#fff;border:1px solid rgba(59,130,246,.55);color:#1d4ed8;border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer;user-select:none;}
+.terms-view{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:10001;padding:14px;}
+.terms-view.show{display:flex;}
+.terms-card{width:min(860px,94vw);max-height:min(84vh,84dvh);background:#fff;color:#111;border-radius:16px;border:1px solid rgba(0,0,0,.10);box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:hidden;display:flex;flex-direction:column;}
+.terms-card .thd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:#f9fafb;border-bottom:1px solid rgba(0,0,0,.08);}
+.terms-card .ttl{font-weight:900;}
+.terms-card .x{width:36px;height:36px;border-radius:10px;border:1px solid rgba(0,0,0,.14);background:#fff;cursor:pointer;font-size:20px;line-height:1;display:inline-flex;align-items:center;justify-content:center;color:#111;}
+.terms-card .x:hover{background:rgba(0,0,0,.04)}
+.terms-card .tbody{padding:14px;overflow:auto;white-space:pre-wrap;font-size:13px;line-height:1.6;}
+.terms-card .tft{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:12px 14px;background:#f9fafb;border-top:1px solid rgba(0,0,0,.08);flex-wrap:wrap;}
+.terms-card .tft button{border-radius:999px;min-width:140px;}
+.terms-card .tft .tclose{background:#fff;color:#111;border:1px solid rgba(0,0,0,.18);}
+.terms-card .tft .tagree{background:#2563eb;color:#fff;border:none;}
+.modal .ft{display:flex;gap:12px;justify-content:center;padding:14px 16px;border-top:1px solid rgba(0,0,0,.06)}
     .modal .ft button,.modal .ft a{min-width:160px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;}
     .modal .ft .no{background:#fff;color:#111;border:1px solid rgba(0,0,0,.18)}
   </style>
   <body>
-    <div class="top"><div class="inner">
+    <div class="top">
       <div class="left">
         <a class="pill" href="/">← 戻る</a>
         <div class="pill" title="${esc(u.username)}">
           <img src="${esc(u.iconUrl || SUPPORT_DESK_ICON)}" onerror="this.src='${SUPPORT_DESK_ICON}'">
-          <span>${esc(u.username || "Guest")}</span>
+          <span>サポート</span>
           <span class="meta">🆔 ${esc(u.id)}</span>
         </div>
       </div>
       <div class="meta">閲覧者＝左 / 相手＝右</div>
-    </div></div>
+    </div>
 
     <div class="wrap chat">
       <div id="msgs" class="msgs">${initialMsgsHtml}</div>
@@ -2952,13 +2792,12 @@ app.get("/support", async (req, res) => {
           <textarea id="text" name="text" placeholder="メッセージを入力…（取り消し不可）" ${needsTerms ? "disabled" : ""}></textarea>
           <button id="sendBtn" type="submit" ${needsTerms ? "disabled" : ""}>送信</button>
         </form>
-        <div class="hint">※ 内容は記録されます。個人情報の送信はお控えください。右クリックでショートカット（コピー / 削除）が出ます。</div>
+        <div class="hint">※ 内容は記録されます。個人情報の送信はお控えください。右クリックでショートカット（コピー）が出ます。</div>
       </div>
     </div>
 
     <div id="ctx" class="ctx" role="menu" aria-hidden="true">
       <button data-act="copy">テキストをコピー</button>
-      <button data-act="delete" class="danger">このメッセージを削除</button>
     </div>
 
     <div id="ov" class="ov ${needsTerms ? "show" : ""}">
@@ -2967,16 +2806,32 @@ app.get("/support", async (req, res) => {
         <div class="bd">
           <div class="box">
             <p>サービスを利用するには利用規約の同意が必要です。<br>利用規約をご確認ください。</p>
-            <details>
-              <summary>利用規約</summary>
-              <div class="terms">${termsTextEsc}</div>
-            </details>
-          </div>
+            <div class="terms-open-wrap">
+              <button type="button" id="openTermsBtn" class="terms-open">利用規約を確認</button>
+            </div>
+</div>
         </div>
         <div class="ft">
           <a class="no" href="/">同意しない</a>
           <form method="POST" action="/support/terms/accept">
             <button type="submit">同意する</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="termsView" class="terms-view" aria-hidden="true">
+      <div class="terms-card" role="dialog" aria-modal="true" aria-labelledby="termsTtl">
+        <div class="thd">
+          <div class="ttl" id="termsTtl">利用規約</div>
+          <button type="button" class="x" data-close-terms aria-label="閉じる">×</button>
+        </div>
+        <div class="tbody">${termsTextEsc}</div>
+        <div class="tft">
+          <button type="button" class="tclose" data-close-terms>閉じる</button>
+          <form method="POST" action="/support/terms/accept">
+            <button type="submit" class="tagree">同意する</button>
           </form>
         </div>
       </div>
@@ -2988,6 +2843,29 @@ app.get("/support", async (req, res) => {
 
         function escHtml(s){ return String(s??'').replace(/[&<>"']/g,function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }); }
         function byId(id){ return document.getElementById(id); }
+
+        // Terms viewer (better UI than <details>)
+        var termsView = byId('termsView');
+        var openTermsBtn = byId('openTermsBtn');
+        function openTerms(){
+          if (!termsView) return;
+          termsView.classList.add('show');
+          termsView.setAttribute('aria-hidden','false');
+        }
+        function closeTerms(){
+          if (!termsView) return;
+          termsView.classList.remove('show');
+          termsView.setAttribute('aria-hidden','true');
+        }
+        if (openTermsBtn) openTermsBtn.addEventListener('click', function(ev){ ev.preventDefault(); openTerms(); });
+        if (termsView) {
+          termsView.addEventListener('click', function(ev){ if (ev.target === termsView) closeTerms(); });
+        }
+        document.querySelectorAll('[data-close-terms]').forEach(function(el){
+          el.addEventListener('click', function(ev){ ev.preventDefault(); closeTerms(); });
+        });
+        window.addEventListener('keydown', function(ev){ if (ev.key === 'Escape') closeTerms(); });
+
 
         async function api(path, body){
           var opt = body ? { method:'POST', headers:{ 'Content-Type':'application/json', 'Accept':'application/json' }, body: JSON.stringify(body), credentials:'include' } : { headers:{ 'Accept':'application/json' }, credentials:'include' };
@@ -3057,57 +2935,32 @@ app.get("/support", async (req, res) => {
           return r;
         }
 
-        // context menu (copy / delete)
-var ctx = byId('ctx');
-var ctxTargetText = '';
-var ctxTargetId = '';
-var ctxCanDelete = false;
-var VIEWER_CAN_DELETE_ANY = ${isAdmin(u) ? 'true' : 'false'};
+        // context menu (copy)
+        var ctx = byId('ctx');
+        var ctxTargetText = '';
+        function hideCtx(){ ctx.style.display='none'; ctxTargetText=''; }
+        document.addEventListener('click', hideCtx);
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape') hideCtx(); });
 
-function hideCtx(){ ctx.style.display='none'; ctxTargetText=''; ctxTargetId=''; ctxCanDelete=false; }
-document.addEventListener('click', hideCtx);
-document.addEventListener('keydown', function(e){ if(e.key==='Escape') hideCtx(); });
+        byId('msgs').addEventListener('contextmenu', function(e){
+          var bub = e.target.closest('.bubble');
+          if (!bub) return;
+          e.preventDefault();
+          ctxTargetText = bub.dataset.text || '';
+          ctx.style.left = Math.min(window.innerWidth-200, e.clientX) + 'px';
+          ctx.style.top  = Math.min(window.innerHeight-120, e.clientY) + 'px';
+          ctx.style.display = 'block';
+        });
 
-byId('msgs').addEventListener('contextmenu', function(e){
-  var bub = e.target.closest('.bubble');
-  if (!bub) return;
-  e.preventDefault();
-  var row = bub.closest('.msg');
-  ctxTargetText = bub.dataset.text || '';
-  ctxTargetId = row ? (row.dataset.mid || '') : '';
-  ctxCanDelete = VIEWER_CAN_DELETE_ANY || (!!row && row.classList.contains('viewer'));
+        ctx.addEventListener('click', async function(e){
+          var act = e.target && e.target.dataset ? e.target.dataset.act : '';
+          if (act === 'copy'){
+            try{ await navigator.clipboard.writeText(ctxTargetText || ''); }catch(err){}
+            hideCtx();
+          }
+        });
 
-  var delBtn = ctx.querySelector('button[data-act="delete"]');
-  if (delBtn) delBtn.style.display = ctxCanDelete ? 'block' : 'none';
-
-  ctx.style.left = Math.min(window.innerWidth-220, e.clientX) + 'px';
-  ctx.style.top  = Math.min(window.innerHeight-160, e.clientY) + 'px';
-  ctx.style.display = 'block';
-});
-
-ctx.addEventListener('click', async function(e){
-  var act = e.target && e.target.dataset ? e.target.dataset.act : '';
-  if (act === 'copy'){
-    try{ await navigator.clipboard.writeText(ctxTargetText || ''); }catch(err){}
-    hideCtx();
-    return;
-  }
-  if (act === 'delete'){
-    if (!ctxCanDelete || !ctxTargetId){ hideCtx(); return; }
-    if (!confirm('このメッセージを削除しますか？')){ hideCtx(); return; }
-    var r = await api('/support/api/delete', { messageId: ctxTargetId });
-    if (!r.ok){
-      alert((r.json && (r.json.message || r.json.reason)) ? (r.json.message || r.json.reason) : '削除に失敗しました。');
-      hideCtx();
-      return;
-    }
-    hideCtx();
-    await load();
-    return;
-  }
-});
-
-// send (フォームはフォールバック。JS が動けばリロードなし)
+        // send (フォームはフォールバック。JS が動けばリロードなし)
         var sendForm = byId('sendForm');
         if (sendForm){
           sendForm.addEventListener('submit', async function(e){
@@ -3205,36 +3058,6 @@ app.post("/support/api/send", async (req, res) => {
   return res.json({ ok:true, message: normalizeMsgForClient(msg) });
 });
 
-app.post("/support/api/delete", async (req, res) => {
-  if (!req.user) return res.status(401).json({ ok:false, reason:"not_logged_in" });
-  await usersDb.read();
-  const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.status(404).json({ ok:false, reason:"not_found" });
-  await db.read();
-  if (!viewerAcceptedSupportTerms(u)) return res.status(403).json({ ok:false, reason:"terms_required" });
-
-  const messageId = (req.body?.messageId ?? "").toString().trim();
-  if (!messageId) return res.status(400).json({ ok:false, reason:"bad_request", message:"messageId がありません。" });
-
-  const t = getSupportThread(u.id, false);
-  if (!t || !Array.isArray(t.messages)) return res.status(404).json({ ok:false, reason:"thread_not_found" });
-
-  const idx = t.messages.findIndex(m => m && m.id === messageId);
-  if (idx < 0) return res.status(404).json({ ok:false, reason:"message_not_found" });
-
-  const m = t.messages[idx];
-  const canDeleteAny = isAdmin(u); // admin / site_admin
-  if (!canDeleteAny) {
-    const ownerOk = m?.from?.kind === "user" && m?.from?.userId === u.id;
-    if (!ownerOk) return res.status(403).json({ ok:false, reason:"forbidden", message:"このメッセージは削除できません。" });
-  }
-
-  t.messages.splice(idx, 1);
-  updateThreadMeta(t);
-  await db.write();
-  return res.json({ ok:true });
-});
-
 // フォーム送信用（JS が死んでも送れる）
 app.post("/support/send", async (req, res) => {
   if (!req.user) return res.send(toastPage("⚠未ログインです。", "/"));
@@ -3294,10 +3117,9 @@ app.get("/admin/supports", requireAdmin, async (req, res) => {
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>問い合わせ一覧</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
     a{color:#2563eb;text-decoration:none}
-    .top{background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
-    .top .inner{max-width:980px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
     .wrap{max-width:980px;margin:0 auto;padding:14px 10px 40px;}
     .btn{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:8px 12px;color:#111827;font-weight:700}
     .list{margin-top:14px;border:1px solid rgba(0,0,0,.10);border-radius:14px;overflow:hidden;background:#fff}
@@ -3322,13 +3144,13 @@ app.get("/admin/supports", requireAdmin, async (req, res) => {
     .empty{padding:20px;text-align:center;opacity:.7}
   </style>
   <body>
-    <div class="top"><div class="inner">
+    <div class="top">
       <div style="display:flex;gap:10px;align-items:center">
         <a class="btn" href="/admin">← 管理画面</a>
         <div style="font-weight:900">問い合わせ一覧</div>
       </div>
       <div class="meta">threads: ${threads.length}</div>
-    </div></div>
+    </div>
 
     <div class="wrap">
       <div class="list">
@@ -3409,29 +3231,27 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>サポート返信 - ${esc(titleName)}</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
     a{color:#2563eb;text-decoration:none}
-    .top{background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
-    .top .inner{max-width:980px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
     .left{display:flex;align-items:center;gap:10px;min-width:0;}
     .pill{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:6px 10px;color:#111827;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#e5e7eb;}
     .meta{opacity:.75;font-size:12px}
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
-    .chat{flex:1;display:flex;flex-direction:column;background:#ffffff;min-height:0;}
+    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
     .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
-    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;width:100%;box-sizing:border-box;}
+    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
     .msg.viewer{justify-content:flex-start;}
-    /* row-reverse の場合、flex-start が「右端」になる（= 右寄せ） */
-    .msg.other{justify-content:flex-start;flex-direction:row-reverse;}
+    .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
-    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;-webkit-touch-callout:none;touch-action:manipulation;}
+    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;}
     .other .bubble{background:#e0f2fe;border-color:rgba(2,132,199,.25);}
     .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
     .badge{font-size:12px;color:#0284c7;}
     .time{font-size:11px;opacity:.65;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
     .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
-    .input{position:sticky;bottom:0;border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
+    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
     .row{display:flex;gap:10px;align-items:flex-end;}
     @media (max-width:520px){.row{flex-direction:column;align-items:stretch}textarea{max-height:34vh}button{width:100%}}
     textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
@@ -3443,11 +3263,10 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
     .ctx{position:fixed;z-index:9999;min-width:220px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
     .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:800}
     .ctx button:hover{background:rgba(0,0,0,.05)}
-    .ctx button.danger{color:#dc2626;}
     .ctx hr{border:0;border-top:1px solid rgba(0,0,0,.08);margin:0}
   </style>
   <body>
-    <div class="top"><div class="inner">
+    <div class="top">
       <div class="left">
         <a class="pill" href="/admin/supports">← 一覧</a>
         <div class="pill" title="${esc(titleName)}">
@@ -3466,7 +3285,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
           <button type="submit" class="btn2">🗑 スレッド削除</button>
         </form>
       </div>
-    </div></div>
+    </div>
 
     <div class="wrap chat">
       <div id="msgs" class="msgs">${initialMsgsHtml}</div>
@@ -3572,50 +3391,6 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
           ctx.style.top  = Math.min(window.innerHeight-160, e.clientY) + 'px';
           ctx.style.display = 'block';
         });
-
-        // long-press（スマホ用）：500ms で同じメニューを開く
-        (function(){
-          var root = byId('msgs');
-          if (!root) return;
-          var timer = null;
-          var sx = 0, sy = 0;
-          function clear(){ if (timer){ clearTimeout(timer); timer = null; } }
-          function getXY(ev){
-            if (ev.touches && ev.touches[0]) return { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
-            return { x: ev.clientX, y: ev.clientY };
-          }
-          function openAt(x, y, bub){
-            var row = bub ? bub.closest('.msg') : null;
-            ctxTargetText = bub ? (bub.dataset.text || '') : '';
-            ctxTargetId = row ? (row.dataset.mid || '') : '';
-            ctx.style.left = Math.min(window.innerWidth-240, x) + 'px';
-            ctx.style.top  = Math.min(window.innerHeight-160, y) + 'px';
-            ctx.style.display = 'block';
-          }
-          function onDown(ev){
-            var bub = ev.target.closest('.bubble');
-            if (!bub) return;
-            // タッチ以外（マウス）は従来の右クリックに任せる
-            if (ev.pointerType && ev.pointerType !== 'touch') return;
-            var p = getXY(ev);
-            sx = p.x; sy = p.y;
-            clear();
-            timer = setTimeout(function(){ openAt(sx, sy, bub); }, 520);
-          }
-          function onMove(ev){
-            if (!timer) return;
-            var p = getXY(ev);
-            if (Math.abs(p.x - sx) + Math.abs(p.y - sy) > 12) clear();
-          }
-          function onUp(){ clear(); }
-          root.addEventListener('pointerdown', onDown);
-          root.addEventListener('pointermove', onMove);
-          root.addEventListener('pointerup', onUp);
-          root.addEventListener('pointercancel', onUp);
-          root.addEventListener('touchstart', onDown, { passive: true });
-          root.addEventListener('touchmove', onMove, { passive: true });
-          root.addEventListener('touchend', onUp);
-        })();
 
         ctx.addEventListener('click', async function(e){
           var act = e.target && e.target.dataset ? e.target.dataset.act : '';
