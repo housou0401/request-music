@@ -1,24 +1,6 @@
 {
   "users": [
     {
-      "id": "MmK6FCYT0Dynx6rT",
-      "username": "みお",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Safari Line/15.17.1",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": 10,
-      "lastRefillISO": "2026-02",
-      "warningCount": 1,
-      "warningSeenCount": 0,
-      "warningMessage": "⚠ 利用規約/マナーに違反する行為が確認されました。以後、同様の行為が続く場合は停止措置を行います。",
-      "banReason": "",
-      "permanentBan": false,
-      "banUntil": null,
-      "lastRefillAtISO": "2026-02-25T10:15:41.257Z"
-    },
-    {
       "id": "4LOBN67Kp0bEML3_",
       "username": "ふうか",
       "deviceInfo": {
