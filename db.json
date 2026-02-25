@@ -2738,5 +2738,9 @@
   "accessControl": {
     "bannedDevices": {},
     "bannedIps": {}
+  },
+  "requestTerms": {
+    "termsText": "",
+    "termsVersion": 1
   }
 }
