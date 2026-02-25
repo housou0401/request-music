@@ -2734,5 +2734,9 @@
         ]
       }
     }
+  },
+  "accessControl": {
+    "bannedDevices": {},
+    "bannedIps": {}
   }
 }
