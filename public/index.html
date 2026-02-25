@@ -238,6 +238,41 @@
   </div>
 </div>
 
+
+<!-- 警告モーダル（段階制ペナルティ: 第1段階） -->
+<div class="terms-ov" id="warningOverlay" aria-hidden="true">
+  <div class="terms-modal" role="dialog" aria-modal="true">
+    <div class="terms-h">
+      <div class="t">⚠ 警告</div>
+      <button class="terms-x" type="button" id="warningCloseX" aria-label="閉じる">×</button>
+    </div>
+    <div class="terms-b">
+      <div class="terms-sub" style="margin-top:0;margin-bottom:10px;">運営からの注意があります。内容をご確認ください。</div>
+      <div id="warningText" style="white-space:pre-wrap;line-height:1.7;background:#f9fafb;border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:12px;min-height:88px;">（読み込み中…）</div>
+      <div class="terms-agree">
+        <button type="button" class="btn ok" id="warningOkBtn">確認しました</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 利用停止モーダル（段階制ペナルティ: 期限付き/永久） -->
+<div class="terms-ov" id="banOverlay" aria-hidden="true">
+  <div class="terms-modal" role="dialog" aria-modal="true">
+    <div class="terms-h">
+      <div class="t">⛔ 利用停止中</div>
+      <button class="terms-x" type="button" id="banCloseX" aria-label="閉じる">×</button>
+    </div>
+    <div class="terms-b">
+      <div class="terms-sub" id="banUntilText" style="margin-top:0;margin-bottom:10px;"></div>
+      <div id="banReasonText" style="white-space:pre-wrap;line-height:1.7;background:#fef2f2;border:1px solid rgba(239,68,68,.25);border-radius:12px;padding:12px;min-height:88px;">（読み込み中…）</div>
+      <div class="terms-agree">
+        <button type="button" class="btn cancel" id="banOkBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- メンテ中オーバーレイ -->
   <div class="ux-maint-overlay" id="maintenanceOverlay">
     <div class="ux-maint-box">
@@ -310,6 +345,72 @@
     }
 
 
+
+// ---- Penalty UI (Warning / Timed Ban / Permanent Ban) ----
+function _ovShow(id){ const el=document.getElementById(id); if(el){ el.classList.add('show'); el.setAttribute('aria-hidden','false'); } }
+function _ovHide(id){ const el=document.getElementById(id); if(el){ el.classList.remove('show'); el.setAttribute('aria-hidden','true'); } }
+function _setText(id, txt){ const el=document.getElementById(id); if(el) el.textContent = (txt==null? '' : String(txt)); }
+
+function _disableMainForm(disabled){
+  const form = document.getElementById('myForm') || document.querySelector('form');
+  if(!form) return;
+  form.querySelectorAll('input,button,select,textarea').forEach(el=>{
+    if (el.id === 'adminBtn') return;
+    if (el.id === 'reqTermsOpenBtn' || el.id === 'reqTermsCancelBtn' || el.id === 'reqTermsAgreeBtn') return;
+    if (el.id === 'warningOkBtn' || el.id === 'warningCloseX' || el.id === 'banOkBtn' || el.id === 'banCloseX') return;
+    try{ el.disabled = !!disabled; }catch{}
+  });
+}
+
+function applyPenaltyUI(me){
+  try{
+    const pen = me && me.penalty ? me.penalty : null;
+    // 管理者が「なりすまし」で閲覧している場合は UI 停止を出さない
+    if (me.adminSession && me.impersonating){ _ovHide('warningOverlay'); _ovHide('banOverlay'); _disableMainForm(false); return; }
+    if (!me || !me.loggedIn || !pen){
+      _ovHide('warningOverlay'); _ovHide('banOverlay');
+      _disableMainForm(false);
+      return;
+    }
+
+    // ban
+    if (pen.banned){
+      const until = pen.permanentBan ? '永久停止' : (pen.banUntil ? ('解除予定: ' + new Date(pen.banUntil).toLocaleString('ja-JP', { timeZone:'Asia/Tokyo' })) : '');
+      _setText('banUntilText', until);
+      _setText('banReasonText', pen.banReason || '現在利用が制限されています。');
+      _ovShow('banOverlay');
+      _ovHide('warningOverlay');
+      _disableMainForm(true);
+      return;
+    } else {
+      _ovHide('banOverlay');
+      _disableMainForm(false);
+    }
+
+    // warning
+    if (pen.warningPending){
+      _setText('warningText', pen.warningMessage || '運営から注意があります。');
+      _ovShow('warningOverlay');
+    } else {
+      _ovHide('warningOverlay');
+    }
+  }catch{
+    _ovHide('warningOverlay'); _ovHide('banOverlay');
+  }
+}
+
+// warning ack
+async function ackWarningAndClose(){
+  try{ await fetch('/penalty/warning-ack', { method:'POST' }); }catch{}
+  _ovHide('warningOverlay');
+}
+document.addEventListener('click', (e)=>{
+  const t = e.target;
+  if (!t) return;
+  if (t.id === 'warningOkBtn') { ackWarningAndClose(); }
+  if (t.id === 'warningCloseX') { ackWarningAndClose(); }
+  if (t.id === 'banOkBtn' || t.id === 'banCloseX') { _ovHide('banOverlay'); }
+});
 // ---- リクエスト送信用 利用規約 ----
 let __reqTermsCache = null; // {termsText, termsVersion}
 let __reqTermsPending = null; // { type:'register'|'submit', payload:{} }
@@ -418,6 +519,7 @@ async function acceptReqTermsAndContinue() {
       setSupportButtonVisible(me);
       if (!me.loggedIn) { document.getElementById('welcomeOverlay')?.classList.add('show'); }
       else { updateTokenInfo(me); }
+      applyPenaltyUI(me);
     }
 
     // BFCache(戻る/進む) で復帰したときにも管理者表示を復元
