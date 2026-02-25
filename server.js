@@ -93,6 +93,23 @@ if (typeof db.data.support.termsVersion !== "number") db.data.support.termsVersi
 if (typeof db.data.support.termsText !== "string") db.data.support.termsText = "";
 if (!db.data.support.threads || typeof db.data.support.threads !== "object") db.data.support.threads = {};
 
+
+
+// ---- Request Terms defaults (song request) ----
+if (!db.data.requestTerms) db.data.requestTerms = {
+  termsText: "【リクエスト送信 利用規約】\n\n・本サービスは、放送で扱う楽曲リクエストの受付を目的とします。\n・不正・迷惑行為（スパム、荒らし、運営妨害、過度な連投等）は禁止です。\n・個人情報の送信はお控えください。\n・運営は必要に応じて、投稿の削除やアクセス制限等の措置を行うことがあります。\n\n（この利用規約は管理画面から変更できます）\n",
+  termsVersion: 1,
+};
+if (typeof db.data.requestTerms.termsVersion !== "number") db.data.requestTerms.termsVersion = 1;
+if (typeof db.data.requestTerms.termsText !== "string") db.data.requestTerms.termsText = "";
+
+function requestTermsStore() {
+  db.data.requestTerms = db.data.requestTerms || { termsText: "", termsVersion: 1 };
+  if (typeof db.data.requestTerms.termsVersion !== "number") db.data.requestTerms.termsVersion = 1;
+  if (typeof db.data.requestTerms.termsText !== "string") db.data.requestTerms.termsText = "";
+  return db.data.requestTerms;
+}
+
 // ---- Access control defaults (ban by deviceId / IP) ----
 if (!db.data.accessControl) db.data.accessControl = {
   bannedDevices: {}, // { [deviceId]: { deviceId, ip, reason, bannedAtISO, by } }
@@ -149,7 +166,7 @@ function _sendBanned(res, { title = "アクセス禁止", reason = "" } = {}){
     a{color:#2563eb;text-decoration:none}
   </style>
   <body><div class="wrap"><div class="card">
-    <h1>🚫 あなたは現在アクセスが制限されています</h1>
+    <h1>🚫 アクセスが制限されています</h1>
     <p>${reason || "運営者によりアクセスが制限されています。"}</p>
     <p class="muted">心当たりがない場合は、運営へご連絡ください。</p>
     <p class="muted"><a href="/">トップへ</a></p>
@@ -220,6 +237,96 @@ const isSiteAdmin = (u) => u && u.role === ROLE_SITE_ADMIN;
 // 既存コードとの互換: isAdmin() は "admin" だけでなく "site_admin" も管理者扱い
 const isAdmin = (u) => u && (u.role === ROLE_ADMIN || u.role === ROLE_SITE_ADMIN);
 const getUserById = (id) => usersDb.data.users.find((u) => u.id === id);
+
+
+function viewerAcceptedRequestTerms(u) {
+  const rt = requestTermsStore();
+  return Number(u?.requestTermsAcceptedVersion || 0) >= Number(rt.termsVersion || 1);
+}
+
+// ---- Site admin: custom ID rename ----
+function validateCustomUserId(raw){
+  const s = String(raw ?? "").trim();
+  if (!s) return { ok:false, message:"新しいIDが空です。" };
+  if (s.length < 6 || s.length > 64) return { ok:false, message:"IDは6〜64文字で入力してください。" };
+  if (!/^[A-Za-z0-9_-]+$/.test(s)) return { ok:false, message:"IDに使える文字は英数字 / _ / - のみです。" };
+  return { ok:true, value:s };
+}
+
+async function renameUserIdEverywhere(oldId, newId){
+  await usersDb.read();
+  await db.read();
+
+  const u = usersDb.data.users.find(x => x.id === oldId);
+  if (!u) throw new Error("user_not_found");
+  if (usersDb.data.users.some(x => x.id === newId)) throw new Error("id_already_used");
+
+  // users.json
+  u.id = newId;
+
+  const patchReqList = (list) => {
+    if (!Array.isArray(list)) return;
+    for (const r of list) {
+      if (r?.by?.id === oldId) r.by.id = newId;
+      if (r?.lastBy?.id === oldId) r.lastBy.id = newId;
+    }
+  };
+
+  // 投稿
+  patchReqList(db.data.responses);
+  patchReqList(db.data.themeRequests);
+  if (Array.isArray(db.data.themeHistory)) {
+    for (const h of db.data.themeHistory) patchReqList(h?.requests);
+  }
+
+  // lastSubmissions (userId -> ISO)
+  if (db.data.lastSubmissions && typeof db.data.lastSubmissions === "object") {
+    if (Object.prototype.hasOwnProperty.call(db.data.lastSubmissions, oldId)) {
+      db.data.lastSubmissions[newId] = db.data.lastSubmissions[oldId];
+      delete db.data.lastSubmissions[oldId];
+    }
+  }
+
+  // Support threads: keys + message "from.userId" + thread.userId
+  const s = supportStore();
+  if (s.threads && typeof s.threads === "object") {
+    for (const t of Object.values(s.threads)) {
+      if (!t) continue;
+      if (t.userId === oldId) t.userId = newId;
+      if (Array.isArray(t.messages)) {
+        for (const m of t.messages) {
+          if (!m?.from) continue;
+          if (m.from.userId === oldId) {
+            // user message or site_admin staff message should follow the rename
+            if (m.from.kind === "user" || (m.from.kind === "staff" && m.from.role === ROLE_SITE_ADMIN)) {
+              m.from.userId = newId;
+            }
+          }
+        }
+      }
+    }
+    if (s.threads[oldId]) {
+      s.threads[newId] = s.threads[oldId];
+      delete s.threads[oldId];
+      if (s.threads[newId]) s.threads[newId].userId = newId;
+    }
+  }
+
+  // Access control (BAN): bannedDevices のキー追従
+  if (db.data.accessControl && db.data.accessControl.bannedDevices && typeof db.data.accessControl.bannedDevices === "object") {
+    const bd = db.data.accessControl.bannedDevices;
+    if (bd[oldId]) {
+      bd[newId] = bd[oldId];
+      delete bd[oldId];
+      if (bd[newId] && typeof bd[newId] === "object") bd[newId].deviceId = newId;
+    }
+  }
+
+  await usersDb.write();
+  await db.write();
+  return true;
+}
+
 const deviceInfoFromReq = (req) => ({
   ua: req.get("User-Agent") || "",
   ip: req.ip || req.connection?.remoteAddress || "",
@@ -675,8 +782,18 @@ app.post("/register", async (req, res) => {
     const usernameRaw = (req.body.username ?? "").toString();
     const username = usernameRaw.trim();
     if (!username) return res.json({ ok: false, reason: "username_required" });
+    if (username.length < 2) return res.json({ ok: false, reason: "username_too_short" });
     if (username.length > 24) return res.json({ ok: false, reason: "username_too_long" });
-    if (/[\r\n]/.test(username)) return res.json({ ok: false, reason: "username_invalid" });
+    if (/[\\r\\n]/.test(username)) return res.json({ ok: false, reason: "username_invalid" });
+
+    await db.read();
+    const rt = requestTermsStore();
+    const reqTermsVer = Number(req.body.requestTermsVersion ?? 0);
+    const curReqTermsVer = Number(rt.termsVersion || 1);
+    if (reqTermsVer !== curReqTermsVer) {
+      return res.json({ ok: false, reason: "request_terms_required", currentVersion: curReqTermsVer });
+    }
+
     const adminPassword = typeof req.body.adminPassword === "string" ? req.body.adminPassword.trim() : "";
     const monthly = Number(db.data.settings.monthlyTokens ?? 5);
 
@@ -713,6 +830,7 @@ app.post("/register", async (req, res) => {
       username,
       iconUrl: null,
       supportTermsAcceptedVersion: 0,
+      requestTermsAcceptedVersion: reqTermsVer,
       deviceInfo: deviceInfoFromReq(req),
       role,
       tokens: isAdmin({ role }) ? null : monthly,
@@ -738,15 +856,15 @@ app.get("/me", async (req, res) => {
     return res.json({
       loggedIn: false,
       adminSession: false,
-      settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
+      settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason, requestTermsVersion: Number(requestTermsStore().termsVersion || 1) },
     });
   await ensureMonthlyRefill(req.user);
   res.json({
     loggedIn: true,
     adminSession: !!req.adminUser,
     impersonating: !!req.impersonating,
-    user: { id: req.user.id, username: req.user.username, role: req.user.role, tokens: req.user.tokens, iconUrl: req.user.iconUrl || null },
-    settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason },
+    user: { id: req.user.id, username: req.user.username, role: req.user.role, tokens: req.user.tokens, iconUrl: req.user.iconUrl || null, requestTermsAcceptedVersion: Number(req.user.requestTermsAcceptedVersion || 0) },
+    settings: { monthlyTokens: s.monthlyTokens, maintenance: s.maintenance, recruiting: s.recruiting, reason: s.reason, requestTermsVersion: Number(requestTermsStore().termsVersion || 1) },
   });
 });
 
@@ -755,6 +873,11 @@ app.post("/submit", async (req, res) => {
   const user = req.user;
   if (!user) return res.send(toastPage("⚠未登録です。初回登録をしてください。", "/"));
   await ensureMonthlyRefill(user);
+
+  // request terms gate
+  if (!viewerAcceptedRequestTerms(user)) {
+    return res.send(toastPage("⚠リクエスト送信の利用規約への同意が必要です。", "/"));
+  }
 
   if (db.data.settings.maintenance) return res.send(toastPage("⚠現在メンテナンス中です。投稿できません。", "/"));
   if (!db.data.settings.recruiting) return res.send(toastPage("⚠現在は募集を終了しています。", "/"));
@@ -1857,34 +1980,33 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
           <button type="submit" class="icon-btn" title="このユーザーとして見る（なりすまし）" ${locked ? 'disabled' : ''}>👤</button>
         </form>
 
-        <form method="POST" action="/admin/update-user" class="inline-form wide">
+        <a class="icon-btn danger" href="/admin/access-control?deviceId=${u.id}" title="アクセス禁止（デバイスID）" ${locked ? 'style="pointer-events:none;opacity:.45"' : ''}>🚫</a>
+
+        <form method="POST" action="/admin/users/${u.id}/delete" class="inline-form" onsubmit="return confirm('このユーザーを削除しますか？（元に戻せません）');">
+          <button type="submit" class="icon-btn danger" title="ユーザー削除" ${locked ? 'disabled style="opacity:.45"' : ''}>🗑️</button>
+        </form>
+
+        <form method="POST" action="/admin/update-user" class="update-user">
           <input type="hidden" name="id" value="${u.id}">
-          <label>トークン:
-            <input type="number" min="0" name="tokens" value="${isAdmin(u) ? 0 : (u.tokens ?? 0)}" ${(isAdmin(u) || locked) ? 'disabled' : ''}>
+          <label>名前:
+            <input type="text" name="username" value="${esc(u.username)}" maxlength="40">
           </label>
-          <label>ロール:
-            ${u.role === ROLE_SITE_ADMIN
-              ? `<select disabled><option selected>サイト管理者</option></select>`
-              : `<select name="role" ${locked ? 'disabled' : ''}>
-                   <option value="user" ${u.role === ROLE_USER ? 'selected' : ''}>一般</option>
-                   <option value="admin" ${u.role === ROLE_ADMIN ? 'selected' : ''}>管理者</option>
-                 </select>`}
+          <label>role:
+            <select name="role">
+              <option value="user" ${u.role === ROLE_USER ? "selected" : ""}>user</option>
+              <option value="admin" ${u.role === ROLE_ADMIN ? "selected" : ""}>admin</option>
+              <option value="site_admin" ${u.role === ROLE_SITE_ADMIN ? "selected" : ""}>site_admin</option>
+            </select>
           </label>
-          <button type="submit" class="mini-btn" ${(u.role === ROLE_SITE_ADMIN || locked) ? 'disabled' : ''}>保存</button>
+          <button type="submit" ${locked ? 'disabled style="opacity:.45"' : ''}>更新</button>
         </form>
 
         ${u.role === ROLE_SITE_ADMIN && isSiteAdmin(operator) ? `
-        <form method="POST" action="/admin/site-admin/demote" class="inline-form" style="margin-right:6px;">
-          <input type="hidden" name="id" value="${u.id}">
-          <button type="submit" class="mini-btn" onclick="return confirm('サイト管理者ロールを解除します。よろしいですか？')">site_admin解除</button>
-        </form>` : ``}
-
-        <a class="icon-btn danger" href="/admin/access-control?deviceId=${u.id}" title="アクセス制限（BAN/解除）" ${locked ? 'style="pointer-events:none;opacity:.45"' : '' }>🚫</a>
-
-        <form method="POST" action="/admin/delete-user" class="inline-form">
-          <input type="hidden" name="id" value="${u.id}">
-          <button type="submit" class="icon-btn danger" title="このユーザーを削除" ${locked ? 'disabled' : ''} onclick="return ${locked ? 'false' : "confirm('このユーザーを削除します。よろしいですか？')"}">🗑️</button>
-        </form>
+          <form method="POST" action="/admin/site-admin/demote" class="inline-form" onsubmit="return confirm('サイト管理者を解除して管理者に戻します。よろしいですか？');">
+            <input type="hidden" name="id" value="${u.id}">
+            <button type="submit" class="icon-btn" title="site_admin解除" style="font-size:12px;padding:6px 10px;">site_admin解除</button>
+          </form>
+        ` : ``}
       </td>
     </tr>`;
   }).join("");
@@ -2374,6 +2496,26 @@ app.post("/update-settings", requireAdmin, async (req, res) => {
 });
 app.get("/settings", (_req, res) => res.json(db.data.settings));
 
+
+app.get("/request-terms", async (_req, res) => {
+  await db.read();
+  const rt = requestTermsStore();
+  res.json({ termsText: rt.termsText || "", termsVersion: Number(rt.termsVersion || 1) });
+});
+
+app.post("/request-terms/accept", async (req, res) => {
+  if (!req.user) return res.status(401).json({ ok: false, reason: "not_registered" });
+  await usersDb.read();
+  const u = getUserById(req.user.id);
+  if (!u) return res.status(404).json({ ok: false, reason: "not_found" });
+  await db.read();
+  const rt = requestTermsStore();
+  u.requestTermsAcceptedVersion = Number(rt.termsVersion || 1);
+  await usersDb.write();
+  return res.json({ ok: true, acceptedVersion: u.requestTermsAcceptedVersion });
+});
+
+
 // ==== プレビュー用プロキシ ====
 app.get("/preview", async (req, res) => {
   try {
@@ -2644,7 +2786,38 @@ app.get("/mypage", async (req, res) => {
         </form>
       </div>
 
+      ${isSiteAdmin(u) ? `
       <div class="card">
+        <h3>サイト管理者: ID変更</h3>
+        <p class="muted">あなた自身のID（Cookieの deviceId）を任意の文字列に変更できます。変更後も投稿・問い合わせスレッドは引き継がれます。</p>
+        <form class="settings-form" method="POST" action="/mypage/change-id" onsubmit="return confirm('IDを変更しますか？（元に戻せません）');">
+          <label>新しいID:
+            <input type="text" name="newId" value="${esc(u.id)}" maxlength="64" />
+          </label>
+          <button type="submit">IDを変更する</button>
+        </form>
+        <div class="muted" style="font-size:12px;margin-top:6px;">使える文字: 英数字 / _ / -（6〜64文字）。</div>
+      </div>
+
+      <div class="card">
+        <h3>サイト管理者: 権限を解除</h3>
+        <p class="muted">「role: site_admin」を削除（降格）します。解除後は ID変更などのサイト管理者限定機能は使えません。</p>
+
+        <form class="settings-form" method="POST" action="/mypage/remove-site-admin" onsubmit="return confirm('サイト管理者を解除して「管理者」に戻ります。よろしいですか？');">
+          <input type="hidden" name="to" value="admin">
+          <button type="submit">サイト管理者を解除（管理者に戻る）</button>
+        </form>
+
+        <form class="settings-form" method="POST" action="/mypage/remove-site-admin" onsubmit="return confirm('サイト管理者を解除して「一般ユーザー」に戻ります。よろしいですか？（管理画面も使えなくなります）');">
+          <input type="hidden" name="to" value="user">
+          <button type="submit" style="background:#dc2626;">サイト管理者を解除（一般ユーザーに戻る）</button>
+        </form>
+
+        <div class="muted" style="font-size:12px;margin-top:6px;">※ 解除はいつでもできますが、元に戻すには管理者ログインが必要です。</div>
+      </div>
+      ` : ""}
+
+<div class="card">
         <h3>アイコン</h3>
         <p class="muted">画像ファイル（dataURL）または画像URLを保存できます。</p>
 
@@ -2791,12 +2964,79 @@ app.post("/mypage/update", async (req, res) => {
   }
   const name = (req.body.username ?? "").toString().trim();
   if (!name) return res.send(toastPage("⚠ユーザー名を入力してください。", "/mypage"));
+  if (name.length < 2) return res.send(toastPage("⚠ユーザー名は2文字以上で入力してください。", "/mypage"));
   if (name.length > 40) return res.send(toastPage("⚠ユーザー名が長すぎます。（最大40文字）", "/mypage"));
   if (/[\r\n]/.test(name)) return res.send(toastPage("⚠ユーザー名に使えない文字が含まれています。", "/mypage"));
   u.username = name;
   await usersDb.write();
 return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
 });
+
+app.post("/mypage/change-id", async (req, res) => {
+  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/mypage"));
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
+  if (!isSiteAdmin(u)) return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/mypage"));
+
+  const v = validateCustomUserId(req.body.newId);
+  if (!v.ok) return res.send(toastPage(`⚠${esc(v.message)}`, "/mypage"));
+  const newId = v.value;
+  const oldId = u.id;
+
+  if (newId === oldId) return res.send(toastPage("ℹ️同じIDです。", "/mypage"));
+  if (usersDb.data.users.some(x => x.id === newId)) return res.send(toastPage("⚠そのIDは既に使われています。", "/mypage"));
+
+  try{
+    await renameUserIdEverywhere(oldId, newId);
+  }catch(e){
+    const reason = String(e?.message || "");
+    const msg =
+      reason === "id_already_used" ? "そのIDは既に使われています。" :
+      reason === "user_not_found" ? "ユーザーが見つかりませんでした。" :
+      "IDの変更に失敗しました。";
+    return res.send(toastPage(`⚠${esc(msg)}`, "/mypage"));
+  }
+
+  try { res.cookie("deviceId", newId, COOKIE_OPTS); } catch {}
+  try { res.cookie("adminAuth", "1", COOKIE_OPTS); } catch {}
+  try {
+    if (req.cookies?.impersonateId === oldId) res.cookie("impersonateId", newId, COOKIE_OPTS);
+  } catch {}
+
+  // tokens cookie refresh
+  await usersDb.read();
+  writeTokCookie(res, usersDb.data.users.find(x => x.id === newId));
+  return res.send(toastPage("✅IDを変更しました。", "/mypage"));
+});
+
+app.post("/mypage/remove-site-admin", async (req, res) => {
+  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/mypage"));
+  await usersDb.read();
+  const u = usersDb.data.users.find(x => x.id === req.user.id);
+  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
+  if (!isSiteAdmin(u)) return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/mypage"));
+
+  const to = String(req.body?.to || "admin").toLowerCase();
+  const nextRole = (to === "user") ? ROLE_USER : ROLE_ADMIN;
+
+  // role: site_admin を削除（降格）
+  u.role = nextRole;
+  await usersDb.write();
+
+  // 見た目の混乱防止: admin cookie を一応クリア（role でも弾ける）
+  try { res.cookie("adminAuth", "", { ...COOKIE_OPTS, maxAge: 0 }); } catch {}
+
+  // tokens cookie refresh
+  try { writeTokCookie(res, u); } catch {}
+
+  const msg = nextRole === ROLE_USER
+    ? "✅サイト管理者権限を解除しました（一般ユーザーに戻りました）。"
+    : "✅サイト管理者権限を解除しました（管理者に戻りました）。";
+  return res.send(toastPage(msg, "/mypage"));
+});
+
+
 
 
 // ---- MyPage icon update ----
@@ -3099,7 +3339,7 @@ app.get("/support", async (req, res) => {
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
     .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
     .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
-    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
+    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;width:100%;}
     .msg.viewer{justify-content:flex-start;}
     .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
@@ -3489,6 +3729,7 @@ app.get("/admin/supports", requireAdmin, async (req, res) => {
   }).join("");
 
   const termsText = esc(s.termsText || "");
+  const requestTermsText = esc(requestTermsStore().termsText || "");
   const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>問い合わせ一覧</title>
   <style>
@@ -3540,6 +3781,15 @@ app.get("/admin/supports", requireAdmin, async (req, res) => {
           <div class="meta">保存すると termsVersion が +1 され、ユーザーは再同意が必要になります。</div>
         </form>
       </div>
+
+      <div class="card">
+        <div style="font-weight:900;margin-bottom:8px">リクエスト送信 利用規約（ユーザーに表示）</div>
+        <form method="POST" action="/admin/request-terms">
+          <textarea name="termsText">${requestTermsText}</textarea>
+          <div class="actions"><button class="save" type="submit">保存（バージョン更新）</button></div>
+          <div class="meta">保存すると termsVersion が +1 され、ユーザーは再同意が必要になります。</div>
+        </form>
+      </div>
     </div>
   </body></html>`;
   res.send(html);
@@ -3554,6 +3804,18 @@ app.post("/admin/support-terms", requireAdmin, async (req, res) => {
   await db.write();
   return res.redirect("/admin/supports");
 });
+
+
+app.post("/admin/request-terms", requireAdmin, async (req, res) => {
+  const termsText = (req.body?.termsText ?? "").toString();
+  await db.read();
+  const rt = requestTermsStore();
+  rt.termsText = termsText;
+  rt.termsVersion = Number(rt.termsVersion || 1) + 1;
+  await db.write();
+  return res.redirect("/admin/supports");
+});
+
 
 // thread delete (HTMLフォーム)
 app.post("/admin/supports/:userId/delete-thread", requireAdmin, async (req, res) => {
@@ -3616,7 +3878,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
     .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
     .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
     .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
-    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;}
+    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;width:100%;}
     .msg.viewer{justify-content:flex-start;}
     .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
     .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
