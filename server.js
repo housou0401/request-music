@@ -149,7 +149,7 @@ function _sendBanned(res, { title = "アクセス禁止", reason = "" } = {}){
     a{color:#2563eb;text-decoration:none}
   </style>
   <body><div class="wrap"><div class="card">
-    <h1>🚫 アクセスが制限されています</h1>
+    <h1>🚫 あなたは現在アクセスが制限されています</h1>
     <p>${reason || "運営者によりアクセスが制限されています。"}</p>
     <p class="muted">心当たりがない場合は、運営へご連絡ください。</p>
     <p class="muted"><a href="/">トップへ</a></p>
