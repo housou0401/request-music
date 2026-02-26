@@ -2683,7 +2683,13 @@
     "threads": {}
   },
   "accessControl": {
-    "bannedDevices": {},
+    "bannedDevices": {
+      "XxqwC7DwRO6A7O7t": {
+        "reason": "重大なルール違反のため",
+        "bannedAtISO": "2026-02-26T13:18:50.449Z",
+        "source": "penalty"
+      }
+    },
     "bannedIps": {}
   },
   "requestTerms": {
