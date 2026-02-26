@@ -1466,7 +1466,8 @@
       "warningMessage": "",
       "banReason": "",
       "permanentBan": false,
-      "banUntil": null
+      "banUntil": null,
+      "requestTermsAcceptedVersion": 7
     },
     {
       "id": "5PMoF6EsY_wQwwlU",
