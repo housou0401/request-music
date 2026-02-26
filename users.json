@@ -42,7 +42,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 4,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "registeredAt": "2026-02-19T13:57:24.307Z",
@@ -116,7 +116,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 3,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "warningCount": 0,
@@ -170,7 +170,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 4,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "warningCount": 0,
@@ -206,7 +206,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 3,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "warningCount": 0,
@@ -241,7 +241,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 4,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "registeredAt": "2025-11-12T09:15:55.652Z",
@@ -461,7 +461,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 2,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "registeredAt": "2025-11-07T03:37:03.114Z",
@@ -860,7 +860,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 2,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T02:57:42.842Z",
       "registeredAt": "2026-02-01T02:57:42.842Z",
@@ -879,7 +879,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 0,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-02T15:00:08.743Z",
       "registeredAt": "2026-02-02T15:00:08.743Z",
@@ -936,7 +936,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 4,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-10T14:04:34.459Z",
       "registeredAt": "2026-02-10T14:04:34.459Z",
@@ -955,7 +955,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 0,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-10T15:18:09.898Z",
       "registeredAt": "2026-02-10T15:18:09.898Z",
@@ -974,7 +974,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 2,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-10T15:34:15.712Z",
       "registeredAt": "2026-02-10T15:34:15.712Z",
@@ -993,7 +993,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 4,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-11T12:52:06.742Z",
       "registeredAt": "2026-02-11T12:52:06.742Z",
@@ -1012,7 +1012,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 4,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-12T03:25:14.268Z",
       "registeredAt": "2026-02-12T03:25:14.268Z",
@@ -1031,7 +1031,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 4,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-12T03:25:31.283Z",
       "registeredAt": "2026-02-12T03:25:31.283Z",
@@ -1050,7 +1050,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 3,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-12T14:15:07.920Z",
       "registeredAt": "2026-02-12T14:15:07.920Z",
@@ -1069,7 +1069,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 4,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-17T03:23:51.015Z",
       "registeredAt": "2026-02-17T03:23:51.015Z",
@@ -1088,29 +1088,10 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 8,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-17T03:32:24.774Z",
       "registeredAt": "2026-02-17T03:32:24.774Z",
-      "warningCount": 0,
-      "warningSeenCount": 0,
-      "warningMessage": "",
-      "banReason": "",
-      "permanentBan": false,
-      "banUntil": null
-    },
-    {
-      "id": "abv3p7Peyfwuri8Y",
-      "username": "0401",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22C152 Instagram 416.1.0.27.68 (iPhone15,4; iOS 18_2; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 881475720) NW/3 Safari/604.1",
-        "ip": "::1"
-      },
-      "role": "admin",
-      "tokens": 10,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-17T13:25:24.905Z",
-      "registeredAt": "2026-02-17T13:25:24.905Z",
       "warningCount": 0,
       "warningSeenCount": 0,
       "warningMessage": "",
@@ -1146,7 +1127,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 9,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-18T03:25:59.009Z",
       "registeredAt": "2026-02-18T03:25:59.009Z",
@@ -1166,7 +1147,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 8,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-18T03:26:58.413Z",
       "registeredAt": "2026-02-18T03:26:58.413Z",
@@ -1186,7 +1167,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 9,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-21T10:52:44.874Z",
       "registeredAt": "2026-02-21T10:52:44.874Z",
@@ -1228,7 +1209,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 10,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-24T12:27:37.265Z",
       "registeredAt": "2026-02-24T12:27:37.265Z",
@@ -1250,7 +1231,7 @@
         "ip": "124.246.181.185"
       },
       "role": "user",
-      "tokens": 9,
+      "tokens": 5,
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-25T15:24:34.771Z",
       "registeredAt": "2026-02-25T15:24:34.771Z",
