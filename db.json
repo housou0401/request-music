@@ -2683,19 +2683,7 @@
     "threads": {}
   },
   "accessControl": {
-    "bannedDevices": {
-      "XxqwC7DwRO6A7O7t": {
-        "deviceId": "XxqwC7DwRO6A7O7t",
-        "username": "あい",
-        "ip": "60.67.199.154",
-        "reason": "",
-        "bannedAtISO": "2026-02-26T13:19:46.514Z",
-        "by": {
-          "id": "support",
-          "username": "rsa"
-        }
-      }
-    },
+    "bannedDevices": {},
     "bannedIps": {}
   },
   "requestTerms": {
