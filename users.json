@@ -72,24 +72,6 @@
       "banUntil": null
     },
     {
-      "id": "E10RYNN_XvnKGPHJ",
-      "username": "Guest",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Linux; Android 15; SCG13 Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.7390.122 Mobile Safari/537.36 Instagram 404.0.0.48.76 Android (35/15; 450dpi; 1080x2340; samsung; SCG13; SCG13; qcom; ja_JP; 813748141; IABMV/1)",
-        "ip": "::1"
-      },
-      "role": "user",
-      "tokens": 5,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "warningCount": 0,
-      "warningSeenCount": 0,
-      "warningMessage": "",
-      "banReason": "",
-      "permanentBan": false,
-      "banUntil": null
-    },
-    {
       "id": "9OkwVZfZJAHhhOKm",
       "username": "eri",
       "deviceInfo": {
@@ -235,24 +217,6 @@
       "banUntil": null
     },
     {
-      "id": "BWm1AemkPkRdJjtG",
-      "username": "Guest",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23A355 Instagram 404.0.0.27.81 (iPhone14,7; iOS 26_0_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 812595035)",
-        "ip": "::1"
-      },
-      "role": "user",
-      "tokens": 5,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "warningCount": 0,
-      "warningSeenCount": 0,
-      "warningMessage": "",
-      "banReason": "",
-      "permanentBan": false,
-      "banUntil": null
-    },
-    {
       "id": "aECtyUrrrmYNaVAl",
       "username": "りおん",
       "deviceInfo": {
@@ -281,24 +245,6 @@
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "registeredAt": "2025-11-12T09:15:55.652Z",
-      "warningCount": 0,
-      "warningSeenCount": 0,
-      "warningMessage": "",
-      "banReason": "",
-      "permanentBan": false,
-      "banUntil": null
-    },
-    {
-      "id": "TjoSJi6HEKfzdIrQ",
-      "username": "Guest",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (Linux; Android 14; XQ-CQ44 Build/64.2.A.2.272; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/141.0.7390.122 Mobile Safari/537.36 Instagram 404.0.0.48.76 Android (34/14; 450dpi; 1080x2452; Sony; XQ-CQ44; XQ-CQ44; qcom; ja_JP; 813748055; IABMV/1)",
-        "ip": "::1"
-      },
-      "role": "user",
-      "tokens": 5,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "warningCount": 0,
       "warningSeenCount": 0,
       "warningMessage": "",
@@ -594,25 +540,6 @@
       "lastRefillISO": "2026-02",
       "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
       "registeredAt": "2025-12-01T15:03:55.135Z",
-      "warningCount": 0,
-      "warningSeenCount": 0,
-      "warningMessage": "",
-      "banReason": "",
-      "permanentBan": false,
-      "banUntil": null
-    },
-    {
-      "id": "FkDXvk5Wv8EAIZWL",
-      "username": "Guest",
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23B85 Instagram 410.1.0.36.70 (iPhone15,4; iOS 26_1; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 849447290)",
-        "ip": "::1"
-      },
-      "role": "user",
-      "tokens": 5,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-01T00:31:00.862Z",
-      "registeredAt": "2026-01-08T12:09:21.393Z",
       "warningCount": 0,
       "warningSeenCount": 0,
       "warningMessage": "",
@@ -1444,28 +1371,6 @@
       "warningCount": 0,
       "warningSeenCount": 0,
       "warningMessage": "",
-      "banUntil": null,
-      "permanentBan": false,
-      "banReason": ""
-    },
-    {
-      "id": "XxqwC7DwRO6A7O7t",
-      "username": "あい",
-      "iconUrl": null,
-      "supportTermsAcceptedVersion": 6,
-      "requestTermsAcceptedVersion": 7,
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23C71 Instagram 418.1.0.32.75 (iPhone14,2; iOS 26_2_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 890980569) Safari/604.1",
-        "ip": "60.67.199.154"
-      },
-      "role": "user",
-      "tokens": 9,
-      "lastRefillISO": "2026-02",
-      "lastRefillAtISO": "2026-02-26T13:15:36.409Z",
-      "registeredAt": "2026-02-26T13:15:36.409Z",
-      "warningCount": 1,
-      "warningSeenCount": 1,
-      "warningMessage": "⚠ 利用規約/マナーに違反する行為が確認されました。以後、同様の行為が続く場合は停止措置を行います。",
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
