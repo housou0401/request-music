@@ -1452,7 +1452,7 @@
       "id": "XxqwC7DwRO6A7O7t",
       "username": "あい",
       "iconUrl": null,
-      "supportTermsAcceptedVersion": 0,
+      "supportTermsAcceptedVersion": 6,
       "requestTermsAcceptedVersion": 7,
       "deviceInfo": {
         "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23C71 Instagram 418.1.0.32.75 (iPhone14,2; iOS 26_2_1; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 890980569) Safari/604.1",
@@ -1466,9 +1466,9 @@
       "warningCount": 1,
       "warningSeenCount": 1,
       "warningMessage": "⚠ 利用規約/マナーに違反する行為が確認されました。以後、同様の行為が続く場合は停止措置を行います。",
-      "banUntil": "2026-02-26T13:19:13.642Z",
-      "permanentBan": false,
-      "banReason": "ルール違反のため一時停止"
+      "banUntil": null,
+      "permanentBan": true,
+      "banReason": "重大なルール違反のため"
     }
   ]
 }
