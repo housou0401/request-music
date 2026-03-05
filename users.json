@@ -1241,6 +1241,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "CVnENFIJ-PdRsib5",
+      "username": "あい",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D127 Instagram 419.0.0.27.74 (iPhone17,1; iOS 26_3; ja_JP; ja; scale=3.00; 1206x2622; IABMV/1; 895010607) Safari/604.1",
+        "ip": "114.49.160.134"
+      },
+      "role": "user",
+      "tokens": 10,
+      "lastRefillISO": "2026-03",
+      "lastRefillAtISO": "2026-03-05T10:11:49.984Z",
+      "registeredAt": "2026-03-05T10:11:49.984Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
