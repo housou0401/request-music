@@ -2285,6 +2285,27 @@
       },
       "broadcasted": false,
       "rejected": false
+    },
+    {
+      "id": "wmt9oPxbkf7pY-S_Mq4iU",
+      "text": "彼こそが海賊",
+      "artist": "クラウス・バデルト",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E5%BD%BC%E3%81%93%E3%81%9D%E3%81%8C%E6%B5%B7%E8%B3%8A/1437096361?i=1437096565&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/d3/2a/49/d32a4967-ec1d-e195-e8ab-81bb9285e000/00050087402174.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/7c/1d/87/7c1d87a8-be8e-ec6d-659a-67cbc35d3c8b/mzaf_18311900565743180746.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-03-05T14:58:19.478Z",
+      "by": {
+        "id": "0SkV74e-dYDW8zuK",
+        "username": "ぬぬ"
+      },
+      "lastRequestedAt": "2026-03-05T14:58:19.478Z",
+      "lastBy": {
+        "id": "0SkV74e-dYDW8zuK",
+        "username": "ぬぬ"
+      },
+      "broadcasted": false,
+      "rejected": false
     }
   ],
   "lastSubmissions": {
@@ -2446,7 +2467,8 @@
     "366日|hy": 1,
     "青い鳥|千葉県立幕張総合高等学校合唱団": 1,
     "心の瞳|坂本九": 1,
-    "会いにkite! (2026 support ver.)|ilife!": 1
+    "会いにkite! (2026 support ver.)|ilife!": 1,
+    "彼こそが海賊|クラウス・バデルト": 1
   },
   "settings": {
     "recruiting": true,
