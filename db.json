@@ -2329,6 +2329,27 @@
       },
       "broadcasted": false,
       "rejected": false
+    },
+    {
+      "id": "sxILRDeVLBOnwv_-VdvNE",
+      "text": "あの娘は邪惡!",
+      "artist": "ロス",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%82%E3%81%AE%E5%A8%98%E3%81%AF%E9%82%AA%E6%83%A1/1853500973?i=1853501268&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/4b/48/08/4b4808df-726c-c892-bdbc-2759d0a2c5a7/25UM1IM72624.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7f/10/c7/7f10c763-79f9-6897-d18b-86785073a27e/mzaf_16330190762249827797.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-03-09T03:22:13.980Z",
+      "by": {
+        "id": "GW9Fib2XXaHIZRMS",
+        "username": "まお"
+      },
+      "lastRequestedAt": "2026-03-09T03:22:13.980Z",
+      "lastBy": {
+        "id": "GW9Fib2XXaHIZRMS",
+        "username": "まお"
+      },
+      "broadcasted": false,
+      "rejected": false
     }
   ],
   "lastSubmissions": {
@@ -2492,7 +2513,8 @@
     "心の瞳|坂本九": 1,
     "会いにkite! (2026 support ver.)|ilife!": 1,
     "彼こそが海賊|クラウス・バデルト": 1,
-    "「あの娘は誰?」とか言わせたい|kirinji": 1
+    "「あの娘は誰?」とか言わせたい|kirinji": 1,
+    "あの娘は邪惡!|ロス": 1
   },
   "settings": {
     "recruiting": true,
