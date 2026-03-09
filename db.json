@@ -2308,6 +2308,27 @@
       },
       "broadcasted": false,
       "rejected": false
+    },
+    {
+      "id": "w3AUV87LwON1ZYVqVgN0e",
+      "text": "「あの娘は誰?」とか言わせたい",
+      "artist": "KIRINJI",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%82%E3%81%AE%E5%A8%98%E3%81%AF%E8%AA%B0-%E3%81%A8%E3%81%8B%E8%A8%80%E3%82%8F%E3%81%9B%E3%81%9F%E3%81%84/1484305041?i=1484305043&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/7a/b6/d6/7ab6d662-6d93-387a-4641-d82b350174f8/19UMGIM93759.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/8f/2e/75/8f2e75c9-2a19-f9d8-1de1-a89f38bba97a/mzaf_4042864989579413893.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-03-09T03:21:37.783Z",
+      "by": {
+        "id": "GW9Fib2XXaHIZRMS",
+        "username": "まお"
+      },
+      "lastRequestedAt": "2026-03-09T03:21:37.783Z",
+      "lastBy": {
+        "id": "GW9Fib2XXaHIZRMS",
+        "username": "まお"
+      },
+      "broadcasted": false,
+      "rejected": false
     }
   ],
   "lastSubmissions": {
@@ -2470,7 +2491,8 @@
     "青い鳥|千葉県立幕張総合高等学校合唱団": 1,
     "心の瞳|坂本九": 1,
     "会いにkite! (2026 support ver.)|ilife!": 1,
-    "彼こそが海賊|クラウス・バデルト": 1
+    "彼こそが海賊|クラウス・バデルト": 1,
+    "「あの娘は誰?」とか言わせたい|kirinji": 1
   },
   "settings": {
     "recruiting": true,
