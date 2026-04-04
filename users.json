@@ -1353,6 +1353,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "gc_SOtP2srrFLkHV",
+      "username": "るる",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D8133 Instagram 422.1.0.44.67 (iPhone18,3; iOS 26_3_1; ja_JP; ja; scale=3.00; 1206x2622; IABMV/1; 918355888) Safari/604.1",
+        "ip": "14.14.20.21"
+      },
+      "role": "user",
+      "tokens": 10,
+      "lastRefillISO": "2026-04",
+      "lastRefillAtISO": "2026-04-04T13:31:34.789Z",
+      "registeredAt": "2026-04-04T13:31:34.789Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
