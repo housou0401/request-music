@@ -2350,6 +2350,27 @@
       },
       "broadcasted": false,
       "rejected": false
+    },
+    {
+      "id": "uEdX-6YmbbXxnDN9APqGb",
+      "text": "Bad Girl",
+      "artist": "HANA",
+      "appleMusicUrl": "https://music.apple.com/jp/album/bad-girl/1884257488?i=1884257489&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/23/ca/fc/23cafc8b-4576-75c1-0392-9451e07e136f/4547366812664.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a3/4e/60/a34e6083-2c25-7f8a-90ae-ea7ba10e8ce4/mzaf_11268564113524611956.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-04-04T13:33:10.595Z",
+      "by": {
+        "id": "gc_SOtP2srrFLkHV",
+        "username": "るる"
+      },
+      "lastRequestedAt": "2026-04-04T13:33:10.595Z",
+      "lastBy": {
+        "id": "gc_SOtP2srrFLkHV",
+        "username": "るる"
+      },
+      "broadcasted": false,
+      "rejected": false
     }
   ],
   "lastSubmissions": {
@@ -2514,7 +2535,8 @@
     "会いにkite! (2026 support ver.)|ilife!": 1,
     "彼こそが海賊|クラウス・バデルト": 1,
     "「あの娘は誰?」とか言わせたい|kirinji": 1,
-    "あの娘は邪惡!|ロス": 1
+    "あの娘は邪惡!|ロス": 1,
+    "bad girl|hana": 1
   },
   "settings": {
     "recruiting": true,
