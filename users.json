@@ -1375,6 +1375,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "B2_zPgVc-qySBbMo",
+      "username": "yb",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22C152 Instagram 423.1.0.30.69 (iPhone15,4; iOS 18_2; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 924167814) NW/3 Safari/604.1",
+        "ip": "14.8.101.96"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-04",
+      "lastRefillAtISO": "2026-04-07T12:12:34.484Z",
+      "registeredAt": "2026-04-07T12:12:34.484Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
