@@ -1397,6 +1397,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "PeGaLp8h-3hpCn0R",
+      "username": "あいうえお",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D8133 Instagram 424.0.0.26.54 (iPhone17,3; iOS 26_3_1; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 928269732) Safari/604.1",
+        "ip": "106.146.65.151"
+      },
+      "role": "user",
+      "tokens": 10,
+      "lastRefillISO": "2026-04",
+      "lastRefillAtISO": "2026-04-10T07:36:14.519Z",
+      "registeredAt": "2026-04-10T07:36:14.519Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
