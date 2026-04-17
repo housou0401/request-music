@@ -1463,6 +1463,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "AfEwxjpRqg_ISabx",
+      "username": "アバレンジャー",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D8133 Instagram 425.0.0.32.59 (iPhone18,1; iOS 26_3_1; ja_JP; ja; scale=3.00; 1206x2622; IABMV/1; 936842409) Safari/604.1",
+        "ip": "133.204.193.128"
+      },
+      "role": "user",
+      "tokens": 9,
+      "lastRefillISO": "2026-04",
+      "lastRefillAtISO": "2026-04-17T12:50:36.723Z",
+      "registeredAt": "2026-04-17T12:50:36.723Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
