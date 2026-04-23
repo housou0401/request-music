@@ -1,0 +1,73 @@
+    .ux-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.2); display: none; align-items: center; justify-content: center; z-index: 999; }
+    .ux-overlay.show { display: flex; }
+    .ux-modal { background: #fff; padding: 16px; border-radius: 10px; width: min(420px, 92%); box-shadow: 0 8px 24px rgba(0,0,0,.15); text-align: left; }
+    .ux-row { display: flex; gap: 8px; margin-top: 8px; }
+    .ux-modal input[type="text"], .ux-modal input[type="password"] { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+    .ux-modal button { padding: 8px 12px; cursor: pointer; }
+
+    .ux-stop-card { border: 2px solid #f5c2c7; background: #fff; border-radius: 10px; padding: 16px; margin-top: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+    .ux-stop-title { color: #d00000; font-weight: bold; font-size: 18px; margin-bottom: 6px; text-align: center; }
+    .ux-stop-reason { color: #111; font-size: 14px; text-align: center; }
+
+    .ux-maint-overlay { position: fixed; inset: 0; background: rgba(255,255,255,.85); display: none; align-items:center; justify-content:center; z-index: 1000; }
+    .ux-maint-overlay.show { display: flex; }
+    .ux-maint-box { border: 2px dashed #d00000; background:#fff; padding: 20px 24px; border-radius: 12px; text-align:center; }
+    .ux-maint-box h2 { color:#d00000; margin:0 0 4px; }
+    .ux-maint-box p { margin:0; color:#333; }
+
+    .ux-hidden { display: none !important; }
+    #token-info { margin-top: 6px; font-size: 14px; opacity: .85; }
+
+    /* 管理者ボタンを右上固定 */
+    .admin-button {
+      position: fixed !important;
+      top: 12px;
+      right: 12px;
+      z-index: 1100;
+    }
+
+    /* メインを画面中央に */
+    #mainContainer {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(92vw, 520px);
+      max-height: 90vh;
+      overflow: auto;
+    }
+  
+  /* My Page link (top-right) */
+  .mypage-link{position:fixed;top:12px;right:12px;z-index:1100;display:inline-flex;gap:8px;align-items:center;background:#111827;color:#fff;text-decoration:none;padding:8px 12px;border-radius:999px;border:1px solid #374151;box-shadow:0 6px 16px rgba(0,0,0,.25);font-size:14px}
+  .mypage-link img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+.theme-link{right:150px;}
+  @media (max-width:520px){.mypage-link{padding:8px 12px}}
+  /* stack support/admin under mypage so they don't overlap */
+  .support-link{top:56px !important;}
+  .admin-button{top:100px !important;}
+
+/* ===== Request Terms Modal (same design as support terms) ===== */
+.terms-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.terms-ov.show{display:flex}
+.terms-modal{width:min(640px,92vw);background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden;border:1px solid rgba(0,0,0,.08)}
+.terms-h{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.08)}
+.terms-h .t{font-weight:900}
+.terms-x{border:none;background:transparent;font-size:20px;cursor:pointer;opacity:.7}
+.terms-x:hover{opacity:1}
+.terms-b{padding:14px}
+.terms-open-wrap{display:flex;justify-content:center;margin:10px 0 14px}
+.terms-open-btn{border:none;background:#111827;color:#fff;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.terms-open-btn:hover{filter:brightness(.95)}
+.terms-agree{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.terms-agree .btn{border:none;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.terms-agree .cancel{background:#e5e7eb;color:#111827}
+.terms-agree .ok{background:#2563eb;color:#fff}
+.terms-sub{font-size:12px;opacity:.7;margin-top:6px}
+.terms-view{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:10000;padding:16px}
+.terms-view.show{display:flex}
+.terms-card{width:min(860px,94vw);max-height:86vh;background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.30);border:1px solid rgba(0,0,0,.10);overflow:hidden;display:flex;flex-direction:column}
+.terms-card .head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.08)}
+.terms-card .body{padding:14px;overflow:auto;white-space:pre-wrap;line-height:1.7;font-size:14px}
+.terms-card .foot{display:flex;justify-content:flex-end;gap:10px;padding:12px 14px;border-top:1px solid rgba(0,0,0,.08)}
+.terms-card .foot button{border:none;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.terms-card .foot .agree{background:#2563eb;color:#fff}
+.terms-card .foot .close{background:#e5e7eb;color:#111827}
