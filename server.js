@@ -897,6 +897,11 @@ app.post("/register", async (req, res) => {
     if (username.length > 24) return res.json({ ok: false, reason: "username_too_long" });
     if (/[\\r\\n]/.test(username)) return res.json({ ok: false, reason: "username_invalid" });
 
+    await usersDb.read();
+    if (usersDb.data.users.some(u => String(u?.username ?? "").trim() === username)) {
+      return res.json({ ok: false, reason: "username_taken" });
+    }
+
     await db.read();
     const rt = requestTermsStore();
     const reqTermsVer = Number(req.body.requestTermsVersion ?? 0);
