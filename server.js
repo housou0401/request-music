@@ -2849,20 +2849,38 @@ app.get("/preview", async (req, res) => {
       host.endsWith("mzstatic.com");
     if (!allowed) return res.status(403).send("forbidden host");
 
-    const headers = {};
+    const headers = {
+      "user-agent": "Mozilla/5.0 request-music-preview-proxy",
+      "accept": "audio/*,*/*;q=0.9"
+    };
     if (req.headers.range) headers["range"] = req.headers.range;
 
-    const r = await fetch(raw, { headers });
+    const r = await fetch(raw, { headers, redirect: "follow" });
+    if (!r.ok && r.status !== 206) {
+      return res.status(r.status).send("preview upstream error");
+    }
+
     res.status(r.status);
-    const ct = r.headers.get("content-type") || "audio/mpeg";
-    res.setHeader("Content-Type", ct);
-    const len = r.headers.get("content-length");
-    if (len) res.setHeader("Content-Length", len);
-    const ar = r.headers.get("accept-ranges");
-    if (ar) res.setHeader("Accept-Ranges", ar);
-    const cr = r.headers.get("content-range");
-    if (cr) res.setHeader("Content-Range", cr);
+    const passthroughHeaders = [
+      "content-type", "content-length", "accept-ranges", "content-range",
+      "etag", "last-modified"
+    ];
+    for (const name of passthroughHeaders) {
+      const value = r.headers.get(name);
+      if (value) res.setHeader(name, value);
+    }
+    if (!r.headers.get("content-type")) {
+      res.setHeader("content-type", "audio/mpeg");
+    }
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cache-Control", "public, max-age=86400");
+
+    if (!r.body) return res.end();
+    r.body.on("error", (err) => {
+      console.error("preview proxy stream error:", err);
+      if (!res.headersSent) res.status(502).end("preview stream error");
+      else res.end();
+    });
     r.body.pipe(res);
   } catch (e) {
     console.error("preview proxy error:", e);

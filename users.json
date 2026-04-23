@@ -1485,6 +1485,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "zQmdMWxD5MlUfink",
+      "username": "test",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+        "ip": "153.246.130.182"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-04",
+      "lastRefillAtISO": "2026-04-23T18:52:56.872Z",
+      "registeredAt": "2026-04-23T18:52:56.872Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
