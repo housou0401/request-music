@@ -105,6 +105,7 @@ const AudioManager = (() => {
     element() { return ensureNodes(); }
   };
 })();
+if (typeof window !== "undefined") window.AudioManager = AudioManager;
 
 /* ---------------- 検索UI（既存） ---------------- */
 let searchMode = "song";     // "song" | "artist"
@@ -538,10 +539,10 @@ function msToLabel(ms) {
 function renderCarousel /* v9-centerfix */(list) {
   currentList = Array.isArray(list) ? list.slice(0, 30) : [];
   const track = $("#carouselTrack");
-  if (!track) return;
+  const wrap = $("#resultsCarousel");
+  if (!track || !wrap) return;
   track.innerHTML = "";
 
-  // カードDOMを生成
   currentList.forEach((s, i)=> {
     const card = document.createElement("div");
     card.className = "result-card";
@@ -555,12 +556,10 @@ function renderCarousel /* v9-centerfix */(list) {
     track.appendChild(card);
   });
 
-  
-  // 端で中央に寄せられるようスペーサー
-  setTimeout(buildEdgeSpacers, 0); setTimeout(()=>{ const t=document.getElementById('carouselTrack'); if(t){ t.style.alignItems='center'; }}, 0);
-// スクロール時の 3D/スケール更新
-  const wrap = $("#resultsCarousel");
-  function update3D() {
+  setTimeout(buildEdgeSpacers, 0);
+  setTimeout(()=>{ const t=document.getElementById('carouselTrack'); if(t){ t.style.alignItems='center'; }}, 0);
+
+  const update3D = () => {
     const cards = $$(".result-card");
     const rect = wrap.getBoundingClientRect();
     const center = rect.left + rect.width/2;
@@ -568,61 +567,83 @@ function renderCarousel /* v9-centerfix */(list) {
     cards.forEach((c, idx)=>{
       const r = c.getBoundingClientRect();
       const mid = r.left + r.width/2;
-      const dx = (mid - center) / rect.width; // -0.5 .. 0.5 くらい
+      const dx = (mid - center) / rect.width;
       const dist = Math.abs(dx);
       const scale = 0.78 + Math.max(0, 0.30 * (1 - Math.min(1, dist*2)));
-      const ry = -16 * dx; // 左右に少し傾ける
+      const ry = -16 * dx;
       c.style.setProperty("--scale", scale.toFixed(3));
       c.style.setProperty("--ry", ry.toFixed(3) + "deg");
       if (dist < nearest.d) nearest = {i: idx, d: dist};
     });
-    // 選択のハイライト
-    $$(".result-card").forEach(c => c.classList.remove("selected"));
-    if (nearest.i >= 0) {
-      $$(".result-card")[nearest.i].classList.add("selected");
-    }
+    cards.forEach(c => c.classList.remove("selected"));
+    if (nearest.i >= 0) cards[nearest.i].classList.add("selected");
+  };
+
+  wrap._update3D = update3D;
+  if (!wrap._update3DBound) {
+    wrap.addEventListener("scroll", ()=> {
+      if (typeof wrap._update3D === 'function') wrap._update3D();
+    }, { passive:true });
+    window.addEventListener("resize", ()=> {
+      setTimeout(buildEdgeSpacers, 0);
+      if (typeof wrap._update3D === 'function') wrap._update3D();
+    });
+    wrap._update3DBound = true;
   }
-  wrap.addEventListener("scroll", update3D, {passive:true});
-  window.addEventListener("resize", update3D);
 
-  // スワイプ操作
-  let startX = 0, startScroll = 0, dragging=false;
-  wrap.addEventListener("pointerdown", (e)=>{
-    dragging = true;
-    startX = e.clientX;
-    startScroll = wrap.scrollLeft;
-    wrap.style.scrollSnapType = "none";
-    wrap.setPointerCapture(e.pointerId);
-  });
-  wrap.addEventListener("pointermove", (e)=>{
-    if (!dragging) return;
-    const dx = startX - e.clientX;
-    wrap.scrollLeft = startScroll + dx;
-  });
-  wrap.addEventListener("pointerup", (e)=>{
-    dragging = false;
-    wrap.style.scrollSnapType = "x mandatory";
-    // スクロール後に最も中央のカードを選択
-    setTimeout(()=> {
-      const cards = $$(".result-card");
-      if (!cards.length) return;
-      const rect = wrap.getBoundingClientRect();
-      const center = rect.left + rect.width/2;
-      let nearest = {i: -1, d: 1e9};
-      cards.forEach((c, idx)=>{
-        const r = c.getBoundingClientRect();
-        const mid = r.left + r.width/2;
-        const d = Math.abs(mid - center);
-        if (d < nearest.d) nearest = {i: idx, d};
-      });
-      if (nearest.i >= 0) selectCarouselIndex(nearest.i, true);
-    }, 30);
-  });
+  if (!wrap._dragBound) {
+    let dragging = false, startX = 0, startScroll = 0;
+    let rafId = 0, pendingScrollLeft = null;
+    let snapTimer = null;
 
-  // 初期選択: 0 番目
+    const scheduleSnap = () => {
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(()=> {
+        if (typeof snapToNearest === 'function') snapToNearest();
+      }, 90);
+    };
+
+    wrap.addEventListener('scroll', scheduleSnap, { passive:true });
+
+    const applyScroll = () => {
+      rafId = 0;
+      if (pendingScrollLeft == null) return;
+      wrap.scrollLeft = pendingScrollLeft;
+      pendingScrollLeft = null;
+    };
+
+    wrap.addEventListener("pointerdown", (e)=>{
+      if (e.pointerType && e.pointerType !== 'mouse') return;
+      dragging = true;
+      startX = e.clientX;
+      startScroll = wrap.scrollLeft;
+      wrap.style.scrollSnapType = "none";
+      wrap.classList.add('dragging');
+      try { wrap.setPointerCapture(e.pointerId); } catch {}
+    });
+    wrap.addEventListener("pointermove", (e)=>{
+      if (!dragging) return;
+      e.preventDefault();
+      const dx = startX - e.clientX;
+      pendingScrollLeft = startScroll + dx;
+      if (!rafId) rafId = requestAnimationFrame(applyScroll);
+    }, { passive:false });
+
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      wrap.style.scrollSnapType = "x mandatory";
+      wrap.classList.remove('dragging');
+      scheduleSnap();
+    };
+    wrap.addEventListener("pointerup", endDrag);
+    wrap.addEventListener("pointercancel", endDrag);
+    wrap.addEventListener("lostpointercapture", endDrag);
+    wrap._dragBound = true;
+  }
+
   ensurePlayerUIVisible(currentList.length > 0);
   if (currentList.length > 0) {
-    // 先頭カードへスクロール & 選択
     setTimeout(()=>{
       const first = track.querySelector('.result-card[data-index="0"]');
       if (first) {
@@ -1285,3 +1306,401 @@ window.addEventListener('DOMContentLoaded', ()=>{
   }
 })();
 /* ===================== /playback-hotfix-v10 ===================== */
+
+/* ===================== mobile-playback-carousel-stabilizer-v11 ===================== */
+(function(){
+  const onReady = (fn) => {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once:true });
+    else fn();
+  };
+
+  function waitForMediaReady(audio, timeoutMs = 2500) {
+    return new Promise((resolve, reject) => {
+      if (!audio) return reject(new Error('audio_missing'));
+      if (audio.readyState >= 2) return resolve();
+      let done = false;
+      const cleanup = () => {
+        audio.removeEventListener('canplay', onReady);
+        audio.removeEventListener('loadedmetadata', onReady);
+        audio.removeEventListener('error', onError);
+        clearTimeout(timer);
+      };
+      const onReady = () => {
+        if (done) return;
+        done = true;
+        cleanup();
+        resolve();
+      };
+      const onError = () => {
+        if (done) return;
+        done = true;
+        cleanup();
+        reject(audio.error || new Error('media_error'));
+      };
+      const timer = setTimeout(() => {
+        if (done) return;
+        done = true;
+        cleanup();
+        reject(new Error('media_timeout'));
+      }, timeoutMs);
+      audio.addEventListener('canplay', onReady, { once:true });
+      audio.addEventListener('loadedmetadata', onReady, { once:true });
+      audio.addEventListener('error', onError, { once:true });
+    });
+  }
+
+  function enhanceAudioManager(){
+    const AM = window.AudioManager;
+    if (!AM || typeof AM.element !== 'function') return;
+    const audio = AM.element();
+    if (!audio) return;
+
+    audio.preload = 'auto';
+    audio.playsInline = true;
+    audio.setAttribute('playsinline', '');
+    audio.setAttribute('webkit-playsinline', '');
+    audio.crossOrigin = 'anonymous';
+
+    if (typeof AM._loadToken !== 'number') AM._loadToken = 0;
+    AM._userUnlocked = false;
+
+    AM.unlock = async function(){
+      const el = AM.element();
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx && el && typeof el.play === 'function') {
+          try { await el.play(); } catch {}
+          try { el.pause(); } catch {}
+          try { el.currentTime = 0; } catch {}
+        }
+      } catch {}
+      AM._userUnlocked = true;
+    };
+
+    const unlockOnce = () => {
+      AM.unlock?.();
+      window.removeEventListener('pointerdown', unlockOnce, true);
+      window.removeEventListener('touchstart', unlockOnce, true);
+      window.removeEventListener('click', unlockOnce, true);
+    };
+    window.addEventListener('pointerdown', unlockOnce, true);
+    window.addEventListener('touchstart', unlockOnce, true);
+    window.addEventListener('click', unlockOnce, true);
+
+    AM.load = function(url){
+      const el = AM.element();
+      const token = ++AM._loadToken;
+      AM._currentUrl = url || '';
+      el._loadToken = token;
+      try { el.pause(); } catch {}
+      try { el.currentTime = 0; } catch {}
+      try { el.removeAttribute('src'); el.load(); } catch {}
+      if (!url) return token;
+      el.src = `/preview?url=${encodeURIComponent(url)}`;
+      try { el.load(); } catch {}
+      return token;
+    };
+
+    AM.play = async function(expectedToken){
+      const el = AM.element();
+      const token = expectedToken ?? el?._loadToken ?? AM._loadToken;
+      if (!el || !el.src) throw new Error('preview_not_loaded');
+      if (el._loadToken !== token) return false;
+      try {
+        await waitForMediaReady(el);
+      } catch (err) {
+        if (el._loadToken !== token) return false;
+        throw err;
+      }
+      if (el._loadToken !== token) return false;
+      const p = el.play();
+      if (p && typeof p.then === 'function') await p;
+      return true;
+    };
+
+    AM.pause = function(reset=false){
+      const el = AM.element();
+      try { el.pause(); } catch {}
+      if (reset) {
+        try { el.currentTime = 0; } catch {}
+      }
+    };
+
+    audio.onended = null;
+    audio.addEventListener('ended', () => {
+      const btn = document.getElementById('playPauseBtn');
+      if (btn) btn.textContent = '▶';
+    });
+    audio.addEventListener('error', (e) => {
+      console.warn('preview playback error', e, audio.error);
+      const btn = document.getElementById('playPauseBtn');
+      if (btn) btn.textContent = '▶';
+    });
+  }
+
+  function replaceCarouselNode(){
+    const oldWrap = document.getElementById('resultsCarousel');
+    if (!oldWrap || oldWrap.dataset.v11 === '1') return oldWrap;
+    const newWrap = oldWrap.cloneNode(true);
+    newWrap.dataset.v11 = '1';
+    oldWrap.parentNode.replaceChild(newWrap, oldWrap);
+    return newWrap;
+  }
+
+  function installNativeCarousel(){
+    const wrap = replaceCarouselNode();
+    const track = document.getElementById('carouselTrack');
+    if (!wrap || !track) return;
+
+    let rafId = 0;
+    let snapTimer = 0;
+
+    const cards = () => Array.from(track.querySelectorAll('.result-card'));
+
+    const update3D = () => {
+      rafId = 0;
+      const rect = wrap.getBoundingClientRect();
+      const center = rect.left + rect.width / 2;
+      let nearest = { index: -1, dist: Infinity };
+      cards().forEach((card, index) => {
+        const r = card.getBoundingClientRect();
+        const mid = r.left + r.width / 2;
+        const dx = (mid - center) / Math.max(rect.width, 1);
+        const dist = Math.abs(dx);
+        const scale = 0.82 + Math.max(0, 0.22 * (1 - Math.min(1, dist * 2.2)));
+        const ry = -12 * dx;
+        card.style.setProperty('--scale', scale.toFixed(3));
+        card.style.setProperty('--ry', `${ry.toFixed(2)}deg`);
+        if (dist < nearest.dist) nearest = { index, dist };
+      });
+      cards().forEach((card, index) => card.classList.toggle('selected', index === nearest.index));
+    };
+
+    const request3D = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(update3D);
+    };
+
+    const snapToNearest = () => {
+      const list = cards();
+      if (!list.length) return;
+      const rect = wrap.getBoundingClientRect();
+      const center = rect.left + rect.width / 2;
+      let best = { index: -1, dist: Infinity };
+      list.forEach((card, index) => {
+        const r = card.getBoundingClientRect();
+        const mid = r.left + r.width / 2;
+        const dist = Math.abs(mid - center);
+        if (dist < best.dist) best = { index, dist };
+      });
+      if (best.index >= 0 && typeof window.selectCarouselIndex === 'function') {
+        window.selectCarouselIndex(best.index, false, { skipScroll: true });
+      }
+    };
+
+    wrap.addEventListener('scroll', () => {
+      request3D();
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(snapToNearest, 90);
+    }, { passive:true });
+
+    window.addEventListener('resize', () => {
+      if (typeof window.buildEdgeSpacers === 'function') window.buildEdgeSpacers();
+      request3D();
+    });
+
+    wrap._request3D = request3D;
+    request3D();
+  }
+
+  function setPlayButtonState(isPlaying){
+    const btn = document.getElementById('playPauseBtn');
+    if (btn) btn.textContent = isPlaying ? '⏸' : '▶';
+  }
+
+  function overrideSelectionFlow(){
+    const AM = window.AudioManager;
+    if (!AM) return;
+
+    window.playSelected = async function(){
+      if (!window.currentPreviewUrl) return;
+      try {
+        setPlayButtonState(true);
+        const audio = AM.element();
+        const token = audio?._loadToken;
+        const ok = await AM.play(token);
+        if (!ok) setPlayButtonState(false);
+      } catch (e) {
+        console.warn('playSelected failed', e);
+        setPlayButtonState(false);
+      }
+    };
+
+    window.pauseSelected = function(){
+      AM.pause(false);
+      setPlayButtonState(false);
+    };
+
+    const originalSelect = window.selectCarouselIndex;
+    window.selectCarouselIndex = function(i, autoPlay=false, opts={}){
+      const result = originalSelect ? originalSelect(i, false) : undefined;
+      if (opts?.skipScroll !== true && typeof window.scrollToIndex === 'function') {
+        window.scrollToIndex(i);
+      }
+      const song = Array.isArray(window.currentList) ? window.currentList[i] || {} : {};
+      window.currentPreviewUrl = song.previewUrl || '';
+      if (window.currentPreviewUrl) {
+        const token = AM.load(window.currentPreviewUrl);
+        if (autoPlay) {
+          Promise.resolve().then(async () => {
+            try {
+              setPlayButtonState(true);
+              const ok = await AM.play(token);
+              if (!ok) setPlayButtonState(false);
+            } catch (e) {
+              console.warn('autoplay failed', e);
+              setPlayButtonState(false);
+            }
+          });
+        } else {
+          setPlayButtonState(false);
+        }
+      } else {
+        setPlayButtonState(false);
+      }
+      return result;
+    };
+  }
+
+  function overrideRenderCarousel(){
+    window.renderCarousel = function(list){
+      window.currentList = Array.isArray(list) ? list.slice(0, 30) : [];
+      const wrap = replaceCarouselNode();
+      const track = document.getElementById('carouselTrack');
+      if (!wrap || !track) return;
+      track.innerHTML = '';
+      window.currentIndex = -1;
+      window.currentPreviewUrl = '';
+
+      window.currentList.forEach((s, i) => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'result-card';
+        card.dataset.index = String(i);
+        card.innerHTML = `
+          <img class="cover" src="${s.artworkUrl || ''}" alt="Cover">
+          <div class="title">${s.trackName || ''}</div>
+          <div class="artist">${s.artistName || ''}</div>
+        `;
+        card.addEventListener('click', () => window.selectCarouselIndex(i, true));
+        track.appendChild(card);
+      });
+
+      if (typeof window.buildEdgeSpacers === 'function') window.buildEdgeSpacers();
+      installNativeCarousel();
+      window.ensurePlayerUIVisible?.(window.currentList.length > 0);
+      if (window.currentList.length > 0) {
+        requestAnimationFrame(() => {
+          window.selectCarouselIndex(0, false);
+          window.scrollToIndex?.(0);
+          document.getElementById('resultsCarousel')?._request3D?.();
+        });
+      }
+    };
+  }
+
+  function overrideSetupPlayerControls(){
+    window.setupPlayerControls = function(){
+      const AM = window.AudioManager;
+      if (!AM) return;
+      const playBtn = document.getElementById('playPauseBtn');
+      const volBtn = document.getElementById('volumeBtn');
+      const volBar = document.getElementById('volumeBar');
+      const seek = document.getElementById('seekBar');
+      const timeLabel = document.getElementById('timeLabel');
+      const audio = AM.element();
+      if (!audio) return;
+
+      if (playBtn && !playBtn.dataset.v11Bound) {
+        playBtn.dataset.v11Bound = '1';
+        playBtn.onclick = async () => {
+          if (!audio.src && window.currentPreviewUrl) AM.load(window.currentPreviewUrl);
+          if (audio.paused) await window.playSelected?.();
+          else window.pauseSelected?.();
+        };
+      }
+
+      if (volBtn && !volBtn.dataset.v11Bound) {
+        volBtn.dataset.v11Bound = '1';
+        volBtn.onclick = () => {
+          if (AM.isMuted()) AM.unmute();
+          else AM.mute();
+          const v = AM.getVolume01?.() ?? 0;
+          if (volBar) volBar.value = String(Math.round(v * Number(volBar.max || 100)));
+          if (typeof window.updateVolumeIcon === 'function') window.updateVolumeIcon(volBtn, v, v <= 0.001);
+        };
+      }
+
+      if (volBar && !volBar.dataset.v11Bound) {
+        volBar.dataset.v11Bound = '1';
+        volBar.value = String(Math.round((AM.getVolume01?.() ?? 0.4) * Number(volBar.max || 100)));
+        volBar.addEventListener('input', () => {
+          const v = Math.max(0, Math.min(1, Number(volBar.value) / Number(volBar.max || 100)));
+          AM.setVolume01(v);
+          if (typeof window.setRangeProgress === 'function') window.setRangeProgress(volBar, v);
+          if (typeof window.updateVolumeIcon === 'function') window.updateVolumeIcon(volBtn, v, v <= 0.001);
+        });
+      }
+
+      if (seek && !seek.dataset.v11Bound) {
+        seek.dataset.v11Bound = '1';
+        seek.addEventListener('input', () => {
+          const duration = audio.duration || 0;
+          const f = Number(seek.value) / Number(seek.max || 1000);
+          if (Number.isFinite(duration) && duration > 0) {
+            try { audio.currentTime = duration * f; } catch {}
+          }
+          if (typeof window.setRangeProgress === 'function') window.setRangeProgress(seek, f);
+        });
+      }
+
+      audio.onended = () => setPlayButtonState(false);
+      audio.ontimeupdate = () => {
+        const duration = audio.duration || 0;
+        const current = audio.currentTime || 0;
+        if (seek && Number.isFinite(duration) && duration > 0) {
+          const f = current / duration;
+          seek.value = String(Math.round(f * Number(seek.max || 1000)));
+          if (typeof window.setRangeProgress === 'function') window.setRangeProgress(seek, f);
+        }
+        if (timeLabel) timeLabel.textContent = `${window.msToLabel?.(current * 1000) || '0:00'} / ${window.msToLabel?.(duration * 1000) || '0:00'}`;
+      };
+      audio.onloadedmetadata = () => {
+        if (seek) {
+          seek.value = '0';
+          if (typeof window.setRangeProgress === 'function') window.setRangeProgress(seek, 0);
+        }
+        if (timeLabel) timeLabel.textContent = `0:00 / ${window.msToLabel?.((audio.duration || 0) * 1000) || '0:00'}`;
+      };
+
+      const v = AM.getVolume01?.() ?? 0.4;
+      if (volBar) {
+        volBar.value = String(Math.round(v * Number(volBar.max || 100)));
+        if (typeof window.setRangeProgress === 'function') window.setRangeProgress(volBar, v);
+      }
+      if (typeof window.updateVolumeIcon === 'function' && volBtn) window.updateVolumeIcon(volBtn, v, v <= 0.001);
+      setPlayButtonState(!audio.paused && !!audio.src);
+    };
+  }
+
+  onReady(() => {
+    enhanceAudioManager();
+    overrideSelectionFlow();
+    overrideRenderCarousel();
+    overrideSetupPlayerControls();
+    replaceCarouselNode();
+    installNativeCarousel();
+    window.setupPlayerControls?.();
+  });
+})();
+/* ===================== /mobile-playback-carousel-stabilizer-v11 ===================== */

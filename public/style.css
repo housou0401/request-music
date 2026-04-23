@@ -1016,3 +1016,42 @@ button:hover {
     padding: 3px 6px;
   }
 }
+
+/* playback/swipe stability hotfix */
+.carousel-wrap {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+}
+.carousel-wrap.dragging {
+  cursor: grabbing;
+}
+.result-card {
+  will-change: transform;
+}
+
+/* === mobile playback/carousel stabilizer v11 === */
+#resultsCarousel {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+#resultsCarousel::-webkit-scrollbar { display: none; }
+#carouselTrack {
+  will-change: transform;
+}
+.result-card {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform .18s ease-out, opacity .18s ease-out;
+}
+.result-card img.cover {
+  pointer-events: none;
+}
+#playerControls button {
+  touch-action: manipulation;
+}
