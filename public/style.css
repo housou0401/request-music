@@ -1004,13 +1004,8 @@ button:hover {
   font-size: 11px;
   line-height: 1.4;
   color: rgba(0, 0, 0, 0.6);
-  background: rgba(255, 255, 255, 0.72);
-  padding: 4px 8px;
-  border-radius: 8px;
   z-index: 1200;
   pointer-events: none;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
 @media (max-width: 480px) {
