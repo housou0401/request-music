@@ -26,7 +26,6 @@ h1 {
   margin-bottom: 10px;
 }
 
-
 .input-container {
   position: relative;
   margin-bottom: 10px;
@@ -121,7 +120,6 @@ button:hover {
   margin-right: 10px;
 }
 
-
 .artist-list{display:flex;flex-direction:column;gap:6px;}
 .artist-row{
   display:flex;align-items:center;gap:10px;
@@ -195,7 +193,6 @@ button:hover {
   margin-right: 10px;
 }
 
-
 .control-btn {
   width: 40px;
   height: 40px;
@@ -217,7 +214,6 @@ button:hover {
   height: 24px;
   fill: #888;
 }
-
 
 .volume-slider {
   -webkit-appearance: none;
@@ -247,7 +243,6 @@ button:hover {
   cursor: pointer;
 }
 
-
 #modeSong, #modeArtist {
   flex: 1;
   font-size: 14px;
@@ -263,7 +258,6 @@ button:hover {
 #modeSong:hover, #modeArtist:hover {
   background-color: #e0e0e0;
 }
-
 
 #reSearchSongMode, #reSearchArtistMode {
   margin: 10px 0;
@@ -312,7 +306,6 @@ button:hover {
   color: #555;
 }
 
-
 #loadingIndicator {
   display: none;
   position: absolute;
@@ -353,8 +346,6 @@ button:hover {
     padding: 4px 5px;
   }
 }
-
-
 
 .carousel-wrap { 
   margin: 10px 0 12px;
@@ -415,7 +406,6 @@ button:hover {
   color: #555;
 }
 
-
 .player-controls {
   margin: 8px 0 0;
   padding: 10px 12px;
@@ -463,19 +453,15 @@ button:hover {
   color: #555;
 }
 
-
 .result-card {
   transform: perspective(1000px) rotateY(var(--ry, 0deg)) scale(var(--scale, 1));
 }
-
-
 
 .carousel-wrap {
   width: 100%;
   max-width: 100%;
   padding-inline: 8px;
 }
-
 
 .player-controls {
   border-radius: 14px;
@@ -492,7 +478,6 @@ button:hover {
 }
 #playPauseBtn:hover, #volumeBtn:hover { background: #f2f2f7; }
 
-
 #seekBar, .volume-slider {
   height: 4px;
   background: #d2d2d7;
@@ -504,11 +489,8 @@ button:hover {
   background: #1d1d1f;
 }
 
-
 .carousel-wrap { scroll-snap-type: x mandatory; }
 .result-card { scroll-snap-align: center; }
-
-
 
 .carousel-wrap{
   display: grid;
@@ -528,7 +510,6 @@ button:hover {
   scroll-snap-type: x mandatory;
   min-height: 100%;
 }
-
 
 .result-card{
   flex: 0 0 auto;
@@ -568,10 +549,8 @@ button:hover {
   color: #666;
 }
 
-
 .result-card{ transform: perspective(1000px) rotateY(var(--ry, 0deg)) scale(var(--scale, .86)); }
 .result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.02); }
-
 
 .player-controls{
   background: transparent;
@@ -615,8 +594,6 @@ button:hover {
   .result-card{ width: clamp(72px, 18vw, 108px); }
 }
 
-
-
 .carousel-wrap{
   display:grid;
   place-items:center;
@@ -640,7 +617,6 @@ button:hover {
   min-height:100%;
 }
 .edge-spacer{ flex:0 0 auto; }
-
 
 .result-card{
   flex:0 0 auto;
@@ -670,15 +646,12 @@ button:hover {
 .result-card .title{ margin-top:6px; font-weight:700; font-size:13px; line-height:1.25; }
 .result-card .artist{ margin-top:2px; font-size:11px; color:#666; }
 
-
 .result-card{ transform: perspective(1000px) rotateY(var(--ry,0deg)) scale(var(--scale,.80)); }
 .result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.12); }
 .result-card.selected img.cover{ outline:3px solid rgba(255,255,255,.9); outline-offset:-2px; }
 
-
 .player-controls{ background:transparent; border:none; box-shadow:none; padding: 10px 0 4px; }
 .player-top, .player-bottom{ display:flex; align-items:center; justify-content:center; gap:12px; }
-
 
 #playPauseBtn, #volumeBtn{
   width:44px; height:44px;
@@ -686,7 +659,6 @@ button:hover {
   display:inline-flex; align-items:center; justify-content:center;
   font-size:20px; line-height:1;
 }
-
 
 #seekBar, #volumeBar{
   -webkit-appearance:none; appearance:none;
@@ -699,7 +671,6 @@ button:hover {
 }
 #seekBar.active, #volumeBar.active{ transform: scaleY(1.15); }
 
-
 #seekBar::-webkit-slider-thumb, #volumeBar::-webkit-slider-thumb{
   -webkit-appearance:none; appearance:none;
   width:0; height:0; background:transparent; border:none;
@@ -710,19 +681,15 @@ button:hover {
 
 .time-label{ min-width:96px; text-align:right; font-size:12px; color:#555; }
 
-
-
 .carousel-wrap{
   display:grid;
   place-items:center;
   height: clamp(260px, 46vh, 520px);
 }
 
-
 .result-card{ transform: perspective(1000px) rotateY(var(--ry,0deg)) scale(var(--scale,.78)); }
 .result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.18); }
 .result-card.selected img.cover{ outline:3px solid rgba(255,255,255,.95); outline-offset:-2px; } 
-
 
 #playPauseBtn, #volumeBtn{
   width:44px; height:44px;
@@ -731,7 +698,6 @@ button:hover {
   color: #4b5563;   
   font-size: 22px;
 }
-
 
 #seekBar, #volumeBar{
   -webkit-appearance: none; appearance: none;
@@ -746,12 +712,7 @@ button:hover {
 #seekBar::-webkit-slider-thumb, #volumeBar::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:0; height:0; background:transparent; border:none; }
 #seekBar::-moz-range-thumb,   #volumeBar::-moz-range-thumb{ width:0; height:0; background:transparent; border:none; }
 
-
 .player-top, .player-bottom{ justify-content:center; }
-
-
-
-
 
 .carousel-wrap{
   display:grid;
@@ -760,7 +721,6 @@ button:hover {
   scroll-snap-type: x mandatory;
 }
 .carousel-track{ align-items:center; }
-
 
 .result-card{
   width: clamp(105px, 20vw, 150px);
@@ -778,7 +738,6 @@ button:hover {
 .result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.22); }
 .result-card.selected img.cover{ outline-color: rgba(255,255,255,.95); }
 
-
 #playPauseBtn, #volumeBtn{
   background: transparent !important;
   border: none !important;
@@ -786,7 +745,6 @@ button:hover {
   width: 44px; height: 44px;
   font-size: 22px;
 }
-
 
 #seekBar, #volumeBar{
   -webkit-appearance: none; appearance: none;
@@ -805,13 +763,10 @@ button:hover {
 
 .player-top, .player-bottom{ justify-content: center; }
 
-
 @media (max-width: 480px){
   .carousel-wrap{ height: clamp(200px, 42vh, 340px); }
   .result-card{ width: clamp(100px, 22vw, 140px); }
 }
-
-
 
 .carousel-wrap{
   --card: clamp(92px, 18vw, 132px);
@@ -870,8 +825,6 @@ button:hover {
 .player-top, .player-bottom{ justify-content:center; }
 .carousel-wrap{ place-items:center; }
 
-
-
 .carousel-wrap{
   --card: clamp(90px, 16vw, 130px);
   --sel: 1.30;
@@ -915,9 +868,7 @@ button:hover {
   .carousel-wrap{ --card: clamp(100px, 14vw, 144px); height: calc(var(--card) * var(--sel) + 90px); }
 }
 
-
 .player-controls{ margin-top: 8px !important; }
-
 
 .carousel-wrap{
   display: grid;
@@ -933,7 +884,6 @@ button:hover {
   align-self: center; 
 }
 
-
 .carousel-wrap .result-card.selected{
   transform: perspective(1000px) rotateY(0deg) scale(1.24) !important; 
 }
@@ -943,8 +893,6 @@ button:hover {
 .result-card{
   align-self: center; 
 }
-
-
 
 .theme-banner{
   margin: 10px 0 14px;
@@ -971,7 +919,6 @@ button:hover {
 }
 .theme-banner-note{opacity:.75;font-size:12px;}
 
-
 .artist-list{display:flex;flex-direction:column;gap:8px;}
 .artist-list-item{
   display:flex;
@@ -989,13 +936,10 @@ button:hover {
 .artist-list-item .name{font-weight:800;}
 .artist-list-item .sub{opacity:.75;font-size:12px;margin-top:2px;}
 
-
 .artist-row{ color:#111; }
 .artist-name{ color:#111; }
 .artist-hint{ color:#333; }
 .artist-go{ color:#666; }
-
-
 
 .copyright-notice {
   position: fixed;
@@ -1017,7 +961,6 @@ button:hover {
   }
 }
 
-
 .carousel-wrap {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
@@ -1029,7 +972,6 @@ button:hover {
 .result-card {
   will-change: transform;
 }
-
 
 #resultsCarousel {
   overflow-x: auto;
@@ -1056,8 +998,54 @@ button:hover {
   touch-action: manipulation;
 }
 
-
 #resultsCarousel{scroll-snap-type:none !important;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:none;}
 #resultsCarousel::-webkit-scrollbar{display:none;}
 #carouselTrack{scroll-snap-type:none !important;}
 #carouselTrack .result-card{scroll-snap-align:none !important;}
+
+/* Layout */
+.result-card .title,
+.result-card .artist,
+.result-card.selected .title,
+.result-card.selected .artist {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.result-card .title,
+.result-card.selected .title {
+  color: #111111 !important;
+}
+.result-card .artist,
+.result-card.selected .artist {
+  color: #4b5563 !important;
+}
+.carousel-wrap {
+  scroll-snap-type: x proximity !important;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+}
+.carousel-track {
+  scroll-snap-type: unset !important;
+}
+.result-card {
+  scroll-snap-align: center;
+}
+@media (max-width: 600px) {
+  .carousel-wrap {
+    --card: clamp(100px, 26vw, 144px);
+    height: calc(var(--card) + 98px);
+    padding-inline: 12px;
+  }
+  .result-card {
+    width: var(--card) !important;
+  }
+  .result-card img.cover {
+    border-radius: 14px;
+  }
+}
+
