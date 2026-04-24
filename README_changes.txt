@@ -1,23 +1,6 @@
-主な修正点（スマートフォン重視）
-
-1. プレビュー再生の整理
-- AudioManager の最終段を一本化し、load/play/pause を安定化
-- 曲選択時の自動再生で、メディア準備完了(canplay / loadedmetadata)を待ってから再生
-- 端末側の最初のユーザー操作で音声再生をアンロック
-- 再生終了時の自動次送りを停止し、ボタン表示だけ戻す
-- 既存の複数の hotfix が競合していた状態を、末尾の stabilizer で上書き整理
-
-2. カードスワイプの改善
-- スマホではブラウザ標準の横スクロール + 慣性スクロールを優先
-- 独自 pointer drag に依存しない native scroll ベースへ寄せた
-- スクロール中の3D更新を requestAnimationFrame で間引き
-- スクロール停止後に最近傍カードへスナップ
-- スクロールバー非表示、touch-action / overscroll をスマホ向けに調整
-
-3. 変更ファイル
-- public/skript.js
-- public/style.css
-
-補足
-- 見た目・デザインは大きく変えていません
-- 既存機能を壊しにくいよう、末尾に安定化レイヤーを追加する形で修正しています
+変更内容
+- public/index.html の head 内 <style> を public/index.inline.css へ外出し
+- public/index.html の末尾 inline <script> を public/index.inline.js へ外出し
+- public/style.css と public/skript.js は内容を変更せず配置維持
+- server.js の /register に既存ユーザー名の重複禁止チェックを追加
+- index.inline.js に username_taken 用ポップアップ文言を追加
