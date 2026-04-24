@@ -1003,7 +1003,6 @@ button:hover {
 #carouselTrack{scroll-snap-type:none !important;}
 #carouselTrack .result-card{scroll-snap-align:none !important;}
 
-/* Layout */
 .result-card .title,
 .result-card .artist,
 .result-card.selected .title,
@@ -1049,3 +1048,83 @@ button:hover {
   }
 }
 
+
+/* Carousel */
+.carousel-wrap{
+  --card: clamp(96px, 23vw, 124px) !important;
+  --sel: 1.30 !important;
+  --nsel: 0.76 !important;
+  height: calc(var(--card) * var(--sel) + 118px) !important;
+  padding: 14px 10px 24px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x proximity !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-x !important;
+  overscroll-behavior-x: contain !important;
+}
+.carousel-wrap::-webkit-scrollbar{ display:none !important; }
+.carousel-track{
+  gap: 14px !important;
+  align-items: center !important;
+  min-height: 100% !important;
+}
+.result-card,
+.result-card *{
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+.result-card{
+  width: var(--card) !important;
+  padding: 12px 10px 16px !important;
+  pointer-events: none !important;
+  transform: perspective(1000px) rotateY(var(--ry, 0deg)) scale(var(--scale, .76)) !important;
+}
+.result-card.selected{
+  transform: perspective(1000px) rotateY(0deg) scale(var(--sel)) !important;
+  opacity: 1 !important;
+}
+.result-card img.cover{
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18) !important;
+}
+.result-card.selected img.cover{
+  box-shadow: 0 0 0 4px rgba(215, 240, 255, .98), 0 14px 30px rgba(0,0,0,.18) !important;
+}
+.result-card .title,
+.result-card .artist{
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.result-card .title{
+  margin-top: 9px !important;
+  color: #111111 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+.result-card .artist{
+  margin-top: 4px !important;
+  color: #555555 !important;
+  font-size: 12px !important;
+}
+@media (max-width: 600px){
+  .carousel-wrap{
+    --card: clamp(92px, 24.5vw, 126px) !important;
+    height: calc(var(--card) * var(--sel) + 126px) !important;
+  }
+}
+
+/* Player */
+#seekBar,
+#volumeBar{
+  width: min(560px, 88%) !important;
+}
+.time-label{
+  min-width: 108px !important;
+  color: #4b5563 !important;
+}

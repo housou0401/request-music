@@ -1,4 +1,3 @@
-/* Page hooks */
 async function goAdmin() {
     try {
         const me = await fetch('/me').then(r => r.json());
