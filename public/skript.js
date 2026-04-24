@@ -862,9 +862,9 @@ searchSongs = async function () {
 };
 window.addEventListener("DOMContentLoaded", setupPlayerControls);
 
-/* Mobile carousel/player */
+/* Mobile snap carousel/player */
 (function () {
-  const state = { list: [], index: -1, previewUrl: '', scrollTimer: 0, raf: 0, playSeq: 0, tick: 0 };
+  const state = { list: [], index: -1, previewUrl: '', settleTimer: 0, raf: 0, playSeq: 0, tick: 0, snapping: false };
 
   function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once: true });
@@ -874,7 +874,7 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
   function wrap() { return document.getElementById('resultsCarousel'); }
   function track() { return document.getElementById('carouselTrack'); }
   function cards() { return Array.from((track() || document).querySelectorAll('.result-card')); }
-  function esc(v) { return String(v || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+  function esc(v) { return String(v || '').replace(/[&<>\"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
   function cut(v, max) {
     const s = String(v || '').trim();
     return s.length > max ? s.slice(0, max - 1) + '…' : s;
@@ -883,9 +883,16 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
     if (!state.list.length) return -1;
     return Math.max(0, Math.min(Number(i) || 0, state.list.length - 1));
   }
-  function showPlayer(show) {
-    document.getElementById('resultsCarousel')?.classList.toggle('ux-hidden', !show);
-    document.getElementById('playerControls')?.classList.toggle('ux-hidden', !show);
+  function hasSearchText() {
+    if (window.searchMode === 'artist') return !!String(document.getElementById('songName')?.value || '').trim();
+    const song = String(document.getElementById('songName')?.value || '').trim();
+    const artist = String(document.getElementById('artistName')?.value || '').trim();
+    return !!(song || artist);
+  }
+  function setResultsVisible(show) {
+    const visible = !!show && hasSearchText() && state.list.length > 0;
+    document.getElementById('resultsCarousel')?.classList.toggle('ux-hidden', !visible);
+    document.getElementById('playerControls')?.classList.toggle('ux-hidden', !visible);
   }
   function formatTime(sec) {
     const n = Math.max(0, Math.floor(Number(sec) || 0));
@@ -932,8 +939,8 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
   }
   function bindAudio() {
     const a = audio();
-    if (!a || a.dataset.rmMobileBound === '1') return a;
-    a.dataset.rmMobileBound = '1';
+    if (!a || a.dataset.rmSnapBound === '1') return a;
+    a.dataset.rmSnapBound = '1';
     ['loadedmetadata', 'durationchange', 'timeupdate', 'seeked', 'play', 'pause', 'error', 'waiting', 'canplay'].forEach(name => {
       a.addEventListener(name, () => { updatePlayer(); if (name === 'play') startTicker(); });
     });
@@ -959,25 +966,24 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
     });
     return best;
   }
-  function updateCards(markNearest) {
+  function updateCards(activeIndex = state.index) {
     const w = wrap();
     const list = cards();
     if (!w || !list.length) return;
     const r = w.getBoundingClientRect();
     const center = r.left + r.width / 2;
-    let nearest = -1;
-    let best = Infinity;
     list.forEach((card, i) => {
       const cr = card.getBoundingClientRect();
       const dx = ((cr.left + cr.width / 2) - center) / Math.max(1, r.width);
-      const d = Math.abs(dx);
-      const scale = 0.84 + Math.max(0, 0.24 * (1 - Math.min(1, d * 2.15)));
+      const near = Math.max(0, 1 - Math.min(1, Math.abs(dx) * 2.2));
+      const scale = 0.82 + 0.24 * near;
+      const lift = 10 * near;
       card.style.setProperty('--scale', scale.toFixed(3));
-      card.style.setProperty('--ry', (-10 * dx).toFixed(2) + 'deg');
-      if (d < best) { best = d; nearest = i; }
+      card.style.setProperty('--ry', (-9 * dx).toFixed(2) + 'deg');
+      card.style.setProperty('--lift', lift.toFixed(1) + 'px');
+      card.style.opacity = String(0.58 + 0.42 * near);
+      card.classList.toggle('selected', i === activeIndex);
     });
-    const active = markNearest ? nearest : state.index;
-    list.forEach((card, i) => card.classList.toggle('selected', i === active));
   }
   function edgeSpacers() {
     const w = wrap();
@@ -987,14 +993,28 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
     const first = t.querySelector('.result-card');
     if (!first) return;
     const pad = Math.max(0, (w.clientWidth - first.offsetWidth) / 2);
-    const l = document.createElement('div');
-    const r = document.createElement('div');
-    l.className = 'edge-spacer';
-    r.className = 'edge-spacer';
-    l.style.flexBasis = pad + 'px';
-    r.style.flexBasis = pad + 'px';
-    t.prepend(l);
-    t.appendChild(r);
+    const left = document.createElement('div');
+    const right = document.createElement('div');
+    left.className = 'edge-spacer';
+    right.className = 'edge-spacer';
+    left.style.flexBasis = pad + 'px';
+    right.style.flexBasis = pad + 'px';
+    t.prepend(left);
+    t.appendChild(right);
+  }
+  function centerScrollLeft(index) {
+    const w = wrap();
+    const card = cards()[index];
+    if (!w || !card) return null;
+    return card.offsetLeft + card.offsetWidth / 2 - w.clientWidth / 2;
+  }
+  function snapToIndex(index, behavior = 'smooth') {
+    const w = wrap();
+    const target = centerScrollLeft(index);
+    if (!w || target === null) return;
+    state.snapping = true;
+    w.scrollTo({ left: Math.max(0, target), behavior });
+    window.setTimeout(() => { state.snapping = false; updateCards(state.index); }, behavior === 'smooth' ? 360 : 0);
   }
   function setHidden(song) {
     const apple = document.getElementById('appleMusicUrlHidden');
@@ -1004,7 +1024,7 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
     if (art) art.value = song.artworkUrl || '';
     if (prev) prev.value = song.previewUrl || '';
   }
-  function selectIndex(i, autoplay) {
+  function selectIndex(i, autoplay = false, snap = true) {
     const idx = clampIndex(i);
     if (idx < 0) return;
     const song = state.list[idx] || {};
@@ -1014,16 +1034,17 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
     window.currentIndex = idx;
     window.currentPreviewUrl = state.previewUrl;
     setHidden(song);
-    updateCards(false);
+    updateCards(idx);
+    if (snap) snapToIndex(idx, 'smooth');
     if (changed && state.previewUrl && window.AudioManager) {
       try { window.AudioManager.load(state.previewUrl); } catch {}
       updatePlayer();
     }
     if (autoplay && state.previewUrl) playCurrent();
   }
-  function commitCenter(autoplay) {
+  function commitCenter(autoplay = true) {
     const idx = nearestIndex();
-    if (idx >= 0) selectIndex(idx, autoplay);
+    if (idx >= 0) selectIndex(idx, autoplay, true);
   }
   async function playCurrent() {
     const AM = window.AudioManager;
@@ -1046,22 +1067,29 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
       updatePlayer();
     }
   }
-  function scheduleCommit(delay, autoplay) {
-    clearTimeout(state.scrollTimer);
-    state.scrollTimer = setTimeout(() => commitCenter(autoplay), delay);
+  function scheduleCommit(delay = 120, autoplay = true) {
+    clearTimeout(state.settleTimer);
+    state.settleTimer = setTimeout(() => commitCenter(autoplay), delay);
   }
   function bindCarousel() {
     const w = wrap();
     if (!w) return;
     let raf = 0;
+    let moved = false;
     w.addEventListener('scroll', () => {
+      moved = true;
       if (!raf) {
-        raf = requestAnimationFrame(() => { raf = 0; updateCards(true); });
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          const near = nearestIndex();
+          updateCards(near >= 0 ? near : state.index);
+        });
       }
-      scheduleCommit(150, true);
+      if (!state.snapping) scheduleCommit(135, true);
     }, { passive: true });
-    w.addEventListener('touchend', () => scheduleCommit(90, true), { passive: true });
-    w.addEventListener('pointerup', () => scheduleCommit(90, true), { passive: true });
+    w.addEventListener('touchstart', () => { moved = false; clearTimeout(state.settleTimer); }, { passive: true });
+    w.addEventListener('touchend', () => scheduleCommit(moved ? 95 : 0, true), { passive: true });
+    w.addEventListener('pointerup', () => scheduleCommit(moved ? 95 : 0, true), { passive: true });
     w.addEventListener('click', e => {
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -1093,14 +1121,15 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
         '<div class="artist" title="' + esc(song.artistName || '') + '">' + esc(cut(song.artistName || '', 22)) + '</div>';
       t.appendChild(card);
     });
-    showPlayer(state.list.length > 0);
+    setResultsVisible(state.list.length > 0);
     bindCarousel();
     requestAnimationFrame(() => {
       edgeSpacers();
-      const first = t.querySelector('.result-card[data-index="0"]');
-      if (first) newWrap.scrollLeft = Math.max(0, first.offsetLeft - (newWrap.clientWidth / 2 - first.offsetWidth / 2));
-      selectIndex(0, false);
-      updateCards(false);
+      if (state.list.length > 0 && hasSearchText()) {
+        selectIndex(0, false, false);
+        snapToIndex(0, 'auto');
+        updateCards(0);
+      }
     });
   }
   function setupPlayer() {
@@ -1160,13 +1189,27 @@ window.addEventListener("DOMContentLoaded", setupPlayerControls);
     }
     updatePlayer();
   }
+  function bindSearchVisibility() {
+    const handler = () => {
+      if (!hasSearchText()) {
+        state.list = [];
+        state.index = -1;
+        state.previewUrl = '';
+        setResultsVisible(false);
+      }
+    };
+    ['songName', 'artistName'].forEach(id => document.getElementById(id)?.addEventListener('input', handler, { passive: true }));
+    handler();
+  }
   ready(() => {
     window.renderCarousel = renderCarousel;
-    window.selectCarouselIndex = function (i, autoplay = false) { selectIndex(i, autoplay); };
-    window.scrollToIndex = function () {};
+    window.selectCarouselIndex = function (i, autoplay = false) { selectIndex(i, autoplay, true); };
+    window.scrollToIndex = function (i) { snapToIndex(clampIndex(i), 'smooth'); };
     window.playSelected = playCurrent;
     window.pauseSelected = function () { window.AudioManager?.pause(false); updatePlayer(); };
     window.setupPlayerControls = setupPlayer;
+    window.ensurePlayerUIVisible = setResultsVisible;
     setupPlayer();
+    bindSearchVisibility();
   });
 })();

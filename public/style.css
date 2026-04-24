@@ -1355,3 +1355,127 @@ textarea {
     min-height: calc(clamp(152px, 32vw, 212px) + 62px) !important;
   }
 }
+
+/* Enhanced mobile snap */
+#resultsCarousel.ux-hidden,
+#playerControls.ux-hidden {
+  display: none !important;
+}
+
+#resultsCarousel.carousel-wrap {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  height: clamp(360px, 56vh, 540px) !important;
+  padding: 18px 10px 32px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-snap-type: x proximity !important;
+  scroll-behavior: smooth !important;
+  touch-action: pan-x !important;
+  overscroll-behavior-x: contain !important;
+  scrollbar-width: none !important;
+  mask-image: linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%);
+}
+
+#resultsCarousel.carousel-wrap::-webkit-scrollbar {
+  display: none !important;
+}
+
+#carouselTrack.carousel-track {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-height: 100% !important;
+  min-width: max-content !important;
+  gap: 18px !important;
+  scroll-snap-type: none !important;
+}
+
+#resultsCarousel .edge-spacer {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  pointer-events: none !important;
+}
+
+#resultsCarousel .result-card {
+  width: clamp(140px, 27vw, 196px) !important;
+  min-height: calc(clamp(140px, 27vw, 196px) + 62px) !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  pointer-events: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  align-self: center !important;
+  scroll-snap-align: center !important;
+  scroll-snap-stop: always !important;
+  transform: perspective(1000px) translateY(calc(-1 * var(--lift, 0px))) rotateY(var(--ry, 0deg)) scale(var(--scale, .84)) !important;
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .24s ease, filter .24s ease !important;
+  will-change: transform, opacity !important;
+}
+
+#resultsCarousel .result-card img.cover {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  display: block !important;
+  border-radius: 16px !important;
+  outline: 4px solid transparent !important;
+  outline-offset: -2px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18) !important;
+  transition: outline-color .22s ease, box-shadow .22s ease, filter .22s ease !important;
+}
+
+#resultsCarousel .result-card.selected img.cover {
+  outline-color: #7dd3fc !important;
+  box-shadow: 0 0 0 3px rgba(186,230,253,.95), 0 0 22px rgba(14,165,233,.42), 0 16px 34px rgba(0,0,0,.24) !important;
+}
+
+#resultsCarousel .result-card .title,
+#resultsCarousel .result-card .artist {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#resultsCarousel .result-card .title {
+  margin-top: 10px !important;
+  color: #111111 !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+}
+
+#resultsCarousel .result-card .artist {
+  margin-top: 4px !important;
+  color: #374151 !important;
+  font-size: 13px !important;
+  line-height: 1.25 !important;
+}
+
+@media (max-width: 640px) {
+  #mainContainer {
+    max-height: 92vh !important;
+  }
+
+  #resultsCarousel.carousel-wrap {
+    height: clamp(372px, 58vh, 560px) !important;
+  }
+
+  #resultsCarousel .result-card {
+    width: clamp(152px, 32vw, 212px) !important;
+    min-height: calc(clamp(152px, 32vw, 212px) + 66px) !important;
+  }
+}
