@@ -1485,6 +1485,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "YozLCqI8qn5NBbYM",
+      "username": "ああｗｄｑ",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+        "ip": "133.79.192.20"
+      },
+      "role": "user",
+      "tokens": 10,
+      "lastRefillISO": "2026-04",
+      "lastRefillAtISO": "2026-04-24T06:48:09.404Z",
+      "registeredAt": "2026-04-24T06:48:09.404Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
