@@ -1,12 +1,7 @@
-変更内容:
-- サジェスト領域が空のときに折りたたまれるように修正
-- サジェスト表示領域を少し小さく調整
-- カルーセル両端の曲も中央選択できるよう edge spacer と中央スナップを再調整
-- 中央カードの自動選択と水色フレームを維持
-- 再生・停止ボタンの反応を改善し、再生中は「■」、停止中は「▶」に統一
-- シークバーと秒数表示を再生状態に追従するよう再整理
-- スマホ入力時の自動ズーム抑制を維持
-- /support と /mypage のサーバールートを含む元 server.js をベースに復元
-- public/img/mypage.png を同梱
-- Cookie の path を / に固定し、/mypage から戻ったときにログイン状態が分断されにくいよう修正
-- 登録時・マイページ更新時の重複ユーザー名を拒否
+request-music rich snap hidden suggest structure
+
+- request-music_rich_snap_hidden_suggest_bundle.zip と同様に index.inline.css / index.inline.js を public 配下へ分離しています。
+- サジェスト未表示時にカルーセルとプレーヤーを完全に折りたたみます。
+- 左右端のカードを中央選択できるよう edge spacer と中央スナップを維持しています。
+- 再生ボタンは touchstart / pointerdown を最終制御し、シークバーと秒数表示を同期します。
+- /support と /mypage を含む server.js と public/img/mypage.png を同梱しています。
