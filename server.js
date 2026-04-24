@@ -29,13 +29,13 @@ const toastPage = (msg, redirect="/") => `<!doctype html><html lang="ja"><meta c
 
 const PORT = process.env.PORT || 3000;
 
-// ---- GitHub 同期設定 ----
+
 const GITHUB_OWNER = process.env.GITHUB_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-// ---- LowDB ----
+
 const db = await JSONFilePreset("db.json", {
   responses: [],
   songCounts: {},
@@ -52,9 +52,9 @@ const db = await JSONFilePreset("db.json", {
   },
 });
 const usersDb = await JSONFilePreset("users.json", {
-  users: [], // { id, username, deviceInfo, role('user'|'admin'), tokens(null|number), lastRefillISO('YYYY-MM') }
+  users: [], 
 });
-// defaults for schedule
+
 if (typeof db.data.settings.refillDay !== "number") db.data.settings.refillDay = 1;
 if (typeof db.data.settings.refillHour !== "number") db.data.settings.refillHour = 0;
 if (typeof db.data.settings.refillMinute !== "number") db.data.settings.refillMinute = 0;
@@ -63,7 +63,7 @@ if (typeof db.data.settings.voteResetMinute !== "number") db.data.settings.voteR
 
 
 
-// ---- Theme / Vote defaults ----
+
 if (!db.data.theme) db.data.theme = {
   active: false,
   id: null,
@@ -83,11 +83,11 @@ if (!db.data.themeSongCounts) db.data.themeSongCounts = {};
 if (!Array.isArray(db.data.themeHistory)) db.data.themeHistory = [];
 
 
-// ---- Support defaults ----
+
 if (!db.data.support) db.data.support = {
   termsText: "【サポート利用規約】\n\n・本サポートは、サービス改善および不正利用防止のために内容を記録します。\n・個人情報の送信はお控えください。\n・迷惑行為、スパム、運営を妨げる行為は禁止です。\n・運営は必要に応じて、メッセージの削除やアクセス制限等の措置を行うことがあります。\n\n（この利用規約は管理画面から変更できます）\n",
   termsVersion: 1,
-  threads: {}, // { [userId]: { userId, createdAtISO, updatedAtISO, lastPreview, messages:[...] } }
+  threads: {}, 
 };
 if (typeof db.data.support.termsVersion !== "number") db.data.support.termsVersion = 1;
 if (typeof db.data.support.termsText !== "string") db.data.support.termsText = "";
@@ -95,7 +95,7 @@ if (!db.data.support.threads || typeof db.data.support.threads !== "object") db.
 
 
 
-// ---- Request Terms defaults (song request) ----
+
 if (!db.data.requestTerms) db.data.requestTerms = {
   termsText: "【リクエスト送信 利用規約】\n\n・本サービスは、放送で扱う楽曲リクエストの受付を目的とします。\n・不正・迷惑行為（スパム、荒らし、運営妨害、過度な連投等）は禁止です。\n・個人情報の送信はお控えください。\n・運営は必要に応じて、投稿の削除やアクセス制限等の措置を行うことがあります。\n\n（この利用規約は管理画面から変更できます）\n",
   termsVersion: 1,
@@ -110,16 +110,16 @@ function requestTermsStore() {
   return db.data.requestTerms;
 }
 
-// ---- Access control defaults (ban by deviceId / IP) ----
+
 if (!db.data.accessControl) db.data.accessControl = {
-  bannedDevices: {}, // { [deviceId]: { deviceId, ip, reason, bannedAtISO, by } }
-  bannedIps: {},     // { [ip]: { ip, mode:'soft'|'strict', reason, bannedAtISO, by } }
+  bannedDevices: {}, 
+  bannedIps: {},     
 };
 if (!db.data.accessControl.bannedDevices || typeof db.data.accessControl.bannedDevices !== "object") db.data.accessControl.bannedDevices = {};
 if (!db.data.accessControl.bannedIps || typeof db.data.accessControl.bannedIps !== "object") db.data.accessControl.bannedIps = {};
 
 
-// ---- cookieからトークンを取得 ----
+
 const TOK_COOKIE = "tok";
 function readTokCookie(req){
   try{
@@ -135,12 +135,12 @@ function writeTokCookie(res, user){
     res.cookie(TOK_COOKIE, Buffer.from(JSON.stringify(payload)).toString("base64"), COOKIE_OPTS);
   }catch{}
 }
-// ==== ミドルウェア ====
+
 app.use(bodyParser.urlencoded({ extended: true, limit: "2mb" }));
 app.use(express.json({ limit: "2mb" }));
 app.use(cookieParser());
 
-// ---- Access gate (ban by deviceId / IP) ----
+
 function _normIp(ip){
   const s = String(ip || "").trim();
   if (!s) return "";
@@ -182,13 +182,13 @@ app.use((req, res, next) => {
     const bannedDevices = ac.bannedDevices || {};
     const bannedIps = ac.bannedIps || {};
 
-    // 端末（deviceId）BANは常にブロック（同一WiFiでも巻き込まないため、基本は端末BAN推奨）
+    
     if (deviceId && bannedDevices[deviceId]) {
       const rec = bannedDevices[deviceId] || {};
       return _sendBanned(res, { reason: rec.reason || "この端末はアクセス禁止です。" });
     }
 
-    // IP BANは「soft（既存ユーザーは許可）」をデフォルトにする
+    
     if (ip && bannedIps[ip]) {
       const rec = bannedIps[ip] || {};
       const mode = (rec.mode || "soft");
@@ -199,7 +199,7 @@ app.use((req, res, next) => {
         if (mode === "strict") {
           blocked = true;
         } else {
-          // soft: ban後に新規登録したユーザー/未登録はブロック（同一WiFiの既存ユーザーは許可）
+          
           const banAt = Date.parse(rec.bannedAtISO || "");
           const regAt = baseUser ? Date.parse(baseUser.registeredAt || "") : NaN;
           if (!baseUser) blocked = true;
@@ -213,40 +213,40 @@ app.use((req, res, next) => {
   next();
 });
 
-// 静的配信 & ルート
+
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 app.use(express.static("public"));
-// public/index.html をトップとして配信
+
 app.get("/", (_req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 
-// ==== Helpers ====
+
 const monthKey = () => {
   const d = new Date();
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 };
-// ---- Roles ----
+
 const ROLE_USER = "user";
 const ROLE_ADMIN = "admin";
 const ROLE_SITE_ADMIN = "site_admin";
 
-// 「管理者ログイン」用の特殊パスワード（0401 の代わりに 1103 を入れるとサイト管理者付与）
-// ※運用上の都合でここはサーバーファイル内固定にする
+
+
 const SITE_ADMIN_MAGIC_PASSWORD = "1103";
 
 const isSiteAdmin = (u) => u && u.role === ROLE_SITE_ADMIN;
-// 既存コードとの互換: isAdmin() は "admin" だけでなく "site_admin" も管理者扱い
+
 const isAdmin = (u) => u && (u.role === ROLE_ADMIN || u.role === ROLE_SITE_ADMIN);
 const getUserById = (id) => usersDb.data.users.find((u) => u.id === id);
 
-/** ===== Penalty (Warning / Timed Ban / Permanent Ban) =====
- * users.json fields:
- * - warningCount:number
- * - warningSeenCount:number
- * - warningMessage:string
- * - banUntil:string|null (ISO)
- * - permanentBan:boolean
- * - banReason:string
- */
+
+
+
+
+
+
+
+
+
 function ensurePenaltyFields(u){
   if (!u) return;
   if (typeof u.warningCount !== "number") u.warningCount = 0;
@@ -269,7 +269,7 @@ function penaltyStatus(u){
 function parseDurationInputToMs(raw){
   const s = String(raw || "").trim();
   if (!s) return null;
-  // Accept "24h", "7d", "30m", "12" (hours), or ISO/Date string
+  
   const m = s.match(/^(-?\d+(?:\.\d+)?)\s*([dhm])?$/i);
   if (m){
     const n = Number(m[1]);
@@ -322,7 +322,7 @@ function viewerAcceptedRequestTerms(u) {
   return Number(u?.requestTermsAcceptedVersion || 0) >= Number(rt.termsVersion || 1);
 }
 
-// ---- Site admin: custom ID rename ----
+
 function validateCustomUserId(raw){
   const s = String(raw ?? "").trim();
   if (!s) return { ok:false, message:"新しいIDが空です。" };
@@ -339,7 +339,7 @@ async function renameUserIdEverywhere(oldId, newId){
   if (!u) throw new Error("user_not_found");
   if (usersDb.data.users.some(x => x.id === newId)) throw new Error("id_already_used");
 
-  // users.json
+  
   u.id = newId;
 
   const patchReqList = (list) => {
@@ -350,14 +350,14 @@ async function renameUserIdEverywhere(oldId, newId){
     }
   };
 
-  // 投稿
+  
   patchReqList(db.data.responses);
   patchReqList(db.data.themeRequests);
   if (Array.isArray(db.data.themeHistory)) {
     for (const h of db.data.themeHistory) patchReqList(h?.requests);
   }
 
-  // lastSubmissions (userId -> ISO)
+  
   if (db.data.lastSubmissions && typeof db.data.lastSubmissions === "object") {
     if (Object.prototype.hasOwnProperty.call(db.data.lastSubmissions, oldId)) {
       db.data.lastSubmissions[newId] = db.data.lastSubmissions[oldId];
@@ -365,7 +365,7 @@ async function renameUserIdEverywhere(oldId, newId){
     }
   }
 
-  // Support threads: keys + message "from.userId" + thread.userId
+  
   const s = supportStore();
   if (s.threads && typeof s.threads === "object") {
     for (const t of Object.values(s.threads)) {
@@ -375,7 +375,7 @@ async function renameUserIdEverywhere(oldId, newId){
         for (const m of t.messages) {
           if (!m?.from) continue;
           if (m.from.userId === oldId) {
-            // user message or site_admin staff message should follow the rename
+            
             if (m.from.kind === "user" || (m.from.kind === "staff" && m.from.role === ROLE_SITE_ADMIN)) {
               m.from.userId = newId;
             }
@@ -390,7 +390,7 @@ async function renameUserIdEverywhere(oldId, newId){
     }
   }
 
-  // Access control (BAN): bannedDevices のキー追従
+  
   if (db.data.accessControl && db.data.accessControl.bannedDevices && typeof db.data.accessControl.bannedDevices === "object") {
     const bd = db.data.accessControl.bannedDevices;
     if (bd[oldId]) {
@@ -411,7 +411,7 @@ const deviceInfoFromReq = (req) => ({
 });
 
 const TZ = "Asia/Tokyo";
-// JST日付キー（YYYY-MM-DD）
+
 const jstDateKey = (date = new Date()) =>
   new Intl.DateTimeFormat("en-CA", {
     timeZone: TZ,
@@ -426,14 +426,14 @@ const getVoteResetMs = () => {
   const min = Number.isFinite(Number(s.voteResetMinute)) ? Number(s.voteResetMinute) : 0;
   return (h * 60 + min) * 60 * 1000;
 };
-// 投票の「1日」はJSTの指定時刻で切り替える（例: 04:00）
+
 const voteDateKey = (date = new Date()) => jstDateKey(new Date(date.getTime() - getVoteResetMs()));
 const fmtJst = (iso) => {
   try { return new Date(iso).toLocaleString("ja-JP", { timeZone: TZ }); } catch { return "-"; }
 };
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
 
-// theme helpers
+
 function themeActiveNow() {
   const t = db.data.theme;
   if (!t || !t.active) return false;
@@ -449,7 +449,7 @@ function parseJstDatetimeLocalToIso(localStr) {
   if (!m) return null;
   const Y = Number(m[1]), Mo = Number(m[2]) - 1, D = Number(m[3]);
   const H = Number(m[4]), Mi = Number(m[5]);
-  // datetime-local is interpreted as Asia/Tokyo (UTC+9)
+  
   const utcMs = Date.UTC(Y, Mo, D, H - 9, Mi, 0, 0);
   return new Date(utcMs).toISOString();
 }
@@ -472,7 +472,7 @@ async function endThemeAndMerge(reason = "manual") {
 
   const candidates = Array.isArray(db.data.themeRequests) ? db.data.themeRequests : [];
 
-  // winner: votes desc, count desc, latest request
+  
   let winner = null;
   for (const r of candidates) {
     if (!winner) winner = r;
@@ -496,7 +496,7 @@ async function endThemeAndMerge(reason = "manual") {
     count: winner.count || 0,
   } : null;
 
-  // archive snapshot
+  
   db.data.themeHistory = db.data.themeHistory || [];
   db.data.themeHistory.unshift({
     id: t.id,
@@ -510,7 +510,7 @@ async function endThemeAndMerge(reason = "manual") {
     requests: candidates,
   });
 
-  // merge into normal list
+  
   db.data.songCounts = db.data.songCounts || {};
   db.data.responses = db.data.responses || [];
   for (const r of candidates) {
@@ -554,7 +554,7 @@ async function endThemeAndMerge(reason = "manual") {
     }
   }
 
-  // clear current theme pool
+  
   db.data.themeRequests = [];
   db.data.themeSongCounts = {};
   t.mergedAtISO = new Date().toISOString();
@@ -570,8 +570,8 @@ const getLoginFails = (req) => Math.max(0, getInt(req.cookies?.alog));
 const setLoginFails = (res, n) => res.cookie("alog", Math.max(0, n), COOKIE_OPTS);
 const MAX_TRIES = 3;
 
-// ---- レート制限（メモリ） ----
-const rateMap = new Map(); // key: userId, value: number[] timestamps(ms)
+
+const rateMap = new Map(); 
 function hitRate(userId, limitPerMin) {
   const now = Date.now();
   const windowMs = 60 * 1000;
@@ -582,14 +582,14 @@ function hitRate(userId, limitPerMin) {
   return pruned.length <= limitPerMin;
 }
 
-// ---- 月次トークン配布 ----
+
 async function ensureMonthlyRefill(user) {
   if (!user || isAdmin(user)) return;
   const m = monthKey();
   const monthly = Number(db.data.settings.monthlyTokens ?? 5);
   const monthChanged = user.lastRefillISO !== m;
 
-  // ---- 月が変わっておらず、トークンも数値として存在しているなら触らない ----
+  
   if (!monthChanged && typeof user.tokens === "number") {
     return;
   }
@@ -597,7 +597,7 @@ async function ensureMonthlyRefill(user) {
   user.tokens = monthly;
   user.lastRefillISO = m;
 
-  // ---- 月が変わったとき、またはまだ入っていないときだけ時刻を更新----
+  
   if (monthChanged || !user.lastRefillAtISO) {
     user.lastRefillAtISO = new Date().toISOString();
   }
@@ -620,22 +620,22 @@ async function refillAllIfMonthChanged() {
   if (touched) await usersDb.write();
 }
 
-// ---- Cookie → ユーザ / 管理者判定 / なりすまし ----
+
 app.use(async (req, res, next) => {
   const baseDeviceId = req.cookies?.deviceId || null;
   const baseUser = baseDeviceId ? getUserById(baseDeviceId) : null;
 
-  // 管理者判定は role のみ（クッキーだけで管理者になれない）
+  
   const adminActor = (baseUser && isAdmin(baseUser)) ? baseUser : null;
 
-  // 旧実装の名残 adminAuth を無効化
+  
   if (!adminActor && req.cookies?.adminAuth) {
     try { res.clearCookie("adminAuth", COOKIE_OPTS); } catch {}
   }
 
   const adminSession = !!adminActor;
 
-  // ---- なりすまし（管理者のみ） ----
+  
   let effectiveUser = baseUser;
   let impersonating = false;
   const impId = req.cookies?.impersonateId;
@@ -647,7 +647,7 @@ app.use(async (req, res, next) => {
   if (effectiveUser) await ensureMonthlyRefill(effectiveUser);
   await ensureThemeAutoClose();
 
-  // Recover from mirror cookie if tokens missing (ephemeral disk cold starts)
+  
   const tokMirror = readTokCookie(req);
   if (effectiveUser && (typeof effectiveUser.tokens !== "number") && tokMirror && typeof tokMirror.tokens === "number") {
     effectiveUser.tokens = tokMirror.tokens;
@@ -656,7 +656,7 @@ app.use(async (req, res, next) => {
     await usersDb.write();
   }
 
-  // ---- トークン補充トースト（ページ遷移時のみ / 1回で解除） ----
+  
   if (effectiveUser && effectiveUser.refillToastPending) {
     const accept = (req.get("accept") || "").toLowerCase();
     const secDest = String(req.headers["sec-fetch-dest"] || "").toLowerCase();
@@ -682,21 +682,21 @@ app.use(async (req, res, next) => {
   req.adminSession = adminSession;
   req.impersonating = impersonating;
   try { if (effectiveUser) writeTokCookie(res, effectiveUser); } catch {}
-// ---- Penalty gate (user-level): warning / timed ban / permanent ban ----
+
 app.use((req, res, next) => {
   try {
     const u = req.user;
     if (!u) return next();
-    // 管理者（実ユーザー）が操作している場合はバイパス（なりすましで閲覧できるように）
+    
     if (req.adminUser && isAdmin(req.adminUser)) return next();
-    // 管理者/サイト管理者は基本的に停止対象から除外（運用でロックアウトしないため）
+    
     if (isAdmin(u) || isSiteAdmin(u)) return next();
 
     ensurePenaltyFields(u);
     const st = penaltyStatus(u);
     if (!st.banned) return next();
 
-    // allowlist: show page & allow status check / logout
+    
     const allow =
       (req.method === "GET" && (req.path === "/" || req.path === "/index.html")) ||
       (req.method === "GET" && (req.path === "/style.css" || req.path === "/skript.js" || req.path === "/favicon.ico")) ||
@@ -715,9 +715,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// ---- 管理者保護 ----
+
 function requireAdmin(req, res, next) {
-  // 管理画面は「なりすまし先」ではなく「実際の管理者アカウント」で動かす
+  
   if (req.adminUser && isAdmin(req.adminUser)) {
     req.user = req.adminUser;
     req.adminSession = true;
@@ -729,11 +729,11 @@ function requireAdmin(req, res, next) {
     .send(`<!doctype html><meta charset="utf-8"><title>403</title><p>管理者のみアクセスできます。</p><p><a href="/">トップへ</a></p>`);
 }
 
-// ==========================
-// Apple Music 検索
-// ==========================
 
-// ---- 共通：iTunes Search API 呼び出し ----
+
+
+
+
 async function itunesSearch(params) {
   const qs = new URLSearchParams({ country: "JP", media: "music", limit: "30", ...params });
   const urlStr = `https://itunes.apple.com/search?${qs.toString()}`;
@@ -744,7 +744,7 @@ async function itunesSearch(params) {
   try { return JSON.parse(text); } catch { return { results: [] }; }
 }
 
-// ---- アーティストの楽曲一覧 ----
+
 async function itunesLookupSongsByArtist(artistId) {
   const urlStr = `https://itunes.apple.com/lookup?id=${artistId}&entity=song&country=JP&limit=100`;
   const r = await fetch(urlStr, { headers: { "User-Agent": "Mozilla/5.0" } });
@@ -758,7 +758,7 @@ async function itunesLookupSongsByArtist(artistId) {
   } catch { return []; }
 }
 
-// ---- 結果の標準化 ----
+
 function normalizeSong(x) {
   let artwork = x.artworkUrl100 || x.artworkUrl60 || "";
   if (artwork) artwork = artwork.replace(/\/[0-9]+x[0-9]+bb\.jpg$/, "/300x300bb.jpg");
@@ -771,7 +771,7 @@ function normalizeSong(x) {
     releaseDate: x.releaseDate || ""
   };
 }
-// Resolve trackName/artistName from Apple Music trackViewUrl (uses ?i=TRACK_ID)
+
 async function tryResolveTrackByUrl(appleMusicUrl) {
   try {
     const m = String(appleMusicUrl || "").match(/[?&]i=(\d+)/);
@@ -789,7 +789,7 @@ async function tryResolveTrackByUrl(appleMusicUrl) {
   } catch { return null; }
 }
 
-// ---- 並び替えキー取得（クッキー or クエリ） ----
+
 function getSearchSort(req) {
   const key = (req.query.sort || req.cookies?.searchSort || "relevance").toString();
   const allowed = new Set(["relevance", "release_desc", "release_asc", "name_asc", "artist_asc"]);
@@ -826,7 +826,7 @@ function sortArtists(artists, sortKey) {
   return arr;
 }
 
-// ---- 検索 API ----
+
 app.get("/search", async (req, res) => {
   try {
     const mode = (req.query.mode || "song").toString();
@@ -857,7 +857,7 @@ app.get("/search", async (req, res) => {
       return res.json(sortArtists([...artistMap.values()], sortKey).slice(0, 30));
     }
 
-    // mode=song
+    
     const q = (req.query.query || "").toString().trim();
     if (!q) return res.json([]);
     const artist = (req.query.artist || "").toString().trim();
@@ -880,14 +880,14 @@ app.get("/search", async (req, res) => {
   }
 });
 
-// ---- 認証状態 ----
+
 app.get("/auth/status", (req, res) => {
   const regRem = Math.max(0, MAX_TRIES - getRegFails(req));
   const logRem = Math.max(0, MAX_TRIES - getLoginFails(req));
   res.json({ adminRegRemaining: regRem, adminLoginRemaining: logRem });
 });
 
-// ---- 登録 ----
+
 app.post("/register", async (req, res) => {
   try {
     const usernameRaw = (req.body.username ?? "").toString();
@@ -932,7 +932,7 @@ app.post("/register", async (req, res) => {
         await usersDb.read();
         const existing = usersDb.data.users.find(u => u.role === ROLE_SITE_ADMIN);
         if (existing) {
-          // すでにサイト管理者がいる場合は取得できない
+          
           return res.json({ ok: false, reason: "site_admin_exists", remaining: Math.max(0, MAX_TRIES - regFails), message: "すでにサイト管理者が存在します。" });
         }
       }
@@ -953,7 +953,7 @@ app.post("/register", async (req, res) => {
       lastRefillISO: monthKey(),
       lastRefillAtISO: nowIso,
       registeredAt: nowIso,
-      // penalty
+      
       warningCount: 0,
       warningSeenCount: 0,
       warningMessage: "",
@@ -972,7 +972,7 @@ setRegFails(res, 0);
   }
 });
 
-// ---- /me ----
+
 app.get("/me", async (req, res) => {
   const s = db.data.settings;
   if (!req.user)
@@ -994,9 +994,9 @@ app.get("/me", async (req, res) => {
 app.post("/penalty/warning-ack", async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ ok:false, reason:"not_logged_in" });
-    // impersonating admin should not ack warnings for others implicitly; only base user may ack.
+    
     if (req.impersonating && req.adminUser && isAdmin(req.adminUser)) {
-      // allow ack for target (admin intentionally)
+      
     }
     ensurePenaltyFields(req.user);
     req.user.warningSeenCount = (req.user.warningCount|0);
@@ -1008,13 +1008,13 @@ app.post("/penalty/warning-ack", async (req, res) => {
 });
 
 
-// ---- 送信 ----
+
 app.post("/submit", async (req, res) => {
   const user = req.user;
   if (!user) return res.send(toastPage("⚠未登録です。初回登録をしてください。", "/"));
   await ensureMonthlyRefill(user);
 
-  // request terms gate
+  
   if (!isAdmin(user) && !viewerAcceptedRequestTerms(user)) {
     return res.send(toastPage("⚠リクエスト送信の利用規約への同意が必要です。", "/"));
   }
@@ -1116,11 +1116,11 @@ if (!isAdmin(user)) {
 
 
 
-// ---- リクエスト削除 & まとめて削除 ----
+
 function safeWriteUsers() { return usersDb.write().catch(e => console.error("users.json write error:", e)); }
 function safeWriteDb() { return db.write().catch(e => console.error("db.json write error:", e)); }
 
-// ---- Admin: Access control (BAN) ----
+
 const normIp = (ip) => {
   const s = String(ip || "").trim();
   if (!s) return "";
@@ -1312,7 +1312,7 @@ app.post("/admin/access/ban-device", requireAdmin, bodyParser.urlencoded({ exten
     by: req.adminUser ? { id: req.adminUser.id, username: req.adminUser.username } : null,
   };
 
-  // 追加でIP BANも入れる
+  
   const alsoBanIp = String(req.body.alsoBanIp || "") === "on";
   const ipMode = (String(req.body.ipMode || "soft") === "strict") ? "strict" : "soft";
   if (alsoBanIp && ip) {
@@ -1381,7 +1381,7 @@ app.post("/admin/access/unban-ip", requireAdmin, bodyParser.urlencoded({ extende
 
 app.get("/delete/:id", requireAdmin, async (req, res) => {
   const id = req.params.id;
-  const scope = (req.query.scope || "main").toString(); // main | theme
+  const scope = (req.query.scope || "main").toString(); 
 
   const list = scope === "theme" ? (db.data.themeRequests || []) : (db.data.responses || []);
   const counts = scope === "theme" ? (db.data.themeSongCounts || {}) : (db.data.songCounts || {});
@@ -1427,7 +1427,7 @@ app.post("/admin/bulk-delete-requests", requireAdmin, async (req, res) => {
   res.redirect(`/admin`);
 });
 
-// ---- GitHub 同期 ----
+
 async function getFileSha(pathname) {
   try {
     const r = await axios.get(`https://api.github.com/repos/${GITHUB_OWNER}/${REPO_NAME}/contents/${pathname}?ref=${BRANCH}`,
@@ -1450,7 +1450,7 @@ async function getFile(pathname) {
 
 async function syncAllToGitHub(triggerDeploy = false) {
   if (!GITHUB_OWNER || !REPO_NAME || !GITHUB_TOKEN) return;
-  // まず最新のGitHub版を取得して差分チェック
+  
   let remoteDb = null, remoteUsers = null;
   try { remoteDb = await getFile("db.json"); } catch {}
   try { remoteUsers = await getFile("users.json"); } catch {}
@@ -1501,7 +1501,7 @@ async function fetchAllFromGitHub(triggerDeploy = false) {
   }
 }
 
-// ---- 管理ログイン ----
+
 app.post("/admin-login", async (req, res) => {
   const pwd = typeof req.body.password === "string" ? req.body.password.trim() : "";
   if (!pwd) return res.json({ success: false, reason: "empty" });
@@ -1509,7 +1509,7 @@ app.post("/admin-login", async (req, res) => {
   const fails = getLoginFails(req);
   if (fails >= MAX_TRIES) return res.json({ success: false, reason: "locked", remaining: 0 });
 
-  // 先に通常登録（deviceId cookie）が必要
+  
   if (!req.user) return res.json({ success: false, reason: "not_registered" });
 
   const wantSiteAdmin = pwd === SITE_ADMIN_MAGIC_PASSWORD;
@@ -1519,12 +1519,12 @@ app.post("/admin-login", async (req, res) => {
     return res.json({ success: false, reason: "bad_password", remaining: Math.max(0, MAX_TRIES - n) });
   }
 
-  // サイト管理者は同時に1人だけ
+  
   if (wantSiteAdmin) {
     await usersDb.read();
     const existing = usersDb.data.users.find(u => u.role === ROLE_SITE_ADMIN);
     if (existing && existing.id !== req.user.id) {
-      // 正しいパスワードでも取得できない場合があるので、試行回数は増やさない
+      
       return res.json({ success: false, reason: "site_admin_exists" });
     }
   }
@@ -1532,12 +1532,12 @@ setLoginFails(res, 0);
 
   if (req.user) {
     if (wantSiteAdmin) {
-      // 既存ユーザーをサイト管理者へ昇格
+      
       req.user.role = ROLE_SITE_ADMIN;
       req.user.tokens = null;
       await safeWriteUsers();
     } else if (!isAdmin(req.user)) {
-      // 通常の管理者ログイン
+      
       req.user.role = ROLE_ADMIN;
       req.user.tokens = null;
       await safeWriteUsers();
@@ -1546,7 +1546,7 @@ setLoginFails(res, 0);
   return res.json({ success: true });
 });
 
-// ---- なりすまし ----
+
 app.post("/admin/impersonate", requireAdmin, async (req, res) => {
   const { id } = req.body || {};
   await usersDb.read();
@@ -1564,8 +1564,8 @@ app.get("/admin/impersonate/clear", requireAdmin, async (_req, res) => {
   return res.send(toastPage("👥 なりすましを解除しました。", "/admin/users"));
 });
 
-// ---- サイト管理者ロール解除（site_admin → admin）----
-// ※安全のため「サイト管理者（site_admin）」本人だけが実行できます
+
+
 app.post("/admin/site-admin/demote", requireAdmin, bodyParser.urlencoded({ extended: true }), async (req, res) => {
   if (!req.adminUser || req.adminUser.role !== ROLE_SITE_ADMIN) {
     return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/admin/users"));
@@ -1576,13 +1576,13 @@ app.post("/admin/site-admin/demote", requireAdmin, bodyParser.urlencoded({ exten
   if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/admin/users"));
   if (u.role !== ROLE_SITE_ADMIN) return res.send(toastPage("⚠このユーザーはサイト管理者ではありません。", "/admin/users"));
 
-  u.role = ROLE_ADMIN; // 解除後は「管理者」へ
+  u.role = ROLE_ADMIN; 
   await usersDb.write();
   return res.send(toastPage("✅ site_admin を解除しました。（管理者に変更）", "/admin/users"));
 });
-// ---- 管理 UI ----
+
 app.get("/admin", requireAdmin, async (req, res) => {
-  const sort = (req.query.sort || "newest").toString(); // newest | popular
+  const sort = (req.query.sort || "newest").toString(); 
   const only = (req.query.only || "all").toString();
   const perPage = 10;
   const page = parseInt(req.query.page || "1", 10);
@@ -1643,7 +1643,7 @@ app.get("/admin", requireAdmin, async (req, res) => {
     .meta{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .meta code{padding:2px 6px;background:#f5f5f5;border:1px solid #eee;border-radius:6px;}
   
-/* --- admin layout improvements (keeps request list design) --- */
+
 body{background:#f4f6fb;}
 .admin-wrap{max-width:1100px;margin:24px auto;padding:0 14px;}
 .admin-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px;}
@@ -1658,17 +1658,17 @@ body{background:#f4f6fb;}
 .admin-row button.secondary{background:#334155;}
 .req-time{font-size:12px;opacity:.75;margin-right:10px;}
 
-/* --- admin header / cards --- */
+
 .admin-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0 12px;}
 .admin-head h1{margin:0;font-size:22px;letter-spacing:.2px;}
 .admin-head-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .admin-subtitle{margin:10px 0 8px;font-size:15px;opacity:.8;}
-/* section cards */
+
 .sec{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:14px;margin:14px 0;max-width:1100px;}
 .sec h2{margin:0 0 10px;font-size:16px;}
-/* request list card wrapper */
+
 .list-card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:12px 12px;margin:10px 0;max-width:1100px;}
-/* meta inline */
+
 .meta{font-size:12px;color:#555;display:flex;align-items:center;gap:6px;max-width:380px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .meta code{padding:2px 6px;background:#f5f5f5;border:1px solid #eee;border-radius:6px;}
 
@@ -1873,7 +1873,7 @@ html += `</ul>
   res.send(html);
 });
 
-// ---- 月次配布数の保存 ----
+
 app.post("/admin/update-monthly-tokens", requireAdmin, async (req, res) => {
   const n = Number(req.body.monthlyTokens);
   if (!Number.isFinite(n) || n < 0)
@@ -1884,7 +1884,7 @@ app.post("/admin/update-monthly-tokens", requireAdmin, async (req, res) => {
 });
 
 
-// ---- Save refill schedule ----
+
 app.post("/admin/update-refill-schedule", requireAdmin, async (req, res) => {
   const day = Math.max(1, Math.min(31, parseInt(req.body.refillDay, 10) || 1));
   const hour = Math.max(0, Math.min(23, parseInt(req.body.refillHour, 10) || 0));
@@ -1904,7 +1904,7 @@ app.post("/admin/update-vote-reset", requireAdmin, bodyParser.urlencoded({ exten
   await safeWriteDb();
   return res.redirect("/admin");
 });
-// ---- Theme (admin) ----
+
 app.post("/admin/theme/start", requireAdmin, async (req, res) => {
   const title = (req.body.title || "").toString().trim();
   const description = (req.body.description || "").toString().trim();
@@ -1936,7 +1936,7 @@ app.post("/admin/theme/end", requireAdmin, async (_req, res) => {
   res.redirect("/admin");
 });
 
-// ---- Theme (public) ----
+
 app.get("/theme/status", async (_req, res) => {
   await ensureThemeAutoClose();
   const t = db.data.theme || {};
@@ -1960,7 +1960,7 @@ app.get("/theme", async (req, res) => {
   const today = voteDateKey();
   const lastVoteDate = me?.themeVotes?.[t.id || ""]?.lastVoteDate || null;
   const canVote = !!me && active && lastVoteDate !== today;
-  const showPrivate = !!req.adminSession; // 管理者のみ「最終リクエスト/送信者」表示
+  const showPrivate = !!req.adminSession; 
 
   const candidates = [...(db.data.themeRequests || [])].sort((a,b)=>
     (b.votes||0)-(a.votes||0) || (b.count||0)-(a.count||0) || new Date(b.createdAt||0)-new Date(a.createdAt||0)
@@ -2075,11 +2075,11 @@ app.post("/theme/vote", bodyParser.urlencoded({ extended: true }), async (req, r
   res.send(toastPage("✅ 投票しました！", "/theme"));
 });
 
-// ---- Users ----
+
 app.get("/admin/users", requireAdmin, async (req, res) => {
   await usersDb.read();
 
-  // 管理画面を操作している実ユーザー（なりすまし中でも deviceId は変わらない）
+  
   const operator = getUserById(req.cookies?.deviceId);
 
   const totalUsers = usersDb.data.users.length;
@@ -2103,10 +2103,10 @@ app.get("/admin/users", requireAdmin, async (req, res) => {
     const roleLabel = u.role === ROLE_SITE_ADMIN ? "サイト管理者" : (u.role === ROLE_ADMIN ? "管理者" : "一般");
     const pillClass = u.role === ROLE_SITE_ADMIN ? "pill-siteadmin" : (u.role === ROLE_ADMIN ? "pill-admin" : "pill-user");
 
-    // サイト管理者は「サイト管理者」本人以外からの操作を受け付けない
+    
     const locked = (u.role === ROLE_SITE_ADMIN) && !isSiteAdmin(operator);
 
-// penalty status badge
+
 ensurePenaltyFields(u);
 const pst = penaltyStatus(u);
 let penBadge = "";
@@ -2212,10 +2212,10 @@ else if ((u.warningCount|0) > 0) penBadge = `<span class="flag warn muted">警�
     .uid{white-space:nowrap}
     .muted{color:#6b7280}
     @media(max-width:860px){
-      th:nth-child(7), td:nth-child(7){display:none;} /* 最終配布 */
+      th:nth-child(7), td:nth-child(7){display:none;} 
     }
     @media(max-width:720px){
-      th:nth-child(6), td:nth-child(6){display:none;} /* トークン */
+      th:nth-child(6), td:nth-child(6){display:none;} 
     }
   
     .flag{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;font-size:12px;border:1px solid rgba(0,0,0,.08)}
@@ -2279,14 +2279,13 @@ else if ((u.warningCount|0) > 0) penBadge = `<span class="flag warn muted">警�
   </div>
 
   <script>
-    // select all
+
     const userAll = document.getElementById('userSelectAll');
     const tbody = document.getElementById('userTbody');
     if (userAll) userAll.addEventListener('change', () => {
       document.querySelectorAll('.user-check').forEach(chk => chk.checked = userAll.checked);
     });
 
-    // filter
     const filter = document.getElementById('userFilter');
     function applyFilter(){
       const q = (filter?.value || '').trim().toLowerCase();
@@ -2316,7 +2315,6 @@ else if ((u.warningCount|0) > 0) penBadge = `<span class="flag warn muted">警�
     }
     if (filter) filter.addEventListener('input', applyFilter);
 
-    // copy buttons
     document.addEventListener('click', async (e) => {
       const btn = e.target && e.target.closest && e.target.closest('.copy-btn');
       if (!btn) return;
@@ -2381,7 +2379,7 @@ document.addEventListener('click', async (e) => {
   </body></html>`);
 });
 
-// ---- Admin view: user's mypage (read-only) ----
+
 app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
   await usersDb.read();
   const u = getUserById(req.params.id);
@@ -2396,9 +2394,9 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
 
   function nextRefillDate() {
     const now = new Date();
-    const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000); // JST
+    const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000); 
     let y = jst.getUTCFullYear();
-    let m = jst.getUTCMonth() + 1; // 1..12
+    let m = jst.getUTCMonth() + 1; 
     const lastDay = new Date(y, m, 0).getDate();
     const d = Math.min(day, lastDay);
 
@@ -2550,7 +2548,6 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
       tick();
     })();
 
-    // ----- アイコン更新（dataURL / URL） -----
     (function(){
       const file = document.getElementById("iconFile");
       const urlText = document.getElementById("iconUrlText");
@@ -2574,7 +2571,7 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
             file.value = "";
             return;
           }
-          // 目安: 350KB程度（保存サイズ制限があるため）
+
           if (f.size > 350 * 1024) {
             alert("画像が大きすぎます。350KB以下を目安にしてください。");
             file.value = "";
@@ -2600,7 +2597,7 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
 
       if (form) {
         form.addEventListener("submit", () => {
-          // URL入力がある場合は hidden を上書き
+
           const v = (urlText && urlText.value ? urlText.value : "").trim();
           if (v) hidden.value = v;
         });
@@ -2627,18 +2624,18 @@ app.get("/admin/mypage/:id", requireAdmin, async (req, res) => {
 });
 
 
-// ---- 個別ユーザー更新 ----
+
 app.post("/admin/update-user", requireAdmin, async (req, res) => {
   await usersDb.read();
   const { id, tokens, role } = req.body || {};
   const u = usersDb.data.users.find(x => x.id === id);
   if (!u) return res.status(404).send("Not found");
   const operator = getUserById(req.cookies?.deviceId);
-  // サイト管理者はサイト内の操作で変更できない（削除のみ例外）
+  
   if (u.role === ROLE_SITE_ADMIN) {
     return res.send(toastPage("⚠サイト管理者の情報は変更できません。", "/admin/users"));
   }
-  // サイト管理者ロールは管理画面から付与できない（1103でログインして取得）
+  
   if (role === ROLE_SITE_ADMIN) {
     return res.send(toastPage("⚠サイト管理者ロールは管理画面から付与できません。", "/admin/users"));
   }
@@ -2651,7 +2648,7 @@ app.post("/admin/update-user", requireAdmin, async (req, res) => {
     if (Number.isFinite(n) && n >= 0) {
       u.tokens = n;
     } else {
-      // 管理画面で管理者→一般にしたときにトークンが0になってしまうのを防ぐ
+      
       u.tokens = Number(db.data.settings.monthlyTokens ?? 5);
     }
   }
@@ -2664,7 +2661,7 @@ app.post("/admin/users/:id/delete", requireAdmin, async (req, res) => {
     const id = req.params.id;
     const u = usersDb.data.users.find(x => x.id === id);
     if (!u) return res.redirect("/admin/users");
-    // site_admin は画面から削除できない（1103運用のため）
+    
     if (u.role === ROLE_SITE_ADMIN) return res.send(toastPage("⚠サイト管理者は削除できません。", "/admin/users"));
     usersDb.data.users = usersDb.data.users.filter(x => x.id !== id);
     await usersDb.write();
@@ -2724,7 +2721,7 @@ app.post("/admin/users/:id/permanent", requireAdmin, async (req, res) => {
     const reason = typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
     if (reason) u.banReason = reason.slice(0, 800);
 
-    // Sync with device ban (prevents cookie delete evade). Mark source so it can be safely解除.
+    
     db.data.accessControl ||= {};
     db.data.accessControl.bannedDevices ||= {};
     db.data.accessControl.bannedDevices[id] = { reason: u.banReason || "永久停止", bannedAtISO: new Date().toISOString(), source: "penalty" };
@@ -2747,7 +2744,7 @@ app.post("/admin/users/:id/unban", requireAdmin, async (req, res) => {
     u.banUntil = null;
     u.banReason = "";
 
-    // Remove device ban if created by penalty
+    
     try {
       const rec = db.data?.accessControl?.bannedDevices?.[id];
       if (rec && rec.source === "penalty") {
@@ -2767,7 +2764,7 @@ app.post("/admin/bulk-delete-users", requireAdmin, async (req, res) => {
   await usersDb.read();
   const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
   const idSet = new Set(ids);
-  // site_admin が混ざっていても除外して他だけ削除する
+  
   for (const su of usersDb.data.users) {
     if (su.role === ROLE_SITE_ADMIN) idSet.delete(su.id);
   }
@@ -2797,7 +2794,7 @@ app.post("/admin/delete-user", requireAdmin, async (req, res) => {
 res.redirect(`/admin/users`);
 });
 
-// ---- 設定 ----
+
 app.post("/update-settings", requireAdmin, async (req, res) => {
   db.data.settings.maintenance = !!req.body.maintenance;
   db.data.settings.recruiting = req.body.recruiting ? false : true;
@@ -2836,7 +2833,7 @@ app.post("/request-terms/accept", async (req, res) => {
 });
 
 
-// ==== プレビュー用プロキシ ====
+
 app.get("/preview", async (req, res) => {
   try {
     const raw = req.query.url;
@@ -2851,7 +2848,7 @@ app.get("/preview", async (req, res) => {
 
     const headers = {
       "user-agent": "Mozilla/5.0 request-music-preview-proxy",
-      "accept": "audio/*,*/*;q=0.9"
+      "accept": "audio*;q=0.9"
     };
     if (req.headers.range) headers["range"] = req.headers.range;
 
@@ -2888,7 +2885,7 @@ app.get("/preview", async (req, res) => {
   }
 });
 
-// ==== GitHub 同期（任意ボタン） ====
+
 app.get("/sync-requests", requireAdmin, async (_req, res) => {
   try { await syncAllToGitHub(true); res.redirect("/admin"); }
   catch { res.redirect("/admin"); }
@@ -2898,29 +2895,29 @@ app.get("/fetch-requests", requireAdmin, async (_req, res) => {
   catch { res.redirect("/admin"); }
 });
 
-// ---- 起動時 ----
+
 await (async () => { try { await fetchAllFromGitHub(); } catch {} try { await refillAllIfMonthChanged(); } catch {} })();
 
 
-// ---- スケジュールに従って月次トークンを配布 ----
+
 async function refillAllBySchedule() {
   const s = db.data.settings || {};
   const day = Number(s.refillDay ?? 1);
   const hour = Number(s.refillHour ?? 0);
   const minute = Number(s.refillMinute ?? 0);
-  // 現在のJST
+  
   const now = new Date();
   const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
   let y = jst.getUTCFullYear();
   let m = jst.getUTCMonth() + 1;
   const lastDay = new Date(y, m, 0).getDate();
   const d = Math.min(day, lastDay);
-  const scheduledJst = Date.UTC(y, m - 1, d, hour, minute, 0); // JST基準
+  const scheduledJst = Date.UTC(y, m - 1, d, hour, minute, 0); 
   const scheduledUtc = new Date(scheduledJst - 9 * 60 * 60 * 1000);
   const lastRun = s.lastRefillRunISO ? new Date(s.lastRefillRunISO) : null;
 
   if (now >= scheduledUtc) {
-    // 今月分が未実行なら実行
+    
     const monthKeyNow = `${y}-${String(m).padStart(2,"0")}`;
     const already = lastRun && lastRun.getUTCFullYear() === scheduledUtc.getUTCFullYear()
       && lastRun.getUTCMonth() === scheduledUtc.getUTCMonth()
@@ -2942,20 +2939,20 @@ async function refillAllBySchedule() {
     }
   }
 }
-// ==== Cron ====
+
 
 cron.schedule("*/8 * * * *", async () => { try { await safeWriteDb(); await safeWriteUsers(); await syncAllToGitHub(); } catch (e) { console.error(e); } });
 cron.schedule("10 0 * * *", async () => { try { await refillAllBySchedule(); } catch (e) { console.error(e); } });
 cron.schedule("* * * * *", async () => { try { await refillAllBySchedule(); } catch (e) { console.error(e); } });
 
-// My Page (server-rendered)
+
 
 app.get("/mypage", async (req, res) => {
   if (!req.user) {
     return res.send(`<!doctype html><meta charset="utf-8"><p>未ログインです。<a href="/">トップへ</a></p>`);
   }
   const u = req.user;
-  // legacy: 古いユーザーで registeredAt / lastRefillAtISO が無い場合にだけ埋める
+  
   let needWrite = false;
   if (!u.registeredAt) {
     u.registeredAt = new Date().toISOString();
@@ -2976,20 +2973,20 @@ app.get("/mypage", async (req, res) => {
   const sset = db.data.settings || {};
   const tz = "Asia/Tokyo";
 
-  // 管理画面に保存してある「毎月いつ配布するか」を使って次回配布日時を出す
+  
   const day = Number(sset.refillDay ?? 1);
   const hour = Number(sset.refillHour ?? 0);
   const minute = Number(sset.refillMinute ?? 0);
 
   function nextRefillDate() {
     const now = new Date();
-    const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000); // JST
+    const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000); 
     let y = jst.getUTCFullYear();
-    let m = jst.getUTCMonth() + 1; // 1..12
+    let m = jst.getUTCMonth() + 1; 
     const lastDay = new Date(y, m, 0).getDate();
     const d = Math.min(day, lastDay);
 
-    // JSTで y-m-d hour:minute 作ってからUTCへ戻す
+    
     function build(y, m) {
       const j = Date.UTC(y, m - 1, d, hour, minute, 0);
       return new Date(j - 9 * 60 * 60 * 1000);
@@ -2997,7 +2994,7 @@ app.get("/mypage", async (req, res) => {
 
     let target = build(y, m);
     if (now >= target) {
-      // 今月分を過ぎている → 翌月
+      
       if (m === 12) {
         y += 1;
         m = 1;
@@ -3023,7 +3020,7 @@ app.get("/mypage", async (req, res) => {
     }
   };
 
-  // ---- このユーザのリクエスト一覧 ----
+  
   const my = (db.data.responses || [])
     .filter(r => r.by?.id === u.id)
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
@@ -3166,539 +3163,11 @@ app.get("/mypage", async (req, res) => {
             <form id="iconForm" class="settings-form" method="POST" action="/mypage/icon" style="gap:10px;">
               <label style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                 <span class="muted">画像:</span>
-                <input id="iconFile" type="file" accept="image/*" style="max-width:240px;">
-              </label>
-
-              <label style="display:flex;gap:8px;align-items:center;flex:1;min-width:220px;flex-wrap:wrap;">
-                <span class="muted">URL:</span>
-                <input id="iconUrlText" type="text" placeholder="https://example.com/icon.png" style="flex:1;min-width:180px;">
-              </label>
-
-              <input type="hidden" name="iconUrl" id="iconUrlHidden" value="">
-              <button type="submit">保存する</button>
-              <button type="button" id="clearIconBtn" class="btn">リセット</button>
-            </form>
-            <div class="muted" style="font-size:12px;margin-top:6px;">
-              ※メッセージ取り消し等のサポート機能は後で実装します（今回はアイコンのみ）。
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="card">
-        <h3>自分の投稿一覧</h3>
-        ${listHtml}
-      </div>
-
-      <p><a href="/">↩ トップへ戻る</a></p>
-    </div>
-    <script>
-    (function(){
-      const el = document.getElementById("refillCountdown");
-      const targetIso = ${JSON.stringify(nextRef.toISOString())};
-      if (!el || !targetIso) return;
-      const target = new Date(targetIso);
-      function tick(){
-        const now = new Date();
-        let diff = Math.floor((target - now)/1000);
-        if (diff <= 0){
-          el.textContent = "まもなく再配布されます。";
-          return;
-        }
-        const d = Math.floor(diff / 86400); diff -= d*86400;
-        const h = Math.floor(diff / 3600); diff -= h*3600;
-        const m = Math.floor(diff / 60);
-        const s = diff - m*60;
-        el.textContent = "残り: " + (d? d+"日 " : "") + String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
-        requestAnimationFrame(tick);
-      }
-      tick();
-    })();
-
-    // ----- アイコン更新（dataURL / URL） -----
-    (function(){
-      const file = document.getElementById("iconFile");
-      const urlText = document.getElementById("iconUrlText");
-      const hidden = document.getElementById("iconUrlHidden");
-      const prev = document.getElementById("avatarPreview");
-      const clearBtn = document.getElementById("clearIconBtn");
-      const form = document.getElementById("iconForm");
-      if (!hidden || !prev) return;
-
-      function applyValue(v){
-        hidden.value = v || "";
-        if (v) prev.src = v;
-      }
-
-      if (file) {
-        file.addEventListener("change", () => {
-          const f = file.files && file.files[0];
-          if (!f) return;
-          if (!String(f.type || "").startsWith("image/")) {
-            alert("画像ファイルを選択してください。");
-            file.value = "";
-            return;
-          }
-          // 目安: 350KB程度（保存サイズ制限があるため）
-          if (f.size > 350 * 1024) {
-            alert("画像が大きすぎます。350KB以下を目安にしてください。");
-            file.value = "";
-            return;
-          }
-          const rd = new FileReader();
-          rd.onload = () => {
-            const v = String(rd.result || "");
-            applyValue(v);
-            if (urlText) urlText.value = "";
-          };
-          rd.readAsDataURL(f);
-        });
-      }
-
-      if (urlText) {
-        urlText.addEventListener("input", () => {
-          const v = (urlText.value || "").trim();
-          if (v) applyValue(v);
-          else applyValue("");
-        });
-      }
-
-      if (form) {
-        form.addEventListener("submit", () => {
-          // URL入力がある場合は hidden を上書き
-          const v = (urlText && urlText.value ? urlText.value : "").trim();
-          if (v) hidden.value = v;
-        });
-      }
-
-      if (clearBtn) {
-        clearBtn.addEventListener("click", async () => {
-          if (!confirm("アイコンをリセットしますか？")) return;
-          try {
-            await fetch("/mypage/icon/clear", { method: "POST" });
-            location.reload();
-          } catch {
-            alert("リセットに失敗しました。");
-          }
-        });
-      }
-    })();
-
-    </script>
-  </body>
-  </html>`;
-
-  res.send(html);
-});
-app.post("/mypage/update", async (req, res) => {
-  if (!req.user) {
-    return res.send(toastPage("⚠未ログインです。", "/"));
-  }
-  await usersDb.read();
-  const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) {
-    return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/"));
-  }
-  const name = (req.body.username ?? "").toString().trim();
-  if (!name) return res.send(toastPage("⚠ユーザー名を入力してください。", "/mypage"));
-  if (name.length < 2) return res.send(toastPage("⚠ユーザー名は2文字以上で入力してください。", "/mypage"));
-  if (name.length > 40) return res.send(toastPage("⚠ユーザー名が長すぎます。（最大40文字）", "/mypage"));
-  if (/[\r\n]/.test(name)) return res.send(toastPage("⚠ユーザー名に使えない文字が含まれています。", "/mypage"));
-  u.username = name;
-  await usersDb.write();
-return res.send(toastPage(`✅ユーザー名を「${name}」に更新しました。`, "/mypage"));
-});
-
-app.post("/mypage/change-id", async (req, res) => {
-  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/mypage"));
-  await usersDb.read();
-  const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
-  if (!isSiteAdmin(u)) return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/mypage"));
-
-  const v = validateCustomUserId(req.body.newId);
-  if (!v.ok) return res.send(toastPage(`⚠${esc(v.message)}`, "/mypage"));
-  const newId = v.value;
-  const oldId = u.id;
-
-  if (newId === oldId) return res.send(toastPage("ℹ️同じIDです。", "/mypage"));
-  if (usersDb.data.users.some(x => x.id === newId)) return res.send(toastPage("⚠そのIDは既に使われています。", "/mypage"));
-
-  try{
-    await renameUserIdEverywhere(oldId, newId);
-  }catch(e){
-    const reason = String(e?.message || "");
-    const msg =
-      reason === "id_already_used" ? "そのIDは既に使われています。" :
-      reason === "user_not_found" ? "ユーザーが見つかりませんでした。" :
-      "IDの変更に失敗しました。";
-    return res.send(toastPage(`⚠${esc(msg)}`, "/mypage"));
-  }
-
-  try { res.cookie("deviceId", newId, COOKIE_OPTS); } catch {}
-  try { res.cookie("adminAuth", "1", COOKIE_OPTS); } catch {}
-  try {
-    if (req.cookies?.impersonateId === oldId) res.cookie("impersonateId", newId, COOKIE_OPTS);
-  } catch {}
-
-  // tokens cookie refresh
-  await usersDb.read();
-  writeTokCookie(res, usersDb.data.users.find(x => x.id === newId));
-  return res.send(toastPage("✅IDを変更しました。", "/mypage"));
-});
-
-app.post("/mypage/remove-site-admin", async (req, res) => {
-  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/mypage"));
-  await usersDb.read();
-  const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
-  if (!isSiteAdmin(u)) return res.send(toastPage("⚠サイト管理者のみ実行できます。", "/mypage"));
-
-  const to = String(req.body?.to || "admin").toLowerCase();
-  const nextRole = (to === "user") ? ROLE_USER : ROLE_ADMIN;
-
-  // role: site_admin を削除（降格）
-  u.role = nextRole;
-  await usersDb.write();
-
-  // 見た目の混乱防止: admin cookie を一応クリア（role でも弾ける）
-  try { res.cookie("adminAuth", "", { ...COOKIE_OPTS, maxAge: 0 }); } catch {}
-
-  // tokens cookie refresh
-  try { writeTokCookie(res, u); } catch {}
-
-  const msg = nextRole === ROLE_USER
-    ? "✅サイト管理者権限を解除しました（一般ユーザーに戻りました）。"
-    : "✅サイト管理者権限を解除しました（管理者に戻りました）。";
-  return res.send(toastPage(msg, "/mypage"));
-});
-
-
-
-
-// ---- MyPage icon update ----
-
-function validateIconUrl(raw) {
-  const v = String(raw || "").trim();
-  if (!v) return { ok: false, message: "アイコンが空です。" };
-
-  // dataURL (data:image/...;base64,xxx)
-  if (v.startsWith("data:image/")) {
-    if (!v.includes(";base64,")) return { ok: false, message: "dataURL形式が不正です。" };
-    // length-based guard (roughly ~ bytes * 1.37)
-    if (v.length > 480000) return { ok: false, message: "画像が大きすぎます。350KB程度以下を目安にしてください。" };
-    return { ok: true, value: v };
-  }
-
-  // URL
-  if (/^https?:\/\//i.test(v)) {
-    if (v.length > 2048) return { ok: false, message: "URLが長すぎます。" };
-    return { ok: true, value: v };
-  }
-
-  return { ok: false, message: "http(s) のURL か data:image のみ保存できます。" };
-}
-
-
-app.post("/mypage/icon", async (req, res) => {
-  if (!req.user) return res.send(toastPage("⚠未ログインです。", "/"));
-  await usersDb.read();
-  const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/mypage"));
-
-  const iconUrl = (req.body.iconUrl ?? "").toString();
-  const v = validateIconUrl(iconUrl);
-  if (!v.ok) return res.send(toastPage(`⚠${esc(v.message)}`, "/mypage"));
-
-  u.iconUrl = v.value;
-  await usersDb.write();
-  return res.send(toastPage("✅アイコンを更新しました。", "/mypage"));
-});
-
-app.post("/mypage/icon/clear", async (req, res) => {
-  if (!req.user) return res.status(401).send("not logged in");
-  await usersDb.read();
-  const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.status(404).send("not found");
-  u.iconUrl = null;
-  await usersDb.write();
-  res.send("ok");
-});
-
-
-
-// ==========================
-// Support (チャット問い合わせ)
-// ==========================
-const SUPPORT_DESK_NAME = "サポート窓口";
-const SUPPORT_DESK_ICON = "/img/mypage.png";
-
-function supportStore() {
-  if (!db.data.support) {
-    db.data.support = {
-      termsText: "",
-      termsVersion: 1,
-      threads: {}, // { [userId]: { userId, createdAtISO, updatedAtISO, lastPreview, messages:[...] } }
-    };
-  }
-  if (typeof db.data.support.termsVersion !== "number") db.data.support.termsVersion = 1;
-  if (typeof db.data.support.termsText !== "string") db.data.support.termsText = "";
-  if (!db.data.support.threads || typeof db.data.support.threads !== "object") db.data.support.threads = {};
-  return db.data.support;
-}
-
-/**
- * getSupportThread(userId, createIfMissing=true)
- * - createIfMissing=false のときは存在しない場合 null を返す（閲覧だけで thread を復活させないため）
- */
-function getSupportThread(userId, createIfMissing = true) {
-  const s = supportStore();
-  let t = s.threads[userId];
-  if (!t && createIfMissing) {
-    const now = new Date().toISOString();
-    t = s.threads[userId] = {
-      userId,
-      createdAtISO: now,
-      updatedAtISO: now,
-      lastPreview: "",
-      messages: [],
-    };
-  }
-  if (t && !Array.isArray(t.messages)) t.messages = [];
-  return t || null;
-}
-
-function updateThreadMeta(t) {
-  if (!t) return;
-  const last = t.messages.length ? t.messages[t.messages.length - 1] : null;
-  t.updatedAtISO = last?.atISO || t.updatedAtISO || new Date().toISOString();
-  t.lastPreview = last?.text ? String(last.text).slice(0, 80) : (t.lastPreview || "");
-}
-
-function viewerAcceptedSupportTerms(viewer) {
-  const s = supportStore();
-  const v = Number(viewer?.supportTermsAcceptedVersion || 0);
-  return v >= Number(s.termsVersion || 1);
-}
-
-function staffIdentity(reqUser) {
-  // site_admin は自分のアカウントで返信できる
-  if (isSiteAdmin(reqUser)) {
-    return {
-      kind: "staff",
-      userId: reqUser.id,
-      username: reqUser.username || "Site Admin",
-      role: ROLE_SITE_ADMIN,
-      iconUrl: reqUser.iconUrl || SUPPORT_DESK_ICON,
-      badge: "💎サイト管理者",
-    };
-  }
-  // admin は窓口アカウントとして返信（全管理者で共通）
-  return {
-    kind: "staff",
-    userId: null,
-    username: SUPPORT_DESK_NAME,
-    role: "desk",
-    iconUrl: SUPPORT_DESK_ICON,
-    badge: null,
-  };
-}
-
-function normalizeMsgForClient(m) {
-  return {
-    id: m?.id,
-    atISO: m?.atISO,
-    text: m?.text,
-    from: m?.from ? {
-      kind: m.from.kind || null,
-      userId: m.from.userId || null,
-      username: m.from.username || null,
-      role: m.from.role || null,
-      iconUrl: m.from.iconUrl || null,
-      badge: m.from.badge || null,
-    } : null,
-  };
-}
-function buildUsersMap() {
-  const m = new Map();
-  try {
-    for (const u of (usersDb.data?.users || [])) {
-      if (u && u.id) m.set(u.id, u);
-    }
-  } catch {}
-  return m;
-}
-
-function hydrateSupportMessage(m, usersMap) {
-  if (!m || !m.from) return m;
-  const out = { ...m, from: { ...(m.from || {}) } };
-
-  // ユーザー投稿：常に最新の username / iconUrl / role / badge を反映
-  if (out.from.kind === "user" && out.from.userId) {
-    const u = usersMap.get(out.from.userId);
-    if (u) {
-      out.from.username = u.username || out.from.username || "Guest";
-      out.from.iconUrl = u.iconUrl || out.from.iconUrl || null;
-      out.from.role = u.role || out.from.role || ROLE_USER;
-      out.from.badge = isSiteAdmin(u) ? "💎サイト管理者" : null;
-    }
-    return out;
-  }
-
-  // site_admin が「自分のアカウントで返信」した場合も最新を反映
-  if (out.from.kind === "staff" && out.from.role === ROLE_SITE_ADMIN && out.from.userId) {
-    const u = usersMap.get(out.from.userId);
-    if (u) {
-      out.from.username = u.username || out.from.username || "Site Admin";
-      out.from.iconUrl = u.iconUrl || out.from.iconUrl || SUPPORT_DESK_ICON;
-      out.from.badge = "💎サイト管理者";
-    }
-    return out;
-  }
-
-  // desk（共通窓口）
-  if (out.from.kind === "staff" && !out.from.userId) {
-    out.from.username = SUPPORT_DESK_NAME;
-    out.from.iconUrl = SUPPORT_DESK_ICON;
-    out.from.badge = null;
-    out.from.role = "desk";
-  }
-
-  return out;
-}
-
-function hydrateSupportMessages(messages, usersMap) {
-  const arr = Array.isArray(messages) ? messages : [];
-  return arr.map(m => hydrateSupportMessage(m, usersMap));
-}
-
-function supportMsgHtmlSSR(m, isViewer) {
-  const av = esc(m?.from?.iconUrl || SUPPORT_DESK_ICON);
-  const uname = esc(m?.from?.username || "unknown");
-  const badge = m?.from?.badge ? ` <span class="badge">${esc(m.from.badge)}</span>` : "";
-  const txt = esc(m?.text || "").replace(/\n/g, "<br>");
-  const t = esc(m?.atISO ? fmtJst(m.atISO) : "");
-  const uid = (m?.from?.userId != null) ? ` <code>🆔 ${esc(m.from.userId)}</code>` : ` <code>🆔 -</code>`;
-  const mid = esc(m?.id || "");
-  // data-text はコピー用（属性なので改行は保持せず）
-  const dataText = esc((m?.text || "").toString());
-  return `
-    <div class="msg ${isViewer ? "viewer" : "other"}" data-mid="${mid}">
-      <img class="avatar" src="${av}" onerror="this.src='${SUPPORT_DESK_ICON}'">
-      <div class="bubble" tabindex="0" data-text="${dataText}">
-        <div class="name">${uname}${badge}</div>
-        <div class="body">${txt}</div>
-        <div class="time"><span>${t}</span>${uid}</div>
-      </div>
-    </div>
-  `;
-}
-
-async function appendSupportMessageAsUser(u, text) {
-  await db.read();
-  const t = getSupportThread(u.id, true);
-  const msg = {
-    id: nanoid(10),
-    atISO: new Date().toISOString(),
-    text,
-    from: {
-      kind: "user",
-      userId: u.id,
-      username: u.username || "Guest",
-      role: u.role || ROLE_USER,
-      iconUrl: u.iconUrl || null,
-      badge: isSiteAdmin(u) ? "💎サイト管理者" : null,
-    },
-  };
-  t.messages.push(msg);
-  updateThreadMeta(t);
-  await db.write();
-  return msg;
-}
-
-async function appendSupportMessageAsStaff(targetUserId, reqUser, text) {
-  await db.read();
-  const t = getSupportThread(targetUserId, true);
-  const from = staffIdentity(reqUser || null);
-  const msg = { id: nanoid(10), atISO: new Date().toISOString(), text, from };
-  t.messages.push(msg);
-  updateThreadMeta(t);
-  await db.write();
-  return msg;
-}
-
-async function deleteSupportThread(userId) {
-  await db.read();
-  const s = supportStore();
-  if (s.threads && s.threads[userId]) {
-    delete s.threads[userId];
-    await db.write();
-    return true;
-  }
-  return false;
-}
-
-// ==========================
-// /support (ユーザー側)
-// ==========================
-app.get("/support", async (req, res) => {
-  if (!req.user) return res.send(toastPage("⚠サポートを開くには、まず登録してください。", "/"));
-  await usersDb.read();
-  const u = usersDb.data.users.find(x => x.id === req.user.id);
-  if (!u) return res.send(toastPage("⚠ユーザーが見つかりませんでした。", "/"));
-
-  await db.read();
-  const s = supportStore();
-  const needsTerms = !viewerAcceptedSupportTerms(u);
-
-  // SSR: ここで既存メッセージを描画（JS が落ちても見える / 送信後リロードでも見える）
-  let initialMsgsHtml = "";
-  if (!needsTerms) {
-    await db.read();
-    const t = getSupportThread(u.id, false);
-    const usersMap = buildUsersMap();
-    const msgs = hydrateSupportMessages(t?.messages || [], usersMap);
-    initialMsgsHtml = msgs.map(m => supportMsgHtmlSSR(m, (m?.from?.kind === "user" && m?.from?.userId === u.id))).join("");
-  }
-
-  const termsTextEsc = esc(s.termsText || "");
-
-  const html = `<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>サポート</title>
-  <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif;background:#ffffff;color:#111827;}
-    a{color:#2563eb;text-decoration:none}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#ffffff;border-bottom:1px solid rgba(0,0,0,.08);position:sticky;top:0;z-index:10;}
-    .top .left{display:flex;align-items:center;gap:10px;min-width:0;}
-    .pill{display:inline-flex;align-items:center;gap:8px;background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:999px;padding:6px 10px;color:#111827;font-size:13px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .pill img{width:24px;height:24px;border-radius:999px;object-fit:cover;background:#e5e7eb;}
-    .meta{opacity:.75;font-size:12px}
-    .wrap{max-width:980px;margin:0 auto;padding:0 10px;}
-    .chat{display:flex;flex-direction:column;height:calc(100vh - 56px);height:calc(100dvh - 56px);background:#ffffff;min-height:0;}
-    .msgs{flex:1;min-height:0;overflow:auto;padding:14px 6px 10px;background:#ffffff;}
-    .msg{display:flex;gap:10px;margin:10px 0;align-items:flex-end;width:100%;}
-    .msg.viewer{justify-content:flex-start;}
-    .msg.other{justify-content:flex-end;flex-direction:row-reverse;}
-    .avatar{width:36px;height:36px;border-radius:999px;object-fit:cover;background:#e5e7eb;border:1px solid rgba(0,0,0,.10);}
-    .bubble{max-width:min(680px,86vw);background:#f3f4f6;border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px 12px;line-height:1.45;user-select:text;}
-    .other .bubble{background:#e0f2fe;border-color:rgba(2,132,199,.25);}
-    .name{font-size:12px;opacity:.85;margin:0 0 4px;display:flex;gap:8px;align-items:center;}
-    .badge{font-size:12px;color:#0284c7;}
-    .time{font-size:11px;opacity:.65;margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;}
-    .time code{padding:1px 6px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:rgba(255,255,255,.85);}
-    .input{border-top:1px solid rgba(0,0,0,.08);padding:10px;background:#ffffff;padding-bottom:calc(10px + env(safe-area-inset-bottom));}
-    .row{display:flex;gap:10px;align-items:flex-end;}
-    @media (max-width:520px){.row{flex-direction:column;align-items:stretch}textarea{max-height:34vh}button{width:100%}}
-    textarea{flex:1;min-height:44px;max-height:180px;resize:vertical;background:#ffffff;color:#111827;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:10px 12px;font-size:14px;outline:none}
-    button{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    .hint{margin-top:6px;font-size:12px;opacity:.7}
-    /* context menu */
+                <input id="iconFile" type="file" accept="image
     .ctx{position:fixed;z-index:9999;min-width:180px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
     .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:700}
     .ctx button:hover{background:rgba(0,0,0,.05)}
-    /* terms overlay */
+    
     .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:10000;padding:14px;}
     .ov.show{display:flex;}
     .modal{width:min(720px,92vw);background:#f9fafb;color:#111;border-radius:14px;border:1px solid rgba(0,0,0,.08);box-shadow:0 24px 60px rgba(0,0,0,.35);overflow:hidden}
@@ -3797,7 +3266,6 @@ app.get("/support", async (req, res) => {
         function escHtml(s){ return String(s??'').replace(/[&<>"']/g,function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }); }
         function byId(id){ return document.getElementById(id); }
 
-        // Terms viewer (better UI than <details>)
         var termsView = byId('termsView');
         var openTermsBtn = byId('openTermsBtn');
         function openTerms(){
@@ -3888,7 +3356,6 @@ app.get("/support", async (req, res) => {
           return r;
         }
 
-        // context menu (copy)
         var ctx = byId('ctx');
         var ctxTargetText = '';
         function hideCtx(){ ctx.style.display='none'; ctxTargetText=''; }
@@ -3913,7 +3380,6 @@ app.get("/support", async (req, res) => {
           }
         });
 
-        // send (フォームはフォールバック。JS が動けばリロードなし)
         var sendForm = byId('sendForm');
         if (sendForm){
           sendForm.addEventListener('submit', async function(e){
@@ -3927,7 +3393,7 @@ app.get("/support", async (req, res) => {
               var r = await sendViaApi(v);
               byId('sendBtn').disabled = false;
               if (!r.ok){
-                // 失敗時はフォーム送信でフォールバック（原因調査用）
+
                 console.warn('send failed', r.status, r.json);
                 sendForm.submit();
                 return;
@@ -3949,7 +3415,7 @@ app.get("/support", async (req, res) => {
         });
 
         if (!NEEDS_TERMS){
-          // 初回ロード（SSRありでも最新化のため）
+
           load();
         }
       });
@@ -4011,7 +3477,7 @@ app.post("/support/api/send", async (req, res) => {
   return res.json({ ok:true, message: normalizeMsgForClient(msg) });
 });
 
-// フォーム送信用（JS が死んでも送れる）
+
 app.post("/support/send", async (req, res) => {
   if (!req.user) return res.send(toastPage("⚠未ログインです。", "/"));
   await usersDb.read();
@@ -4028,9 +3494,9 @@ app.post("/support/send", async (req, res) => {
   return res.redirect("/support");
 });
 
-// ==========================
-// 管理者：問い合わせ一覧 / 返信
-// ==========================
+
+
+
 app.get("/admin/supports", requireAdmin, async (req, res) => {
   await db.read();
   await usersDb.read();
@@ -4155,20 +3621,20 @@ app.post("/admin/request-terms", requireAdmin, async (req, res) => {
 });
 
 
-// thread delete (HTMLフォーム)
+
 app.post("/admin/supports/:userId/delete-thread", requireAdmin, async (req, res) => {
   const userId = (req.params.userId || "").toString();
   await deleteSupportThread(userId);
   return res.redirect("/admin/supports");
 });
 
-// thread delete (API)
+
 app.post("/admin/supports/:userId/api/delete-thread", requireAdmin, async (req, res) => {
   const userId = (req.params.userId || "").toString();
   const ok = await deleteSupportThread(userId);
   return res.json({ ok, userId });
 });
-// clear all messages in a thread (HTML)
+
 app.post("/admin/supports/:userId/clear", requireAdmin, async (req, res) => {
   const userId = (req.params.userId || "").toString();
   await db.read();
@@ -4179,7 +3645,7 @@ app.post("/admin/supports/:userId/clear", requireAdmin, async (req, res) => {
   return res.redirect("/admin/supports/" + encodeURIComponent(userId));
 });
 
-// clear all messages in a thread (API)
+
 app.post("/admin/supports/:userId/api/clear", requireAdmin, async (req, res) => {
   const userId = (req.params.userId || "").toString();
   await db.read();
@@ -4234,7 +3700,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
     .btn2{background:#fff;color:#111827;border:1px solid rgba(0,0,0,.18)}
     button:disabled{opacity:.5;cursor:not-allowed}
     .hint{margin-top:6px;font-size:12px;opacity:.7}
-    /* context menu */
+    
     .ctx{position:fixed;z-index:9999;min-width:220px;background:#ffffff;border:1px solid rgba(0,0,0,.16);border-radius:12px;box-shadow:0 18px 40px rgba(0,0,0,.18);display:none;overflow:hidden}
     .ctx button{width:100%;text-align:left;background:transparent;border:none;color:#111827;padding:10px 12px;border-radius:0;font-weight:800}
     .ctx button:hover{background:rgba(0,0,0,.05)}
@@ -4300,7 +3766,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
           root.innerHTML = '';
           for (var i=0;i<messages.length;i++){
             var m = messages[i];
-            // 管理画面では staff が閲覧者（左）
+
             var isViewer = (m && m.from && m.from.kind === 'staff');
             var wrap = document.createElement('div');
             wrap.className = 'msg ' + (isViewer ? 'viewer' : 'other');
@@ -4347,7 +3813,6 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
           render((r.json && r.json.messages) ? r.json.messages : []);
         }
 
-        // context menu
         var ctx = byId('ctx');
         var ctxTargetText = '';
         var ctxTargetId = '';
@@ -4383,7 +3848,6 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
           }
         });
 
-        // send (フォームはフォールバック)
         var sendForm = byId('sendForm');
         if (sendForm){
           sendForm.addEventListener('submit', async function(e){
@@ -4423,7 +3887,7 @@ app.get("/admin/supports/:userId", requireAdmin, async (req, res) => {
   res.send(html);
 });
 
-// admin form send
+
 app.post("/admin/supports/:userId/send", requireAdmin, async (req, res) => {
   const userId = (req.params.userId || "").toString();
   const text = (req.body?.text ?? "").toString().trim();
@@ -4476,9 +3940,9 @@ app.post("/admin/supports/:userId/api/delete", requireAdmin, async (req, res) =>
 });
 
 
-// ---- リクエストを放送済みに ----
 
-// 一括で放送済みに 
+
+
 app.post("/admin/bulk-broadcast-requests", requireAdmin, async (req, res) => {
   const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
   const idSet = new Set(ids);
@@ -4493,7 +3957,7 @@ app.post("/admin/bulk-broadcast-requests", requireAdmin, async (req, res) => {
   res.redirect("/admin");
 });
 
-// 一括で未放送へ
+
 app.post("/admin/bulk-unbroadcast-requests", requireAdmin, async (req, res) => {
   const ids = Array.isArray(req.body.ids) ? req.body.ids : (req.body.ids ? [req.body.ids] : []);
   const idSet = new Set(ids);
@@ -4518,7 +3982,7 @@ app.get("/broadcast/:id", requireAdmin, async (req, res) => {
   res.redirect("/admin");
 });
 
-// リクエストを未放送に戻す
+
 app.get("/unbroadcast/:id", requireAdmin, async (req, res) => {
   const id = req.params.id;
   const item = db.data.responses.find(r => r.id === id);
@@ -4550,7 +4014,7 @@ app.get("/unreject/:id", requireAdmin, async (req, res) => {
 
 app.listen(PORT, () => console.log(`🚀http://localhost:${PORT}`));
 
-// ---- Boot-time GitHub fetch & periodic persistence ----
+
 try { await fetchAllFromGitHub(false); } catch (e) { console.warn("initial fetchAllFromGitHub failed:", e.message); }
-setInterval(() => { syncAllToGitHub(false).catch(e=>console.warn("syncAllToGitHub:", e.message)); }, 60 * 1000); // every 1 min
-setInterval(() => { refillAllIfMonthChanged().catch?.(()=>{}); }, 60 * 60 * 1000); // hourly safety check
+setInterval(() => { syncAllToGitHub(false).catch(e=>console.warn("syncAllToGitHub:", e.message)); }, 60 * 1000); 
+setInterval(() => { refillAllIfMonthChanged().catch?.(()=>{}); }, 60 * 60 * 1000); 
