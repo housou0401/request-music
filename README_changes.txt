@@ -1,6 +1,10 @@
 変更内容
-- public/index.html の head 内 <style> を public/index.inline.css へ外出し
-- public/index.html の末尾 inline <script> を public/index.inline.js へ外出し
-- public/style.css と public/skript.js は内容を変更せず配置維持
-- server.js の /register に既存ユーザー名の重複禁止チェックを追加
-- index.inline.js に username_taken 用ポップアップ文言を追加
+- スマホで入力欄をタップしたときの自動ズームを抑制するため、input/select/textarea の文字サイズを 16px 以上に固定
+- サジェストカード表示領域を拡大
+- スマホ向けにアルバムジャケットをさらに約10%拡大
+- タップ選択ではなく、横スクロール後に中央へ来たカードを自動選択する方式へ整理
+- 選択中カードを白寄りの空色フレームで強調
+- 曲名・アーティスト名の長文を省略表示
+- 再生ボタン、シークバー、秒数表示の同期処理を整理
+- 再生中は再生ボタンを「■」、停止中は「▶」で表示
+- 競合していた古いカルーセル補助処理を削り、最終制御レイヤーに統一
