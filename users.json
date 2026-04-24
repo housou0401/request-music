@@ -1289,28 +1289,6 @@
       "banReason": ""
     },
     {
-      "id": "o3iCmR7zKYy_HhGy",
-      "username": "スマホ",
-      "iconUrl": null,
-      "supportTermsAcceptedVersion": 6,
-      "requestTermsAcceptedVersion": 7,
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D127 Instagram 419.0.0.27.74 (iPhone14,2; iOS 26_3; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 895010607) Safari/604.1",
-        "ip": "60.67.199.154"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2026-03",
-      "lastRefillAtISO": "2026-03-07T15:18:56.178Z",
-      "registeredAt": "2026-03-07T15:18:56.178Z",
-      "warningCount": 0,
-      "warningSeenCount": 0,
-      "warningMessage": "",
-      "banUntil": null,
-      "permanentBan": false,
-      "banReason": ""
-    },
-    {
       "id": "1xDyqzWzbGCiwyyF",
       "username": "はな",
       "iconUrl": null,
@@ -1487,20 +1465,42 @@
       "banReason": ""
     },
     {
-      "id": "zQmdMWxD5MlUfink",
-      "username": "test",
+      "id": "lwIumnXKVLSuSHpX",
+      "username": "すまほ",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/147.0.7727.99 Mobile/15E148 Safari/604.1",
+        "ip": "126.166.134.204"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-04",
+      "lastRefillAtISO": "2026-04-24T05:40:11.234Z",
+      "registeredAt": "2026-04-24T05:40:11.234Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
+    },
+    {
+      "id": "YozLCqI8qn5NBbYM",
+      "username": "ああｗｄｑ",
       "iconUrl": null,
       "supportTermsAcceptedVersion": 0,
       "requestTermsAcceptedVersion": 7,
       "deviceInfo": {
         "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
-        "ip": "153.246.130.182"
+        "ip": "133.79.192.20"
       },
-      "role": "admin",
-      "tokens": null,
+      "role": "user",
+      "tokens": 10,
       "lastRefillISO": "2026-04",
-      "lastRefillAtISO": "2026-04-23T18:52:56.872Z",
-      "registeredAt": "2026-04-23T18:52:56.872Z",
+      "lastRefillAtISO": "2026-04-24T06:48:09.404Z",
+      "registeredAt": "2026-04-24T06:48:09.404Z",
       "warningCount": 0,
       "warningSeenCount": 0,
       "warningMessage": "",
