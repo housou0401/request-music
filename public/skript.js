@@ -1,17 +1,17 @@
 const AudioManager = (() => {
-  let audioEl = null;        // <audio>
-  let ctx = null;            // AudioContext
-  let source = null;         // MediaElementSourceNode
-  let gain = null;           // GainNode
-  let useWA = false;         // WebAudio を使えているか
-  let lastNonZero = 0.4;     // ミュート解除時に戻す音量(0.0-1.0)
+  let audioEl = null;        
+  let ctx = null;            
+  let source = null;         
+  let gain = null;           
+  let useWA = false;         
+  let lastNonZero = 0.4;     
   let vol01 = 0.4;
-  let playToken = 0;           // 現在の音量(0.0-1.0)
+  let playToken = 0;           
 
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
   function ensureNodes() {
-    // <audio> を1つだけ確保
+    
     if (!audioEl) {
       audioEl = document.getElementById("previewAudio");
       if (!audioEl) {
@@ -24,12 +24,12 @@ const AudioManager = (() => {
       }
     }
 
-    // 旧・他の <audio> は強制停止（重複再生の根絶）
+    
     document.querySelectorAll("audio").forEach(a => {
       if (a !== audioEl) { try { a.pause(); } catch{} }
     });
 
-    // WebAudio 構築
+    
     if (!ctx) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (AC) ctx = new AC();
@@ -44,19 +44,19 @@ const AudioManager = (() => {
         source.connect(gain).connect(ctx.destination);
         useWA = true;
       } catch (e) {
-        // 既に接続済みのとき
+        
         useWA = !!gain;
       }
     }
 
-    // 出力経路の一本化
+    
     if (useWA) {
       audioEl.volume = 1.0;
     } else {
-      audioEl.volume = vol01;  // Fallback
+      audioEl.volume = vol01;  
     }
     
-    /* v9-ended */
+    
     try {
       audioEl.onended = () => {
         const btn = document.getElementById('playPauseBtn');
@@ -71,12 +71,12 @@ const AudioManager = (() => {
       const myToken = (++playToken);
       const el = ensureNodes();
       try { el.pause(); el.currentTime = 0; } catch {}
-      // 他の audio を止める（念のため）
+      
       document.querySelectorAll("audio").forEach(a => { if (a !== el) { try{ a.pause(); }catch{} }});
       el.src = `/preview?url=${encodeURIComponent(url)}`;
       try { el.load(); } catch {}
     },
-    async play() { /* v9-playguard */
+    async play() { 
       const el = ensureNodes();
       if (ctx && ctx.state === "suspended") await ctx.resume();
       return el.play();
@@ -88,7 +88,7 @@ const AudioManager = (() => {
     setVolume01(v) {
       vol01 = clamp01(v);
       if (gain) gain.gain.value = vol01;
-      if (!useWA && audioEl) audioEl.volume = vol01; // Fallback
+      if (!useWA && audioEl) audioEl.volume = vol01; 
     },
     getVolume01() {
       if (gain) return clamp01(gain.gain.value);
@@ -96,10 +96,10 @@ const AudioManager = (() => {
     },
     mute() {
       lastNonZero = this.getVolume01() || lastNonZero || 0.4;
-      this.setVolume01(0); // ミュートは 0 に
+      this.setVolume01(0); 
     },
     unmute() {
-      this.setVolume01(Math.max(0.01, lastNonZero || 0.4)); // 最低1%復帰
+      this.setVolume01(Math.max(0.01, lastNonZero || 0.4)); 
     },
     isMuted() { return this.getVolume01() <= 0.001; },
     element() { return ensureNodes(); }
@@ -107,11 +107,11 @@ const AudioManager = (() => {
 })();
 if (typeof window !== "undefined") window.AudioManager = AudioManager;
 
-/* ---------------- 検索UI（既存） ---------------- */
-let searchMode = "song";     // "song" | "artist"
-let artistPhase = 0;         // 0=アーティスト候補, 1=楽曲候補
+
+let searchMode = "song";     
+let artistPhase = 0;         
 let selectedArtistId = null;
-let lockedArtistQuery = ""; // アーティスト確定後、入力が変わったら候補一覧に戻す
+let lockedArtistQuery = ""; 
 
 let playerControlsEnabled = true;
 
@@ -125,7 +125,7 @@ window.onload = async function () {
   songInput.addEventListener("input", searchSongs);
   artistInput.addEventListener("input", searchSongs);
 
-  // 簡易ローディング
+  
   if (!document.getElementById("loadingIndicator")) {
     const loader = document.createElement("div");
     loader.id = "loadingIndicator";
@@ -174,12 +174,12 @@ async function refreshThemeStatus() {
       banner.style.display = "block";
     }
   } catch (e) {
-    // fail silently
+    
   }
 }
 
 
-/* ========== 検索 ========== */
+
 function setSearchMode(mode) {
   searchMode = mode; artistPhase = 0; selectedArtistId = null; lockedArtistQuery = "";
   ["songName","artistName"].forEach(id => { const el = document.getElementById(id); if (el) el.value=""; });
@@ -220,7 +220,7 @@ async function searchSongs() {
     if (searchMode === "artist") {
       const q = document.getElementById("songName").value.trim();
 
-      // アーティスト確定後に入力が変わったら、候補一覧へ戻す
+      
       if (artistPhase === 1 && lockedArtistQuery && q !== lockedArtistQuery) {
         artistPhase = 0;
         selectedArtistId = null;
@@ -313,7 +313,7 @@ async function selectArtist(artist) {
   selectedArtistId = artist.artistId;
   artistPhase = 1;
 
-  // 入力欄を選んだアーティスト名に揃え、以後この文字列を「確定キー」として保持
+  
   const input = document.getElementById("songName");
   if (input) {
     input.value = (artist.artistName || artist.trackName || input.value || "").trim();
@@ -322,7 +322,7 @@ async function selectArtist(artist) {
     lockedArtistQuery = (artist.artistName || artist.trackName || "").trim();
   }
 
-  // 選択アーティストの大きい表示は出さない（送信/削除ボタンの邪魔になるため）
+  
   const selBox = document.getElementById("selectedArtist");
   if (selBox) selBox.innerHTML = "";
   await fetchArtistTracksAndShow();
@@ -337,8 +337,8 @@ async function fetchArtistTracksAndShow() {
     const res = await fetch(`/search?mode=artist&artistId=${encodeURIComponent(selectedArtistId)}`);
     const songs = await res.json();
     const cont = document.getElementById("suggestions");
-    if (cont) cont.innerHTML = ""; // アーティスト一覧(リスト)を消して、曲一覧へ
-    // 曲一覧は従来どおりカード（Carousel）
+    if (cont) cont.innerHTML = ""; 
+    
     renderCarousel(songs);
   } catch (e) {
     console.error("アーティスト曲取得エラー:", e);
@@ -348,7 +348,7 @@ async function fetchArtistTracksAndShow() {
   }
 }
 
-/* ========== 曲を選択 → レガシーカードに情報を詰める ========== */
+
 
 function selectSong(song) {
   const wrap = document.getElementById("selectedSong");
@@ -360,7 +360,7 @@ function selectSong(song) {
   const title   = song.trackName || "(曲名なし)";
   const artist  = song.artistName || "アーティスト不明";
 
-  // カードHTML
+  
   wrap.innerHTML = `
     <div class="selected-song-card" style="background:#f8f8f8;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:8px 10px;">
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px;">
@@ -379,18 +379,18 @@ function selectSong(song) {
     </div>
   `;
 
-  // hidden fields（送信用）
+  
   setHidden("appleMusicUrlHidden","appleMusicUrl", song.trackViewUrl);
   setHidden("artworkUrlHidden","artworkUrl", artwork);
   setHidden("previewUrlHidden","previewUrl", song.previewUrl);
 
-  // 再生制御のアタッチ
+  
   const card = wrap.querySelector(".selected-song-card");
   const playBtn = card.querySelector(".play");
   const volBtn = card.querySelector(".vol-btn");
   const volRange = card.querySelector(".vol-range");
 
-  // 曲を読み込んで自動再生
+  
   if (song.previewUrl) {
     AudioManager.load(song.previewUrl);
     AudioManager.play().then(() => {
@@ -399,16 +399,16 @@ function selectSong(song) {
       const nowVol = AudioManager.getVolume01();
       if (volRange) volRange.value = nowVol.toFixed(2);
     }).catch(() => {
-      // 再生できなかったら▶に戻す
+      
       playBtn.textContent = "▶";
     });
   } else {
-    // プレビューがない場合は▶のまま
+    
     updateVolumeIcon(volBtn, AudioManager.getVolume01(), AudioManager.isMuted());
     if (volRange) volRange.value = AudioManager.getVolume01().toFixed(2);
   }
 
-  // 再生/停止
+  
   playBtn.addEventListener("click", async () => {
     const el = AudioManager.element();
     if (el.paused) {
@@ -422,14 +422,14 @@ function selectSong(song) {
     }
   });
 
-  // 音量スライダー
+  
   volRange.addEventListener("input", (ev) => {
     const v = Number(ev.target.value);
     AudioManager.setVolume01(v);
     updateVolumeIcon(volBtn, v, v <= 0.001);
   });
 
-  // ミュートボタン
+  
   volBtn.addEventListener("click", () => {
     if (AudioManager.isMuted()) {
       AudioManager.unmute();
@@ -444,7 +444,7 @@ function selectSong(song) {
   });
 }
 
-// ボリュームのアイコンを音量に応じて変える
+
 function updateVolumeIcon(btn, vol, muted){
   if (!btn) return;
   if (muted || vol <= 0.001) {
@@ -457,7 +457,7 @@ function updateVolumeIcon(btn, vol, muted){
     btn.textContent = "🔊";
   }
 }
-/* ---- 共通 ---- */
+
 function setHidden(id,name,val){
   let el = document.getElementById(id);
   if (!el) {
@@ -489,11 +489,11 @@ function clearInput(inputId){
   el.focus();
 }
 
-/* ---- ローディング ---- */
+
 function showLoading(){ const el = document.getElementById("loadingIndicator"); if (el) el.style.display = "flex"; }
 function hideLoading(){ const el = document.getElementById("loadingIndicator"); if (el) el.style.display = "none"; }
 
-/* ---- 管理ログイン API ---- */
+
 async function adminLogin(password){
   if (!password) return;
   try {
@@ -510,9 +510,9 @@ async function adminLogin(password){
 }
 
 
-/* =========================================================
-   横スクロール 3D カード表示 & プレイヤー制御
-   ========================================================= */
+
+
+
 
 let currentList = [];
 let currentIndex = -1;
@@ -536,7 +536,7 @@ function msToLabel(ms) {
   return m + ":" + String(s).padStart(2,"0");
 }
 
-function renderCarousel /* v9-centerfix */(list) {
+function renderCarousel (list) {
   currentList = Array.isArray(list) ? list.slice(0, 30) : [];
   const track = $("#carouselTrack");
   const wrap = $("#resultsCarousel");
@@ -659,7 +659,7 @@ function selectCarouselIndex(i, autoPlay=false) {
   i = Math.max(0, Math.min(i, currentList.length-1));
   currentIndex = i;
 
-  // 見た目更新
+  
   const cards = $$(".result-card");
   cards.forEach(c => c.classList.remove("selected"));
   const sel = cards[i];
@@ -668,7 +668,7 @@ function selectCarouselIndex(i, autoPlay=false) {
     scrollToIndex(i);
   }
 
-  // hidden 入力とフォームUI更新
+  
   const song = currentList[i] || {};
   const hApple = $("#appleMusicUrlHidden");
   const hArt   = $("#artworkUrlHidden");
@@ -676,9 +676,9 @@ function selectCarouselIndex(i, autoPlay=false) {
   if (hApple) hApple.value = song.trackViewUrl || "";
   if (hArt)   hArt.value   = song.artworkUrl || "";
   if (hPrev)  hPrev.value  = song.previewUrl || "";
-  /* 検索入力は維持するため更新しない */
+  
 
-  // プレーヤー準備
+  
   currentPreviewUrl = song.previewUrl || "";
   if (currentPreviewUrl) {
     AudioManager.load(currentPreviewUrl);
@@ -724,7 +724,7 @@ function setupPlayerControls() {
       AudioManager.setVolume01(v01);
       if (v01 <= 0.011) { volBtn.textContent = "🔈"; } else { volBtn.textContent = "🔊"; }
     });
-    // 初期値反映
+    
     const init = Math.round(AudioManager.getVolume01()*100);
     volBar.value = String(Math.max(1, init || 40));
   }
@@ -745,7 +745,7 @@ function setupPlayerControls() {
     });
     el.addEventListener("ended", ()=>{
       pauseSelected();
-      // 自動で次へ
+      
       if (currentIndex+1 < currentList.length) {
         selectCarouselIndex(currentIndex+1, true);
       }
@@ -753,18 +753,18 @@ function setupPlayerControls() {
   }
 }
 
-// 検索結果の表示をカードUIへ差し替え（アーティスト候補はリスト、曲候補はカード）
+
 const _orig_searchSongs = searchSongs;
 searchSongs = async function() {
   const list = document.getElementById("suggestions");
-  if (list) list.innerHTML = ""; // アーティスト候補フェーズのみここに描画
+  if (list) list.innerHTML = ""; 
   showLoading && showLoading();
 
   try {
     if (searchMode === "artist") {
       const q = document.getElementById("songName").value.trim();
 
-      // アーティスト確定後に入力が変わったら、候補一覧へ戻す
+      
       if (artistPhase === 1 && lockedArtistQuery && q !== lockedArtistQuery) {
         artistPhase = 0;
         selectedArtistId = null;
@@ -777,7 +777,7 @@ searchSongs = async function() {
       if (artistPhase === 0) {
         if (!q) { ensurePlayerUIVisible(false); return; }
 
-        // このフェーズは「アーティスト一覧」だけリスト表示
+        
         ensurePlayerUIVisible(false);
 
         const res = await fetch(`/search?mode=artist&query=${encodeURIComponent(q)}`);
@@ -833,11 +833,11 @@ searchSongs = async function() {
           list.appendChild(wrap);
         }
       } else {
-        // 曲一覧フェーズ：従来どおりカード（Carousel）
+        
         await fetchArtistTracksAndShow();
       }
     } else {
-      // 曲名(アーティスト)検索：従来どおりカード（Carousel）
+      
       const songQ = document.getElementById("songName").value.trim();
       const artistQ = document.getElementById("artistName").value.trim();
       if (!songQ) { ensurePlayerUIVisible(false); return; }
@@ -855,12 +855,12 @@ searchSongs = async function() {
   }
 };
 
-// 初期化：プレイヤーUIイベント
+
 
 window.addEventListener("DOMContentLoaded", setupPlayerControls);
 
 
-// ===== Carousel helpers =====
+
 function scrollToIndex(i){
   const wrap = document.getElementById("resultsCarousel");
   const track = document.getElementById("carouselTrack");
@@ -874,7 +874,7 @@ function buildEdgeSpacers(){
   const wrap = document.getElementById("resultsCarousel");
   const track = document.getElementById("carouselTrack");
   if (!wrap || !track) return;
-  // remove old spacers
+  
   track.querySelectorAll(".edge-spacer").forEach(e => e.remove());
   const firstCard = track.querySelector(".result-card");
   if (!firstCard) return;
@@ -903,7 +903,7 @@ function snapToNearest(){
   }
 }
 
-// ===== Long-press slider (seek/volume) =====
+
 function installLongPressSlider(selector, onChange){
   const el = document.querySelector(selector);
   if (!el) return;
@@ -927,7 +927,7 @@ function installLongPressSlider(selector, onChange){
       holding = true;
       el.classList.add("active");
       updateByEvt(evt);
-    }, 100); // ≈0.1秒
+    }, 100); 
   };
   const move = (evt) => {
     if (!holding) return;
@@ -944,7 +944,7 @@ function installLongPressSlider(selector, onChange){
   window.addEventListener("pointerup", end);
 }
 
-// スクロール終了を検知して最近傍へスナップ
+
 let scrollTimer = null;
 document.getElementById("resultsCarousel")?.addEventListener("scroll", ()=>{
   clearTimeout(scrollTimer);
@@ -956,14 +956,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
   installLongPressSlider('#volumeBar', 'volume');
 });
 
-// === Range progress===
+
 function setRangeProgress(el, frac){
   if (!el) return;
   const f = Math.max(0, Math.min(1, Number(frac)||0));
   el.style.setProperty('--prog', (Math.round(f*100)) + '%');
 }
 
-// === 音量バー ===
+
 function installDragSlider(selector, onChange){
   const el = document.querySelector(selector);
   if (!el) return;
@@ -988,22 +988,22 @@ function installDragSlider(selector, onChange){
 }
 
 
-// === AudioManagerにバーをフックして進捗状況を入力し続ける ===
+
 window.addEventListener('DOMContentLoaded', ()=>{
   const seek = document.getElementById('seekBar');
   const vol  = document.getElementById('volumeBar');
   const playBtn = document.getElementById('playPauseBtn');
   const volBtn  = document.getElementById('volumeBtn');
 
-  // 初期表示を揃える
+  
   setRangeProgress(seek, 0);
   setRangeProgress(vol, (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4);
 
-  // ドラッグスライダー（即時）
+  
   installDragSlider('#seekBar');
   installDragSlider('#volumeBar');
 
-  // 入力時
+  
   if (seek){
     let seeking=false;
     seek.addEventListener('input', ()=>{
@@ -1014,7 +1014,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
         try{ el.currentTime = el.duration * f; }catch{}
       }
     });
-    // 再生側からの更新
+    
     const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
     if (el){
       el.addEventListener('timeupdate', ()=>{
@@ -1035,13 +1035,13 @@ window.addEventListener('DOMContentLoaded', ()=>{
       if (typeof AudioManager?.setVolume01==='function'){ AudioManager.setVolume01(f); }
       if (volBtn) updateVolumeIcon(volBtn, f, f<=0.001);
     });
-    // 初期反映
+    
     const v0 = (typeof AudioManager?.getVolume01==='function') ? AudioManager.getVolume01() : 0.4;
     vol.value = String(Math.round(v0*(Number(vol.max||100))));
     setRangeProgress(vol, v0);
   }
 
-  // ボタンの表示(灰色アイコン)はCSSで。挙動のみここで維持
+  
   if (playBtn){
     playBtn.addEventListener('click', async ()=>{
       const el = (typeof AudioManager?.element==='function') ? AudioManager.element() : null;
@@ -1064,7 +1064,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
 });
 
 
-// === Robust snap & edge spacers ===
+
 function buildEdgeSpacers(){
   const wrap = document.getElementById("resultsCarousel");
   const track = document.getElementById("carouselTrack");
@@ -1122,7 +1122,7 @@ function snapToNearest(){
   setTimeout(window.buildEdgeSpacers||function(){}, 0);
 })();
 
-// === Hook: bars install and gray glyph ===
+
 window.addEventListener('DOMContentLoaded', ()=>{
   const seek = document.getElementById('seekBar');
   const vol  = document.getElementById('volumeBar');
@@ -1174,7 +1174,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
   }
 });
 
-/* hook-v7 */
+
 window.addEventListener('DOMContentLoaded', ()=>{
   const seek = document.getElementById('seekBar');
   const vol  = document.getElementById('volumeBar');
@@ -1194,11 +1194,11 @@ window.addEventListener('DOMContentLoaded', ()=>{
   }
 });
 
-/* === v9.2: preview stability & no auto-advance on ended (minimal override) === */
+
 (function(){
   try{
     if (typeof AudioManager === "object" && AudioManager && typeof AudioManager.element === "function"){
-      // 安定再生版 play を上書き：canplay を待ってから再生
+      
       const _el = AudioManager.element();
       const originalPlay = AudioManager.play?.bind(AudioManager);
       AudioManager.play = async function(){
@@ -1217,7 +1217,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
         return el.play();
       };
 
-      // 再生終了時に勝手に次へ行くハンドラを抑止（キャプチャで先取り）
+      
       const guardEnded = () => {
         const el = AudioManager.element();
         if (!el) return;
@@ -1229,43 +1229,43 @@ window.addEventListener('DOMContentLoaded', ()=>{
         el.addEventListener("ended", handler, { capture: true });
       };
       guardEnded();
-      // src 変更などで要素が差し替わる可能性があるため、短い間隔で数回だけ再アタッチ
+      
       setTimeout(guardEnded, 200);
       setTimeout(guardEnded, 800);
     }
   }catch(e){ console.warn("v9.2 override error", e); }
 })();
 
-//======================= playback-hotfix-v10 (minimal, isolated) =======================
+
 
 (function(){
   try{
     var AM = (typeof window !== "undefined") ? window.AudioManager : null;
     if (!AM || typeof AM.element !== "function") return;
 
-    // ---- 単一 <audio> の徹底 ----
+    
     var el = AM.element();
     if (!el) return;
     Array.prototype.forEach.call(document.querySelectorAll("audio"), function(a){
       if (a !== el){ try{ a.pause(); }catch(e){} }
     });
 
-    // ---- トークン化 ----
+    
     if (typeof AM._playToken !== "number") AM._playToken = 0;
 
-    // load() を薄くラップ
+    
     var _load = (typeof AM.load === "function") ? AM.load.bind(AM) : null;
     AM.load = function(url){
       var audio = AM.element();
       var my = (++AM._playToken);
       try{ audio.pause(); audio.currentTime = 0; }catch(e){}
-      // /preview プロキシ経由で読み込み
+      
       audio.src = "/preview?url=" + encodeURIComponent(url||"");
       try{ audio.load(); }catch(e){}
       audio._playTokenSnapshot = my;
     };
 
-    // play() は canplay 待機 + token 照合
+    
     var _play = (typeof AM.play === "function") ? AM.play.bind(AM) : null;
     AM.play = async function(){
       var audio = AM.element();
@@ -1280,12 +1280,12 @@ window.addEventListener('DOMContentLoaded', ()=>{
           audio.addEventListener("canplay", oncp, { once:true });
         });
       }
-      // 直近の load が自分のものか
+      
       if (audio._playTokenSnapshot !== AM._playToken) return;
       try{ return await audio.play(); }catch(e){ console.warn("playback-hotfix-v10: play failed", e); }
     };
 
-    // ---- ended の自動送りを強制ブロック ----
+    
     function attachEndedGuard(){
       var a = AM.element(); if (!a) return;
       var handler = function(ev){
@@ -1305,9 +1305,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
     console.warn("playback-hotfix-v10 error", e);
   }
 })();
-/* ===================== /playback-hotfix-v10 ===================== */
 
-/* ===================== mobile-playback-carousel-stabilizer-v11 ===================== */
+
+
 (function(){
   const onReady = (fn) => {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once:true });
@@ -1703,4 +1703,118 @@ window.addEventListener('DOMContentLoaded', ()=>{
     window.setupPlayerControls?.();
   });
 })();
-/* ===================== /mobile-playback-carousel-stabilizer-v11 ===================== */
+
+
+
+(function(){
+  function onReady(fn){
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once:true });
+    else fn();
+  }
+  function setPlayButtonState(isPlaying){
+    var btn = document.getElementById('playPauseBtn');
+    if (btn) btn.textContent = isPlaying ? '⏸' : '▶';
+  }
+  function installMobileCarousel(){
+    var oldWrap = document.getElementById('resultsCarousel');
+    if (!oldWrap) return;
+    var newWrap = oldWrap.cloneNode(true);
+    newWrap.dataset.v12 = '1';
+    oldWrap.parentNode.replaceChild(newWrap, oldWrap);
+    var wrap = newWrap;
+    var track = document.getElementById('carouselTrack');
+    if (!track) return;
+
+    wrap.style.scrollSnapType = 'none';
+    wrap.style.webkitOverflowScrolling = 'touch';
+    wrap.style.overflowX = 'auto';
+    wrap.style.touchAction = 'pan-x';
+
+    var rafId = 0;
+    function cards(){ return Array.from(track.querySelectorAll('.result-card')); }
+    function update3D(){
+      rafId = 0;
+      var rect = wrap.getBoundingClientRect();
+      var center = rect.left + rect.width / 2;
+      cards().forEach(function(card){
+        var r = card.getBoundingClientRect();
+        var mid = r.left + r.width / 2;
+        var dx = (mid - center) / Math.max(rect.width, 1);
+        var dist = Math.abs(dx);
+        var scale = 0.84 + Math.max(0, 0.18 * (1 - Math.min(1, dist * 2.2)));
+        var ry = -10 * dx;
+        card.style.setProperty('--scale', scale.toFixed(3));
+        card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+      });
+    }
+    function request3D(){
+      if (rafId) return;
+      rafId = requestAnimationFrame(update3D);
+    }
+
+    cards().forEach(function(card){
+      var idx = Number(card.dataset.index || '-1');
+      card.onclick = function(){
+        if (idx >= 0 && typeof window.selectCarouselIndex === 'function') window.selectCarouselIndex(idx, true, { skipScroll:false });
+      };
+    });
+
+    wrap.addEventListener('scroll', request3D, { passive:true });
+    window.addEventListener('resize', function(){
+      if (typeof window.buildEdgeSpacers === 'function') window.buildEdgeSpacers();
+      request3D();
+    });
+    wrap._request3D = request3D;
+    if (typeof window.buildEdgeSpacers === 'function') window.buildEdgeSpacers();
+    requestAnimationFrame(function(){ request3D(); });
+  }
+  function patchScrollHelpers(){
+    window.scrollToIndex = function(i){
+      var wrap = document.getElementById('resultsCarousel');
+      var track = document.getElementById('carouselTrack');
+      var card = track && track.querySelector('.result-card[data-index="' + i + '"]');
+      if (!wrap || !track || !card) return;
+      var left = card.offsetLeft - (wrap.clientWidth / 2 - card.clientWidth / 2);
+      wrap.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+    };
+    window.snapToNearest = function(){};
+  }
+  function patchRenderCarousel(){
+    var original = window.renderCarousel;
+    if (typeof original !== 'function') return;
+    window.renderCarousel = function(list){
+      var result = original(list);
+      requestAnimationFrame(function(){ installMobileCarousel(); });
+      return result;
+    };
+  }
+  function patchSelection(){
+    var original = window.selectCarouselIndex;
+    if (typeof original !== 'function') return;
+    window.selectCarouselIndex = function(i, autoPlay, opts){
+      var result = original(i, autoPlay, opts);
+      var track = document.getElementById('carouselTrack');
+      if (track) {
+        Array.from(track.querySelectorAll('.result-card')).forEach(function(card, index){
+          card.classList.toggle('selected', index === i);
+        });
+      }
+      return result;
+    };
+  }
+  function patchPlayback(){
+    var AM = window.AudioManager;
+    if (!AM) return;
+    var audio = AM.element && AM.element();
+    if (!audio) return;
+    audio.onended = function(){ setPlayButtonState(false); };
+    audio.onerror = function(){ setPlayButtonState(false); };
+  }
+  onReady(function(){
+    patchScrollHelpers();
+    patchSelection();
+    patchRenderCarousel();
+    patchPlayback();
+    installMobileCarousel();
+  });
+})();

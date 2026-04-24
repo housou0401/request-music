@@ -1,4 +1,4 @@
-    // ------- 管理者ボタン（権限があれば即 /admin） -------
+    
     async function goAdmin() {
       try {
         const me = await fetch('/me').then(r=>r.json());
@@ -12,7 +12,7 @@
       }
     }
 
-    // ------- 設定反映（メンテ/募集） -------
+    
     async function applySettingsToUI() {
       try {
         const data = await (await fetch("/settings")).json();
@@ -49,7 +49,7 @@
       }
     }
 
-    // ------- ユーザ/トークン -------
+    
     async function fetchMe() {
       try { const r = await fetch('/me'); return await r.json(); }
       catch { return { loggedIn:false }; }
@@ -57,7 +57,7 @@
 
 
 
-// ---- Penalty UI (Warning / Timed Ban / Permanent Ban) ----
+
 function _ovShow(id){ const el=document.getElementById(id); if(el){ el.classList.add('show'); el.setAttribute('aria-hidden','false'); } }
 function _ovHide(id){ const el=document.getElementById(id); if(el){ el.classList.remove('show'); el.setAttribute('aria-hidden','true'); } }
 function _setText(id, txt){ const el=document.getElementById(id); if(el) el.textContent = (txt==null? '' : String(txt)); }
@@ -76,7 +76,7 @@ function _disableMainForm(disabled){
 function applyPenaltyUI(me){
   try{
     const pen = me && me.penalty ? me.penalty : null;
-    // 管理者が「なりすまし」で閲覧している場合は UI 停止を出さない
+    
     if (me.adminSession && me.impersonating){ _ovHide('warningOverlay'); _ovHide('banOverlay'); _disableMainForm(false); return; }
     if (!me || !me.loggedIn || !pen){
       _ovHide('warningOverlay'); _ovHide('banOverlay');
@@ -84,7 +84,7 @@ function applyPenaltyUI(me){
       return;
     }
 
-    // ban
+    
     if (pen.banned){
       const until = pen.permanentBan ? '永久停止' : (pen.banUntil ? ('解除予定: ' + new Date(pen.banUntil).toLocaleString('ja-JP', { timeZone:'Asia/Tokyo' })) : '');
       _setText('banUntilText', until);
@@ -98,7 +98,7 @@ function applyPenaltyUI(me){
       _disableMainForm(false);
     }
 
-    // warning
+    
     if (pen.warningPending){
       _setText('warningText', pen.warningMessage || '運営から注意があります。');
       _ovShow('warningOverlay');
@@ -110,7 +110,7 @@ function applyPenaltyUI(me){
   }
 }
 
-// warning ack
+
 async function ackWarningAndClose(){
   try{ await fetch('/penalty/warning-ack', { method:'POST' }); }catch{}
   _ovHide('warningOverlay');
@@ -122,9 +122,9 @@ document.addEventListener('click', (e)=>{
   if (t.id === 'warningCloseX') { ackWarningAndClose(); }
   if (t.id === 'banOkBtn' || t.id === 'banCloseX') { _ovHide('banOverlay'); }
 });
-// ---- リクエスト送信用 利用規約 ----
-let __reqTermsCache = null; // {termsText, termsVersion}
-let __reqTermsPending = null; // { type:'register'|'submit', payload:{} }
+
+let __reqTermsCache = null; 
+let __reqTermsPending = null; 
 
 async function fetchRequestTerms() {
   try {
@@ -187,7 +187,7 @@ async function acceptReqTermsAndContinue() {
       __reqTermsPending = null;
       try { sessionStorage.removeItem('reqTermsDismissedVersion'); } catch {}
 
-      // 同意したので再送（submit時のみ）
+      
       const f = pending.payload && pending.payload.form;
       if (f && typeof f.requestSubmit === 'function') {
         window.__reqTermsBypassOnce = true;
@@ -202,7 +202,7 @@ async function acceptReqTermsAndContinue() {
 
 
 
-// リクエスト送信用 利用規約: バージョン更新時は全ユーザーに表示（admin / site_admin は除外）
+
 async function maybeShowUpdatedRequestTerms(me){
   try{
     if (!me || !me.loggedIn) return;
@@ -257,12 +257,12 @@ async function maybeShowUpdatedRequestTerms(me){
       await maybeShowUpdatedRequestTerms(me);
     }
 
-    // BFCache(戻る/進む) で復帰したときにも管理者表示を復元
+    
     window.addEventListener('pageshow', (e) => {
       if (e && e.persisted) ensureRegistered();
     });
 
-// ------- 管理者パス残回数表示 -------
+
     async function refreshAdminTryInfo() {
       try {
         const r = await fetch('/auth/status');
@@ -278,7 +278,7 @@ async function maybeShowUpdatedRequestTerms(me){
       }
     }
 
-    // ------- 登録（利用規約の同意が必須） -------
+    
 async function performRegister(username, adminPassword, requestTermsVersion) {
   try {
     const res = await fetch('/register', {
@@ -306,7 +306,7 @@ ${nameForAlert} さんようこそ！`);
     }
 
     if (data.reason === 'request_terms_required') {
-      // 管理画面でバージョンが更新された等
+      
       await ensureReqTermsLoaded(true);
       alert('利用規約が更新されています。再度ご確認のうえ同意してください。');
       await openReqTermsModal('register', { username, adminPassword });
@@ -367,11 +367,11 @@ async function registerNow() {
   if (username.length < 2) { alert('ユーザー名は2文字以上で入力してください。'); uiName && uiName.focus(); return; }
   const adminPassword = (uiPass?.value ?? '').trim();
 
-  // 利用規約の同意モーダルへ
+  
   await openReqTermsModal('register', { username, adminPassword: adminPassword || undefined });
 }
 
-    // ------- 旧UIで新エンジンを使う：バインド処理 -------
+    
     const audioEl = document.getElementById('amPreviewAudio');
     let lastVolume = 0.8; audioEl.volume = lastVolume;
 
@@ -379,7 +379,7 @@ async function registerNow() {
       return `/preview?url=${encodeURIComponent(url)}`;
     }
 
-    // 曲選択後に hidden からプレビューURLを取り出して audio に設定
+    
     function setLegacyPreviewFromHidden() {
       const pv = document.getElementById('previewUrlHidden')?.value?.trim();
       if (!pv) { audioEl.pause(); audioEl.removeAttribute('src'); return; }
@@ -390,17 +390,17 @@ async function registerNow() {
       }
     }
 
-    // 旧UIの再生ボタン＆音量スライダーを検出してバインド
+    
     function wireLegacyPlayerControls() {
       const host = document.getElementById('selectedSong') || document.getElementById('selectedLabel') || document;
       if (!host) return;
 
-      // 再生ボタン候補（文字が「再生」を含む、または▶系、またはそれっぽいクラス）
+      
       const playBtn =
         host.querySelector('button.play, button.play-btn, button#playButton, button[title*="再生"], button[aria-label*="再生"], button') ||
         null;
 
-      // 音量スライダー候補（rangeで 0〜1 / step 0.01 っぽいものを優先）
+      
       let vol = null;
       const ranges = host.querySelectorAll('input[type="range"]');
       for (const r of ranges) {
@@ -410,7 +410,7 @@ async function registerNow() {
       }
       if (!vol && ranges.length === 1) vol = ranges[0];
 
-      // --- イベントを一旦解除してから再バインド（同じDOMに何度も付くのを防止）
+      
       if (playBtn) {
         playBtn._bound && playBtn.removeEventListener('click', playBtn._bound);
         playBtn._bound = () => {
@@ -428,15 +428,15 @@ async function registerNow() {
           if (!Number.isNaN(v)) { lastVolume = Math.min(1, Math.max(0, v)); audioEl.volume = lastVolume; }
         };
         vol.addEventListener('input', vol._bound);
-        // 初期反映
+        
         try { if (typeof vol.value !== 'undefined') vol.value = lastVolume; } catch {}
       }
 
-      // 再生状態に応じてボタン表示を軽くトグル（デザインを壊さないよう最小限）
+      
       function syncBtnUI(playing) {
         if (!playBtn) return;
         playBtn.dataset.playing = playing ? '1' : '0';
-        // 文字が「再生」「一時停止」の場合だけトグル（アイコン系は触らない）
+        
         const txt = (playBtn.textContent || '').trim();
         if (txt === '再生' && playing) playBtn.textContent = '一時停止';
         else if (txt === '一時停止' && !playing) playBtn.textContent = '再生';
@@ -446,7 +446,7 @@ async function registerNow() {
       audioEl.onended = () => syncBtnUI(false);
     }
 
-    // `skript.js` 側の選択関数にフックして、曲選択のたびにURLをセット＆UI再バインド
+    
     function tryHookSelection(fnName) {
       if (typeof window[fnName] === 'function') {
         const orig = window[fnName];
@@ -461,7 +461,7 @@ async function registerNow() {
       }
     }
 
-    // `#selectedSong` が差し替わるたびに再バインド
+    
     function observeSelectedSong() {
       const tgt = document.getElementById('selectedSong') || document.body;
       const mo = new MutationObserver(() => {
@@ -471,9 +471,9 @@ async function registerNow() {
       mo.observe(tgt, { childList: true, subtree: true });
     }
 
-    // ------- 検索の並び替え（クッキー保存 → サーバ側でソート適用） -------
+    
     function setSearchSortCookie(val) {
-      const maxAge = 60*60*24*180; // 180日
+      const maxAge = 60*60*24*180; 
       document.cookie = `searchSort=${encodeURIComponent(val)}; path=/; max-age=${maxAge}`;
     }
 
@@ -490,13 +490,13 @@ async function registerNow() {
 
         function nextRefillEpoch() {
           const now = new Date();
-          // JST(+9) only (Asia/Tokyo; no DST)
+          
           const jstNow = new Date(now.getTime() + 9*60*60*1000);
           let y = jstNow.getUTCFullYear();
           let m = jstNow.getUTCMonth() + 1;
           const last = new Date(y, m, 0).getDate();
           const d = Math.min(day, last);
-          function build(y,m){ return Date.UTC(y, m-1, d, hour-9, minute, 0); } // UTC epoch
+          function build(y,m){ return Date.UTC(y, m-1, d, hour-9, minute, 0); } 
           let target = build(y, m);
           if (now.getTime() >= target) {
             if (m === 12) { y += 1; m = 1; } else { m += 1; }
@@ -536,7 +536,7 @@ async function registerNow() {
       startRefillCountdown();
       refreshAdminTryInfo();
 
-// リクエスト送信用 利用規約: ボタン配線
+
 document.getElementById('reqTermsOpenBtn')?.addEventListener('click', async () => {
   const rt = await ensureReqTermsLoaded();
   const box = document.getElementById('reqTermsText');
@@ -558,7 +558,7 @@ document.getElementById('reqTermsViewCloseX')?.addEventListener('click', hideReq
 document.getElementById('reqTermsAgreeBtn')?.addEventListener('click', acceptReqTermsAndContinue);
 document.getElementById('reqTermsViewAgreeBtn')?.addEventListener('click', acceptReqTermsAndContinue);
 
-// 送信時も利用規約同意チェック（バージョン更新時の再同意含む）
+
 const reqForm = document.getElementById('requestForm');
 if (reqForm) {
   reqForm.addEventListener('submit', async (ev) => {
@@ -574,10 +574,10 @@ if (reqForm) {
       ev.preventDefault();
       await openReqTermsModal('submit', { form: reqForm });
     }
-  }, true); // capture
+  }, true); 
 }
 
-      // ソート選択の初期化
+      
       const sel = document.getElementById('searchSort');
       if (sel) {
         const m = document.cookie.match(/(?:^|;\s*)searchSort=([^;]+)/);
@@ -588,17 +588,17 @@ if (reqForm) {
         });
       }
 
-      // 送信後はトークン表示を更新
+      
       document.getElementById('requestForm')?.addEventListener('submit', () => {
         setTimeout(async () => { updateTokenInfo(await fetchMe()); }, 900);
       });
 
-      // 登録
+      
       document.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'registerBtn') registerNow();
       });
 
-      // 旧UI用フック
+      
       ["selectSong","chooseSong","onSongSelect","applySelection","selectArtist","onPick"].forEach(tryHookSelection);
       observeSelectedSong();
       setLegacyPreviewFromHidden();
