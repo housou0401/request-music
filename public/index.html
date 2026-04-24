@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="index.inline.css"/>
   <script src="skript.js" defer></script>
-
 </head>
 
 <body>
@@ -16,10 +15,8 @@
 
   <a id="supportLink" class="mypage-link support-link ux-hidden" href="/support"><span>💬 サポート・要望</span></a>
 <a id="theme-link" class="mypage-link theme-link" href="/theme" style="display:none;"><span>🎧 テーマ投票</span></a>
-
-  <button id="adminBtn" class="admin-button ux-hidden" onclick="goAdmin()">管理者用</button>
-
-  <div class="container" id="mainContainer">
+<button id="adminBtn" class="admin-button ux-hidden" onclick="goAdmin()">管理者用</button>
+<div class="container" id="mainContainer">
     <h1 id="frontendTitle" style="margin-bottom:10px;">♬曲をリクエストする</h1>
     <div id="themeBanner" class="theme-banner" style="display:none;">
       <div class="theme-banner-head">
@@ -32,8 +29,7 @@
         <span class="theme-banner-note">イベント期間中のリクエストは「テーマ応募」として集計されます</span>
       </div>
     </div>
-
-    <div id="modeToggle" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+<div id="modeToggle" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
       <div>
         <button id="modeSong" onclick="setSearchMode('song');" style="margin-right:5px;">曲名(アーティスト)で検索</button>
         <button id="modeArtist" onclick="setSearchMode('artist');">アーティストから検索</button>
@@ -49,8 +45,7 @@
         </select>
       </label>
     </div>
-
-    <form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
+<form id="requestForm" action="/submit" method="post" onsubmit="handleSubmit(event)">
       <div class="input-container">
         <input type="text" id="songName" name="response" placeholder="曲名を入力してください" oninput="searchSongs()">
         <button type="button" class="input-clear-btn" onclick="clearInput('songName')">×</button>
@@ -69,12 +64,10 @@
       </div>
 
       <div id="suggestions"></div>
-
-      <div id="resultsCarousel" class="carousel-wrap ux-hidden" aria-label="検索結果">
+<div id="resultsCarousel" class="carousel-wrap ux-hidden" aria-label="検索結果">
         <div class="carousel-track" id="carouselTrack"></div>
       </div>
-
-      <div id="playerControls" class="player-controls ux-hidden">
+<div id="playerControls" class="player-controls ux-hidden">
         <div class="player-top">
           <button type="button" id="playPauseBtn" aria-label="再生/一時停止" class="noselect">▶</button>
           <input type="range" id="seekBar" min="0" max="1000" step="1" value="0" aria-label="シークバー" class="noselect">
@@ -89,20 +82,17 @@
       <div id="selectedArtist"></div>
       <div id="selectedLabel"></div>
       <div id="selectedSong"></div>
-
-      <input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
+<input type="hidden" id="appleMusicUrlHidden" name="appleMusicUrl">
       <input type="hidden" id="artworkUrlHidden" name="artworkUrl">
       <input type="hidden" id="previewUrlHidden" name="previewUrl">
 
       <button id="submitButton" type="submit">送信</button>
       <div id="token-info">-</div>
       <div id="token-countdown" class="muted" style="font-size:12px;margin-top:2px;"></div>
-
-      <div id="stopCardHost"></div>
+<div id="stopCardHost"></div>
     </form>
   </div>
-
-  <div class="ux-overlay" id="welcomeOverlay" aria-hidden="true">
+<div class="ux-overlay" id="welcomeOverlay" aria-hidden="true">
     <div class="ux-modal">
       <h3 style="margin:0 0 6px;">ようこそ！</h3>
       <p style="margin:0 0 8px;">ユーザー名を入力して初回登録してください（2文字以上 / 端末ごとに1アカウント）。</p>
@@ -116,7 +106,6 @@
     </div>
 
 </div>
-
 <div class="terms-ov" id="reqTermsOverlay" aria-hidden="true">
   <div class="terms-modal" role="dialog" aria-modal="true">
     <div class="terms-h">
@@ -136,7 +125,6 @@
     </div>
   </div>
 </div>
-
 <div class="terms-view" id="reqTermsView" aria-hidden="true">
   <div class="terms-card">
     <div class="head">
@@ -150,7 +138,6 @@
     </div>
   </div>
 </div>
-
 <div class="terms-ov" id="warningOverlay" aria-hidden="true">
   <div class="terms-modal" role="dialog" aria-modal="true">
     <div class="terms-h">
@@ -166,7 +153,6 @@
     </div>
   </div>
 </div>
-
 <div class="terms-ov" id="banOverlay" aria-hidden="true">
   <div class="terms-modal" role="dialog" aria-modal="true">
     <div class="terms-h">
@@ -182,18 +168,17 @@
     </div>
   </div>
 </div>
-
-  <div class="ux-maint-overlay" id="maintenanceOverlay">
+<div class="ux-maint-overlay" id="maintenanceOverlay">
     <div class="ux-maint-box">
       <h2>現在メンテナンス中です</h2>
       <p>しばらくお待ちください。</p>
     </div>
   </div>
-
-  <audio id="amPreviewAudio" preload="none" style="display:none;"></audio>
+<audio id="amPreviewAudio" preload="none" style="display:none;"></audio>
 <audio id="previewAudio" preload="none" style="display:none;" crossorigin="anonymous"></audio>
+<script src="index.inline.js" defer></script>
 
-    <script src="index.inline.js" defer></script>
+
 
   <footer class="copyright-notice">Copyright © 2025 Reito Asada. All Rights Reserved.</footer>
 </body>
