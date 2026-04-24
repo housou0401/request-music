@@ -1485,6 +1485,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "hVoSunYDfJjBd7GK",
+      "username": "てすとまん",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/147.0.7727.99 Mobile/15E148 Safari/604.1",
+        "ip": "153.246.130.182"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-04",
+      "lastRefillAtISO": "2026-04-24T14:33:07.634Z",
+      "registeredAt": "2026-04-24T14:33:07.634Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
