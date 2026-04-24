@@ -26,6 +26,7 @@ h1 {
   margin-bottom: 10px;
 }
 
+/* 入力欄コンテナ */
 .input-container {
   position: relative;
   margin-bottom: 10px;
@@ -120,6 +121,7 @@ button:hover {
   margin-right: 10px;
 }
 
+/* --- Artist search: artist list (list view) --- */
 .artist-list{display:flex;flex-direction:column;gap:6px;}
 .artist-row{
   display:flex;align-items:center;gap:10px;
@@ -193,6 +195,7 @@ button:hover {
   margin-right: 10px;
 }
 
+/* 統合された再生・音量ボタン */
 .control-btn {
   width: 40px;
   height: 40px;
@@ -215,6 +218,7 @@ button:hover {
   fill: #888;
 }
 
+/* Apple Music風の音量スライダー */
 .volume-slider {
   -webkit-appearance: none;
   appearance: none;
@@ -243,6 +247,7 @@ button:hover {
   cursor: pointer;
 }
 
+/* 検索モード切替ボタン */
 #modeSong, #modeArtist {
   flex: 1;
   font-size: 14px;
@@ -259,6 +264,7 @@ button:hover {
   background-color: #e0e0e0;
 }
 
+/* 再検索ボタン */
 #reSearchSongMode, #reSearchArtistMode {
   margin: 10px 0;
   display: block;
@@ -306,6 +312,7 @@ button:hover {
   color: #555;
 }
 
+/* ロード中UI */
 #loadingIndicator {
   display: none;
   position: absolute;
@@ -347,6 +354,8 @@ button:hover {
   }
 }
 
+
+/* === 横スクロールのカード型結果（最大5枚表示） === */
 .carousel-wrap { 
   margin: 10px 0 12px;
   overflow-x: auto;
@@ -367,7 +376,7 @@ button:hover {
 
 .result-card {
   flex: 0 0 auto;
-  width: clamp(140px, 18vw, 220px); 
+  width: clamp(140px, 18vw, 220px); /* 5枚程度見える幅 */
   scroll-snap-align: center;
   background: #fff;
   border: 1px solid rgba(0,0,0,.08);
@@ -406,6 +415,7 @@ button:hover {
   color: #555;
 }
 
+/* === 再生UI === */
 .player-controls {
   margin: 8px 0 0;
   padding: 10px 12px;
@@ -453,16 +463,20 @@ button:hover {
   color: #555;
 }
 
+/* 3Dカードの動き（JSで CSS var を設定） */
 .result-card {
   transform: perspective(1000px) rotateY(var(--ry, 0deg)) scale(var(--scale, 1));
 }
 
+
+/* --- Adjust carousel to avoid frame-out within narrow containers --- */
 .carousel-wrap {
   width: 100%;
   max-width: 100%;
   padding-inline: 8px;
 }
 
+/* Apple Music-ish controls */
 .player-controls {
   border-radius: 14px;
   background: #fbfbfd;
@@ -478,6 +492,7 @@ button:hover {
 }
 #playPauseBtn:hover, #volumeBtn:hover { background: #f2f2f7; }
 
+/* Sliders: thin, rounded */
 #seekBar, .volume-slider {
   height: 4px;
   background: #d2d2d7;
@@ -489,9 +504,12 @@ button:hover {
   background: #1d1d1f;
 }
 
+/* Snap polish */
 .carousel-wrap { scroll-snap-type: x mandatory; }
 .result-card { scroll-snap-align: center; }
 
+
+/* === Carousel viewport: taller, centered (上下左右中央) === */
 .carousel-wrap{
   display: grid;
   place-items: center;
@@ -511,6 +529,7 @@ button:hover {
   min-height: 100%;
 }
 
+/* === Cards: 正方形重視／背景ベタ塗り廃止／ジャケット尊重 === */
 .result-card{
   flex: 0 0 auto;
   width: clamp(84px, 16vw, 128px);
@@ -549,9 +568,11 @@ button:hover {
   color: #666;
 }
 
+/* 3D/スケール：中央(選択)をやや大、左右は少し小さく */
 .result-card{ transform: perspective(1000px) rotateY(var(--ry, 0deg)) scale(var(--scale, .86)); }
 .result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.02); }
 
+/* === Player: Apple Musicライク、上下それぞれ中央揃え === */
 .player-controls{
   background: transparent;
   border: none;
@@ -594,19 +615,21 @@ button:hover {
   .result-card{ width: clamp(72px, 18vw, 108px); }
 }
 
+
+/* === Carousel viewport: taller & fully centered === */
 .carousel-wrap{
   display:grid;
   place-items:center;
-  height: clamp(320px, 50vh, 560px); 
+  height: clamp(320px, 50vh, 560px); /* 縦幅をしっかり確保 */
   padding: 8px 8px 16px;
   overflow-x:auto;
   overflow-y:hidden;
   -webkit-overflow-scrolling:touch;
   perspective:1000px;
-  scrollbar-width:none;          
-  -ms-overflow-style:none;       
+  scrollbar-width:none;          /* Firefox: スクロールバー非表示 */
+  -ms-overflow-style:none;       /* IE/Edge旧: 非表示 */
 }
-.carousel-wrap::-webkit-scrollbar{ display:none; } 
+.carousel-wrap::-webkit-scrollbar{ display:none; } /* WebKit: 非表示 */
 
 .carousel-track{
   display:flex;
@@ -618,6 +641,7 @@ button:hover {
 }
 .edge-spacer{ flex:0 0 auto; }
 
+/* --- Cards: 正方形重視・画像主役・約5枚表示 --- */
 .result-card{
   flex:0 0 auto;
   width: clamp(90px, 15vw, 128px);
@@ -642,17 +666,20 @@ button:hover {
   display:block;
   box-shadow:0 8px 22px rgba(0,0,0,.20);
 }
-
+/* タイトル・アーティスト中央寄せ控えめ */
 .result-card .title{ margin-top:6px; font-weight:700; font-size:13px; line-height:1.25; }
 .result-card .artist{ margin-top:2px; font-size:11px; color:#666; }
 
+/* 3D/スケーリング：中央(選択)は大きく、左右は小さめ */
 .result-card{ transform: perspective(1000px) rotateY(var(--ry,0deg)) scale(var(--scale,.80)); }
 .result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.12); }
 .result-card.selected img.cover{ outline:3px solid rgba(255,255,255,.9); outline-offset:-2px; }
 
+/* === Player: Apple Music風（中央揃え、同長さ） === */
 .player-controls{ background:transparent; border:none; box-shadow:none; padding: 10px 0 4px; }
 .player-top, .player-bottom{ display:flex; align-items:center; justify-content:center; gap:12px; }
 
+/* プレイ＆ボリュームアイコン：塗りつぶし廃止／同サイズ */
 #playPauseBtn, #volumeBtn{
   width:44px; height:44px;
   border:none; background:transparent; cursor:pointer;
@@ -660,10 +687,11 @@ button:hover {
   font-size:20px; line-height:1;
 }
 
+/* シーク・音量バー：同じ長さ・少し太く・サム非表示 */
 #seekBar, #volumeBar{
   -webkit-appearance:none; appearance:none;
   width: min(520px, 86%);
-  height: 6px; 
+  height: 6px; /* ほんの少し太く */
   background:#d2d2d7;
   border-radius:999px;
   outline:none;
@@ -671,6 +699,7 @@ button:hover {
 }
 #seekBar.active, #volumeBar.active{ transform: scaleY(1.15); }
 
+/* つまみは視覚的に削除（可視0） */
 #seekBar::-webkit-slider-thumb, #volumeBar::-webkit-slider-thumb{
   -webkit-appearance:none; appearance:none;
   width:0; height:0; background:transparent; border:none;
@@ -681,28 +710,33 @@ button:hover {
 
 .time-label{ min-width:96px; text-align:right; font-size:12px; color:#555; }
 
+
+/* === Override: Carousel height a bit smaller & center === */
 .carousel-wrap{
   display:grid;
   place-items:center;
   height: clamp(260px, 46vh, 520px);
 }
 
+/* === Cards emphasis & selection ring === */
 .result-card{ transform: perspective(1000px) rotateY(var(--ry,0deg)) scale(var(--scale,.78)); }
 .result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.18); }
-.result-card.selected img.cover{ outline:3px solid rgba(255,255,255,.95); outline-offset:-2px; } 
+.result-card.selected img.cover{ outline:3px solid rgba(255,255,255,.95); outline-offset:-2px; } /* 正方形の輪郭 */
 
+/* === Player buttons: gray & clearer, no filled circle === */
 #playPauseBtn, #volumeBtn{
   width:44px; height:44px;
   background: transparent !important;
   border: none !important;
-  color: #4b5563;   
+  color: #4b5563;   /* 灰色で視認性を確保 */
   font-size: 22px;
 }
 
+/* === Unified bars (seek & volume): same length, thicker a bit, no thumb === */
 #seekBar, #volumeBar{
   -webkit-appearance: none; appearance: none;
   width: min(520px, 86%);
-  height: 6px; 
+  height: 6px; /* 少し太く */
   border-radius: 999px;
   outline: none;
   background: linear-gradient(to right, #6b7280 0%, #6b7280 var(--prog, 0%), #d2d2d7 var(--prog, 0%), #d2d2d7 100%);
@@ -712,8 +746,13 @@ button:hover {
 #seekBar::-webkit-slider-thumb, #volumeBar::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:0; height:0; background:transparent; border:none; }
 #seekBar::-moz-range-thumb,   #volumeBar::-moz-range-thumb{ width:0; height:0; background:transparent; border:none; }
 
+/* Align player rows to center and same width ends */
 .player-top, .player-bottom{ justify-content:center; }
 
+
+/* === Final overrides (v6) === */
+
+/* Carousel: smaller height suitable for current card size; container-centered; snap enabled */
 .carousel-wrap{
   display:grid;
   place-items:center;
@@ -722,6 +761,7 @@ button:hover {
 }
 .carousel-track{ align-items:center; }
 
+/* Cards: slightly larger than before but fit ≈5, image-respecting */
 .result-card{
   width: clamp(105px, 20vw, 150px);
   background: transparent !important;
@@ -738,14 +778,16 @@ button:hover {
 .result-card.selected{ transform: perspective(1000px) rotateY(0deg) scale(1.22); }
 .result-card.selected img.cover{ outline-color: rgba(255,255,255,.95); }
 
+/* Player icons: gray glyph, no fill */
 #playPauseBtn, #volumeBtn{
   background: transparent !important;
   border: none !important;
-  color: #4b5563 !important; 
+  color: #4b5563 !important; /* gray glyph */
   width: 44px; height: 44px;
   font-size: 22px;
 }
 
+/* Bars: same length & aligned; darker progress; draggable anywhere; 0.05s hold visual */
 #seekBar, #volumeBar{
   -webkit-appearance: none; appearance: none;
   display: block;
@@ -763,11 +805,14 @@ button:hover {
 
 .player-top, .player-bottom{ justify-content: center; }
 
+/* Mobile fine-tune */
 @media (max-width: 480px){
   .carousel-wrap{ height: clamp(200px, 42vh, 340px); }
   .result-card{ width: clamp(100px, 22vw, 140px); }
 }
 
+
+/* === Swipe polish & sizing from card size (v7) === */
 .carousel-wrap{
   --card: clamp(92px, 18vw, 132px);
   display:grid;
@@ -825,6 +870,8 @@ button:hover {
 .player-top, .player-bottom{ justify-content:center; }
 .carousel-wrap{ place-items:center; }
 
+
+/* === v9: vertical centering, selected-based height, player position tweak === */
 .carousel-wrap{
   --card: clamp(90px, 16vw, 130px);
   --sel: 1.30;
@@ -868,32 +915,37 @@ button:hover {
   .carousel-wrap{ --card: clamp(100px, 14vw, 144px); height: calc(var(--card) * var(--sel) + 90px); }
 }
 
+/* player a bit higher */
 .player-controls{ margin-top: 8px !important; }
 
+/* === v9.1: ensure each .result-card is vertically centered in the carousel viewport === */
 .carousel-wrap{
   display: grid;
   place-items: center;
 }
 .carousel-track{
   display: flex;
-  align-items: center !important; 
+  align-items: center !important; /* vertically center cards along cross-axis */
   height: 100%;
   min-height: 100%;
 }
 .result-card{
-  align-self: center; 
+  align-self: center; /* explicit per-card vertical centering within the track */
 }
 
+/* === v9.2 selected scale tweak & stronger vertical centering === */
 .carousel-wrap .result-card.selected{
-  transform: perspective(1000px) rotateY(0deg) scale(1.24) !important; 
+  transform: perspective(1000px) rotateY(0deg) scale(1.24) !important; /* 以前よりほんの少しだけ小さく */
 }
 .carousel-track{
-  align-items: center !important; 
+  align-items: center !important; /* 各カードがトラック内で上下中央 */
 }
 .result-card{
-  align-self: center; 
+  align-self: center; /* 念のためカード個別でも上下中央 */
 }
 
+
+/* --- Theme banner (main page) --- */
 .theme-banner{
   margin: 10px 0 14px;
   padding: 12px 14px;
@@ -919,6 +971,7 @@ button:hover {
 }
 .theme-banner-note{opacity:.75;font-size:12px;}
 
+/* --- Artist list (artist mode phase 0) --- */
 .artist-list{display:flex;flex-direction:column;gap:8px;}
 .artist-list-item{
   display:flex;
@@ -936,11 +989,14 @@ button:hover {
 .artist-list-item .name{font-weight:800;}
 .artist-list-item .sub{opacity:.75;font-size:12px;margin-top:2px;}
 
+/* artist-list readability override */
 .artist-row{ color:#111; }
 .artist-name{ color:#111; }
 .artist-hint{ color:#333; }
 .artist-go{ color:#666; }
 
+
+/* Copyright notice */
 .copyright-notice {
   position: fixed;
   right: 12px;
@@ -959,172 +1015,4 @@ button:hover {
     font-size: 10px;
     padding: 3px 6px;
   }
-}
-
-.carousel-wrap {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  touch-action: pan-x;
-}
-.carousel-wrap.dragging {
-  cursor: grabbing;
-}
-.result-card {
-  will-change: transform;
-}
-
-#resultsCarousel {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  touch-action: pan-x;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-}
-#resultsCarousel::-webkit-scrollbar { display: none; }
-#carouselTrack {
-  will-change: transform;
-}
-.result-card {
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  transition: transform .18s ease-out, opacity .18s ease-out;
-}
-.result-card img.cover {
-  pointer-events: none;
-}
-#playerControls button {
-  touch-action: manipulation;
-}
-
-#resultsCarousel{scroll-snap-type:none !important;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;scrollbar-width:none;}
-#resultsCarousel::-webkit-scrollbar{display:none;}
-#carouselTrack{scroll-snap-type:none !important;}
-#carouselTrack .result-card{scroll-snap-align:none !important;}
-
-.result-card .title,
-.result-card .artist,
-.result-card.selected .title,
-.result-card.selected .artist {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.result-card .title,
-.result-card.selected .title {
-  color: #111111 !important;
-}
-.result-card .artist,
-.result-card.selected .artist {
-  color: #4b5563 !important;
-}
-.carousel-wrap {
-  scroll-snap-type: x proximity !important;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  overscroll-behavior-x: contain;
-}
-.carousel-track {
-  scroll-snap-type: unset !important;
-}
-.result-card {
-  scroll-snap-align: center;
-}
-@media (max-width: 600px) {
-  .carousel-wrap {
-    --card: clamp(100px, 26vw, 144px);
-    height: calc(var(--card) + 98px);
-    padding-inline: 12px;
-  }
-  .result-card {
-    width: var(--card) !important;
-  }
-  .result-card img.cover {
-    border-radius: 14px;
-  }
-}
-
-
-/* Carousel */
-.carousel-wrap{
-  --card: clamp(96px, 23vw, 124px) !important;
-  --sel: 1.30 !important;
-  --nsel: 0.76 !important;
-  height: calc(var(--card) * var(--sel) + 118px) !important;
-  padding: 14px 10px 24px !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  scroll-snap-type: x proximity !important;
-  -webkit-overflow-scrolling: touch !important;
-  touch-action: pan-x !important;
-  overscroll-behavior-x: contain !important;
-}
-.carousel-wrap::-webkit-scrollbar{ display:none !important; }
-.carousel-track{
-  gap: 14px !important;
-  align-items: center !important;
-  min-height: 100% !important;
-}
-.result-card,
-.result-card *{
-  -webkit-user-select: none !important;
-  user-select: none !important;
-}
-.result-card{
-  width: var(--card) !important;
-  padding: 12px 10px 16px !important;
-  pointer-events: none !important;
-  transform: perspective(1000px) rotateY(var(--ry, 0deg)) scale(var(--scale, .76)) !important;
-}
-.result-card.selected{
-  transform: perspective(1000px) rotateY(0deg) scale(var(--sel)) !important;
-  opacity: 1 !important;
-}
-.result-card img.cover{
-  width: 100% !important;
-  aspect-ratio: 1 / 1 !important;
-  border-radius: 14px !important;
-  box-shadow: 0 10px 24px rgba(0,0,0,.18) !important;
-}
-.result-card.selected img.cover{
-  box-shadow: 0 0 0 4px rgba(215, 240, 255, .98), 0 14px 30px rgba(0,0,0,.18) !important;
-}
-.result-card .title,
-.result-card .artist{
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-.result-card .title{
-  margin-top: 9px !important;
-  color: #111111 !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-}
-.result-card .artist{
-  margin-top: 4px !important;
-  color: #555555 !important;
-  font-size: 12px !important;
-}
-@media (max-width: 600px){
-  .carousel-wrap{
-    --card: clamp(92px, 24.5vw, 126px) !important;
-    height: calc(var(--card) * var(--sel) + 126px) !important;
-  }
-}
-
-/* Player */
-#seekBar,
-#volumeBar{
-  width: min(560px, 88%) !important;
-}
-.time-label{
-  min-width: 108px !important;
-  color: #4b5563 !important;
 }
