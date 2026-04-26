@@ -1507,6 +1507,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "LTl1Q08aDDQL-M2r",
+      "username": "EW",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23D8133 Instagram 426.0.0.36.74 (iPhone15,4; iOS 26_3_1; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 946530071) Safari/604.1",
+        "ip": "115.31.81.38"
+      },
+      "role": "user",
+      "tokens": 9,
+      "lastRefillISO": "2026-04",
+      "lastRefillAtISO": "2026-04-26T13:43:43.695Z",
+      "registeredAt": "2026-04-26T13:43:43.695Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
