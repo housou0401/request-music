@@ -2567,7 +2567,7 @@
     "frontendTitle": "♬曲をリクエストする",
     "adminPassword": "0401",
     "playerControlsEnabled": true,
-    "lastRefillRunISO": "2026-03-31T15:00:00.000Z",
+    "lastRefillRunISO": "2026-04-30T15:00:00.000Z",
     "maintenance": false,
     "duplicateCooldownMinutes": 1,
     "rateLimitPerMin": 5,
