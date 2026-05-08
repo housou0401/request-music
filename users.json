@@ -1487,28 +1487,6 @@
       "banReason": ""
     },
     {
-      "id": "hVoSunYDfJjBd7GK",
-      "username": "てすとまん",
-      "iconUrl": null,
-      "supportTermsAcceptedVersion": 0,
-      "requestTermsAcceptedVersion": 7,
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/147.0.7727.99 Mobile/15E148 Safari/604.1",
-        "ip": "153.246.130.182"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2026-04",
-      "lastRefillAtISO": "2026-04-24T14:33:07.634Z",
-      "registeredAt": "2026-04-24T14:33:07.634Z",
-      "warningCount": 0,
-      "warningSeenCount": 0,
-      "warningMessage": "",
-      "banUntil": null,
-      "permanentBan": false,
-      "banReason": ""
-    },
-    {
       "id": "LTl1Q08aDDQL-M2r",
       "username": "EW",
       "iconUrl": null,
@@ -1523,6 +1501,28 @@
       "lastRefillISO": "2026-05",
       "lastRefillAtISO": "2026-05-01T02:59:00.735Z",
       "registeredAt": "2026-04-26T13:43:43.695Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
+    },
+    {
+      "id": "8RwivZuiWMIp7W3d",
+      "username": "Test",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_4_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23E261 Instagram 428.2.0.37.66 (iPhone14,2; iOS 26_4_2; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 961927775) Safari/604.1",
+        "ip": "153.246.130.182"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-05",
+      "lastRefillAtISO": "2026-05-08T12:15:01.361Z",
+      "registeredAt": "2026-05-08T12:15:01.361Z",
       "warningCount": 0,
       "warningSeenCount": 0,
       "warningMessage": "",
