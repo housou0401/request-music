@@ -2393,6 +2393,27 @@
       },
       "broadcasted": false,
       "rejected": false
+    },
+    {
+      "id": "QEyN71MOrtQdl2cDpgg04",
+      "text": "キラメキダイアリー",
+      "artist": "iLiFE!",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%82%AD%E3%83%A9%E3%83%A1%E3%82%AD%E3%83%80%E3%82%A4%E3%82%A2%E3%83%AA%E3%83%BC/1661267593?i=1661267993&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/91/9f/c8/919fc8d1-eab5-894a-eb24-7929d17cae83/4582648959842.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview113/v4/96/b5/c8/96b5c80a-fdf2-637f-77ee-25a55d1adaf2/mzaf_11214994185268827997.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-05-10T02:52:25.573Z",
+      "by": {
+        "id": "5PMoF6EsY_wQwwlU",
+        "username": "ill"
+      },
+      "lastRequestedAt": "2026-05-10T02:52:25.573Z",
+      "lastBy": {
+        "id": "5PMoF6EsY_wQwwlU",
+        "username": "ill"
+      },
+      "broadcasted": false,
+      "rejected": false
     }
   ],
   "lastSubmissions": {
@@ -2559,7 +2580,8 @@
     "「あの娘は誰?」とか言わせたい|kirinji": 1,
     "あの娘は邪惡!|ロス": 1,
     "bad girl|hana": 1,
-    "ぷんぷん|コレサワ": 1
+    "ぷんぷん|コレサワ": 1,
+    "キラメキダイアリー|ilife!": 1
   },
   "settings": {
     "recruiting": true,
