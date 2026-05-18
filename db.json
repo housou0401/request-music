@@ -2414,6 +2414,27 @@
       },
       "broadcasted": false,
       "rejected": false
+    },
+    {
+      "id": "m9UoDgUCsadSm5B3UiwYc",
+      "text": "透明",
+      "artist": "Novelbright",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E9%80%8F%E6%98%8E/1886087626?i=1886087635&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ab/ae/ec/abaeecee-2f9f-e592-a611-c651cf257ba7/26UMGIM22696.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/15/06/e9/1506e916-1197-f827-2f15-81c3b01cf3ff/mzaf_1656077387332112316.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-05-18T12:28:45.650Z",
+      "by": {
+        "id": "RY52IMeYnP_4Cjv0",
+        "username": "ほり"
+      },
+      "lastRequestedAt": "2026-05-18T12:28:45.650Z",
+      "lastBy": {
+        "id": "RY52IMeYnP_4Cjv0",
+        "username": "ほり"
+      },
+      "broadcasted": false,
+      "rejected": false
     }
   ],
   "lastSubmissions": {
@@ -2581,7 +2602,8 @@
     "あの娘は邪惡!|ロス": 1,
     "bad girl|hana": 1,
     "ぷんぷん|コレサワ": 1,
-    "キラメキダイアリー|ilife!": 1
+    "キラメキダイアリー|ilife!": 1,
+    "透明|novelbright": 1
   },
   "settings": {
     "recruiting": true,
