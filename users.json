@@ -387,7 +387,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 10,
+      "tokens": 8,
       "lastRefillISO": "2026-06",
       "lastRefillAtISO": "2026-06-02T07:20:00.921Z",
       "registeredAt": "2025-11-13T06:32:47.483Z",
