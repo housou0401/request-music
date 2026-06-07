@@ -2435,6 +2435,48 @@
       },
       "broadcasted": false,
       "rejected": false
+    },
+    {
+      "id": "HyAeoiOvb1FDxZM328TXJ",
+      "text": "YAH YAH YAH",
+      "artist": "CHAGE and ASKA",
+      "appleMusicUrl": "https://music.apple.com/jp/album/yah-yah-yah/298820060?i=298820177&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music/e8/32/3a/mzi.epzwiemm.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ca/14/2f/ca142f11-092e-7beb-d730-9aa5d9df2cbf/mzaf_5006489159570749376.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-06-07T09:06:13.065Z",
+      "by": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      },
+      "lastRequestedAt": "2026-06-07T09:06:13.065Z",
+      "lastBy": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      },
+      "broadcasted": false,
+      "rejected": false
+    },
+    {
+      "id": "vLfYQK6C27bwe4ziOA-BO",
+      "text": "いつも笑顔で。 (BEST ver.)",
+      "artist": "ビーグルクルー",
+      "appleMusicUrl": "https://music.apple.com/jp/album/%E3%81%84%E3%81%A4%E3%82%82%E7%AC%91%E9%A1%94%E3%81%A7-best-ver/1515859698?i=1515859713&uo=4",
+      "artworkUrl": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/35/fd/57/35fd579b-8e07-cbf1-5d8f-bcb54d9775c0/20UMGIM39634.rgb.jpg/300x300bb.jpg",
+      "previewUrl": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/50/7e/63/507e6349-cd67-4cda-df5d-0f6068fe4bf0/mzaf_12865664263056651129.plus.aac.p.m4a",
+      "count": 1,
+      "createdAt": "2026-06-07T09:06:56.821Z",
+      "by": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      },
+      "lastRequestedAt": "2026-06-07T09:06:56.821Z",
+      "lastBy": {
+        "id": "sOKwseleCnAgcR1K",
+        "username": "カペリート"
+      },
+      "broadcasted": false,
+      "rejected": false
     }
   ],
   "lastSubmissions": {
@@ -2603,7 +2645,9 @@
     "bad girl|hana": 1,
     "ぷんぷん|コレサワ": 1,
     "キラメキダイアリー|ilife!": 1,
-    "透明|novelbright": 1
+    "透明|novelbright": 1,
+    "yah yah yah|chage and aska": 1,
+    "いつも笑顔で。 (best ver.)|ビーグルクルー": 1
   },
   "settings": {
     "recruiting": true,
