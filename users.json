@@ -396,7 +396,8 @@
       "warningMessage": "",
       "banReason": "",
       "permanentBan": false,
-      "banUntil": null
+      "banUntil": null,
+      "requestTermsAcceptedVersion": 7
     },
     {
       "id": "7YD0ZCCgV5yh0JKV",
