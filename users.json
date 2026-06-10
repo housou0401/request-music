@@ -1510,28 +1510,6 @@
       "banReason": ""
     },
     {
-      "id": "8RwivZuiWMIp7W3d",
-      "username": "Test",
-      "iconUrl": null,
-      "supportTermsAcceptedVersion": 0,
-      "requestTermsAcceptedVersion": 7,
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_4_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23E261 Instagram 428.2.0.37.66 (iPhone14,2; iOS 26_4_2; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 961927775) Safari/604.1",
-        "ip": "153.246.130.182"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2026-05",
-      "lastRefillAtISO": "2026-05-08T12:15:01.361Z",
-      "registeredAt": "2026-05-08T12:15:01.361Z",
-      "warningCount": 0,
-      "warningSeenCount": 0,
-      "warningMessage": "",
-      "banUntil": null,
-      "permanentBan": false,
-      "banReason": ""
-    },
-    {
       "id": "RY52IMeYnP_4Cjv0",
       "username": "ほり",
       "iconUrl": null,
@@ -1546,28 +1524,6 @@
       "lastRefillISO": "2026-06",
       "lastRefillAtISO": "2026-06-02T07:20:00.921Z",
       "registeredAt": "2026-05-18T12:27:37.685Z",
-      "warningCount": 0,
-      "warningSeenCount": 0,
-      "warningMessage": "",
-      "banUntil": null,
-      "permanentBan": false,
-      "banReason": ""
-    },
-    {
-      "id": "6DPeMXWoEL9Qneil",
-      "username": "てすと",
-      "iconUrl": null,
-      "supportTermsAcceptedVersion": 0,
-      "requestTermsAcceptedVersion": 7,
-      "deviceInfo": {
-        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23F77 Instagram 432.0.0.27.62 (iPhone14,2; iOS 26_5; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 983743279) Safari/604.1",
-        "ip": "133.79.192.19"
-      },
-      "role": "admin",
-      "tokens": null,
-      "lastRefillISO": "2026-06",
-      "lastRefillAtISO": "2026-06-10T03:03:05.461Z",
-      "registeredAt": "2026-06-10T03:03:05.461Z",
       "warningCount": 0,
       "warningSeenCount": 0,
       "warningMessage": "",
