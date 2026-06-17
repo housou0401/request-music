@@ -1552,6 +1552,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "TvDoZNh-Z3c2RsHt",
+      "username": "あかあかあ",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23F77 Instagram 433.0.0.33.57 (iPhone14,2; iOS 26_5; ja_JP; ja; scale=3.00; 1170x2532; IABMV/1; 989803374) Safari/604.1",
+        "ip": "153.246.130.182"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-06",
+      "lastRefillAtISO": "2026-06-17T17:53:50.291Z",
+      "registeredAt": "2026-06-17T17:53:50.291Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
