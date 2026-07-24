@@ -260,7 +260,7 @@
         "ip": "::1"
       },
       "role": "user",
-      "tokens": 10,
+      "tokens": 9,
       "lastRefillISO": "2026-07",
       "lastRefillAtISO": "2026-07-01T04:18:00.104Z",
       "warningCount": 0,
@@ -268,7 +268,9 @@
       "warningMessage": "",
       "banReason": "",
       "permanentBan": false,
-      "banUntil": null
+      "banUntil": null,
+      "requestTermsAcceptedVersion": 7,
+      "registeredAt": "2026-07-24T13:23:39.715Z"
     },
     {
       "id": "BAPNiFaY8FVjQHg2",
