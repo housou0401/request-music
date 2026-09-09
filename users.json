@@ -1576,6 +1576,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "mB5lRD3WzkOCNjYJ",
+      "username": "りょう",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23G83 Instagram 445.0.0.34.44 (iPhone15,4; iOS 26_6_1; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 1053791553) Safari/604.1",
+        "ip": "60.62.172.197"
+      },
+      "role": "admin",
+      "tokens": null,
+      "lastRefillISO": "2026-09",
+      "lastRefillAtISO": "2026-09-09T03:27:55.543Z",
+      "registeredAt": "2026-09-09T03:27:55.543Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
