@@ -1598,6 +1598,28 @@
       "banUntil": null,
       "permanentBan": false,
       "banReason": ""
+    },
+    {
+      "id": "t_bNo8cvDNyvJNEF",
+      "username": "井上",
+      "iconUrl": null,
+      "supportTermsAcceptedVersion": 0,
+      "requestTermsAcceptedVersion": 7,
+      "deviceInfo": {
+        "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/23H30 Instagram 450.1.0.35.61 (iPhone15,4; iOS 26_7_1; ja_JP; ja; scale=3.00; 1179x2556; IABMV/1; 1084815185) Safari/604.1",
+        "ip": "126.105.48.57"
+      },
+      "role": "user",
+      "tokens": 10,
+      "lastRefillISO": "2026-10",
+      "lastRefillAtISO": "2026-10-09T00:13:22.080Z",
+      "registeredAt": "2026-10-09T00:13:22.080Z",
+      "warningCount": 0,
+      "warningSeenCount": 0,
+      "warningMessage": "",
+      "banUntil": null,
+      "permanentBan": false,
+      "banReason": ""
     }
   ]
 }
